@@ -19,7 +19,7 @@
  * of messages has to be triggered manually.
  *
  * @author kami
- * @version 2011-09-27
+ * @version 2012-02-23
  */
 
 #ifndef _HSK_CAN_H_
@@ -85,11 +85,11 @@ typedef ubyte hsk_can_msg;
  * The bus still needs to be enabled after being setup.
  *
  * @param node
- * 	The CAN node to set up.
+ * 	The CAN node to set up
  * @param baud
- * 	The target baud rate to use.
+ * 	The target baud rate to use
  * @param pins
- * 	Choose one of 7 CAN_IO_* configurations.
+ * 	Choose one of 7 CAN_IO_* configurations
  */
 void hsk_can_init(hsk_can_node idata node, ulong idata baud, ubyte idata pins);
 
@@ -99,7 +99,7 @@ void hsk_can_init(hsk_can_node idata node, ulong idata baud, ubyte idata pins);
  * To be called when everything is set up.
  *
  * @param node
- * 	The CAN node to enable.
+ * 	The CAN node to enable
  */
 void hsk_can_enable(hsk_can_node idata node);
 
@@ -110,7 +110,7 @@ void hsk_can_enable(hsk_can_node idata node);
  * internal clock, to reduce energy consumption.
  *
  * @param node
- * 	The CAN node to disable.
+ * 	The CAN node to disable
  */
 void hsk_can_disable(hsk_can_node idata node);
 
@@ -133,7 +133,7 @@ void hsk_can_disable(hsk_can_node idata node);
  * 	The data length code, # of bytes in the message, valid values
  * 	range from 0 to 8.
  * @return
- * 	CAN_ERROR in case of failure, a message identifier otherwise.
+ * 	CAN_ERROR in case of failure, a message identifier otherwise
  */
 hsk_can_msg hsk_can_msg_create(ulong idata id, bool extended,
 		ubyte idata dlc);
@@ -142,13 +142,15 @@ hsk_can_msg hsk_can_msg_create(ulong idata id, bool extended,
  * Connect a message object to a CAN node.
  *
  * @param msg
- * 	The identifier of the message object.
+ * 	The identifier of the message object
  * @param node
- * 	The CAN node to connect to.
+ * 	The CAN node to connect to
  * @return
+ * \code
  * 	CAN_ERROR	If the given message is not valid
  * 	1		If the given message is not allocated
  * 	0		Otherwise
+ * \endcode
  */
 ubyte hsk_can_msg_connect(hsk_can_msg idata msg, hsk_can_node idata node);
 
@@ -159,11 +161,13 @@ ubyte hsk_can_msg_connect(hsk_can_msg idata msg, hsk_can_node idata node);
  * it.
  *
  * @param msg
- * 	The identifier of the message object.
+ * 	The identifier of the message object
  * @return
+ * \code
  * 	CAN_ERROR	If the given message is not valid
  * 	1		If the given message is not connected to a CAN node
  * 	0		otherwise
+ * \endcode
  */
 ubyte hsk_can_msg_disconnect(hsk_can_msg idata msg);
 
@@ -171,11 +175,13 @@ ubyte hsk_can_msg_disconnect(hsk_can_msg idata msg);
  * Delete a CAN message object.
  *
  * @param msg
- *	The identifier of the message object.
+ *	The identifier of the message object
  * @return
- *	CAN_ERROR	If the given message is not valid
- *	1		The message is already deleted
- *	0		Otherwise
+ * \code
+ * 	CAN_ERROR	If the given message is not valid
+ * 	1		The message is already deleted
+ * 	0		Otherwise
+ * \endcode
  */
 ubyte hsk_can_msg_delete(hsk_can_msg idata msg);
 
@@ -185,9 +191,9 @@ ubyte hsk_can_msg_delete(hsk_can_msg idata msg);
  * This writes DLC bytes from msgdata to the CAN message object.
  *
  * @param msg
- * 	The identifier of the message object.
+ * 	The identifier of the message object
  * @param msgdata
- * 	The character array to store the message data in.
+ * 	The character array to store the message data in
  */
 void hsk_can_msg_getData(hsk_can_msg idata msg, ubyte * idata msgdata);
 
@@ -197,9 +203,9 @@ void hsk_can_msg_getData(hsk_can_msg idata msg, ubyte * idata msgdata);
  * This writes DLC bytes from the CAN message object into msgdata.
  *
  * @param msg
- * 	The identifier of the message object.
+ * 	The identifier of the message object
  * @param msgdata
- * 	The character array to get the message data from.
+ * 	The character array to get the message data from
  */
 void hsk_can_msg_setData(hsk_can_msg idata msg, ubyte * idata msgdata);
 
@@ -207,7 +213,7 @@ void hsk_can_msg_setData(hsk_can_msg idata msg, ubyte * idata msgdata);
  * Request transmission of a message.
  *
  * @param msg
- * 	The identifier of the message to send.
+ * 	The identifier of the message to send
  */
 void hsk_can_msg_send(hsk_can_msg idata msg);
 
@@ -219,7 +225,7 @@ void hsk_can_msg_send(hsk_can_msg idata msg);
  * messages.
  *
  * @param msg
- * 	The identifier of the message to send.
+ * 	The identifier of the message to receive
  */
 void hsk_can_msg_receive(hsk_can_msg idata msg);
 
@@ -233,10 +239,10 @@ void hsk_can_msg_receive(hsk_can_msg idata msg);
  * This is useful for cyclic message occurance checks.
  *
  * @param msg
- * 	The identifier of the message to check.
+ * 	The identifier of the message to check
  * @return
  * 	Returns 1 (true) if the message was received since the last call,
- *	0 (fals) otherwise.
+ *	0 (false) otherwise
  */
 ubyte hsk_can_msg_updated(hsk_can_msg idata msg);
 
@@ -244,13 +250,13 @@ ubyte hsk_can_msg_updated(hsk_can_msg idata msg);
  * Sets a signal value in a data field.
  *
  * @param msg
- * 	The message data field to write into.
+ * 	The message data field to write into
  * @param bitPos
- * 	The bit position of the signal.
+ * 	The bit position of the signal
  * @param bitCount
- * 	The length of the signal.
+ * 	The length of the signal
  * @param value
- * 	The signal value to write into the data field.
+ * 	The signal value to write into the data field
  */
 void hsk_can_data_setSignal(ubyte * idata msg, char idata bitPos, char idata bitCount, ulong idata value);
 
@@ -260,14 +266,40 @@ void hsk_can_data_setSignal(ubyte * idata msg, char idata bitPos, char idata bit
  * Big endian signals are bit strange, play with them in the Vector CANdb
  * editor to figure them out.
  *
+ * The start position of a signal is supposed to point to the most
+ * significant bit of a signal. Consider a 10 bit message, the bits are
+ * indexed:
+ * \code
+ * 	 9  8  7  6  5  4  3  2  1  0
+ * \endcode
+ * 
+ * In that example bit 9 is the most significant bit, bit 0 the least
+ * significant. The most significant bit of a signal will be stored in
+ * the most significant bits of the message. Under the assumption that
+ * the start bit is 2, the message would be stored in the following
+ * bits:
+ * \code
+ *	Signal	 9  8  7  6  5  4  3  2  1  0
+ * 	Message	 2  1  0 15 14 13 12 11 10  9
+ * \endcode
+ * 
+ * Note that the signal spreads to the most significant bits of the next
+ * byte. Special care needs to be taken, when mixing little and big endian
+ * signals. A 10 bit little endian signal with start bit 2 would cover the
+ * following message bits:
+ * \code
+ *	Signal	 9  8  7  6  5  4  3  2  1  0
+ *	Message 11 10  9  8  7  6  5  4  3  2
+ * \endcode
+ *
  * @param msg
- * 	The message data field to write into.
+ * 	The message data field to write into
  * @param bitPos
- * 	The bit position of the signal.
+ * 	The bit position of the signal
  * @param bitCount
- * 	The length of the signal.
+ * 	The length of the signal
  * @param value
- * 	The signal value to write into the data field.
+ * 	The signal value to write into the data field
  */
 void hsk_can_data_setMotorolaSignal(ubyte * idata msg, char idata bitPos, char idata bitCount, ulong idata value);
 
@@ -275,30 +307,29 @@ void hsk_can_data_setMotorolaSignal(ubyte * idata msg, char idata bitPos, char i
  * Get a signal value from a data field.
  *
  * @param msg
- * 	The message data field to read from.
+ * 	The message data field to read from
  * @param bitPos
- * 	The bit position of the signal.
+ * 	The bit position of the signal
  * @param bitCount
- * 	The length of the signal.
+ * 	The length of the signal
  * @return
- *	The signal from the data field msg.
+ *	The signal from the data field msg
  */
 ulong hsk_can_data_getSignal(ubyte * idata msg, char idata bitPos, char idata bitCount);
 
 /**
  * Get a big endian signal value from a data field.
  *
- * Big endian signals are bit strange, play with them in the Vector CANdb
- * editor to figure them out.
- *
+ * @see hsk_can_data_setMotorolaSignal()
+ *	For details on the difference between big and little endian
  * @param msg
- * 	The message data field to read from.
+ * 	The message data field to read from
  * @param bitPos
- * 	The bit position of the signal.
+ * 	The bit position of the signal
  * @param bitCount
- * 	The length of the signal.
+ * 	The length of the signal
  * @return
- *	The signal from the data field msg.
+ *	The signal from the data field msg
  */
 ulong hsk_can_data_getMotorolaSignal(ubyte * idata msg, char idata bitPos, char idata bitCount);
 
