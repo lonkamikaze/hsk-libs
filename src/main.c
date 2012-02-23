@@ -123,6 +123,9 @@ void run(void) {
 	ubyte xdata buffer[8];
 	uword adc7_copy;
 
+	hsk_can_data_setMotorolaSignal(buffer, 3, 16, 0x1234);
+	adc7_copy = hsk_can_data_getMotorolaSignal(buffer, 3, 16);
+
 	hsk_icm7228_writeHex(buffer, 123, -1, 0, 5);
 
 	msg0 = hsk_can_msg_create(0x7ff, 0, 2);

@@ -87,8 +87,8 @@
         <TargetDlgDllArguments>-pXC878</TargetDlgDllArguments>
       </DllOpt>
       <DebugOpt>
-        <uSim>0</uSim>
-        <uTrg>1</uTrg>
+        <uSim>1</uSim>
+        <uTrg>0</uTrg>
         <sLdApp>1</sLdApp>
         <sGomain>1</sGomain>
         <sRbreak>1</sRbreak>
@@ -135,18 +135,6 @@
           <Name> -O511 -F29 -U768 -H"localhost" -S"UDAS" -D"22TIC0ZZA" -T4294967295</Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <WatchWindow1>
-        <Ww>
-          <count>0</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>hsk_pwc_channels</ItemText>
-        </Ww>
-        <Ww>
-          <count>1</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>hsk_pwc_prescaler</ItemText>
-        </Ww>
-      </WatchWindow1>
       <DebugFlag>
         <trace>0</trace>
         <periodic>0</periodic>
@@ -189,10 +177,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>38</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>952</TopLine>
-      <CurrentLine>952</CurrentLine>
+      <TopLine>1114</TopLine>
+      <CurrentLine>1117</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\src\hsk_can\hsk_can.c</PathWithFileName>
       <FilenameWithoutPath>hsk_can.c</FilenameWithoutPath>
@@ -261,8 +249,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>1</TopLine>
-      <CurrentLine>1</CurrentLine>
+      <TopLine>183</TopLine>
+      <CurrentLine>186</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\src\hsk_timers\hsk_timer01.c</PathWithFileName>
       <FilenameWithoutPath>hsk_timer01.c</FilenameWithoutPath>
@@ -329,10 +317,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>8</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>426</TopLine>
-      <CurrentLine>432</CurrentLine>
+      <TopLine>378</TopLine>
+      <CurrentLine>381</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\src\hsk_adc\hsk_adc.c</PathWithFileName>
       <FilenameWithoutPath>hsk_adc.c</FilenameWithoutPath>
@@ -471,8 +459,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>85</TopLine>
-      <CurrentLine>98</CurrentLine>
+      <TopLine>123</TopLine>
+      <CurrentLine>126</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\src\main.c</PathWithFileName>
       <FilenameWithoutPath>main.c</FilenameWithoutPath>
@@ -524,8 +512,8 @@
         <Doc>
           <Name>..\src\main.c</Name>
           <ColumnNumber>0</ColumnNumber>
-          <TopLine>85</TopLine>
-          <CurrentLine>98</CurrentLine>
+          <TopLine>123</TopLine>
+          <CurrentLine>126</CurrentLine>
         </Doc>
       </Documents>
     </MDIGroup>

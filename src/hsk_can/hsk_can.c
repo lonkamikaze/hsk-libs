@@ -1106,7 +1106,10 @@ void hsk_can_data_setSignal(ubyte * idata msg, char idata bitPos,
 /**
  * Sets a big endian signal value in a data field.
  *
- * @param msg
+ * Big endian signals are bit strange, play with them in the Vector CANdb
+ * editor to figure them out.
+ *
+ * * @param msg
  * 	The message data field to write into.
  * @param bitPos
  * 	The bit position of the signal.
@@ -1117,23 +1120,19 @@ void hsk_can_data_setSignal(ubyte * idata msg, char idata bitPos,
  */
 void hsk_can_data_setMotorolaSignal(ubyte * idata msg, char idata bitPos,
 		char idata bitCount, ulong idata value) {
-	ubyte shift;
-
-	/* Reorder bytes. */
-	value = ((value & 0xff) << 24) | ((value & 0xff00) << 8) | ((value & 0xff0000) >> 8) | ((value & 0xff000000) >> 24);
-	value >>= (3 - ((bitCount - 1) / 8)) * 8;
+	ubyte bits;
 
 	while (bitCount > 0) {
-		shift = bitPos % 8;
-		/* Clear the bits to write. */
-		msg[bitPos / 8] &= ~(((1 << bitCount) - 1) << shift);
+		/* Get the number of bits to work on. */
+		bits = bitPos % 8 + 1;
+		bits = bits < bitCount ? bits : bitCount;
+		/*  Clear the bits to write. */
+		msg[bitPos / 8] &= ~(((1 << bits) - 1) << (bitPos % 8 + 1 - bits));
 		/* Set the bits to write. */
-		msg[bitPos / 8] |= (((1 << bitCount) - 1) & value) << shift;
+		msg[bitPos / 8] |= (((1 << bitCount) - 1) & value) >> (bitCount - bits) << (bitPos % 8 + 1 - bits);
 		/* Get the next bit position. */
-		bitCount -= 8 - shift;
-		bitPos += 8 - shift;
-		/* Remove the currently written part of value. */
-		value >>= 8 - shift;
+		bitCount -= bits;
+		bitPos = (bitPos & ~(0x07)) + 15;
 	}
 }
 
@@ -1166,6 +1165,9 @@ ulong hsk_can_data_getSignal(ubyte * idata msg, char idata bitPos, char idata bi
 /**
  * Get a big endian signal value from a data field.
  *
+ * Big endian signals are bit strange, play with them in the Vector CANdb
+ * editor to figure them out.
+ *
  * @param msg
  * 	The message data field to read from.
  * @param bitPos
@@ -1177,21 +1179,18 @@ ulong hsk_can_data_getSignal(ubyte * idata msg, char idata bitPos, char idata bi
  */
 ulong hsk_can_data_getMotorolaSignal(ubyte * idata msg, char idata bitPos, char idata bitCount) {
 	ulong value = 0;
-	ubyte shift = 0;
-	char count = bitCount;
+	ubyte bits;
 
 	while (bitCount > 0) {
-		/* Get the bottommost part of the value. */
-		value |= ((msg[bitPos / 8] >> (bitPos % 8)) & ((1 << bitCount) - 1)) << shift;
-		/* Update counters. */
-		bitCount -= 8 - (bitPos % 8);
-		shift += 8 - (bitPos % 8);
-		bitPos += 8 - (bitPos % 8);
+		/* Get the number of bits to work on. */
+		bits = bitPos % 8 + 1;
+		bits = bits < bitCount ? bits : bitCount;
+		/* Get the most significant bits. */
+		value |= ((msg[bitPos / 8] >> (bitPos % 8 + 1 - bits)) & ((1 << bits) - 1)) << (bitCount - bits);
+		/* Get the next bit position. */
+		bitCount -= bits;
+		bitPos = (bitPos & ~(0x07)) + 15;
 	}
-
-	/* Reorder bytes. */
-	value = ((value & 0xff) << 24) | ((value & 0xff00) << 8) | ((value & 0xff0000) >> 8) | ((value & 0xff000000) >> 24);
-	value >>= (3 - ((count - 1) / 8)) * 8;
 
 	return value;
 }

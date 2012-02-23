@@ -257,6 +257,9 @@ void hsk_can_data_setSignal(ubyte * idata msg, char idata bitPos, char idata bit
 /**
  * Sets a big endian signal value in a data field.
  *
+ * Big endian signals are bit strange, play with them in the Vector CANdb
+ * editor to figure them out.
+ *
  * @param msg
  * 	The message data field to write into.
  * @param bitPos
@@ -284,6 +287,9 @@ ulong hsk_can_data_getSignal(ubyte * idata msg, char idata bitPos, char idata bi
 
 /**
  * Get a big endian signal value from a data field.
+ *
+ * Big endian signals are bit strange, play with them in the Vector CANdb
+ * editor to figure them out.
  *
  * @param msg
  * 	The message data field to read from.
