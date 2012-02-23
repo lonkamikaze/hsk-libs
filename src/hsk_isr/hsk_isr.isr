@@ -1,0 +1,8 @@
+#ifndef _HSK_ISR_ISR_
+#define _HSK_ISR_ISR_
+void ISR_hsk_isr5(void) interrupt 5;
+void ISR_hsk_isr6(void) interrupt 6;
+void ISR_hsk_isr9(void) interrupt 9;
+void ISR_hsk_isr14(void) interrupt 14;
+#endif /* _HSK_ISR_ISR_ */
+
