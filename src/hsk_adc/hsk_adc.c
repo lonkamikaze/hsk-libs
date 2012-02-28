@@ -446,3 +446,4 @@ void hsk_adc_warmup(void) {
 		hsk_adc_service();
 	}
 }
+
