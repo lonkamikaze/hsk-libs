@@ -160,7 +160,7 @@ void run(void) {
 			EADC = 1;
 
 			//P3_DATA ^= 0x30;
-			hsk_can_data_setMotorolaSignal(data0, 0, 16, adc7_copy);
+			hsk_can_data_setMotorolaSignal(data0, 7, 16, adc7_copy);
 			hsk_can_msg_setData(msg0, data0);
 			hsk_can_msg_send(msg0);
 		}
