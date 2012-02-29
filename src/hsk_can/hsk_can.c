@@ -1164,7 +1164,7 @@ void hsk_can_data_setSignal(ubyte * idata msg, char idata bitPos,
  */
 void hsk_can_data_setMotorolaSignal(ubyte * idata msg, char idata bitPos,
 		char idata bitCount, ulong idata value) {
-	ubyte bits;
+	char bits;
 
 	while (bitCount > 0) {
 		/* Get the number of bits to work on. */
@@ -1222,7 +1222,7 @@ ulong hsk_can_data_getSignal(ubyte * idata msg, char idata bitPos, char idata bi
  */
 ulong hsk_can_data_getMotorolaSignal(ubyte * idata msg, char idata bitPos, char idata bitCount) {
 	ulong value = 0;
-	ubyte bits;
+	char bits;
 
 	while (bitCount > 0) {
 		/* Get the number of bits to work on. */
