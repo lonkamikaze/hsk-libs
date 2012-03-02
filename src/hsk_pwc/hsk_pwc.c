@@ -81,7 +81,7 @@ struct hsk_pwc_channel_data {
 	/**
 	 * The overflow count during the last capture.
 	 *
-	 * This is used by hsk_pwc_getSum() to detect whether the capturing
+	 * This is used by hsk_pwc_channel_getSum() to detect whether the capturing
 	 * time window was left.
 	 */
 	ubyte overflow;
@@ -174,7 +174,7 @@ void hsk_pwc_isr_cc3(void) {
 /**
  * The ISR for Capture/Compare overflow events.
  *
- * It simply increases hsk_pwc_overflow, which is used by hsk_pwc_getSum() to
+ * It simply increases hsk_pwc_overflow, which is used by hsk_pwc_channel_getSum() to
  * check whether the capture time window was left.
  */
 void hsk_pwc_isr_cctOverflow(void) {
@@ -733,7 +733,7 @@ ulong hsk_pwc_channel_getSum(hsk_pwc_channel idata channel) {
 	SFR_PAGE(_t2_1, noSST);
 	EXM = 0;
 	/* Check whether the window time frame has been left. */
-	if ((ulong)hsk_pwc_window < ((ulong)(hsk_pwc_overflow - channelData->overflow) << 16) + T2CCU_CCTLH - channelData->lastCapture) {
+	if ((ulong)hsk_pwc_window < ((ulong)((ubyte)hsk_pwc_overflow - channelData->overflow) << 16) + T2CCU_CCTLH - channelData->lastCapture) {
 		channelData->invalid = channelData->averageOver + 1;
 	}
 	if (!channelData->invalid) {
