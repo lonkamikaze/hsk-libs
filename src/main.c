@@ -35,6 +35,34 @@ void main(void) {
 }
 
 /**
+ * This structure is used to persist data between resets.
+ */
+struct {
+	/**
+	 * A prefix to detect whether this is a power on or boot from a reset.
+	 */
+	ulong prefix;
+
+	/**
+	 * Used for reset counting.
+	 */
+	ubyte count;
+
+	/**
+	 * For storing errors.
+	 *
+	 * Certain errors like a WDT can only be reported after a reboot.
+	 */
+	ubyte error;
+
+	/**
+	 * A postfix to detect whether this is a power on or boot from a
+	 * reset.
+	 */
+	ulong postfix;
+} xdata boot;
+
+/**
  * A counter used to detecting that 250ms have passed.
  */
 volatile uword tick0_count_250 = 0;
@@ -64,11 +92,27 @@ volatile uword adc7;
  * Initialize ports, timers and ISRs.
  */
 void init(void) {
+	hsk_can_msg msgBoot;
+
 	/* Activate xdata access. */
 	hsk_boot_mem();
 
 	/* Activate external clock. */
 	hsk_boot_extClock(CLK);
+
+	/*
+	 * Boot/reset detection.
+	 * This is an experiment that will likely become its own library.
+	 */
+	if (boot.prefix == 0x64821273 && boot.postfix == 0x09050785) {
+		/* Just a reset. */
+		boot.count++;
+	} else {
+		/* Power on boot. */
+		memset(&boot, 0, sizeof(boot));
+		boot.prefix = 0x64821273;
+		boot.postfix = 0x09050785;
+	}
 
 	/* Activate timer 0. */
 	hsk_timer0_setup(1000, &tick0);
@@ -80,9 +124,9 @@ void init(void) {
 	hsk_adc_enable();
 
 	/* Activate CAN. */
-	hsk_can_init(0, CAN0_BAUD, CAN0_IO);
-	hsk_can_disable(1);
-	hsk_can_enable(0);
+	hsk_can_init(CAN1_IO, CAN1_BAUD);
+	hsk_can_disable(CAN0);
+	hsk_can_enable(CAN1);
 
 	/* Activate PWM at 46.875kHz - exactly 10bit precision. */
 //	hsk_pwm_init(468750);
@@ -110,6 +154,12 @@ void init(void) {
 	EA = 1;
 
 	hsk_adc_warmup();
+
+	msgBoot = hsk_can_msg_create(0x7f0, 0, sizeof(ubyte));
+	hsk_can_msg_connect(msgBoot, CAN1);
+	hsk_can_msg_setData(msgBoot, &boot.count);
+	hsk_can_msg_send(msgBoot);
+
 }
 
 /**
@@ -129,7 +179,7 @@ void run(void) {
 	hsk_icm7228_writeHex(buffer, 123, -1, 0, 5);
 
 	msg0 = hsk_can_msg_create(0x7ff, 0, 2);
-	hsk_can_msg_connect(msg0, 0);
+	hsk_can_msg_connect(msg0, CAN1);
 
 	while (1) {
 		EA = 0;
