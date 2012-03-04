@@ -226,7 +226,7 @@ void hsk_pwc_isr_cctOverflow(void) {
  * This function initializes the T2CCU Capture/Compare Unit for capture mode.
  *
  * The capturing is based on the CCT timer. Timer T2 is not used and thus can
- * be useed without interference.
+ * be used by other modules without interference.
  *
  * The window time is the time frame within which pulses should be detected.
  * A smaller time frame results in higher precission, but detection of longer
@@ -727,21 +727,32 @@ void hsk_pwc_disable(void) {
  * 	The sum of buffered capture results for this channel.
  */
 ulong hsk_pwc_channel_getSum(hsk_pwc_channel idata channel) {
-	struct hsk_pwc_channel_data *channelData = &hsk_pwc_channels[channel];
-	ulong result = 0;
+	#define channel	hsk_pwc_channels[channel]
 	ubyte exm = EXM;
+	ubyte overflow;
+	long capture;
+
+
+	/* Get the current timer data, make this quick. */
 	SFR_PAGE(_t2_1, noSST);
 	EXM = 0;
-	/* Check whether the window time frame has been left. */
-	if ((ulong)hsk_pwc_window < ((ulong)((ubyte)hsk_pwc_overflow - channelData->overflow) << 16) + T2CCU_CCTLH - channelData->lastCapture) {
-		channelData->invalid = channelData->averageOver + 1;
-	}
-	if (!channelData->invalid) {
-		result = channelData->sum;
-	}
+	/* Get the last capture interval. */
+	capture = T2CCU_CCTLH;
+	capture -= channel.lastCapture;
+	/* Get the overflow. */
+	overflow = hsk_pwc_overflow - channel.overflow;
 	EXM = exm;
-	SFR_PAGE(_t2_0, noSST);	
-	return result;
+	SFR_PAGE(_t2_0, noSST);
+	/* Check whether the window time frame has been left. */
+	if ((ulong)hsk_pwc_window < ((ulong)overflow << 16) + capture) {
+		channel.invalid = channel.averageOver + 1;
+	}
+	if (channel.invalid) {
+		return 0;
+	} else {
+		return channel.sum;
+	}
+	#undef channel
 }
 
 /**
