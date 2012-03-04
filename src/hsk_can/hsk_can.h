@@ -4,16 +4,18 @@
  * This file contains the function prototypes to initialize and engage in
  * CAN communication over the builtin CAN nodes 0 and 1.
  *
- * It contains 2 groups of functions:
+ * It contains 3 groups of functions:
  * 	- CAN node management
  *		- hsk_can_init()
  *		- hsk_can_enable()
  *		- hsk_can_disable()
  *	- CAN message management
  *		- hsk_can_msg_*()
+ *	- CAN data management
+ *		- hsk_can_data_*()
  *
- * There are 7 port pairs available for CAN communication, check the CAN_IO_*
- * defines.
+ * There are 7 port pairs available for CAN communication, check the CANn_IO_*
+ * defines. Four for the node CAN0 and three for CAN1.
  *
  * All message objects automatically receive from the can bus. The sending
  * of messages has to be triggered manually.
@@ -31,39 +33,49 @@
 #define	CAN_ERROR		0xff
 
 /**
- * CAN IO RX on P0.1, TX on P0.2.
+ * CAN node 0.
  */
-#define CAN_IO_P01_P02		0
+#define CAN0			0
 
 /**
- * CAN IO RX on P1.0, TX on P1.1.
+ * CAN node 1.
  */
-#define CAN_IO_P10_P11		1
+#define CAN1			1
 
 /**
- * CAN IO RX on P1.4, TX on P1.3.
+ * CAN node 0 IO RX on P1.0, TX on P1.1.
  */
-#define CAN_IO_P14_P13		2
+#define CAN0_IO_P10_P11		0
 
 /**
- * CAN IO RX on P1.6, TX on P1.7.
+ * CAN node 0 IO RX on P1.6, TX on P1.7.
  */
-#define CAN_IO_P16_P17		3
+#define CAN0_IO_P16_P17		1
 
 /**
- * CAN IO RX on P3.2, TX on P3.3.
+ * CAN node 0 IO RX on P3.4, TX on P3.5.
  */
-#define CAN_IO_P32_P33		4
+#define CAN0_IO_P34_P35		2
 
 /**
- * CAN IO RX on P3.4, TX on P3.5.
+ * CAN node 0 IO RX on P4.0, TX on P4.1.
  */
-#define CAN_IO_P34_P35		5
+#define CAN0_IO_P40_P41		3
 
 /**
- * CAN IO RX on P4.0, TX on P4.1.
+ * CAN node 1 IO RX on P0.1, TX on P0.2.
  */
-#define CAN_IO_P40_P41		6
+#define CAN1_IO_P01_P02		4
+
+/**
+ * CAN node 1 IO RX on P1.4, TX on P1.3.
+ */
+#define CAN1_IO_P14_P13		5
+
+/**
+ * CAN node 1 IO RX on P3.2, TX on P3.3.
+ */
+#define CAN1_IO_P32_P33		6
 
 /**
  * CAN node identifiers.
@@ -82,16 +94,16 @@ typedef ubyte hsk_can_msg;
 /**
  * Setup CAN communication with the desired baud rate.
  *
+ * The CAN node is chosen with the pin configuration.
+ *
  * The bus still needs to be enabled after being setup.
  *
- * @param node
- * 	The CAN node to set up
+ * @param pins
+ * 	Choose one of 7 CANn_IO_* configurations
  * @param baud
  * 	The target baud rate to use
- * @param pins
- * 	Choose one of 7 CAN_IO_* configurations
  */
-void hsk_can_init(hsk_can_node idata node, ulong idata baud, ubyte idata pins);
+void hsk_can_init(ubyte idata pins, ulong idata baud);
 
 /**
  * Go live on the CAN bus.

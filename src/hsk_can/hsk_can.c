@@ -415,19 +415,19 @@ struct hsk_can_msg_container xdata hsk_can_messages[HSK_CAN_MSG_MAX];
 /**
  * Setup CAN communication with the desired baud rate.
  *
+ * The CAN node is chosen with the pin configuration.
+ *
  * The bus still needs to be enabled after being setup.
  *
- * @param node
- * 	The CAN node to set up
+ * @param pins
+ * 	Choose one of 7 CANn_IO_* configurations
  * @param baud
  * 	The target baud rate to use
- * @param pins
- * 	Choose one of 7 CAN_IO_* configurations
  */
-void hsk_can_init(hsk_can_node idata node, ulong idata baud, ubyte idata pins) {
-	/*
-	 * Select the receive signal pin.
-	 */
+void hsk_can_init(ubyte idata pins, ulong idata baud) {
+	/* The node to configure. */
+	hsk_can_node node;
+	/* Select the receive signal pin. */
 	ubyte rxsel;
 
 	/*
@@ -454,6 +454,26 @@ void hsk_can_init(hsk_can_node idata node, ulong idata baud, ubyte idata pins) {
 		CAN_AD_READY();
 		CAN_ADLH = PANCTR;
 		PANCTR_READY();
+	}
+
+	/*
+	 * Figure out the CAN node.
+	 */
+	switch(pins) {
+	case CAN0_IO_P10_P11:
+	case CAN0_IO_P16_P17:
+	case CAN0_IO_P34_P35:
+	case CAN0_IO_P40_P41:
+		node = CAN0;
+		break;
+	case CAN1_IO_P01_P02:
+	case CAN1_IO_P14_P13:
+	case CAN1_IO_P32_P33:
+		node = CAN1;
+		break;
+	default:
+		/* Shouldn't ever happen! */
+		return;
 	}
 
 	/* Enable configuration changes. */
@@ -514,58 +534,55 @@ void hsk_can_init(hsk_can_node idata node, ulong idata baud, ubyte idata pins) {
 	CAN_AD_READ();
 
 	switch(pins) {
-	case CAN_IO_P01_P02:
-		rxsel = 0x0;
-		P0_DIR = P0_DIR & ~(1 << 1) | (1 << 2);
-		SFR_PAGE(_pp2, noSST);
-		P0_ALTSEL0 |= (1 << 2);
-		P0_ALTSEL1 |= (1 << 2);
-		break;
-	case CAN_IO_P10_P11:
+	case CAN0_IO_P10_P11:
 		rxsel = 0x0;
 		P1_DIR = P1_DIR & ~(1 << 0) | (1 << 1);
 		SFR_PAGE(_pp2, noSST);
 		P1_ALTSEL0 |= (1 << 1);
 		P1_ALTSEL1 |= (1 << 1);
 		break;
-	case CAN_IO_P14_P13:
-		rxsel = 0x3;
-		P1_DIR = P1_DIR & ~(1 << 4) | (1 << 3);
-		SFR_PAGE(_pp2, noSST);
-		P1_ALTSEL0 |= (1 << 3);
-		P1_ALTSEL1 |= (1 << 3);
-		break;
-	case CAN_IO_P16_P17:
+	case CAN0_IO_P16_P17:
 		rxsel = 0x2;
 		P1_DIR = P1_DIR & ~(1 << 6) | (1 << 7);
 		SFR_PAGE(_pp2, noSST);
 		P1_ALTSEL0 |= (1 << 7);
 		P1_ALTSEL1 |= (1 << 7);
 		break;
-	case CAN_IO_P32_P33:
-		rxsel = 0x1;
-		P3_DIR = P3_DIR & ~(1 << 2) | (1 << 3);
-		SFR_PAGE(_pp2, noSST);
-		P3_ALTSEL0 |= (1 << 3);
-		P3_ALTSEL1 |= (1 << 3);
-		break;
-	case CAN_IO_P34_P35:
+	case CAN0_IO_P34_P35:
 		rxsel = 0x1;
 		P3_DIR = P3_DIR & ~(1 << 4) | (1 << 5);
 		SFR_PAGE(_pp2, noSST);
 		P3_ALTSEL0 |= (1 << 5);
 		P3_ALTSEL1 |= (1 << 5);
 		break;
-	case CAN_IO_P40_P41:
+	case CAN0_IO_P40_P41:
 		rxsel = 0x3;
 		P4_DIR = P4_DIR & ~(1 << 0) | (1 << 1);
 		SFR_PAGE(_pp2, noSST);
 		P4_ALTSEL0 |= (1 << 1);
 		P4_ALTSEL1 |= (1 << 1);
 		break;
-	default:
-		/* Shouldn't ever happen! */
-		return;
+	case CAN1_IO_P01_P02:
+		rxsel = 0x0;
+		P0_DIR = P0_DIR & ~(1 << 1) | (1 << 2);
+		SFR_PAGE(_pp2, noSST);
+		P0_ALTSEL0 |= (1 << 2);
+		P0_ALTSEL1 |= (1 << 2);
+		break;
+	case CAN1_IO_P14_P13:
+		rxsel = 0x3;
+		P1_DIR = P1_DIR & ~(1 << 4) | (1 << 3);
+		SFR_PAGE(_pp2, noSST);
+		P1_ALTSEL0 |= (1 << 3);
+		P1_ALTSEL1 |= (1 << 3);
+		break;
+	case CAN1_IO_P32_P33:
+		rxsel = 0x1;
+		P3_DIR = P3_DIR & ~(1 << 2) | (1 << 3);
+		SFR_PAGE(_pp2, noSST);
+		P3_ALTSEL0 |= (1 << 3);
+		P3_ALTSEL1 |= (1 << 3);
+		break;
 	}
 	SFR_PAGE(_pp0, noSST);
 
