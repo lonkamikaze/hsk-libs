@@ -132,7 +132,7 @@ void init(void) {
 //	hsk_pwm_init(468750);
 //	hsk_pwm_init(PWM_60, 1200); /* 120Hz */
 	hsk_pwm_init(PWM_63, 10); /* 1Hz */
-	hsk_pwm_init(PWM_62, 500); /* 50Hz */
+	hsk_pwm_init(PWM_62, 505); /* 50Hz */
 	hsk_pwm_enable();
 	//hsk_pwm_port_open(PWM_OUT_60_P30);
 	//hsk_pwm_port_open(PWM_OUT_60_P31);

@@ -728,20 +728,28 @@ void hsk_pwc_disable(void) {
  */
 ulong hsk_pwc_channel_getSum(hsk_pwc_channel idata channel) {
 	#define channel	hsk_pwc_channels[channel]
-	ubyte exm = EXM;
+	bool exm = EXM;
+	bool et2 = ET2;
+	bool ea = EA;
 	ubyte overflow;
 	long capture;
 
 
 	/* Get the current timer data, make this quick. */
 	SFR_PAGE(_t2_1, noSST);
+	EA = 0;
 	EXM = 0;
+	ET2 = 0;
+	EA = ea;
 	/* Get the last capture interval. */
 	capture = T2CCU_CCTLH;
 	capture -= channel.lastCapture;
 	/* Get the overflow. */
 	overflow = hsk_pwc_overflow - channel.overflow;
+	EA = 0;
 	EXM = exm;
+	ET2 = et2;
+	EA = ea;
 	SFR_PAGE(_t2_0, noSST);
 	/* Check whether the window time frame has been left. */
 	if ((ulong)hsk_pwc_window < ((ulong)overflow << 16) + capture) {
