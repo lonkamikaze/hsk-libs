@@ -583,6 +583,9 @@ void hsk_can_init(ubyte idata pins, ulong idata baud) {
 		P3_ALTSEL0 |= (1 << 3);
 		P3_ALTSEL1 |= (1 << 3);
 		break;
+	default:
+		/* Shouldn't ever happen! */
+		return;
 	}
 	SFR_PAGE(_pp0, noSST);
 
@@ -1121,7 +1124,7 @@ ubyte hsk_can_msg_updated(hsk_can_msg idata msg) {
  * @param value
  * 	The signal value to write into the data field
  */
-void hsk_can_data_setSignal(ubyte * idata msg, char idata bitPos,
+void hsk_can_data_setIntelSignal(ubyte * idata msg, char idata bitPos,
 		char idata bitCount, ulong idata value) {
 	ubyte shift;
 	while (bitCount > 0) {
@@ -1198,7 +1201,33 @@ void hsk_can_data_setMotorolaSignal(ubyte * idata msg, char idata bitPos,
 }
 
 /**
- * Get a signal value from a data field.
+ * Sets a signal value in a data field.
+ *
+ * @param endian
+ *	Little or big endian encoding
+ * @param msg
+ * 	The message data field to write into
+ * @param bitPos
+ * 	The bit position of the signal
+ * @param bitCount
+ * 	The length of the signal
+ * @param value
+ * 	The signal value to write into the data field
+ */
+void hsk_can_data_setSignal(ubyte * idata msg, bool endian, char idata bitPos,
+		char idata bitCount, ulong idata value) {
+	switch(endian) {
+	case CAN_ENDIAN_INTEL:
+		hsk_can_data_setIntelSignal(msg, bitPos, bitCount, value);
+		break;
+	case CAN_ENDIAN_MOTOROLA:
+		hsk_can_data_setMotorolaSignal(msg, bitPos, bitCount, value);
+		break;
+	}
+}
+
+/**
+ * Get a little endian signal value from a data field.
  *
  * @param msg
  * 	The message data field to read from
@@ -1209,7 +1238,7 @@ void hsk_can_data_setMotorolaSignal(ubyte * idata msg, char idata bitPos,
  * @return
  *	The signal from the data field msg
  */
-ulong hsk_can_data_getSignal(ubyte * idata msg, char idata bitPos, char idata bitCount) {
+ulong hsk_can_data_getIntelSignal(ubyte * idata msg, char idata bitPos, char idata bitCount) {
 	ulong value = 0;
 	ubyte shift = 0;
 	while (bitCount > 0) {
@@ -1253,5 +1282,31 @@ ulong hsk_can_data_getMotorolaSignal(ubyte * idata msg, char idata bitPos, char 
 	}
 
 	return value;
+}
+
+/**
+ * Get a signal value from a data field.
+ *
+ * @param endian
+ *	Little or big endian encoding
+ * @param msg
+ * 	The message data field to read from
+ * @param bitPos
+ * 	The bit position of the signal
+ * @param bitCount
+ * 	The length of the signal
+ * @return
+ *	The signal from the data field msg
+ */
+ulong hsk_can_data_getSignal(ubyte * idata msg, bool endian,
+		char idata bitPos, char idata bitCount) {
+	switch(endian) {
+	case CAN_ENDIAN_INTEL:
+		return hsk_can_data_getIntelSignal(msg, bitPos, bitCount);
+		break;
+	case CAN_ENDIAN_MOTOROLA:
+		return hsk_can_data_getMotorolaSignal(msg, bitPos, bitCount);
+		break;
+	}
 }
 
