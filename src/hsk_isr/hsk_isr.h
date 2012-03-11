@@ -181,31 +181,31 @@ extern volatile struct hsk_isr9_callback xdata hsk_isr9;
  */
 struct hsk_isr14_callback {
 	/**
-	 * Function to be called back wehn the NMIWDT interrupt event is
+	 * Function to be called back when the NMIWDT interrupt event is
 	 * triggered.
 	 */
 	void (code *NMIWDT)(void);
 
 	/**
-	 * Function to be called back wehn the NMIPLL interrupt event is
+	 * Function to be called back when the NMIPLL interrupt event is
 	 * triggered.
 	 */
 	void (code *NMIPLL)(void);
 
 	/**
-	 * Function to be called back wehn the NMIFLASH interrupt event is
+	 * Function to be called back when the NMIFLASH interrupt event is
 	 * triggered.
 	 */
 	void (code *NMIFLASH)(void);
 
 	/**
-	 * Function to be called back wehn the NMIVDDP interrupt event is
+	 * Function to be called back when the NMIVDDP interrupt event is
 	 * triggered.
 	 */
 	void (code *NMIVDDP)(void);
 
 	/**
-	 * Function to be called back wehn the NMIECC interrupt event is
+	 * Function to be called back when the NMIECC interrupt event is
 	 * triggered.
 	 */
 	void (code *NMIECC)(void);

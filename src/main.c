@@ -132,7 +132,7 @@ void init(void) {
 //	hsk_pwm_init(468750);
 //	hsk_pwm_init(PWM_60, 1200); /* 120Hz */
 	hsk_pwm_init(PWM_63, 10); /* 1Hz */
-	hsk_pwm_init(PWM_62, 501); /* 50Hz */
+	hsk_pwm_init(PWM_62, 500); /* 50Hz */
 	hsk_pwm_enable();
 	//hsk_pwm_port_open(PWM_OUT_60_P30);
 	//hsk_pwm_port_open(PWM_OUT_60_P31);
@@ -140,7 +140,7 @@ void init(void) {
 	//hsk_pwm_outChannel_dir(PWM_COUT60, 0);
 	//hsk_pwm_outChannel_dir(PWM_COUT60, 0);
 	hsk_pwm_port_open(PWM_OUT_62_P04);
-	hsk_pwm_channel_set(PWM_62, 100, 50);
+	hsk_pwm_channel_set(PWM_62, 100, 5);
 
 	/* Activate PWC with a 100ms window. */
 	hsk_pwc_init(100);
@@ -195,7 +195,7 @@ void run(void) {
 			adc7_copy = adc7;
 			EADC = 1;
 
-			hsk_pwm_channel_set(PWM_60, 1023, adc7_copy);
+			hsk_pwm_channel_set(PWM_62, 100, adc7_copy * 5 / 1023 + 5);
 			hsk_pwm_channel_set(PWM_63, 1023, adc7_copy);
 			hsk_adc_service();
 			P3_DATA = hsk_pwc_channel_getFreqHz(PWC_CC0);
