@@ -259,10 +259,22 @@ void hsk_can_msg_receive(hsk_can_msg idata msg);
 ubyte hsk_can_msg_updated(hsk_can_msg idata msg);
 
 /**
+ * Little endian signal encoding.
+ */
+#define CAN_ENDIAN_INTEL	0
+
+/**
+ * Big endian signal encoding.
+ */
+#define CAN_ENDIAN_MOTOROLA	1
+
+/**
  * Sets a signal value in a data field.
  *
  * @param msg
  * 	The message data field to write into
+ * @param endian
+ *	Little or big endian encoding
  * @param bitPos
  * 	The bit position of the signal
  * @param bitCount
@@ -270,56 +282,16 @@ ubyte hsk_can_msg_updated(hsk_can_msg idata msg);
  * @param value
  * 	The signal value to write into the data field
  */
-void hsk_can_data_setSignal(ubyte * idata msg, char idata bitPos, char idata bitCount, ulong idata value);
-
-/**
- * Sets a big endian signal value in a data field.
- *
- * Big endian signals are bit strange, play with them in the Vector CANdb
- * editor to figure them out.
- *
- * The start position of a signal is supposed to point to the most
- * significant bit of a signal. Consider a 10 bit message, the bits are
- * indexed:
- * \code
- * 	 9  8  7  6  5  4  3  2  1  0
- * \endcode
- * 
- * In that example bit 9 is the most significant bit, bit 0 the least
- * significant. The most significant bit of a signal will be stored in
- * the most significant bits of the message. Under the assumption that
- * the start bit is 2, the message would be stored in the following
- * bits:
- * \code
- *	Signal	 9  8  7  6  5  4  3  2  1  0
- * 	Message	 2  1  0 15 14 13 12 11 10  9
- * \endcode
- * 
- * Note that the signal spreads to the most significant bits of the next
- * byte. Special care needs to be taken, when mixing little and big endian
- * signals. A 10 bit little endian signal with start bit 2 would cover the
- * following message bits:
- * \code
- *	Signal	 9  8  7  6  5  4  3  2  1  0
- *	Message 11 10  9  8  7  6  5  4  3  2
- * \endcode
- *
- * @param msg
- * 	The message data field to write into
- * @param bitPos
- * 	The bit position of the signal
- * @param bitCount
- * 	The length of the signal
- * @param value
- * 	The signal value to write into the data field
- */
-void hsk_can_data_setMotorolaSignal(ubyte * idata msg, char idata bitPos, char idata bitCount, ulong idata value);
+void hsk_can_data_setSignal(ubyte * idata msg, bool endian, char idata bitPos,
+		char idata bitCount, ulong idata value);
 
 /**
  * Get a signal value from a data field.
  *
  * @param msg
  * 	The message data field to read from
+ * @param endian
+ *	Little or big endian encoding
  * @param bitPos
  * 	The bit position of the signal
  * @param bitCount
@@ -327,22 +299,7 @@ void hsk_can_data_setMotorolaSignal(ubyte * idata msg, char idata bitPos, char i
  * @return
  *	The signal from the data field msg
  */
-ulong hsk_can_data_getSignal(ubyte * idata msg, char idata bitPos, char idata bitCount);
-
-/**
- * Get a big endian signal value from a data field.
- *
- * @see hsk_can_data_setMotorolaSignal()
- *	For details on the difference between big and little endian
- * @param msg
- * 	The message data field to read from
- * @param bitPos
- * 	The bit position of the signal
- * @param bitCount
- * 	The length of the signal
- * @return
- *	The signal from the data field msg
- */
-ulong hsk_can_data_getMotorolaSignal(ubyte * idata msg, char idata bitPos, char idata bitCount);
+ulong hsk_can_data_getSignal(ubyte * idata msg, bool endian,
+		char idata bitPos, char idata bitCount);
 
 #endif /* _HSK_CAN_H_ */
