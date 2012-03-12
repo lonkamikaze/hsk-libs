@@ -318,7 +318,7 @@ void hsk_adc_disable(void) {
  *	A pointer where to store conversion results.
  */
 void hsk_adc_open(hsk_adc_channel idata channel, uword * idata target) {
-	ubyte eadc = EADC;
+	bool eadc = EADC;
 
 	EADC = 0;
 	/* Register callback function. */
@@ -341,7 +341,7 @@ void hsk_adc_open(hsk_adc_channel idata channel, uword * idata target) {
  *	The channel id.
  */
 void hsk_adc_close(hsk_adc_channel idata channel) {
-	ubyte eadc = EA;
+	bool eadc = EADC;
 	EADC = 0;
 	/* Unregister conversion target address. */
 	hsk_adc_targets[channel] = 0;
