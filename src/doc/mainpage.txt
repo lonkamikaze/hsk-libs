@@ -883,8 +883,8 @@ header file) using the example of the hsk_can library.
 Public defines are provided to interpret return values or to specify possible
 parameters:
 \skipline CAN_ERROR
-\skipline CAN_IO_P01_P02
-\skipline CAN_IO_P10_P11
+\skipline CAN0_IO_
+\skipline CAN1_IO_
 
 Typedefs give primitive data types a meaningful name for use in a certain
 context. This library has functions that work on CAN nodes and functions
