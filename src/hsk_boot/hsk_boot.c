@@ -169,7 +169,7 @@ void hsk_nmipll_isr(void) {
 	/*
 	 * Loop counter for active waiting.
 	 */
-	ubyte xdata active_wait;
+	ubyte xdata activeWait;
 
 	/* Go to page1 where all the oscillator registers are. */
 	SFR_PAGE(_su1, SST1);
@@ -194,7 +194,7 @@ void hsk_nmipll_isr(void) {
 		/* Wait for 65 cycles based on internal oscillator frequency. */
 		/* If bit OSC_CON.EXTOSCR is set after 65 internal oscillator
 		 * clock cycles, then: */
-		for (active_wait = 100; active_wait > 0; active_wait--);
+		for (activeWait = 100; activeWait > 0; activeWait--);
 	} while (!((OSC_CON >> BIT_EXTOSCR) & 0x01));
 
 	/* Select the external oscillator as the source of oscillator
@@ -276,7 +276,7 @@ void hsk_boot_extClock(ulong idata clk) {
 	/*
 	 * Loop counter for active waiting.
 	 */
-	ubyte active_wait;
+	ubyte activeWait;
 
 	/*
 	 * Used to calculate PDIV.
@@ -300,7 +300,7 @@ void hsk_boot_extClock(ulong idata clk) {
 	 * time should be adjusted according to different external oscillators).
 	 */
 	/* Well, actually just do some active waiting for a safe time. */
-	for (active_wait = 200; active_wait > 0; active_wait--);
+	for (activeWait = 200; activeWait > 0; activeWait--);
 	/* Restart the external oscillator watchdog by setting bit EORDRES. */
 	MAIN_vUnlockProtecReg();
 	OSC_CON |= 1 << BIT_EORDRES;
