@@ -199,10 +199,10 @@ Keil µVision IDE.
 
 \section toolchain_device Device
 
-It is critical for device flashing and simulation to select the
+It is critical for device flashing and programming to select the
 correct version of the µC. This dialogue also allows you to select the
 extended linker and assembler. Doing so is imperative to perform the
-necessary link time optimizations to fit the libraries into the limited
+necessary link time optimisations to fit the libraries into the limited
 memory of the device.
 
 \image html img/keil_options_Device.png "Keil µVision Device options dialogue"
@@ -250,17 +250,17 @@ are not obligatory for use of the HSK libraries, but recommended.
 		  to the preprocessor
 - Code Optimization
 	- Level: 11: Reuse Common Exit Code
-		- The highest level of optimization, allowing the compiler the
+		- The highest level of optimisation, allowing the compiler the
 		  largest reduction of memory use
 	- Emphasis: Favor speed
 		- Surprisingly this often produces smaller code than the
 		  \c favor \c size setting
 	- Global Register Coloring
-		- This setting allows the compiler to optimize register use
+		- This setting allows the compiler to optimise register use
 		  throughout the entire application, reducing memory use and
 		  improving performance
 	- Linker Code Packing
-		- Activates a link time optimization, after linking the
+		- Activates a link time optimisation, after linking the
 		  application, the linker will replace long distance jumps
 		  with short jumps where applicable
 - Warnings: Warninglevel 2

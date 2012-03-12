@@ -334,8 +334,8 @@ void hsk_pwm_port_open(hsk_pwm_port idata port) {
 	#ifdef SDCC
 	/*
 	 * This is here for what appears to be a bug in SDCC.
-	 * I suspect a problem with the jump table optimization for switch
-	 * statements, the disparate case number will result in less optimized
+	 * I suspect a problem with the jump table optimisation for switch
+	 * statements, the disparate case number will result in less optimised
 	 * code.
 	 * Without this workaround multiple calls to the function lock up the
 	 * controler. The first call always works. As far as I've been able to

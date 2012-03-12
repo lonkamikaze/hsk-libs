@@ -167,7 +167,7 @@ ubyte xdata pdiv;
 #pragma nooverlay
 void hsk_nmipll_isr(void) {
 	/*
-	 * Non-optimizable loop counter for active waiting.
+	 * Loop counter for active waiting.
 	 */
 	ubyte xdata active_wait;
 
@@ -194,7 +194,7 @@ void hsk_nmipll_isr(void) {
 		/* Wait for 65 cycles based on internal oscillator frequency. */
 		/* If bit OSC_CON.EXTOSCR is set after 65 internal oscillator
 		 * clock cycles, then: */
-		for (active_wait = 200; active_wait > 0; active_wait--);
+		for (active_wait = 100; active_wait > 0; active_wait--);
 	} while (!((OSC_CON >> BIT_EXTOSCR) & 0x01));
 
 	/* Select the external oscillator as the source of oscillator
@@ -274,7 +274,7 @@ void hsk_boot_extClock(ulong idata clk) {
 	 */
 
 	/*
-	 * Non-optimizable loop counter for active waiting.
+	 * Loop counter for active waiting.
 	 */
 	ubyte active_wait;
 
