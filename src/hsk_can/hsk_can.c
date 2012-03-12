@@ -1216,7 +1216,7 @@ void hsk_can_data_setMotorolaSignal(ubyte * idata msg, char idata bitPos,
  */
 void hsk_can_data_setSignal(ubyte * idata msg, bool endian, char idata bitPos,
 		char idata bitCount, ulong idata value) {
-	switch(endian) {
+	switch((ubyte)endian) {
 	case CAN_ENDIAN_INTEL:
 		hsk_can_data_setIntelSignal(msg, bitPos, bitCount, value);
 		break;
@@ -1300,7 +1300,7 @@ ulong hsk_can_data_getMotorolaSignal(ubyte * idata msg, char idata bitPos, char 
  */
 ulong hsk_can_data_getSignal(ubyte * idata msg, bool endian,
 		char idata bitPos, char idata bitCount) {
-	switch(endian) {
+	switch((ubyte)endian) {
 	case CAN_ENDIAN_INTEL:
 		return hsk_can_data_getIntelSignal(msg, bitPos, bitCount);
 		break;
