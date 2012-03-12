@@ -523,7 +523,8 @@ void hsk_can_init(ubyte idata pins, ulong idata baud) {
 	CAN_AD_WRITE(0x3);
 
 	/**
-	 * Each CAN node can be routed to one of 7 IO pin configurations.
+	 * There are 7 different IO pin configurations, four are availabe
+	 * to node 0 and three to node 1.
 	 *
 	 * See the MultiCAN Port Control subsection of the user manual for
 	 * details.
@@ -1203,10 +1204,10 @@ void hsk_can_data_setMotorolaSignal(ubyte * idata msg, char idata bitPos,
 /**
  * Sets a signal value in a data field.
  *
- * @param endian
- *	Little or big endian encoding
  * @param msg
  * 	The message data field to write into
+ * @param endian
+ *	Little or big endian encoding
  * @param bitPos
  * 	The bit position of the signal
  * @param bitCount
@@ -1287,10 +1288,10 @@ ulong hsk_can_data_getMotorolaSignal(ubyte * idata msg, char idata bitPos, char 
 /**
  * Get a signal value from a data field.
  *
- * @param endian
- *	Little or big endian encoding
  * @param msg
  * 	The message data field to read from
+ * @param endian
+ *	Little or big endian encoding
  * @param bitPos
  * 	The bit position of the signal
  * @param bitCount
