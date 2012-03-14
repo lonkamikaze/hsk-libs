@@ -46,7 +46,7 @@
  * \endcode
  *
  * @author kami
- * @version 2012-02-23
+ * @version 2012-03-14
  */
 
 #include <Infineon/XC878.h>
@@ -121,9 +121,11 @@
 /**
  * Make sure the last read/write has completed.
  * 
- * This is obligatory for accessing the data bytes and CAN_ADCON.
+ * This is supposed to be mandatory for accessing the data bytes and
+ * CAN_ADCON, but tests show that the busy flag is never set if the
+ * module runs at 2 times PCLK, which is what this library does.
  */
-#define CAN_AD_READY()		while(CAN_ADCON & (1 << BIT_BSY))
+#define CAN_AD_READY()		while (CAN_ADCON & (1 << BIT_BSY))
 
 /**
  * CMCON MultiCAN Clock Configuration bit.
@@ -318,7 +320,6 @@ bool hsk_can_initialized = 0;
  */
 #define PANCTR_READY()		do { \
 					CAN_AD_READ(); \
-					CAN_AD_READY();	\
 				} while (PANSTATUS & ((1 << BIT_BUSY) | (1 << BIT_RBUSY)))
 
 /*
@@ -370,27 +371,6 @@ bool hsk_can_initialized = 0;
  * The maximum number of message objects.
  */
 #define HSK_CAN_MSG_MAX		32
-
-/**
- * A CAN message container to hold everything to manage a message
- * object state.
- */
-struct hsk_can_msg_container {
-	/**
-	 * The list the message is currently stored in.
-	 */
-	ubyte list;
-
-	/**
-	 * The data length counter of the message.
-	 */
-	ubyte dlc;
-};
-
-/**
- * Statically assign memory for 32 message containers.
- */
-struct hsk_can_msg_container xdata hsk_can_messages[HSK_CAN_MSG_MAX];
 
 /**
  * This list holds unallocated message objects.
@@ -450,8 +430,6 @@ void hsk_can_init(ubyte idata pins, ulong idata baud) {
 		/*
 		 * Make sure the CAN message lists are initialized.
 		 */
-		memset(hsk_can_messages, 0, sizeof(hsk_can_messages));
-		CAN_AD_READY();
 		CAN_ADLH = PANCTR;
 		PANCTR_READY();
 	}
@@ -477,7 +455,6 @@ void hsk_can_init(ubyte idata pins, ulong idata baud) {
 	}
 
 	/* Enable configuration changes. */
-	CAN_AD_READY();
 	CAN_ADLH = NCRx + (node << OFF_NODEx);
 	CAN_DATA01 |= (1 << BIT_CCE) | (1 << BIT_INIT);
 	CAN_AD_WRITE(0x1);
@@ -516,7 +493,6 @@ void hsk_can_init(ubyte idata pins, ulong idata baud) {
 	 *
 	 * The encoding of BRT is also VALUE+1.
 	 */
-	CAN_AD_READY();
 	CAN_ADLH = NBTRx + (node << OFF_NODEx);
 	CAN_DATA01 = (7 << BIT_TSEG1) | (2 << BIT_TSEG2) | (3 << BIT_SJW) \
 		| ((48000000 / 12 / baud - 1) << BIT_BRP);
@@ -530,7 +506,6 @@ void hsk_can_init(ubyte idata pins, ulong idata baud) {
 	 * details.
 	 */
 
-	CAN_AD_READY();
 	CAN_ADLH = NPCRx + (node << OFF_NODEx);
 	CAN_AD_READ();
 
@@ -591,7 +566,6 @@ void hsk_can_init(ubyte idata pins, ulong idata baud) {
 	SFR_PAGE(_pp0, noSST);
 
 	/* Write RX select bits. */
-	CAN_AD_READY();
 	CAN_DATA0 = CAN_DATA0 & ~(((1 << CNT_RXSEL) - 1) << BIT_RXSEL) \
 		| (rxsel << BIT_RXSEL);
 	CAN_AD_WRITE(0x1);
@@ -608,11 +582,9 @@ void hsk_can_init(ubyte idata pins, ulong idata baud) {
  */
 void hsk_can_enable(hsk_can_node idata node) {
 	/* Get the Node x Control Register. */
-	CAN_AD_READY();
 	CAN_ADLH = NCRx + (node << OFF_NODEx);
 	CAN_AD_READ();
 	/* Activate transmit interrupt and alert interrupt. */
-	CAN_AD_READY();
 	CAN_DATA0 &= ~((1 << BIT_INIT) | (1 << BIT_CCE) | (1 << BIT_CANDIS));
 	CAN_AD_WRITE(0x1);
 }
@@ -628,11 +600,9 @@ void hsk_can_enable(hsk_can_node idata node) {
  */
 void hsk_can_disable(hsk_can_node idata node) {
 	/* Get the Node x Control Register. */
-	CAN_AD_READY();
 	CAN_ADLH = NCRx + (node << OFF_NODEx);
 	CAN_AD_READ();
 	/* Deactivate the node! */
-	CAN_AD_READY();
 	CAN_DATA0 |= 1 << BIT_CANDIS;
 	CAN_AD_WRITE(0x1);		
 }
@@ -659,6 +629,11 @@ void hsk_can_disable(hsk_can_node idata node) {
 #define MOFCRn		0x0400
 
 /**
+ * Message Object n FIFO/Gateway Pointer Register base address.
+ */
+#define MOFGPRn		0x0401
+ 
+/**
  * Message Object n Acceptance Mask Register base address.
  */
 #define MOAMRn		0x0403
@@ -681,6 +656,14 @@ void hsk_can_disable(hsk_can_node idata node) {
  * Message Object n Control Register base address.
  */
 #define MOCTRn		0x0407
+
+/**
+ * Message Object n Status Register base address.
+ *
+ * The status register is at the same address as the control register.
+ * It is accessed by reading from the address instead of writing.
+ */
+#define MOSTATn		MOCTRn
 
 /**
  * The register to write Control Register resets into.
@@ -718,12 +701,12 @@ void hsk_can_disable(hsk_can_node idata node) {
 #define BIT_TXRQ		8
 
 /**
- * MOCTRn Transmit Signal 0 (Low???) Enable bit.
+ * MOCTRn Transmit Signal Enable bit.
  */
 #define BIT_TXEN0		9
 
 /**
- * MOCTRn Transmit Signal 1 (High???) Enable bit.
+ * MOCTRn Transmit Signal Enable Select bit.
  */
 #define BIT_TXEN1		10
 
@@ -750,6 +733,98 @@ void hsk_can_disable(hsk_can_node idata node) {
 #define BIT_MIDE		29
 
 /**
+ * MOFCRn Data Length Code bits in byte 3.
+ *
+ * Valid DLC values range from 0 to 8.
+ */
+#define BIT_DLC			0
+
+/**
+ * DLC bit count.
+ */
+#define CNT_DLC			4
+
+/**
+ * MOFCRn Message Mode Control bits in byte 0.
+ */
+#define BIT_MMC			0
+
+/**
+ * MMC bit count.
+ */
+#define CNT_MMC			4
+
+/**
+ * Regular message mode.
+ */
+#define MMC_DEFAULT		0
+
+/**
+ * Message is the base of an RX FIFO.
+ */
+#define MMC_RXBASEFIFO		1
+
+/**
+ * Message is the base of a TX FIFO.
+ */
+#define MMC_TXBASEFIFO		2
+
+/**
+ * Message is a TX FIFO slave.
+ */
+#define MMC_TXSLAVEFIFO		3
+
+/**
+ * Message is a source object for a gateway.
+ */
+#define MMC_GATEWAYSRC		4
+
+/**
+ * MOARn Extended CAN Identifier of Message Object n bits.
+ */
+#define BIT_IDEXT		0
+
+/**
+ * ID bit count.
+ */
+#define CNT_IDEXT		29
+
+/**
+ * MOARn Standard CAN Identifier of Message Object n bits.
+ */
+#define BIT_IDSTD		18
+
+/**
+ * ID bit count.
+ */
+#define CNT_IDSTD		11
+
+/**
+ * MOARn Identifier Extension Bit of Message Object n.
+ */
+#define BIT_IDE			29
+
+/**
+ * MOARn Priority Class bits.
+ */
+#define BIT_PRI			30
+
+/**
+ * PRI bit count.
+ */
+#define CNT_PRI			2
+
+/**
+ * List order based transmit priority.
+ */
+#define PRI_LIST		1
+
+/**
+ * CAN ID based transmit priority.
+ */
+#define PRI_ID			2
+
+/**
  * Creates a new CAN message.
  *
  * Note that only up to 32 messages can exist at any given time.
@@ -773,7 +848,6 @@ hsk_can_msg hsk_can_msg_create(ulong idata id, bool extended,
 	/* 
 	 * Fetch message into list of pending message objects.
 	 */
-	CAN_AD_READY();
 	CAN_ADLH = PANCTR;
 
 	PANCTR_READY();
@@ -788,34 +862,21 @@ hsk_can_msg hsk_can_msg_create(ulong idata id, bool extended,
 	}
 	msg = PANAR1;
 
-	/* Store meta information. */
-	hsk_can_messages[msg].list = LIST_PENDING;
-	hsk_can_messages[msg].dlc = dlc;
-
 	/* 
-	 * Set the DLC. 
+	 * Set the DLC and message mode. 
 	 */
-	CAN_AD_READY();
 	CAN_ADLH = MOFCRn + (msg << OFF_MOn);
-	CAN_DATA3 = (dlc <= 8 ? dlc : 8);
-	CAN_AD_WRITE(0x8);
+	CAN_DATA3 = (dlc <= 8 ? dlc : 8) << BIT_DLC;
+	CAN_DATA0 = MMC_DEFAULT << BIT_MMC;
+	CAN_AD_WRITE(0x9);
 
 	/* 
 	 * Set ID.
 	 */
-	CAN_AD_READY();
 	CAN_ADLH = MOARn + (msg << OFF_MOn);
-
-	if (!extended) {
-		/* 11 bits standard message ID. */
-		CAN_DATA23 = (id & ((1 << 11) - 1)) << (18 - 16);
-	} else {
-		/* 29 bits extended message ID. */
-		CAN_DATA01 = id;
-		CAN_DATA23 = (id & ((1ul << 29) - 1)) >> 16;
-	}
-	/* Set extended ID bit and ID based priority. */
-	CAN_DATA3 |= ((ubyte)extended << 5) | (0x2 << 6);
+	CAN_DATA01 = id << (extended ? BIT_IDEXT : BIT_IDSTD); 
+	CAN_DATA23 = (extended ? id >> (16 - BIT_IDEXT) : id << (BIT_IDSTD - 16)) \
+		| ((ubyte)extended << (BIT_IDE - 16)) | (PRI_ID << (BIT_PRI - 16));
 	CAN_AD_WRITE(0xF);
 
 	/*
@@ -823,19 +884,83 @@ hsk_can_msg hsk_can_msg_create(ulong idata id, bool extended,
 	 */
 
 	/* Adjust filtering mask to only accept complete ID matches. */
-	CAN_AD_READY();
 	CAN_ADLH = MOAMRn + (msg << OFF_MOn);
 	CAN_DATA01 = -1;
 	CAN_DATA23 = (1 << (BIT_MIDE - 16)) | (((1 << (CNT_AM - 16)) - 1) << BIT_AM);
 	CAN_AD_WRITE(0xF);
 
 	/* Set message valid. */
-	CAN_AD_READY();
 	CAN_ADLH = MOCTRn + (msg << OFF_MOn);
 	SET_DATA = (1 << BIT_MSGVAL) | (1 << BIT_RXEN);
 	CAN_AD_WRITE(SET);
 
 	return msg;
+}
+
+/**
+ * MOSTATn List Allocation bits in byte 1.
+ */
+#define BIT_LIST		4
+
+/**
+ * LIST bit count.
+ */
+#define CNT_LIST		4
+
+/**
+ * MOSTATn Pointer to Next Message Object byte.
+ */
+#define MOSTATn_PNEXT		CAN_DATA3
+
+/**
+ * MOFGPRn bottom pointer byte.
+ */
+#define MOFGPRn_BOT		CAN_DATA0
+
+/**
+ * MOFGPRn top pointer byte.
+ */
+#define MOFGPRn_TOP		CAN_DATA1
+
+/**
+ * MOFGPRn current pointer byte.
+ */
+#define MOFGPRn_CUR		CAN_DATA2
+
+/**
+ * MOFGPRn select pointer byte.
+ */
+#define MOFGPRn_SEL		CAN_DATA3
+
+/**
+ * Move the selected message and its slaves to a different list.
+ *
+ * @param msg
+ * 	The identifier of the message object
+ * @param list
+ * 	The list to move the message object to
+ * @return
+ * \code
+ * 	CAN_ERROR	If the given message object id is not valid
+ * 	0		Everything happened as expected
+ * \endcode
+ */
+ubyte hsk_can_msg_move(hsk_can_msg idata msg, ubyte idata list) {
+	/* Check whether this is a valid message ID. */
+	if (msg >= HSK_CAN_MSG_MAX) {
+		return CAN_ERROR;
+	}
+
+	/* Move message to the requested CAN node. */
+	CAN_ADLH = PANCTR;
+	PANCTR_READY();
+	PANCMD = PAN_CMD_MOVE;
+	PANAR1 = msg;
+	PANAR2 = list;
+	CAN_AD_WRITE(0xD);
+	PANCTR_READY();
+
+	return 0;
 }
 
 /**
@@ -848,32 +973,12 @@ hsk_can_msg hsk_can_msg_create(ulong idata id, bool extended,
  * @return
  * \code
  * 	CAN_ERROR	If the given message is not valid
- * 	1		If the given message is not allocated
  * 	0		Otherwise
  * \endcode
  */
 ubyte hsk_can_msg_connect(hsk_can_msg idata msg, hsk_can_node idata node) {
-	if (msg >= HSK_CAN_MSG_MAX) {
-		return CAN_ERROR;
-	}
-	if (hsk_can_messages[msg].list == LIST_UNALLOC) {
-		return 1;
-	}
-
 	/* Move message to the requested CAN node. */
-	CAN_AD_READY();
-	CAN_ADLH = PANCTR;
-
-	PANCTR_READY();
-	PANCMD = PAN_CMD_MOVE;
-	PANAR1 = msg;
-	PANAR2 = LIST_NODEx + node;
-	CAN_AD_WRITE(0xD);
-	PANCTR_READY();
-
-	hsk_can_messages[msg].list = LIST_NODEx + node;
-
-	return 0;
+	return hsk_can_msg_move(msg, LIST_NODEx + node);
 }
 
 /**
@@ -887,38 +992,12 @@ ubyte hsk_can_msg_connect(hsk_can_msg idata msg, hsk_can_node idata node) {
  * @return
  * \code
  * 	CAN_ERROR	If the given message is not valid
- * 	1		If the given message is not connected to a CAN node
- * 	0		otherwise
+ * 	0		Otherwise
  * \endcode
  */
 ubyte hsk_can_msg_disconnect(hsk_can_msg idata msg) {
-	/*
-	 * Check whether the message id is valid and the message is connected
-	 * to a CAN node.
-	 */
-	if (msg >= HSK_CAN_MSG_MAX) {
-		return CAN_ERROR;
-	}
-	if (hsk_can_messages[msg].list < LIST_NODEx || hsk_can_messages[msg].list == LIST_PENDING) {
-		return 1;
-	}
-
-	/*
-	 * Move the message object to the list of pending message objects.
-	 */
-	CAN_AD_READY();
-	CAN_ADLH = PANCTR;
-
-	PANCTR_READY();	  
-	PANCMD = PAN_CMD_MOVE;
-	PANAR1 = msg;
-	PANAR2 = LIST_PENDING;
-	CAN_AD_WRITE(0xD);
-	PANCTR_READY();
-
-	hsk_can_messages[msg].list = LIST_PENDING;
-
-	return 0;
+	/* Move the message object to the list of pending message objects. */
+	return hsk_can_msg_move(msg, LIST_PENDING);
 }
 
 /**
@@ -929,40 +1008,18 @@ ubyte hsk_can_msg_disconnect(hsk_can_msg idata msg) {
  * @return
  * \code
  * 	CAN_ERROR	If the given message is not valid
- * 	1		The message is already deleted
  * 	0		Otherwise
  * \endcode
  */
 ubyte hsk_can_msg_delete(hsk_can_msg idata msg) {
-	if (msg >= HSK_CAN_MSG_MAX) {
-		return CAN_ERROR;
-	}
-	if (hsk_can_messages[msg].list == LIST_UNALLOC) {
-		return 1;
-	}
-
-	/*
-	 * Move the message object into the list of unallocated objects.
-	 */
-	CAN_AD_READY();
-	CAN_ADLH = PANCTR;
-
-	PANCTR_READY();
-	PANCMD = PAN_CMD_MOVE;
-	PANAR1 = msg;
-	PANAR2 = LIST_UNALLOC;
-	CAN_AD_WRITE(0xD);
-	PANCTR_READY();
-
-	hsk_can_messages[msg].list = LIST_UNALLOC;
-
-	return 0;
+	/* Move the message object into the list of unallocated objects. */
+	return hsk_can_msg_move(msg, LIST_UNALLOC);
 }
 
 /**
  * Gets the current data in the CAN message.
  *
- * This writes DLC bytes from msgdata to the CAN message object.
+ * This writes DLC bytes from the CAN message object into msgdata.
  *
  * @param msg
  * 	The identifier of the message object
@@ -970,16 +1027,18 @@ ubyte hsk_can_msg_delete(hsk_can_msg idata msg) {
  * 	The character array to store the message data in
  */
 void hsk_can_msg_getData(hsk_can_msg idata msg, ubyte * idata msgdata) {
-	ubyte i;
+	ubyte dlc, i;
 
-	CAN_AD_READY();
+	/* Get the DLC. */
+	CAN_ADLH = MOFCRn + (msg << OFF_MOn);
+	CAN_AD_READ();
+	dlc = (CAN_DATA3 >> BIT_DLC) & ((1 << CNT_DLC) - 1);
+
 	CAN_ADLH = MODATALn + (msg << OFF_MOn);
-
-	for (i = 0; i < hsk_can_messages[msg].dlc; i++) {
+	for (i = 0; i < dlc; i++) {
 		switch (i % 4) {
 		case 0:
 			CAN_AD_READ() | AUAD_INC1;
-			CAN_AD_READY();
 			msgdata[i] = CAN_DATA0;
 			break;
 		case 1:
@@ -998,7 +1057,7 @@ void hsk_can_msg_getData(hsk_can_msg idata msg, ubyte * idata msgdata) {
 /**
  * Sets the current data in the CAN message.
  *
- * This writes DLC bytes from the CAN message object into msgdata.
+ * This writes DLC bytes from msgdata to the CAN message object.
  *
  * @param msg
  * 	The identifier of the message object
@@ -1006,12 +1065,15 @@ void hsk_can_msg_getData(hsk_can_msg idata msg, ubyte * idata msgdata) {
  * 	The character array to get the message data from
  */
 void hsk_can_msg_setData(hsk_can_msg idata msg, ubyte * idata msgdata) {
-	ubyte i;
+	ubyte dlc, i;
 
-	CAN_AD_READY();
+	/* Get the DLC. */
+	CAN_ADLH = MOFCRn + (msg << OFF_MOn);
+	CAN_AD_READ();
+	dlc = (CAN_DATA3 >> BIT_DLC) & ((1 << CNT_DLC) - 1);
+
 	CAN_ADLH = MODATALn + (msg << OFF_MOn);
-
-	for (i = 0; i < hsk_can_messages[msg].dlc; i++) {
+	for (i = 0; i < dlc; i++) {
 		switch (i % 4) {
 		case 0:
 			CAN_DATA0 = msgdata[i];
@@ -1025,7 +1087,6 @@ void hsk_can_msg_setData(hsk_can_msg idata msg, ubyte * idata msgdata) {
 		case 3:
 			CAN_DATA3 = msgdata[i];
 			CAN_AD_WRITE(0xf) | AUAD_INC1;
-			CAN_AD_READY();
 			break;
 		}
 	}
@@ -1041,27 +1102,20 @@ void hsk_can_msg_setData(hsk_can_msg idata msg, ubyte * idata msgdata) {
  * 	The identifier of the message to send
  */
 void hsk_can_msg_send(hsk_can_msg idata msg) {
+	/* Set message mode from RXBASE to TXBASE. */
+	CAN_ADLH = MOFCRn + (msg << OFF_MOn);
+	CAN_AD_READ();
+	if (((CAN_DATA0 >> BIT_MMC) & ((1 << CNT_MMC) -1)) == MMC_RXBASEFIFO) {
+		CAN_DATA0 = CAN_DATA0 & ~(((1 << CNT_MMC) - 1) << BIT_MMC) \
+			| (MMC_TXBASEFIFO << BIT_MMC);
+		CAN_AD_WRITE(0x1);
+	}
 
 	/* Request transmission. */
-	CAN_AD_READY();
 	CAN_ADLH = MOCTRn + (msg << OFF_MOn);
-	SET_DATA = (1 << BIT_TXEN0) | (1 << BIT_TXEN1) | (1 << BIT_TXRQ) \
-			| (1 << BIT_DIR);
+	SET_DATA = (1 << BIT_TXEN0) | (1 << BIT_TXEN1) | (1 << BIT_TXRQ) | (1 << BIT_DIR);
 	CAN_AD_WRITE(SET);
 }
-
-/**
- * Message Object n Status Register base address.
- *
- * The status register is at the same address as the control register.
- * It is accessed by reading from the address instead of writing.
- */
-#define MOSTATn		MOCTRn
-
-/**
- * MOSTATn Receive Pending bit.
- */
-#define BIT_RXPND	0
 
 /**
  * Return the message into RX mode after sending a message.
@@ -1074,13 +1128,25 @@ void hsk_can_msg_send(hsk_can_msg idata msg) {
  * 	The identifier of the message to receive
  */
 void hsk_can_msg_receive(hsk_can_msg idata msg) {
+	/* Set message mode from TXBASE to RXBASE. */
+	CAN_ADLH = MOFCRn + (msg << OFF_MOn);
+	CAN_AD_READ();
+	if (((CAN_DATA0 >> BIT_MMC) & ((1 << CNT_MMC) -1)) == MMC_TXBASEFIFO) {
+		CAN_DATA0 = CAN_DATA0 & ~(((1 << CNT_MMC) - 1) << BIT_MMC) \
+			| (MMC_RXBASEFIFO << BIT_MMC);
+		CAN_AD_WRITE(0x1);
+	}
+
 	/* Return to rx mode. */
-	CAN_AD_READY();
 	CAN_ADLH = MOCTRn + (msg << OFF_MOn);
-	RESET_DATA = (1 << BIT_TXEN0) | (1 << BIT_TXEN1) | (1 << BIT_TXRQ) \
-			| (1 << BIT_DIR);
+	RESET_DATA = (1 << BIT_TXEN0) | (1 << BIT_TXEN1) | (1 << BIT_TXRQ) | (1 << BIT_DIR);
 	CAN_AD_WRITE(RESET);
 }
+
+/**
+ * MOSTATn Receive Pending bit in byte 0.
+ */
+#define BIT_RXPND	0
 
 /**
  * Return whether the message was updated via CAN bus between this call and
@@ -1097,20 +1163,388 @@ void hsk_can_msg_receive(hsk_can_msg idata msg) {
  * 	Returns 1 (true) if the message was received since the last call,
  *	0 (false) otherwise
  */
-ubyte hsk_can_msg_updated(hsk_can_msg idata msg) {
-	ubyte status;
+bool hsk_can_msg_updated(hsk_can_msg idata msg) {
 
 	/* Get the message status. */
-	CAN_AD_READY();
 	CAN_ADLH = MOSTATn + (msg << OFF_MOn);
 	CAN_AD_READ();
-	CAN_AD_READY();
-	status = (CAN_DATA0 >> BIT_RXPND) & 1;
-	/* Reset the RXPND bit. */
-	CAN_DATA0 = 1 << BIT_RXPND;
-	CAN_AD_WRITE(0x1);
+	if (!((CAN_DATA0 >> BIT_RXPND) & 1)) {
+		return 0;
+	}
 
-	return status;
+	/* Reset the RXPND bit. */
+	RESET_DATA = 1 << BIT_RXPND;
+	CAN_AD_WRITE(RESET);
+
+	return 1;
+}
+
+/**
+ * Creates a message FIFO.
+ *
+ * FIFOs can be used to ensure that multiplexed signals are not lost.
+ * 
+ * For receiving multiplexed signals it is recommended to use a FIFO as large
+ * as the number of multiplexed messages that might occur in a single burst.
+ * 
+ * If the multiplexor is large, e.g. 8 bits, it's obviously not possible to
+ * carve a 256 messages FIFO out of 32 message objects. Make an educated
+ * guess and hope that the signal provider is not hostile.
+ *
+ * If the number of available message objects is at least one, but less than
+ * the requested length this function succeeds, but the FIFO is only created
+ * as long as possible.
+ * 
+ * @param size
+ *	The desired FIFO size
+ * @return
+ *	The created FIFO id, or CAN_ERROR in case of failure
+ */
+hsk_can_fifo hsk_can_fifo_create(ubyte idata size) {
+	hsk_can_fifo base;
+	hsk_can_msg top;
+
+	/* 
+	 * Fetch message into list of pending message objects.
+	 */
+	CAN_ADLH = PANCTR;
+
+	PANCTR_READY();
+	PANCMD = PAN_CMD_ALLOC;
+	PANAR2 = LIST_PENDING;
+	CAN_AD_WRITE(0xD);
+	PANCTR_READY();
+
+	/* Check for success. */
+	if (PANAR2 & (1 << BIT_ERR)) {
+		return CAN_ERROR;
+	}
+	base = PANAR1;
+
+	/**
+	 * Slave objects are put into the same list as the base message
+	 * object, so it can be used as a slave as well.
+	 *
+	 * Always configure slave messages as TXSLAVEs, because in RXMODE the
+	 * setting is ignored anyway.
+	 */
+
+	top = base;
+	/* Grow slave objects. */
+	while (size-- > 1) {
+		/* Acquire a new slave object. */
+		CAN_ADLH = PANCTR;
+		PANCTR_READY();
+		PANCMD = PAN_CMD_ALLOCBEHIND;
+		PANAR2 = top;
+		CAN_AD_WRITE(0xD);
+		PANCTR_READY();
+
+		/* Check for success. */
+		if (PANAR2 & (1 << BIT_ERR)) {
+			break;
+		}
+		top = PANAR1;
+
+		/* Set message mode to TXSLAVE. */
+		CAN_ADLH = MOFCRn + (top << OFF_MOn);
+		CAN_AD_READ();
+		CAN_DATA0 = CAN_DATA0 & ~(((1 << CNT_MMC) - 1) << BIT_MMC) \
+			| (MMC_TXSLAVEFIFO << BIT_MMC);
+		CAN_AD_WRITE(0x1);
+
+		/* Reset TXEN1 and MSGVAL. */
+		CAN_ADLH = MOCTRn + (top << OFF_MOn);
+		RESET_DATA = (1 << BIT_TXEN1) | (1 << BIT_MSGVAL);
+		CAN_AD_WRITE(RESET);
+
+		/* Point to the base object. */
+		CAN_ADLH = MOFGPRn + (top << OFF_MOn);
+		MOFGPRn_CUR = base;
+		CAN_AD_WRITE(0x4);
+	}
+
+	/*
+	 * Create the FIFO base.
+	 */
+	/* Set list boundaries. SEL will be used to keep track of where to
+	 * read/write the next message when interacting with the fifo. */
+	CAN_ADLH = MOFGPRn + (base << OFF_MOn);
+	MOFGPRn_BOT = base;
+	MOFGPRn_CUR = base;
+	MOFGPRn_TOP = top;
+	MOFGPRn_SEL = base;
+	CAN_AD_WRITE(0xF);
+
+	/* Set the message mode to RXBASE. */
+	CAN_ADLH = MOFCRn + (base << OFF_MOn);
+	CAN_AD_READ();
+	CAN_DATA0 = MMC_RXBASEFIFO << BIT_MMC;
+	CAN_AD_WRITE(0x9);
+
+	/* Reset message valid. */
+	CAN_ADLH = MOCTRn + (base << OFF_MOn);
+	RESET_DATA = (1 << BIT_MSGVAL);
+	CAN_AD_WRITE(RESET);
+
+	return base;
+}
+
+/**
+ * Set the FIFO up for receiving messages.
+ *
+ * @param fifo
+ * 	The FIFO to setup
+ * @param id
+ * 	The message ID.
+ * @param extended
+ * 	Set this to 1 for an extended CAN message
+ * @param dlc
+ * 	The data length code, # of bytes in the message, valid values
+ * 	range from 0 to 8
+ */
+void hsk_can_fifo_setupRX(hsk_can_fifo idata fifo, ulong idata id,
+		bool extended, ubyte idata dlc) {
+	hsk_can_msg top;
+
+	/* 
+	 * Set the DLC and message mode. 
+	 */
+	CAN_ADLH = MOFCRn + (fifo << OFF_MOn);
+	CAN_DATA3 = (dlc <= 8 ? dlc : 8) << BIT_DLC;
+	CAN_DATA0 = MMC_RXBASEFIFO << BIT_MMC;
+	CAN_AD_WRITE(0x9);
+
+	/* 
+	 * Set ID.
+	 */
+	CAN_ADLH = MOARn + (fifo << OFF_MOn);
+	CAN_DATA01 = id << (extended ? BIT_IDEXT : BIT_IDSTD); 
+	CAN_DATA23 = (extended ? id >> (16 - BIT_IDEXT) : id << (BIT_IDSTD - 16)) \
+		| ((ubyte)extended << (BIT_IDE - 16)) | (PRI_ID << (BIT_PRI - 16));
+	CAN_AD_WRITE(0xF);
+
+	/* Enable RX and set message valid. */
+	CAN_ADLH = MOCTRn + (fifo << OFF_MOn);
+	RESET_DATA = (1 << BIT_TXEN0) | (1 << BIT_TXEN1);
+	SET_DATA = (1 << BIT_MSGVAL) | (1 << BIT_RXEN);
+	CAN_AD_WRITE(0xF);
+
+	/* Get the FIFO top. */
+	CAN_ADLH = MOFGPRn + (fifo << OFF_MOn);
+	CAN_AD_READ();
+	top = MOFGPRn_TOP;
+
+	/* Set all messages in the FIFO valid. */
+	while (fifo != top) {
+		/* Get the next message. */
+		CAN_ADLH = MOSTATn + (fifo << OFF_MOn);
+		CAN_AD_READ();
+		fifo = MOSTATn_PNEXT;
+	
+		/* Set message valid. */
+		CAN_ADLH = MOCTRn + (fifo << OFF_MOn);
+		RESET_DATA = (1 << BIT_TXEN1);
+		SET_DATA = (1 << BIT_MSGVAL);
+		CAN_AD_WRITE(0xF);
+	}
+}
+
+/**
+ * Move the selected FIFO to a different list.
+ *
+ * @param fifo
+ * 	The identifier of the fifo
+ * @param list
+ * 	The list to move the FIFO to
+ * @return
+ * \code
+ * 	CAN_ERROR	If the given FIFO id is not valid
+ * 	0		Everything happened as expected
+ * \endcode
+ */
+ubyte hsk_can_fifo_move(hsk_can_fifo idata fifo, ubyte idata list) {
+	ubyte top, pre, next;
+
+	/* Check whether this is a valid ID. */
+	if (fifo >= HSK_CAN_MSG_MAX) {
+		return CAN_ERROR;
+	}
+
+	/* Check whether this actually is a FIFO. */
+	CAN_ADLH = MOFCRn + (fifo << OFF_MOn);
+	CAN_AD_READ();
+	switch ((CAN_DATA0 >> BIT_MMC) & ((1 << CNT_MMC) -1)) {
+	case MMC_TXBASEFIFO:
+	case MMC_RXBASEFIFO:
+		break;
+	default:
+		return CAN_ERROR;
+	}
+
+	/* Get the top. */
+	CAN_ADLH = MOFGPRn + (fifo << OFF_MOn);
+	CAN_AD_READ();
+	top = MOFGPRn_TOP;
+
+	/* Get the next message in the list. */
+	CAN_ADLH = MOSTATn + (fifo << OFF_MOn);
+	CAN_AD_READ();
+	next = MOSTATn_PNEXT;
+
+	/* Move message to the requested CAN node. */
+	CAN_ADLH = PANCTR;
+	PANCTR_READY();
+	PANCMD = PAN_CMD_MOVE;
+	PANAR1 = fifo;
+	PANAR2 = list;
+	CAN_AD_WRITE(0xD);
+	PANCTR_READY();
+
+	/* Take care of slaves. */
+	while (top != fifo) {
+		/* Get the new set of messages to work on. */
+		pre = fifo;
+		fifo = next;
+
+		/* Get the next message in the list. */
+		CAN_ADLH = MOSTATn + (fifo << OFF_MOn);
+		CAN_AD_READ();
+		next = MOSTATn_PNEXT;
+
+		/* Move the slave. */
+		CAN_ADLH = PANCTR;
+		PANCTR_READY();
+		PANCMD = PAN_CMD_MOVEBEHIND;
+		PANAR1 = fifo;
+		PANAR2 = pre;
+		CAN_AD_WRITE(0xD);
+		PANCTR_READY();
+	}
+
+	return 0;
+}
+
+/**
+ * Connect a FIFO to a CAN node.
+ *
+ * @param fifo
+ * 	The identifier of the FIFO
+ * @param node
+ * 	The CAN node to connect to
+ * @return
+ * \code
+ * 	CAN_ERROR	If the given FIFO is not valid
+ * 	0		Otherwise
+ * \endcode
+ */
+ubyte hsk_can_fifo_connect(hsk_can_fifo idata fifo, hsk_can_node idata node) {
+	/* Move message to the requested CAN node. */
+	return hsk_can_fifo_move(fifo, LIST_NODEx + node);
+}
+
+/**
+ * Disconnect a FIFO from its CAN node.
+ *
+ * This takes the FIFO out of active communication, without deleting
+ * it.
+ *
+ * @param fifo
+ * 	The identifier of the FIFO
+ * @return
+ * \code
+ * 	CAN_ERROR	If the given FIFO is not valid
+ * 	0		Otherwise
+ * \endcode
+ */
+ubyte hsk_can_fifo_disconnect(hsk_can_fifo idata fifo) {
+	/* Move the FIFO to the list of pending message objects. */
+	return hsk_can_fifo_move(fifo, LIST_PENDING);
+}
+
+/**
+ * Delete a FIFO.
+ *
+ * @param fifo
+ *	The identifier of the FIFO
+ * @return
+ * \code
+ * 	CAN_ERROR	If the given FIFO is not valid
+ * 	0		Otherwise
+ * \endcode
+ */
+ubyte hsk_can_fifo_delete(hsk_can_fifo idata fifo) {
+	/* Move the FIFO into the list of unallocated objects. */
+	return hsk_can_fifo_move(fifo, LIST_UNALLOC);
+}
+
+/**
+ * Select the next FIFO entry.
+ *
+ * The hsk_can_fifo_updated() and hsk_can_fifo_getData() functions always
+ * refer to a certain message within the FIFO. This function selects the
+ * next entry.
+ *
+ * @param fifo
+ *	The ID of the FIFO to select the next entry from.
+ */
+void hsk_can_fifo_next(hsk_can_fifo idata fifo) {
+
+	/* Get the current selection. */
+	CAN_ADLH = MOFGPRn + (fifo << OFF_MOn);
+	CAN_AD_READ();
+	/* The top entry is selected start from the bottom. */
+	if (MOFGPRn_SEL == MOFGPRn_TOP) {
+		MOFGPRn_SEL = MOFGPRn_BOT;
+		CAN_AD_WRITE(0x8);
+		return;
+	}
+
+	/* Get the next message. */
+	CAN_ADLH = MOSTATn + (MOFGPRn_SEL << OFF_MOn);
+	CAN_AD_READ();
+
+	/* Write PNEXT into SEL. */
+	CAN_ADLH = MOFGPRn + (fifo << OFF_MOn);
+	MOFGPRn_SEL = MOSTATn_PNEXT;
+	CAN_AD_WRITE(0x8);
+}
+
+/**
+ * Return whether the currently selected FIFO entry was updated via CAN bus
+ * between this call and the previous call of this method.
+ *
+ * It can be used to decide when to call hsk_can_fifo_getData() and
+ * hsk_can_fifo_next().
+ *
+ * @param fifo
+ * 	The identifier of the FIFO to check
+ * @return
+ * 	Returns 1 (true) if a message was received since the last call,
+ *	0 (false) otherwise
+ */
+bool hsk_can_fifo_updated(hsk_can_fifo idata fifo) {
+	/* Get the current selection. */
+	CAN_ADLH = MOFGPRn + (fifo << OFF_MOn);
+	CAN_AD_READ();
+	return hsk_can_msg_updated(MOFGPRn_SEL);
+}
+
+/**
+ * Gets the data from the currently selected FIFO entry.
+ *
+ * This writes DLC bytes from the FIFO entry into msgdata.
+ *
+ * @param fifo
+ * 	The identifier of the FIFO
+ * @param msgdata
+ * 	The character array to store the message data in
+ */
+void hsk_can_fifo_getData(hsk_can_fifo idata fifo, ubyte * idata msgdata) {
+	/* Get the current selection. */
+	CAN_ADLH = MOFGPRn + (fifo << OFF_MOn);
+	CAN_AD_READ();
+	hsk_can_msg_getData(MOFGPRn_SEL, msgdata);
 }
 
 /**
@@ -1304,10 +1738,11 @@ ulong hsk_can_data_getSignal(ubyte * idata msg, bool endian,
 	switch((ubyte)endian) {
 	case CAN_ENDIAN_INTEL:
 		return hsk_can_data_getIntelSignal(msg, bitPos, bitCount);
-		break;
 	case CAN_ENDIAN_MOTOROLA:
 		return hsk_can_data_getMotorolaSignal(msg, bitPos, bitCount);
-		break;
+	default:
+		/* This cannot actually happen. */
+		return CAN_ERROR;
 	}
 }
 
