@@ -169,7 +169,8 @@ void run(void) {
 	uword ticks250;
 	ubyte ticks20;
 	hsk_can_msg msg0;
-	ubyte data0[2] = {0,0};
+	hsk_can_fifo fifo0;
+	ubyte data0[3] = {0,0,0};
 	ubyte xdata buffer[8];
 	uword adc7_copy;
 
@@ -180,6 +181,10 @@ void run(void) {
 
 	msg0 = hsk_can_msg_create(0x7ff, 0, 2);
 	hsk_can_msg_connect(msg0, CAN1);
+
+	fifo0 = hsk_can_fifo_create(7);
+	hsk_can_fifo_connect(fifo0, CAN1);
+	hsk_can_fifo_setupRX(fifo0, 0x403, 0, 3);
 
 	while (1) {
 		EA = 0;
@@ -198,7 +203,7 @@ void run(void) {
 			hsk_pwm_channel_set(PWM_62, 100, adc7_copy * 5 / 1023 + 5);
 			hsk_pwm_channel_set(PWM_63, 1023, adc7_copy);
 			hsk_adc_service();
-			P3_DATA = hsk_pwc_channel_getFreqHz(PWC_CC0);
+			//P3_DATA = hsk_pwc_channel_getFreqHz(PWC_CC0);
 		}		 
 
 		if (ticks250 >= 250) {
@@ -213,6 +218,12 @@ void run(void) {
 			hsk_can_data_setSignal(data0, CAN_ENDIAN_MOTOROLA, 7, 16, adc7_copy);
 			hsk_can_msg_setData(msg0, data0);
 			hsk_can_msg_send(msg0);
+		}
+
+		if (hsk_can_fifo_updated(fifo0)) {
+			hsk_can_fifo_getData(fifo0, data0);
+			hsk_can_fifo_next(fifo0);
+			P3_DATA ^= 1 << hsk_can_data_getSignal(data0, CAN_ENDIAN_INTEL, 0, 3);
 		}
 	}
 }
