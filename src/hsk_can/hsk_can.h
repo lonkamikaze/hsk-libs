@@ -4,41 +4,6 @@
  * This file contains the function prototypes to initialize and engage in
  * CAN communication over the builtin CAN nodes 0 and 1.
  *
- * It contains 4 groups of functions:
- * 	- CAN node management
- *		- hsk_can_init()
- *		- hsk_can_enable()
- *		- hsk_can_disable()
- *	- CAN message management
- *		- hsk_can_msg_*()
- *	- CAN FIFO management
- *		- hsk_can_fifo_*()
- *	- CAN data management
- *		- hsk_can_data_*()
- *
- * There are 7 port pairs available for CAN communication, check the CANn_IO_*
- * defines. Four for the node CAN0 and three for CAN1.
- *
- * All message objects automatically receive from the can bus. The sending
- * of messages has to be triggered manually.
- *
- * Only RX FIFOs are currently implemented. In most use cases only the latest
- * version of a message is relevant and FIFOs are not required. But messages
- * containing multiplexed signals may contain critical signals that would be
- * overwritten by a message with the same ID, but a different multiplexor.
- *
- * A FIFO can act as a buffer the CAN module can store message data in until
- * it can be dealt with. The following example illustrates how to read from
- * a FIFO:
- * \code
- * if (hsk_can_fifo_updated(fifo0)) {
- * 	hsk_can_fifo_getData(fifo0, data0);
- * 	hsk_can_fifo_next(fifo0);
- * 	select = hsk_can_data_getSignal(data0, SIG_MULTIPLEXOR);
- * 	[...]
- * }
- * \endcode
- *
  * @author kami
  * @version 2012-03-14
  */
@@ -97,6 +62,16 @@
 #define CAN1_IO_P32_P33		6
 
 /**
+ * Little endian signal encoding.
+ */
+#define CAN_ENDIAN_INTEL	0
+
+/**
+ * Big endian signal encoding.
+ */
+#define CAN_ENDIAN_MOTOROLA	1
+
+/**
  * CAN node identifiers.
  */
 typedef ubyte hsk_can_node;
@@ -111,8 +86,11 @@ typedef ubyte hsk_can_msg;
  */
 typedef ubyte hsk_can_fifo;
 
-/*
- * CAN node management.
+/** \file
+ * \section nodes CAN Node Management
+ *
+ * There are 7 port pairs available for CAN communication, check the CANn_IO_*
+ * defines. Four for the node CAN0 and three for CAN1.
  */
 
 /**
@@ -150,8 +128,13 @@ void hsk_can_enable(hsk_can_node idata node);
  */
 void hsk_can_disable(hsk_can_node idata node);
 
-/*
- * CAN message object management.
+/** \file
+ * \section CAN Message Object Management
+ *
+ * The MultiCAN module offers up to 32 message objects. New messages are set
+ * up for receiving messages. Message object can be switched from RX to TX
+ * mode and back with the hsk_can_msg_send() and hsk_can_msg_receive()
+ * functions.
  */
 
 /**
@@ -168,11 +151,13 @@ void hsk_can_disable(hsk_can_node idata node);
  * @param dlc
  * 	The data length code, # of bytes in the message, valid values
  * 	range from 0 to 8.
- * @return
- * 	CAN_ERROR in case of failure, a message identifier otherwise
+ * @retval CAN_ERROR
+ *	Creating the message failed
+ * @retval [0;32[
+ *	A message identifier
  */
 hsk_can_msg hsk_can_msg_create(ulong idata id, bool extended,
-		ubyte idata dlc);
+	ubyte idata dlc);
 
 /**
  * Connect a message object to a CAN node.
@@ -181,11 +166,10 @@ hsk_can_msg hsk_can_msg_create(ulong idata id, bool extended,
  * 	The identifier of the message object
  * @param node
  * 	The CAN node to connect to
- * @return
- * \code
- * 	CAN_ERROR	If the given message is not valid
- * 	0		Otherwise
- * \endcode
+ * @retval CAN_ERROR
+ *	The given message is not valid
+ * @retval 0
+ *	Success
  */
 ubyte hsk_can_msg_connect(hsk_can_msg idata msg, hsk_can_node idata node);
 
@@ -197,11 +181,10 @@ ubyte hsk_can_msg_connect(hsk_can_msg idata msg, hsk_can_node idata node);
  *
  * @param msg
  * 	The identifier of the message object
- * @return
- * \code
- * 	CAN_ERROR	If the given message is not valid
- * 	0		Otherwise
- * \endcode
+ * @retval CAN_ERROR
+ *	The given message is not valid
+ * @retval 0
+ *	Success
  */
 ubyte hsk_can_msg_disconnect(hsk_can_msg idata msg);
 
@@ -210,11 +193,10 @@ ubyte hsk_can_msg_disconnect(hsk_can_msg idata msg);
  *
  * @param msg
  *	The identifier of the message object
- * @return
- * \code
- * 	CAN_ERROR	If the given message is not valid
- * 	0		Otherwise
- * \endcode
+ * @retval CAN_ERROR
+ *	The given message is not valid
+ * @retval 0
+ *	Success
  */
 ubyte hsk_can_msg_delete(hsk_can_msg idata msg);
 
@@ -273,11 +255,35 @@ void hsk_can_msg_receive(hsk_can_msg idata msg);
  *
  * @param msg
  * 	The identifier of the message to check
- * @return
- * 	Returns 1 (true) if the message was received since the last call,
- *	0 (false) otherwise
+ * @retval 1
+ *	The message was updated since the last call of this function
+ * @retval 0
+ *	The message has not been updated since the last call of this function
  */
 bool hsk_can_msg_updated(hsk_can_msg idata msg);
+
+/** \file
+ * \section fifos FIFOs
+ *
+ * Only RX FIFOs are currently implemented. In most use cases only the latest
+ * version of a message is relevant and FIFOs are not required. But messages
+ * containing multiplexed signals may contain critical signals that would be
+ * overwritten by a message with the same ID, but a different multiplexor.
+ *
+ * A FIFO can act as a buffer the CAN module can store message data in until
+ * it can be dealt with. The following example illustrates how to read from
+ * a FIFO:
+ * \code
+ * if (hsk_can_fifo_updated(fifo0)) {
+ * 	hsk_can_fifo_getData(fifo0, data0);
+ * 	hsk_can_fifo_next(fifo0);
+ * 	select = hsk_can_data_getSignal(data0, SIG_MULTIPLEXOR);
+ * 	[...]
+ * }
+ * \endcode
+ *
+ * FIFOs draw from the same message object pool regular message objects do.
+ */
 
 /**
  * Creates a message FIFO.
@@ -297,8 +303,10 @@ bool hsk_can_msg_updated(hsk_can_msg idata msg);
  * 
  * @param size
  *	The desired FIFO size
- * @return
- *	The created FIFO id, or CAN_ERROR in case of failure
+ * @retval CAN_ERROR
+ *	Creating the FIFO failed
+ * @retval [0;32[
+ *	The created FIFO id
  */
 hsk_can_fifo hsk_can_fifo_create(ubyte idata size);
 
@@ -325,11 +333,10 @@ void hsk_can_fifo_setupRX(hsk_can_fifo idata fifo, ulong idata id,
  * 	The identifier of the FIFO
  * @param node
  * 	The CAN node to connect to
- * @return
- * \code
- * 	CAN_ERROR	If the given FIFO is not valid
- * 	0		Otherwise
- * \endcode
+ * @retval CAN_ERROR
+ *	The given FIFO is not valid
+ * @retval 0
+ *	Success
  */
 ubyte hsk_can_fifo_connect(hsk_can_fifo idata fifo, hsk_can_node idata node);
 
@@ -341,11 +348,10 @@ ubyte hsk_can_fifo_connect(hsk_can_fifo idata fifo, hsk_can_node idata node);
  *
  * @param fifo
  * 	The identifier of the FIFO
- * @return
- * \code
- * 	CAN_ERROR	If the given FIFO is not valid
- * 	0		Otherwise
- * \endcode
+ * @retval CAN_ERROR
+ *	The given FIFO is not valid
+ * @retval 0
+ *	Success
  */
 ubyte hsk_can_fifo_disconnect(hsk_can_fifo idata fifo);
 
@@ -354,11 +360,10 @@ ubyte hsk_can_fifo_disconnect(hsk_can_fifo idata fifo);
  *
  * @param fifo
  *	The identifier of the FIFO
- * @return
- * \code
- * 	CAN_ERROR	If the given FIFO is not valid
- * 	0		Otherwise
- * \endcode
+ * @retval CAN_ERROR
+ *	The given FIFO is not valid
+ * @retval 0
+ *	Success
  */
 ubyte hsk_can_fifo_delete(hsk_can_fifo idata fifo);
 
@@ -383,9 +388,10 @@ void hsk_can_fifo_next(hsk_can_fifo idata fifo);
  *
  * @param fifo
  * 	The identifier of the FIFO to check
- * @return
- * 	Returns 1 (true) if a message was received since the last call,
- *	0 (false) otherwise
+ * @retval 1
+ *	The FIFO entry was updated since the last call of this function
+ * @retval 0
+ *	The FIFO entry has not been updated since the last call of this function
  */
 bool hsk_can_fifo_updated(hsk_can_fifo idata fifo);
 
@@ -401,15 +407,19 @@ bool hsk_can_fifo_updated(hsk_can_fifo idata fifo);
  */
 void hsk_can_fifo_getData(hsk_can_fifo idata fifo, ubyte * idata msgdata);
 
-/**
- * Little endian signal encoding.
+/** \file
+ * \section data Message Data
+ *
+ * The hsk_can_data_setSignal() and hsk_can_data_getSignal() functions allow
+ * reading and writing signals across byte boundaries to a buffer.
+ *
+ * For big endian signals the bit position of the most significant bit must
+ * be supplied (highest bit in the first byte). For little endian signals
+ * the least significant bit must be supplied (lowest bit in the first byte).
+ *
+ * This conforms to the  way signal positions are stored in Vector CANdb++
+ * DBC files.
  */
-#define CAN_ENDIAN_INTEL	0
-
-/**
- * Big endian signal encoding.
- */
-#define CAN_ENDIAN_MOTOROLA	1
 
 /**
  * Sets a signal value in a data field.
