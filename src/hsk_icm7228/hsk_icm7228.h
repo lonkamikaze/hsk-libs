@@ -8,9 +8,7 @@
  * and bits and even allows the use of multiple ICM7228 ICs.
  *
  * @see Intersil ICM7228 Data Sheet: <a href="contrib/ICM7228.pdf">ICM7228.pdf</a>
- * 
  * @author kami
- * @version 2012-02-10
  */
 
 #ifndef _HSK_ICM7228_H_

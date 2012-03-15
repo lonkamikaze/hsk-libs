@@ -6,7 +6,6 @@
  * the hsk_isr* data structures.
  *
  * @author kami
- * @version 2012-02-08
  */
 
 #include <Infineon/XC878.h>
@@ -15,6 +14,8 @@
 
 /**
  * This is a dummy function to point unused function pointers to.
+ *
+ * @private
  */
 void dummy(void) {
 }
@@ -72,6 +73,8 @@ volatile struct hsk_isr5_callback xdata hsk_isr5 = {&dummy, &dummy, &dummy, &dum
  *	- End of Syn Byte (EOFSYN)
  *	- Syn Byte Error (ERRSYN)
  *	- CAN Interrupt 0 (CANSRC0)
+ *
+ * @private
  */
 void ISR_hsk_isr5(void) interrupt 5 {
 	SFR_PAGE(_t2_0, SST0);
@@ -147,6 +150,8 @@ volatile struct hsk_isr6_callback xdata hsk_isr6 = {&dummy, &dummy, &dummy, &dum
  * 	- CANSRC2
  * 	- ADCSR0
  * 	- ADCSR1
+ *
+ * @private
  */
 void ISR_hsk_isr6(void) interrupt 6 {
 	SFR_PAGE(_su0, SST0);
@@ -214,6 +219,8 @@ volatile struct hsk_isr9_callback xdata hsk_isr9 = {&dummy, &dummy, &dummy, &dum
  * 	- EXINT5/T2CC2
  * 	- EXINT6/T2CC3
  * 	- CANSRC3
+ *
+ * @private
  */
 void ISR_hsk_isr9(void) interrupt 9 {
 	SFR_PAGE(_su0, SST0);
@@ -279,9 +286,11 @@ volatile struct hsk_isr14_callback xdata hsk_isr14 = {&dummy, &dummy, &dummy, &d
  *	- Flash Timer NMI (NMIFLASH)
  *	- VDDP Prewarning NMI (NMIVDDP)
  *	- Flash ECC NMI (NMIECC) 
+ *
+ * @private
  */
 void ISR_hsk_isr14(void) interrupt 14 {
-	SFR_PAGE(_su0, SST0);
+	SFR_PAGE(_su0, SST2);
 	if (NMISR & (1 << BIT_NMIWDT)) {
 		NMISR &= ~(1 << BIT_NMIWDT);
 		hsk_isr14.NMIWDT();
@@ -302,6 +311,6 @@ void ISR_hsk_isr14(void) interrupt 14 {
 		NMISR &= ~(1 << BIT_NMIECC);
 		hsk_isr14.NMIECC();
 	}
-	SFR_PAGE(_su0, RST0);
+	SFR_PAGE(_su0, RST2);
 }
 

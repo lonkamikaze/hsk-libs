@@ -202,7 +202,7 @@ void hsk_nmipll_isr(void) {
 	ubyte xdata activeWait;
 
 	/* Go to page1 where all the oscillator registers are. */
-	SFR_PAGE(_su1, SST1);
+	SFR_PAGE(_su1, SST3);
 
 	do {
 		/* Restart the external oscillator watchdog by setting bit
@@ -251,7 +251,7 @@ void hsk_nmipll_isr(void) {
 	OSC_CON &= ~(1 << BIT_PLLBYP);
 
 	/*  Restore original page. */
-	SFR_PAGE(_su1, RST1);
+	SFR_PAGE(_su1, RST3);
 }
 #pragma restore
 

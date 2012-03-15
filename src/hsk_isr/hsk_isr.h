@@ -7,8 +7,16 @@
  *
  * Callback functions should preserve SFR pages with SST1/RST1.
  *
+ * The following table must be obeyed to avoid memory corruption:
+ * \code
+ *	Save	Restore	Function
+ *	SST0	RST0	ISRs
+ *	SST1	RST1	ISR callback functions
+ *	SST2	RST2	NMI ISR
+ *	SST3	RST3	NMI
+ * \endcode
+ *
  * @author kami
- * @version 2012-02-08
  */
 
 #ifndef _HSK_ISR_H_
@@ -213,6 +221,9 @@ struct hsk_isr14_callback {
 
 /**
  * Introduce callback function pointers for NMI ISR.
+ *
+ * Functions called back from the NMI ISR should use SST3/RST3 instead of
+ * SST1/RST1, because they might interrupt other ISRs.
  */
 extern volatile struct hsk_isr14_callback xdata hsk_isr14;
 

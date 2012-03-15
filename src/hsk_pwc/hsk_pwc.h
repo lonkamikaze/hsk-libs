@@ -19,7 +19,6 @@
  * functions should be called at least once every 256 window times.
  * 
  * @author kami
- * @version 2012-02-12
  */
 
 #ifndef _HSK_PWC_H_
@@ -123,12 +122,6 @@ typedef ubyte hsk_pwc_port;
 #define PWC_CC3_P57		11
 
 /**
- * The parameter list to specify a PWC input port.
- *
- * I.e. those in the PWC_CCn_* defines.
- */
-
-/**
  * Configuration selection to trigger pulse detection on falling edge.
  */
 #define PWC_EDGE_FALLING	0
@@ -197,10 +190,10 @@ void hsk_pwc_channel_open(hsk_pwc_channel idata channel, ubyte idata averageOver
  * The available configurations are available from the PWC_CCn_* defines.
  *
  * @param port
- * 	The input port to open.
+ * 	The input port to open
  * @param averageOver
  * 	The number of pulse values to average over when returning a
- * 	value or speed. The value must be between 1 and CHAN_BUF_SIZE.
+ * 	value or speed. The value must be between 1 and CHAN_BUF_SIZE
  */			    
 void hsk_pwc_port_open(hsk_pwc_port idata port, ubyte idata averageOver);
 

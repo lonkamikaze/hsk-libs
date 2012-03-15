@@ -5,7 +5,6 @@
  * a callback function that will be called by the timers ISR.
  *
  * @author kami
- * @version 2012-02-08
  */
 
 #ifndef _HSK_TIMER01_H_
