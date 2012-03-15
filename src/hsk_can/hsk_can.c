@@ -3,6 +3,11 @@
  *
  * This file implements the functions defined in hsk_can.h.
  *
+ * @author kami
+ * @version 2012-03-14
+ *
+ * \section multican The XC878 MulitCAN Module
+ *
  * The following is a little excursion about CAN on the XC878.
  *
  * The MultiCAN module is accessible through 3 registers:
@@ -44,9 +49,6 @@
  * \code
  * 	CAN_ADLH = NSRx + (1 << OFF_NODEx)
  * \endcode
- *
- * @author kami
- * @version 2012-03-14
  */
 
 #include <Infineon/XC878.h>
@@ -392,18 +394,6 @@ bool hsk_can_initialized = 0;
  */
 #define BIT_CAN_DIS		5
 
-/**
- * Setup CAN communication with the desired baud rate.
- *
- * The CAN node is chosen with the pin configuration.
- *
- * The bus still needs to be enabled after being setup.
- *
- * @param pins
- * 	Choose one of 7 CANn_IO_* configurations
- * @param baud
- * 	The target baud rate to use
- */
 void hsk_can_init(ubyte idata pins, ulong idata baud) {
 	/* The node to configure. */
 	hsk_can_node node;
@@ -460,7 +450,7 @@ void hsk_can_init(ubyte idata pins, ulong idata baud) {
 	CAN_AD_WRITE(0x1);
 
 	/**
-	 * Configure the Bit Timing Unit.
+	 * <b>Configure the Bit Timing Unit</b>
 	 *
 	 * Carefully read the chapter in the manual to understand this.
 	 * Minima and maxima are specified in ISO 11898.
@@ -499,7 +489,9 @@ void hsk_can_init(ubyte idata pins, ulong idata baud) {
 	CAN_AD_WRITE(0x3);
 
 	/**
-	 * There are 7 different IO pin configurations, four are availabe
+	 * <b>I/O Configuration</b>
+	 *
+	 * There are 7 different I/O pin configurations, four are availabe
 	 * to node 0 and three to node 1.
 	 *
 	 * See the MultiCAN Port Control subsection of the user manual for
@@ -572,14 +564,6 @@ void hsk_can_init(ubyte idata pins, ulong idata baud) {
 
 }
 
-/**
- * Go live on the CAN bus.
- *
- * To be called when everything is set up.
- *
- * @param node
- * 	The CAN node to enable
- */
 void hsk_can_enable(hsk_can_node idata node) {
 	/* Get the Node x Control Register. */
 	CAN_ADLH = NCRx + (node << OFF_NODEx);
@@ -589,15 +573,6 @@ void hsk_can_enable(hsk_can_node idata node) {
 	CAN_AD_WRITE(0x1);
 }
 
-/**
- * Disable a CAN node.
- *
- * This completely shuts down a CAN node, cutting it off from the
- * internal clock, to reduce energy consumption.
- *
- * @param node
- * 	The CAN node to disable
- */
 void hsk_can_disable(hsk_can_node idata node) {
 	/* Get the Node x Control Register. */
 	CAN_ADLH = NCRx + (node << OFF_NODEx);
@@ -607,8 +582,8 @@ void hsk_can_disable(hsk_can_node idata node) {
 	CAN_AD_WRITE(0x1);		
 }
 
-/**
- * CAN list management.
+/** \file
+ * \section lists CAN List Management
  * 
  * The MultiCAN module offers 32 message objects that can be linked
  * to one of 8 lists.
@@ -824,23 +799,6 @@ void hsk_can_disable(hsk_can_node idata node) {
  */
 #define PRI_ID			2
 
-/**
- * Creates a new CAN message.
- *
- * Note that only up to 32 messages can exist at any given time.
- *
- * Extended messages have 29 bit IDs and non-extended 11 bit IDs.
- *
- * @param id
- * 	The message ID.
- * @param extended
- * 	Set this to 1 for an extended CAN message
- * @param dlc
- * 	The data length code, # of bytes in the message, valid values
- * 	range from 0 to 8
- * @return
- * 	CAN_ERROR in case of failure, a message identifier otherwise
- */
 hsk_can_msg hsk_can_msg_create(ulong idata id, bool extended,
 		ubyte idata dlc) {
 	hsk_can_msg msg;
@@ -939,11 +897,10 @@ hsk_can_msg hsk_can_msg_create(ulong idata id, bool extended,
  * 	The identifier of the message object
  * @param list
  * 	The list to move the message object to
- * @return
- * \code
- * 	CAN_ERROR	If the given message object id is not valid
- * 	0		Everything happened as expected
- * \endcode
+ * @retval CAN_ERROR
+ *	The given message object id is not valid
+ * @retval 0
+ *	Move successful
  */
 ubyte hsk_can_msg_move(hsk_can_msg idata msg, ubyte idata list) {
 	/* Check whether this is a valid message ID. */
@@ -963,69 +920,21 @@ ubyte hsk_can_msg_move(hsk_can_msg idata msg, ubyte idata list) {
 	return 0;
 }
 
-/**
- * Connect a message object to a CAN node.
- *
- * @param msg
- * 	The identifier of the message object
- * @param node
- * 	The CAN node to connect to
- * @return
- * \code
- * 	CAN_ERROR	If the given message is not valid
- * 	0		Otherwise
- * \endcode
- */
 ubyte hsk_can_msg_connect(hsk_can_msg idata msg, hsk_can_node idata node) {
 	/* Move message to the requested CAN node. */
 	return hsk_can_msg_move(msg, LIST_NODEx + node);
 }
 
-/**
- * Disconnect a CAN message object from its CAN node.
- *
- * This takes a CAN message out of active communication, without deleting
- * it.
- *
- * @param msg
- * 	The identifier of the message object
- * @return
- * \code
- * 	CAN_ERROR	If the given message is not valid
- * 	0		Otherwise
- * \endcode
- */
 ubyte hsk_can_msg_disconnect(hsk_can_msg idata msg) {
 	/* Move the message object to the list of pending message objects. */
 	return hsk_can_msg_move(msg, LIST_PENDING);
 }
 
-/**
- * Delete a CAN message object.
- *
- * @param msg
- *	The identifier of the message object
- * @return
- * \code
- * 	CAN_ERROR	If the given message is not valid
- * 	0		Otherwise
- * \endcode
- */
 ubyte hsk_can_msg_delete(hsk_can_msg idata msg) {
 	/* Move the message object into the list of unallocated objects. */
 	return hsk_can_msg_move(msg, LIST_UNALLOC);
 }
 
-/**
- * Gets the current data in the CAN message.
- *
- * This writes DLC bytes from the CAN message object into msgdata.
- *
- * @param msg
- * 	The identifier of the message object
- * @param msgdata
- * 	The character array to store the message data in
- */
 void hsk_can_msg_getData(hsk_can_msg idata msg, ubyte * idata msgdata) {
 	ubyte dlc, i;
 
@@ -1054,16 +963,6 @@ void hsk_can_msg_getData(hsk_can_msg idata msg, ubyte * idata msgdata) {
 	}
 }
 
-/**
- * Sets the current data in the CAN message.
- *
- * This writes DLC bytes from msgdata to the CAN message object.
- *
- * @param msg
- * 	The identifier of the message object
- * @param msgdata
- * 	The character array to get the message data from
- */
 void hsk_can_msg_setData(hsk_can_msg idata msg, ubyte * idata msgdata) {
 	ubyte dlc, i;
 
@@ -1095,52 +994,20 @@ void hsk_can_msg_setData(hsk_can_msg idata msg, ubyte * idata msgdata) {
 	}
 }
 
-/**
- * Request transmission of a message.
- *
- * @param msg
- * 	The identifier of the message to send
- */
 void hsk_can_msg_send(hsk_can_msg idata msg) {
-	/* Set message mode from RXBASE to TXBASE. */
-	CAN_ADLH = MOFCRn + (msg << OFF_MOn);
-	CAN_AD_READ();
-	if (((CAN_DATA0 >> BIT_MMC) & ((1 << CNT_MMC) -1)) == MMC_RXBASEFIFO) {
-		CAN_DATA0 = CAN_DATA0 & ~(((1 << CNT_MMC) - 1) << BIT_MMC) \
-			| (MMC_TXBASEFIFO << BIT_MMC);
-		CAN_AD_WRITE(0x1);
-	}
-
 	/* Request transmission. */
 	CAN_ADLH = MOCTRn + (msg << OFF_MOn);
 	SET_DATA = (1 << BIT_TXEN0) | (1 << BIT_TXEN1) | (1 << BIT_TXRQ) | (1 << BIT_DIR);
-	CAN_AD_WRITE(SET);
+	RESET_DATA = (1 << BIT_RXEN);
+	CAN_AD_WRITE(0xF);
 }
 
-/**
- * Return the message into RX mode after sending a message.
- *
- * After sending a message the messages with the same ID from other
- * bus participants are ignored. This restores the original setting to receive
- * messages.
- *
- * @param msg
- * 	The identifier of the message to receive
- */
 void hsk_can_msg_receive(hsk_can_msg idata msg) {
-	/* Set message mode from TXBASE to RXBASE. */
-	CAN_ADLH = MOFCRn + (msg << OFF_MOn);
-	CAN_AD_READ();
-	if (((CAN_DATA0 >> BIT_MMC) & ((1 << CNT_MMC) -1)) == MMC_TXBASEFIFO) {
-		CAN_DATA0 = CAN_DATA0 & ~(((1 << CNT_MMC) - 1) << BIT_MMC) \
-			| (MMC_RXBASEFIFO << BIT_MMC);
-		CAN_AD_WRITE(0x1);
-	}
-
 	/* Return to rx mode. */
 	CAN_ADLH = MOCTRn + (msg << OFF_MOn);
+	SET_DATA = (1 << BIT_RXEN);
 	RESET_DATA = (1 << BIT_TXEN0) | (1 << BIT_TXEN1) | (1 << BIT_TXRQ) | (1 << BIT_DIR);
-	CAN_AD_WRITE(RESET);
+	CAN_AD_WRITE(0xF);
 }
 
 /**
@@ -1148,21 +1015,6 @@ void hsk_can_msg_receive(hsk_can_msg idata msg) {
  */
 #define BIT_RXPND	0
 
-/**
- * Return whether the message was updated via CAN bus between this call and
- * the previous call of this method.
- *
- * An update does not entail a change of message data. It just means the
- * message was received on the CAN bus.
- *
- * This is useful for cyclic message occurance checks.
- *
- * @param msg
- * 	The identifier of the message to check
- * @return
- * 	Returns 1 (true) if the message was received since the last call,
- *	0 (false) otherwise
- */
 bool hsk_can_msg_updated(hsk_can_msg idata msg) {
 
 	/* Get the message status. */
@@ -1179,27 +1031,6 @@ bool hsk_can_msg_updated(hsk_can_msg idata msg) {
 	return 1;
 }
 
-/**
- * Creates a message FIFO.
- *
- * FIFOs can be used to ensure that multiplexed signals are not lost.
- * 
- * For receiving multiplexed signals it is recommended to use a FIFO as large
- * as the number of multiplexed messages that might occur in a single burst.
- * 
- * If the multiplexor is large, e.g. 8 bits, it's obviously not possible to
- * carve a 256 messages FIFO out of 32 message objects. Make an educated
- * guess and hope that the signal provider is not hostile.
- *
- * If the number of available message objects is at least one, but less than
- * the requested length this function succeeds, but the FIFO is only created
- * as long as possible.
- * 
- * @param size
- *	The desired FIFO size
- * @return
- *	The created FIFO id, or CAN_ERROR in case of failure
- */
 hsk_can_fifo hsk_can_fifo_create(ubyte idata size) {
 	hsk_can_fifo base;
 	hsk_can_msg top;
@@ -1222,6 +1053,8 @@ hsk_can_fifo hsk_can_fifo_create(ubyte idata size) {
 	base = PANAR1;
 
 	/**
+	 * <b>Slave Objects</b>
+	 *
 	 * Slave objects are put into the same list as the base message
 	 * object, so it can be used as a slave as well.
 	 *
@@ -1267,8 +1100,13 @@ hsk_can_fifo hsk_can_fifo_create(ubyte idata size) {
 	/*
 	 * Create the FIFO base.
 	 */
-	/* Set list boundaries. SEL will be used to keep track of where to
-	 * read/write the next message when interacting with the fifo. */
+	/**
+	 * <b>Message Pointers</b>
+	 *
+	 * MOFGPRn of the base object holds the message pointers that define
+	 * the list boundaries. SEL will be used to keep track of where to
+	 * read/write the next message when interacting with the FIFO.
+	 */
 	CAN_ADLH = MOFGPRn + (base << OFF_MOn);
 	MOFGPRn_BOT = base;
 	MOFGPRn_CUR = base;
@@ -1290,19 +1128,6 @@ hsk_can_fifo hsk_can_fifo_create(ubyte idata size) {
 	return base;
 }
 
-/**
- * Set the FIFO up for receiving messages.
- *
- * @param fifo
- * 	The FIFO to setup
- * @param id
- * 	The message ID.
- * @param extended
- * 	Set this to 1 for an extended CAN message
- * @param dlc
- * 	The data length code, # of bytes in the message, valid values
- * 	range from 0 to 8
- */
 void hsk_can_fifo_setupRX(hsk_can_fifo idata fifo, ulong idata id,
 		bool extended, ubyte idata dlc) {
 	hsk_can_msg top;
@@ -1357,11 +1182,10 @@ void hsk_can_fifo_setupRX(hsk_can_fifo idata fifo, ulong idata id,
  * 	The identifier of the fifo
  * @param list
  * 	The list to move the FIFO to
- * @return
- * \code
- * 	CAN_ERROR	If the given FIFO id is not valid
- * 	0		Everything happened as expected
- * \endcode
+ * @retval CAN_ERROR
+ *	The given FIFO id is not valid
+ * @retval 0
+ *	Move successful
  */
 ubyte hsk_can_fifo_move(hsk_can_fifo idata fifo, ubyte idata list) {
 	ubyte top, pre, next;
@@ -1425,69 +1249,21 @@ ubyte hsk_can_fifo_move(hsk_can_fifo idata fifo, ubyte idata list) {
 	return 0;
 }
 
-/**
- * Connect a FIFO to a CAN node.
- *
- * @param fifo
- * 	The identifier of the FIFO
- * @param node
- * 	The CAN node to connect to
- * @return
- * \code
- * 	CAN_ERROR	If the given FIFO is not valid
- * 	0		Otherwise
- * \endcode
- */
 ubyte hsk_can_fifo_connect(hsk_can_fifo idata fifo, hsk_can_node idata node) {
 	/* Move message to the requested CAN node. */
 	return hsk_can_fifo_move(fifo, LIST_NODEx + node);
 }
 
-/**
- * Disconnect a FIFO from its CAN node.
- *
- * This takes the FIFO out of active communication, without deleting
- * it.
- *
- * @param fifo
- * 	The identifier of the FIFO
- * @return
- * \code
- * 	CAN_ERROR	If the given FIFO is not valid
- * 	0		Otherwise
- * \endcode
- */
 ubyte hsk_can_fifo_disconnect(hsk_can_fifo idata fifo) {
 	/* Move the FIFO to the list of pending message objects. */
 	return hsk_can_fifo_move(fifo, LIST_PENDING);
 }
 
-/**
- * Delete a FIFO.
- *
- * @param fifo
- *	The identifier of the FIFO
- * @return
- * \code
- * 	CAN_ERROR	If the given FIFO is not valid
- * 	0		Otherwise
- * \endcode
- */
 ubyte hsk_can_fifo_delete(hsk_can_fifo idata fifo) {
 	/* Move the FIFO into the list of unallocated objects. */
 	return hsk_can_fifo_move(fifo, LIST_UNALLOC);
 }
 
-/**
- * Select the next FIFO entry.
- *
- * The hsk_can_fifo_updated() and hsk_can_fifo_getData() functions always
- * refer to a certain message within the FIFO. This function selects the
- * next entry.
- *
- * @param fifo
- *	The ID of the FIFO to select the next entry from.
- */
 void hsk_can_fifo_next(hsk_can_fifo idata fifo) {
 
 	/* Get the current selection. */
@@ -1510,19 +1286,6 @@ void hsk_can_fifo_next(hsk_can_fifo idata fifo) {
 	CAN_AD_WRITE(0x8);
 }
 
-/**
- * Return whether the currently selected FIFO entry was updated via CAN bus
- * between this call and the previous call of this method.
- *
- * It can be used to decide when to call hsk_can_fifo_getData() and
- * hsk_can_fifo_next().
- *
- * @param fifo
- * 	The identifier of the FIFO to check
- * @return
- * 	Returns 1 (true) if a message was received since the last call,
- *	0 (false) otherwise
- */
 bool hsk_can_fifo_updated(hsk_can_fifo idata fifo) {
 	/* Get the current selection. */
 	CAN_ADLH = MOFGPRn + (fifo << OFF_MOn);
@@ -1530,16 +1293,6 @@ bool hsk_can_fifo_updated(hsk_can_fifo idata fifo) {
 	return hsk_can_msg_updated(MOFGPRn_SEL);
 }
 
-/**
- * Gets the data from the currently selected FIFO entry.
- *
- * This writes DLC bytes from the FIFO entry into msgdata.
- *
- * @param fifo
- * 	The identifier of the FIFO
- * @param msgdata
- * 	The character array to store the message data in
- */
 void hsk_can_fifo_getData(hsk_can_fifo idata fifo, ubyte * idata msgdata) {
 	/* Get the current selection. */
 	CAN_ADLH = MOFGPRn + (fifo << OFF_MOn);
@@ -1635,20 +1388,6 @@ void hsk_can_data_setMotorolaSignal(ubyte * idata msg, char idata bitPos,
 	}
 }
 
-/**
- * Sets a signal value in a data field.
- *
- * @param msg
- * 	The message data field to write into
- * @param endian
- *	Little or big endian encoding
- * @param bitPos
- * 	The bit position of the signal
- * @param bitCount
- * 	The length of the signal
- * @param value
- * 	The signal value to write into the data field
- */
 void hsk_can_data_setSignal(ubyte * idata msg, bool endian, char idata bitPos,
 		char idata bitCount, ulong idata value) {
 	switch((ubyte)endian) {
@@ -1719,20 +1458,6 @@ ulong hsk_can_data_getMotorolaSignal(ubyte * idata msg, char idata bitPos, char 
 	return value;
 }
 
-/**
- * Get a signal value from a data field.
- *
- * @param msg
- * 	The message data field to read from
- * @param endian
- *	Little or big endian encoding
- * @param bitPos
- * 	The bit position of the signal
- * @param bitCount
- * 	The length of the signal
- * @return
- *	The signal from the data field msg
- */
 ulong hsk_can_data_getSignal(ubyte * idata msg, bool endian,
 		char idata bitPos, char idata bitCount) {
 	switch((ubyte)endian) {

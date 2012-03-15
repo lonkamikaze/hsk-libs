@@ -788,6 +788,9 @@ other libraries. The following example is from hsk_adc.c:
 #include "../hsk_isr/hsk_isr.h"
 \endcode
 
+Comments for public members of a C file do not need to be copied from the
+header.
+
 \subsection conventions_files_isr ISR Headers
 
 The ISR headers exist solely for an oddity of SDCC. All interrupts must be
