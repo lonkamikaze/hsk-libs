@@ -5,7 +5,6 @@
  * timers to use as a ticking source.
  *
  * @author kami
- * @version 2012-02-08
  */
 
 #include <Infineon/XC878.h>
@@ -45,7 +44,7 @@
 /**
  * Struct representing runtime information for a timer.
  */
-struct hsk_timer {
+struct {
 	/**
 	 * The value to load into the timer upon overflow.
 	 */
@@ -55,17 +54,14 @@ struct hsk_timer {
 	 * A callback function pointer used by the ISR.
 	 */
 	void (code *callback)(void);
-};
-
-/**
- * Statically assign memory for timer 0 and 1.
- */
-volatile struct hsk_timer xdata hsk_timers[2];
+} xdata hsk_timers[2];
 
 /**
  * The ISR for timer 0.
  *
  * Sets up the timer 0 count registers and calls the callback function.
+ *
+ * @private
  */
 void ISR_hsk_timer0(void) interrupt 1 {
 	uword ticks = hsk_timers[0].overflow + ((TH0 << 8) | TL0);
@@ -78,6 +74,8 @@ void ISR_hsk_timer0(void) interrupt 1 {
  * The ISR for timer 1.
  *
  * Sets up the timer 1 count registers and calls the callback function.
+ *
+ * @private
  */
 void ISR_hsk_timer1(void) interrupt 3 {
 	uword ticks = hsk_timers[1].overflow + ((TH1 << 8) | TL1);
@@ -96,11 +94,12 @@ void ISR_hsk_timer1(void) interrupt 3 {
  * This works on the assumption, that PCLK is set to 24MHz.
  *
  * @param id
- *		Timer 0 or 1.
+ *	Timer 0 or 1.
  * @param interval
- *		The ticking interval in µs, don't go beyond 5461.
+ *	The ticking interval in µs, don't go beyond 5461.
  * @param callback
- *		A function pointer to a callback function.
+ *	A function pointer to a callback function.
+ * @private
  */
 void hsk_timer01_setup(ubyte idata id, uword idata interval, void (code * idata callback)(void)) {
 	/*
@@ -125,69 +124,29 @@ void hsk_timer01_setup(ubyte idata id, uword idata interval, void (code * idata 
 	hsk_timers[id].callback = callback;
 }
 
-/**
- * Setup timer 0 to tick at a given interval.
- *
- * The callback function will be called by the interrupt once the
- * interrupt has been enabled. Note that the callback function is
- * entered with the current page unknown.
- *
- * This works on the assumption, that PCLK is set to 24MHz.
- *
- * @param interval
- *		The ticking interval in µs, don't go beyond 5461.
- * @param callback
- *		A function pointer to a callback function.
- */
 void hsk_timer0_setup(uword idata interval, void (code * idata callback)(void)) {
 	hsk_timer01_setup(0, interval, callback);
 }
 
-/**
- * Enables the timer 0 and its interrupt.
- */
 void hsk_timer0_enable(void) {
 	ET0 = 1;
 	TR0 = 1;
 }
 
-/**
- * Disables timer 0 and its interrupt.
- */
 void hsk_timer0_disable(void) {
 	TR0 = 0;
 	ET0 = 0;
 }
 
-/**
- * Setup timer 1 to tick at a given interval.
- *
- * The callback function will be called by the interrupt once the
- * interrupt has been enabled. Note that the callback function is
- * entered with the current page unknown.
- *
- * This works on the assumption, that PCLK is set to 24MHz.
- *
- * @param interval
- *		The ticking interval in µs, don't go beyond 5461.
- * @param callback
- *		A function pointer to a callback function.
- */
 void hsk_timer1_setup(uword idata interval, void (code * idata callback)(void)) {
 	hsk_timer01_setup(1, interval, callback);
 }
 
-/**
- * Enables the timer 1 and its interrupt.
- */
 void hsk_timer1_enable(void) {
 	ET1 = 1;
 	TR1 = 1;
 }
 
-/**
- * Disables timer 1 and its interrupt.
- */
 void hsk_timer1_disable(void) {
 	TR1 = 0;
 	ET1 = 0;

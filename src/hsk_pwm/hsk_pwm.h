@@ -29,7 +29,6 @@
  *	- hsk_pwm_port_open()
  *
  * @author kami
- * @version 2012-02-10
  */
 
 #ifndef _HSK_PWM_H_
@@ -286,10 +285,10 @@ void hsk_pwm_channel_set(hsk_pwm_channel idata channel, uword idata max, uword i
  * The channel value can be taken from any of the PWM_CCx/PWM_COUTx defines.
  *
  * @param channel
- *	The IO channel to set the direction bit for.
+ *	The IO channel to set the direction bit for
  * @param up
- *	Set 1 to output a 1 during the cycle set with hsk_pwm_channel_set().
- *	Set 0 to output a 0 during the cycle set with hsk_pwm_channel_set().
+ *	Set 1 to output a 1 during the cycle set with hsk_pwm_channel_set(),
+ *	set 0 to output a 0 during the cycle set with hsk_pwm_channel_set()
  */
 void hsk_pwm_outChannel_dir(hsk_pwm_outChannel idata channel, bool up);
 

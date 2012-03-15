@@ -9,7 +9,6 @@
  * the same base frequency and period.
  *
  * @author kami
- * @version 2011-02-12
  */
 
 #include <Infineon/XC878.h>
@@ -78,36 +77,10 @@
  */
 #define BIT_TnSTR	6
 
-/**
- * Sets up the the CCU6 timer frequencies that control the PWM
- * cycle.
- *
- * The channels PWM_60, PWM_61 and PWM_62 share the timer T12, thus
- * initializing one of them, initializes them all.
- * The channel PWM_63 has exclusive use of the timer T13 and can thus be used
- * with its own operating frequency.
- *
- * Frequencies up to ~732.4Hz are always between 15 and 16 bits precision.
- *
- * Frequencies above 48kHz offer less than 1/1000 precision.
- * From there it is a linear function, i.e. 480kHz still offer 1/100
- * precision.
- *
- * The freq value 0 will result in ~0.02Hz (\f$48000000 / 2^{31}\f$).
- *
- * The following formula results in the freq value that yields exactly the
- * desired precision, this is useful to avoid precision loss by rounding:
- *	\f[freq(precision) = 480000000 * precision\f]
- * 
- * E.g. 10 bit precision: \f$freq(1/2^{10}) = 468750\f$
- *
- * @param channel
- *	The channel to change the frequency for
- * @param freq
- *	The desired PWM cycle frequency in units of 0.1Hz
- */
 void hsk_pwm_init(hsk_pwm_channel idata channel, ulong idata freq) {
 	/**
+	 * <b>PWM Timings</b>
+	 *
 	 * The CCU6CLK can run at FCLK (48MHz) or PCLK (24MHz), configured in
 	 * the CCUCCFG bit. This implementation always uses 48MHz.
 	 *
@@ -232,7 +205,7 @@ void hsk_pwm_init(hsk_pwm_channel idata channel, ulong idata freq) {
 /**
  * Data structure to hold output port configurations.
  */
-struct hsk_pwm_port_conf {
+const struct {
 	/**
 	 * The Pn_ALTSEL[01] bit position to make the port configuration in.
 	 */
@@ -242,12 +215,7 @@ struct hsk_pwm_port_conf {
 	 * Select a 2 bits Pn_ALTSEL[01] configuration.
 	 */
 	ubyte sel;
-};
-
-/**
- * A table of output port configurations.
- */
-const struct hsk_pwm_port_conf code hsk_pwm_ports[] = {
+} code hsk_pwm_ports[] = {
 	/* PWM_OUT_60_P30 */ {0, 1},
 	/* PWM_OUT_60_P31 */ {1, 1},
 	/* PWM_OUT_60_P40 */ {0, 1},
@@ -270,20 +238,6 @@ const struct hsk_pwm_port_conf code hsk_pwm_ports[] = {
 	/* PWM_OUT_63_P43 */ {3, 2}
 };
 
-/**
- * Set up a PWM output port.
- *
- * This configures the necessary port direction bits and activates the
- * corresponding output channels.
- *
- * The port can be any one of the PWM_OUT_x_* defines.
- *
- * @pre
- *	This function should only be called after hsk_pwm_enable(), otherwise
- *	the output port will be driven (1) until PWM is enabled
- * @param port
- *	The output port to activate
- */
 void hsk_pwm_port_open(hsk_pwm_port idata port) {
 	/*
 	 * Warning, hard coded magic numbers.
@@ -352,16 +306,6 @@ void hsk_pwm_port_open(hsk_pwm_port idata port) {
 	#undef portSel
 }
 
-/**
- * Close a PWM output port.
- *
- * This configures the necessary port direction bits.
- *
- * The port can be any one of the PWM_OUT_x_* defines.
- *
- * @param port
- *	The output port to deactivate
- */
 void hsk_pwm_port_close(hsk_pwm_port idata port) {
 	/*
 	 * Warning, hard coded magic numbers.
@@ -422,21 +366,6 @@ void hsk_pwm_port_close(hsk_pwm_port idata port) {
 	#undef portSel
 }
 
-/**
- * Set the duty cycle for the given channel.
- *
- * I.e. the active time frame slice of period can be set with max and value.
- *
- * To set the duty cycle in percent specify a max of 100 and values from 0 to
- * 100.
- *
- * @param channel
- *	The PWM channel to set the duty cycle for, check the PWM_6x defines
- * @param max
- *	Defines the scope value can move in
- * @param value
- *	The current duty cycle value
- */
 void hsk_pwm_channel_set(hsk_pwm_channel idata channel, uword idata max, uword idata value) {
 	ulong duty;
 
@@ -478,17 +407,6 @@ void hsk_pwm_channel_set(hsk_pwm_channel idata channel, uword idata max, uword i
 	}
 }
 
-/**
- * Set the direction of an output channel.
- *
- * The channel value can be taken from any of the PWM_CCx/PWM_COUTx defines.
- *
- * @param channel
- *	The IO channel to set the direction bit for.
- * @param up
- *	Set 1 to output a 1 during the cycle set with hsk_pwm_channel_set().
- *	Set 0 to output a 0 during the cycle set with hsk_pwm_channel_set().
- */
 void hsk_pwm_outChannel_dir(hsk_pwm_outChannel idata channel, bool up) {
 	/* The configuration bit for COUT63 is misplaced. */
 	if (channel == PWM_COUT63) {
@@ -516,14 +434,6 @@ void hsk_pwm_outChannel_dir(hsk_pwm_outChannel idata channel, bool up) {
  */
 #define BIT_TnRS	1
 
-/**
- * Turns on the CCU6.
- *
- * Deactivates the power disable mode and sets the T12 and T13 Timer Run bits.
- *
- * @pre
- *	All hsk_pwm_init() calls have to be completed to call this
- */
 void hsk_pwm_enable(void) {
 	/* Enable clock. */
 	SFR_PAGE(_su1, noSST);
@@ -536,9 +446,6 @@ void hsk_pwm_enable(void) {
 
 }
 
-/**
- * Deactivates the CCU6 to reduce power consumption.
- */
 void hsk_pwm_disable(void) {
 	/* Reset T12 and T13 Timer Run bits. */
 	CCU6_TCTR4L |= 1 << BIT_TnRR;
@@ -549,3 +456,4 @@ void hsk_pwm_disable(void) {
 	PMCON1 |= 1 << BIT_CCU_DIS;
 	SFR_PAGE(_su0, noSST);
 }
+
