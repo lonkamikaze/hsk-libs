@@ -5,7 +5,6 @@
  * CAN communication over the builtin CAN nodes 0 and 1.
  *
  * @author kami
- * @version 2012-03-14
  */
 
 #ifndef _HSK_CAN_H_

@@ -5,7 +5,6 @@
  * and used for testing whatever code is currently under development.
  *
  * @author kami
- * @version 2012-02-09
  */
 
 #include <Infineon/XC878.h>

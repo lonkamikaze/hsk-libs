@@ -6,7 +6,6 @@
  * To be able to use all 8 channels the ADC is kept in sequential mode.
  * 
  * @author kami
- * @version 2012-02-08
  */
 
 #include <Infineon/XC878.h>
