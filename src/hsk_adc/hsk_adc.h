@@ -19,7 +19,6 @@
  * drain on the analogue input and reduces flickering.
  *
  * @author kami
- * @version 2012-02-08
  */
 
 #ifndef _HSK_ADC_H_

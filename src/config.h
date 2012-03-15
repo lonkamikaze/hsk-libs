@@ -2,7 +2,6 @@
  * Configuration for the Infineon XC800 Starter Kit.
  *
  * @author kami
- * @version 2011-07-22
  */
 
 #ifndef _HSK_CONFIG_H_

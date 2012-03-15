@@ -13,7 +13,7 @@
  *	SST0	RST0	ISRs
  *	SST1	RST1	ISR callback functions
  *	SST2	RST2	NMI ISR
- *	SST3	RST3	NMI
+ *	SST3	RST3	NMI callback functions
  * \endcode
  *
  * @author kami

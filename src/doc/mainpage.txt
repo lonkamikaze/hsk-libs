@@ -726,7 +726,6 @@ Every header file begins with a JavaDoc style comment:
  * <description>
  *
  * @author <author tag>
- * @version <iso date>
  */
 \endverbatim
 
@@ -764,7 +763,6 @@ Like header files every C file starts with a JavaDoc style comment:
  * <description>
  *
  * @author <author tag>
- * @version <iso date>
  */
 \endverbatim
 

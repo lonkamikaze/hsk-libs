@@ -4,7 +4,6 @@
  * This file implements the functions defined in hsk_can.h.
  *
  * @author kami
- * @version 2012-03-14
  *
  * \section multican The XC878 MulitCAN Module
  *
