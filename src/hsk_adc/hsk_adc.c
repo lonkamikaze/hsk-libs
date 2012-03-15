@@ -1,6 +1,8 @@
 /** \file
  * HSK Analog Digital Conversion implementation
  *
+ * This file implements the functions defined in hsk_adc.h.
+ *
  * To be able to use all 8 channels the ADC is kept in sequential mode.
  * 
  * @author kami
@@ -88,6 +90,8 @@ volatile uword * xdata hsk_adc_targets[ADC_CHANNELS];
 
 /**
  * Write the conversion result to the targeted memory address.
+ *
+ * @private
  */
 #pragma save
 #pragma nooverlay
@@ -168,26 +172,6 @@ void hsk_adc_isr(void) {
  */
 #define BIT_IMODE		4
 
-/**
- * Initialize the AD conversion.
- *
- * The shortest possible conversion time is 1.25µs, the longest is 714.75µs.
- * The given value will be rounded down.
- *
- * Note if hsk_adc_service() is not called in intervals shorter than convTime,
- * there will be a waiting period between conversions. This prevents locking
- * up of the controler with erratic interrupts.
- *
- * There is a 4 entry queue, for starting conversions, so it suffices to
- * average the interval below convTime.
- *
- * All already open channels will be closed upon calling this function.
- *
- * @param resolution
- *	The conversion resolution, any of ADC_RESOLUTION_*.
- * @param convTime
- *	The desired conversion time in µs.
- */
 void hsk_adc_init(ubyte idata resolution, uword idata convTime) {
 	/* The Conversion Time Control bits, any of ADC_CLK_*. */
 	ubyte ctc;
@@ -274,9 +258,6 @@ void hsk_adc_init(ubyte idata resolution, uword idata convTime) {
  */
 #define BIT_ADC_DIS		0
 
-/**
- * Turns on ADC conversion, if previously deactivated.
- */
 void hsk_adc_enable(void) {
 	/* Enable clock. */
 	SFR_PAGE(_su1, noSST);
@@ -284,9 +265,6 @@ void hsk_adc_enable(void) {
 	SFR_PAGE(_su0, noSST);
 }
 
-/**
- * Turns off ADC conversion unit to conserve power.
- */
 void hsk_adc_disable(void) {  
 	/* Stop clock in module. */
 	SFR_PAGE(_su1, noSST);
@@ -309,14 +287,6 @@ void hsk_adc_disable(void) {
  */
 #define BIT_EMPTY	5
 
-/**
- * Open the given ADC channel.
- *
- * @param channel
- *	The channel id.
- * @param target
- *	A pointer where to store conversion results.
- */
 void hsk_adc_open(hsk_adc_channel idata channel, uword * idata target) {
 	bool eadc = EADC;
 
@@ -332,14 +302,6 @@ void hsk_adc_open(hsk_adc_channel idata channel, uword * idata target) {
 	}
 }
 
-/**
- * Close the given ADC channel.
- *
- * Stopp ADC if no more channels were left.
- *
- * @param channel
- *	The channel id.
- */
 void hsk_adc_close(hsk_adc_channel idata channel) {
 	bool eadc = EADC;
 	EADC = 0;
@@ -359,13 +321,6 @@ void hsk_adc_close(hsk_adc_channel idata channel) {
 	}
 }
 
-/**
- * A maintenance function that takes care of keeping AD conversions going.
- * This has to be called repeatedly.
- *
- * There is a queue of up to 4 conversion jobs. One call of this function
- * only adds one job to the queue.
- */
 void hsk_adc_service(void) {
 	/* Check for empty slots in the queue. */
 	SFR_PAGE(_ad6, noSST);
@@ -391,6 +346,8 @@ void hsk_adc_service(void) {
  * This is used as the ISR by hsk_adc_warmup() after the warmup countdowns
  * have been initialized. After all warmup countdowns have returned to zero
  * The original ISR will be put back in control.
+ *
+ * @private
  */
 #pragma save
 #pragma nooverlay
@@ -413,15 +370,6 @@ void hsk_adc_isr_warmup(void) {
 }
 #pragma restore
 
-/**
- * Warm up the AD conversion.
- *
- * I.e. make sure all conversion targets have been initialized with a
- * conversion result. This is a blocking function only intended for single
- * use during the boot procedure.
- *
- * This function will not terminate unless interrupts are enabled.
- */
 void hsk_adc_warmup(void) {
 	ubyte i;
 

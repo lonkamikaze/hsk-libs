@@ -411,7 +411,7 @@ void hsk_can_fifo_getData(hsk_can_fifo idata fifo, ubyte * idata msgdata);
  * \section data Message Data
  *
  * The hsk_can_data_setSignal() and hsk_can_data_getSignal() functions allow
- * reading and writing signals across byte boundaries to a buffer.
+ * writing and reading signals across byte boundaries to and from a buffer.
  *
  * For big endian signals the bit position of the most significant bit must
  * be supplied (highest bit in the first byte). For little endian signals

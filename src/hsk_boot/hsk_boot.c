@@ -6,7 +6,6 @@
  * This obsoletes 3rd party provided assembler boot code.
  *
  * @author kami
- * @version 2012-02-08
  */
 
 #include <Infineon/XC878.h>
@@ -149,19 +148,50 @@ void hsk_boot_mem(void) {
 #define CNT_PDIV		5
 
 /**
+ * PLL_CON low PLL NF-Divider bits.
+ */
+#define BIT_NDIVL		2
+
+/**
+ * NDIVL bit count.
+ */
+#define CNT_NDIVL		6
+
+/**
+ * PLL_CON1 high PLL NF-Divider bits.
+ */
+#define BIT_NDIVH		5
+
+/**
+ * NDIVH bit count.
+ */
+#define CNT_NDIVH		3
+
+/**
  * NMICON PLL Loss of Clock NMI Enable bit.
  */
 #define BIT_NMIPLL 		1
 
 /**
  * The PDIV value for the configured clock speed.
+ *
  * See table 7-5 in the data sheet for desired PDIV values.
  * See the PDIV description for value encoding.
  */
 ubyte xdata pdiv;
 
 /**
+ * The NDIV value for the configured clock speed.
+ *
+ * See table 7-5 in the data sheet for desired NDIV values.
+ * See the NDIV description for value encoding.
+ */
+uword xdata ndiv;
+
+/**
  * Loss of clock recovery ISR.
+ *
+ * @private
  */
 #pragma save
 #pragma nooverlay
@@ -202,8 +232,12 @@ void hsk_nmipll_isr(void) {
 	MAIN_vUnlockProtecReg();
 	OSC_CON	|= 1 << BIT_OSCSS;
 	/* Reprogram NDIV, PDIV and KDIV values is necessary. */
+	activeWait = (uword)ndiv >> CNT_NDIVL;
 	MAIN_vUnlockProtecReg();
-	PLL_CON1 = (PLL_CON1 & ~(((1 << CNT_PDIV) - 1) << BIT_PDIV)) | (pdiv << BIT_PDIV);
+	PLL_CON1 = (activeWait << BIT_NDIVH) | (pdiv << BIT_PDIV);
+	activeWait = (uword)ndiv & ((1 << CNT_NDIVL) - 1);
+	MAIN_vUnlockProtecReg();
+	PLL_CON = activeWait << BIT_NDIVL;
 
 	/* Change to PLL normal operation mode (PLLPD=0). */
 	MAIN_vUnlockProtecReg();
@@ -221,44 +255,9 @@ void hsk_nmipll_isr(void) {
 }
 #pragma restore
 
-/**
- * Switches to an external oscilator.
- *
- * This function requires xdata access.
- *
- * The implemented process is named:
- * 	"Select the External Oscillator as PLL input source"
- *
- * The following is described in more detail in chapter 7.3 of the XC878
- * User Manual.
- *
- * The XC878 can either use an internal 4MHz oscilator (default) or an
- * external oscilator from 2 to 20MHz, normally referred to as FOSC.
- * A phase-locked loop (PLL) converts it to a faster internal speed FSYS,
- * 144MHz by default.
- *
- * This implementation is currently limited to oscilators from 4MHz to 20MHz
- * in 2MHz intervals, because only PDIV is used to control the PLL phase.
- *
- * The oscilator frequency is vital for external communication (e.g. CAN)
- * and timer/counter speeds.
- *
- * This implementation switches to an external clock ensuring that the
- * PLL generates a 144MHz FSYS clock. The CLKREL divisor set to 6 generates
- * the fast clock (FCLK) that runs at 48MHz. The remaining clocks, i.e.
- * peripheral (PCLK), CPU (SCLK, CCLK), have a fixed divisor by 2, so
- * they run at 24MHz.
- *
- * After setting up the PLL, this function will register an ISR, that will
- * attempt to reactivate the external oscillator in a PLL loss-of-clock
- * event.
- *
- * @param clk
- *		The frequency of the external oscilator in Hz.
- */
 void hsk_boot_extClock(ulong idata clk) {
 	/**
-	 * WARNING - Here be dragons ...
+	 * <b>WARNING - Here be dragons ...</b>
 	 *
 	 * Before messing with this stuff you should be aware that this is
 	 * tricky business. Mistakes can result in hardware damage. Or at
@@ -279,11 +278,12 @@ void hsk_boot_extClock(ulong idata clk) {
 	ubyte activeWait;
 
 	/*
-	 * Used to calculate PDIV.
-	 * See table 7-5 in the data sheet for desired PDIV values.
-	 * See the PDIV description for value encoding.
+	 * Used to calculate NDIV and PDIV.
+	 * See table 7-5 in the data sheet for desired NDIV and PDIV values.
+	 * See the NDIV and PDIV descriptions for value encoding.
 	 */
-	pdiv = clk / 2000000UL - 2;
+	ndiv = 144 - 2;
+	pdiv = clk / 1000000UL - 2;
 
 	/* Go to page1 where all the oscillator registers are. */
 	SFR_PAGE(_su1, noSST);
@@ -312,9 +312,14 @@ void hsk_boot_extClock(ulong idata clk) {
 	MAIN_vUnlockProtecReg();
 	OSC_CON	|= 1 << BIT_OSCSS;
 	/* Program desired NDIV, PDIV and KDIV values. */
-	/* Except for PDIV the defaults fit. */
+	/* The KDIV value is not touched. */
+	activeWait = (uword)ndiv >> CNT_NDIVL;
 	MAIN_vUnlockProtecReg();
-	PLL_CON1 = (PLL_CON1 & ~(((1 << CNT_PDIV) - 1) << BIT_PDIV)) | (pdiv << BIT_PDIV);
+	PLL_CON1 = (activeWait << BIT_NDIVH) | (pdiv << BIT_PDIV);
+	activeWait = (uword)ndiv & ((1 << CNT_NDIVL) - 1);
+	MAIN_vUnlockProtecReg();
+	PLL_CON = activeWait << BIT_NDIVL;
+
 	/* Change to PLL normal operation mode (PLLPD=0). */
 	MAIN_vUnlockProtecReg();
 	OSC_CON &= ~(1 << BIT_PLLPD);

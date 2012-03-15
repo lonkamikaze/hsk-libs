@@ -901,6 +901,7 @@ hsk_can_msg hsk_can_msg_create(ulong idata id, bool extended,
  *	The given message object id is not valid
  * @retval 0
  *	Move successful
+ * @private
  */
 ubyte hsk_can_msg_move(hsk_can_msg idata msg, ubyte idata list) {
 	/* Check whether this is a valid message ID. */
@@ -1186,6 +1187,7 @@ void hsk_can_fifo_setupRX(hsk_can_fifo idata fifo, ulong idata id,
  *	The given FIFO id is not valid
  * @retval 0
  *	Move successful
+ * @private
  */
 ubyte hsk_can_fifo_move(hsk_can_fifo idata fifo, ubyte idata list) {
 	ubyte top, pre, next;
@@ -1311,6 +1313,7 @@ void hsk_can_fifo_getData(hsk_can_fifo idata fifo, ubyte * idata msgdata) {
  * 	The length of the signal
  * @param value
  * 	The signal value to write into the data field
+ * @private
  */
 void hsk_can_data_setIntelSignal(ubyte * idata msg, char idata bitPos,
 		char idata bitCount, ulong idata value) {
@@ -1369,6 +1372,7 @@ void hsk_can_data_setIntelSignal(ubyte * idata msg, char idata bitPos,
  * 	The length of the signal
  * @param value
  * 	The signal value to write into the data field
+ * @private
  */
 void hsk_can_data_setMotorolaSignal(ubyte * idata msg, char idata bitPos,
 		char idata bitCount, ulong idata value) {
@@ -1411,6 +1415,7 @@ void hsk_can_data_setSignal(ubyte * idata msg, bool endian, char idata bitPos,
  * 	The length of the signal
  * @return
  *	The signal from the data field msg
+ * @private
  */
 ulong hsk_can_data_getIntelSignal(ubyte * idata msg, char idata bitPos, char idata bitCount) {
 	ulong value = 0;
@@ -1439,6 +1444,7 @@ ulong hsk_can_data_getIntelSignal(ubyte * idata msg, char idata bitPos, char ida
  * 	The length of the signal
  * @return
  *	The signal from the data field msg
+ * @private
  */
 ulong hsk_can_data_getMotorolaSignal(ubyte * idata msg, char idata bitPos, char idata bitCount) {
 	ulong value = 0;
