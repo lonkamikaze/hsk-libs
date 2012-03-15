@@ -13,7 +13,6 @@
  *	  internal clock is not sufficiently precise
  *
  * @author kami
- * @version 2012-02-08
  */
 
 #ifndef _HSK_BOOT_H_
@@ -50,8 +49,8 @@ void hsk_boot_mem(void);
  * A phase-locked loop (PLL) converts it to a faster internal speed FSYS,
  * 144MHz by default.
  *
- * This implementation is currently limited to oscilators from 4MHz to 20MHz
- * in 2MHz intervals, because only PDIV is used to control the PLL phase.
+ * This implementation is currently limited to oscilators from 2MHz to 20MHz
+ * in 1MHz intervals.
  *
  * The oscilator frequency is vital for external communication (e.g. CAN)
  * and timer/counter speeds.
