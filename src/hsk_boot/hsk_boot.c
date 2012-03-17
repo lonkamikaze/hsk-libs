@@ -235,7 +235,7 @@ void hsk_nmipll_isr(void) {
 	activeWait = (uword)ndiv >> CNT_NDIVL;
 	MAIN_vUnlockProtecReg();
 	PLL_CON1 = (activeWait << BIT_NDIVH) | (pdiv << BIT_PDIV);
-	activeWait = (uword)ndiv & ((1 << CNT_NDIVL) - 1);
+	activeWait = ndiv & ((1 << CNT_NDIVL) - 1);
 	MAIN_vUnlockProtecReg();
 	PLL_CON = activeWait << BIT_NDIVL;
 
@@ -316,7 +316,7 @@ void hsk_boot_extClock(ulong idata clk) {
 	activeWait = (uword)ndiv >> CNT_NDIVL;
 	MAIN_vUnlockProtecReg();
 	PLL_CON1 = (activeWait << BIT_NDIVH) | (pdiv << BIT_PDIV);
-	activeWait = (uword)ndiv & ((1 << CNT_NDIVL) - 1);
+	activeWait = ndiv & ((1 << CNT_NDIVL) - 1);
 	MAIN_vUnlockProtecReg();
 	PLL_CON = activeWait << BIT_NDIVL;
 
