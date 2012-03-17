@@ -660,27 +660,32 @@ void hsk_can_disable(hsk_can_node idata node) {
 #define SET			0xC
 
 /**
- * MOCTRn Message Valid bit.
+ * MOCTRn/MOSTATn Receive Pending bit.
+ */
+#define BIT_RXPND		0
+
+/**
+ * MOCTRn/MOSTATn Message Valid bit.
  */
 #define BIT_MSGVAL		5
 
 /**
- * MOCTRn Receive Signal Enable bit.
+ * MOCTRn/MOSTATn Receive Signal Enable bit.
  */
 #define	BIT_RXEN		7
 
 /**
- * MOCTRn Transmit Signal Request bit.
+ * MOCTRn/MOSTATn Transmit Signal Request bit.
  */
 #define BIT_TXRQ		8
 
 /**
- * MOCTRn Transmit Signal Enable bit.
+ * MOCTRn/MOSTATn Transmit Signal Enable bit.
  */
 #define BIT_TXEN0		9
 
 /**
- * MOCTRn Transmit Signal Enable Select bit.
+ * MOCTRn/MOSTATn Transmit Signal Enable Select bit.
  */
 #define BIT_TXEN1		10
 
@@ -846,8 +851,9 @@ hsk_can_msg hsk_can_msg_create(ulong idata id, bool extended,
 	CAN_DATA23 = (1 << (BIT_MIDE - 16)) | (((1 << (CNT_AM - 16)) - 1) << BIT_AM);
 	CAN_AD_WRITE(0xF);
 
-	/* Set message valid. */
+	/* Set message up for receiving. */
 	CAN_ADLH = MOCTRn + (msg << OFF_MOn);
+	RESET_DATA = (1 << BIT_TXEN0) | (1 << BIT_TXEN1) | (1 << BIT_RXPND);
 	SET_DATA = (1 << BIT_MSGVAL) | (1 << BIT_RXEN);
 	CAN_AD_WRITE(SET);
 
@@ -1010,11 +1016,6 @@ void hsk_can_msg_receive(hsk_can_msg idata msg) {
 	CAN_AD_WRITE(0xF);
 }
 
-/**
- * MOSTATn Receive Pending bit in byte 0.
- */
-#define BIT_RXPND	0
-
 bool hsk_can_msg_updated(hsk_can_msg idata msg) {
 
 	/* Get the message status. */
@@ -1086,9 +1087,9 @@ hsk_can_fifo hsk_can_fifo_create(ubyte idata size) {
 			| (MMC_TXSLAVEFIFO << BIT_MMC);
 		CAN_AD_WRITE(0x1);
 
-		/* Reset TXEN1 and MSGVAL. */
+		/* Reset TXEN1, RXPND and MSGVAL. */
 		CAN_ADLH = MOCTRn + (top << OFF_MOn);
-		RESET_DATA = (1 << BIT_TXEN1) | (1 << BIT_MSGVAL);
+		RESET_DATA = (1 << BIT_TXEN1) | (1 << BIT_RXPND) | (1 << BIT_MSGVAL);
 		CAN_AD_WRITE(RESET);
 
 		/* Point to the base object. */
@@ -1120,9 +1121,9 @@ hsk_can_fifo hsk_can_fifo_create(ubyte idata size) {
 	CAN_DATA0 = MMC_RXBASEFIFO << BIT_MMC;
 	CAN_AD_WRITE(0x9);
 
-	/* Reset message valid. */
+	/* Reset TXEN1, RXPND and MSGVAL. */
 	CAN_ADLH = MOCTRn + (base << OFF_MOn);
-	RESET_DATA = (1 << BIT_MSGVAL);
+	RESET_DATA = (1 << BIT_TXEN1) | (1 << BIT_RXPND) | (1 << BIT_MSGVAL);
 	CAN_AD_WRITE(RESET);
 
 	return base;
