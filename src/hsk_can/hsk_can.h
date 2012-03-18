@@ -70,6 +70,72 @@
  */
 #define CAN_ENDIAN_MOTOROLA	1
 
+
+/** \file
+ * \section tuples CAN Message/Signal Tuples
+ *
+ * The recommended way to use messages and signals is not to specify them
+ * inline, but to provide defines with a set of parameters.
+ *
+ * These tupples should follow the following pattern:
+ * \code
+ * #define MSG_<MSGNAME>	<id>, <extended>, <dlc>
+ * #define SIG_<SIGNAME>	<endian>, <bitPos>, <bitCount>
+ * \endcode
+ *
+ * The symbols have the following meaning:
+ * 	- MSGNAME: The name of the message in capitals, e.g. AFB_CHANNELS
+ *	- id: The CAN id of the message, e.g. 0x403
+ *	- extended: Whether the CAN ID is extended or not, e.g. 0 for a
+ *	  regular ID
+ *	- dlc: The data length count of the message, e.g. 3
+ *	- SIGNAME: The name of the signal in capitals, e.g.
+ *	  AFB_CHANNEL0_CURRENT
+ *	- endian: Whether the signal is in little or big endian format,
+ *	  e.g. CAN_ENDIAN_INTEL
+ *	- bitPos: The starting bit of the signal, e.g. 0
+ *	- bitCount: The length of the signal in bits, e.g. 10
+ * 
+ * Tuples using the specified format can directly be used as parameters
+ * for several functions in the library.
+ */
+
+/**
+ * Returns the CAN ID, from a message defining tuple.
+ *
+ * @param id
+ *	The CAN ID to substitute for the entire tuple
+ * @param extended
+ *	Discarded
+ * @param dlc
+ * 	Discarded
+ */
+#define CAN_GETID(id, extended, dlc)	id
+
+/**
+ * Returns the extended setting from a message defining tuple.
+ *
+ * @param id
+ *	Discarded
+ * @param extended
+ *	The extended bit to substitute for the tuple
+ * @param dlc
+ * 	Discarded
+ */
+#define CAN_GETEXT(id, extended, dlc)	extended
+
+/**
+ * Returns the DLC from a message defining tuple.
+ *
+ * @param id
+ *	Discarded
+ * @param extended
+ *	Discarded
+ * @param dlc
+ * 	The data length code to substitute for the tuple
+ */
+#define CAN_GETDLC(id, extended, dlc)	dlc
+
 /**
  * CAN node identifiers.
  */
@@ -324,6 +390,22 @@ hsk_can_fifo hsk_can_fifo_create(ubyte idata size);
  */
 void hsk_can_fifo_setupRX(hsk_can_fifo idata fifo, ulong idata id,
 	bool extended, ubyte idata dlc);
+
+/**
+ * Changes the ID matching mask of an RX FIFO.
+ *
+ * Every RX FIFO is setup to receive only on complete ID matches. This
+ * function allows updating the mask.
+ *
+ * To generate a mask from a list of IDs use the following formula:
+ *	\f[ msk = \sim(id_0 | id_1 | ... | id_n) | (id_0 \& id_1 \& ... \& id_n)  \f]
+ *
+ * @param fifo
+ * 	The FIFO to change the RX mask for
+ * @param msk
+ *	The bit mask to set for the FIFO
+ */
+void hsk_can_fifo_setRXMask(hsk_can_fifo idata fifo, ulong idata msk);
 
 /**
  * Connect a FIFO to a CAN node.

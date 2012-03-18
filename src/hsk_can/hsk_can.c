@@ -848,7 +848,7 @@ hsk_can_msg hsk_can_msg_create(ulong idata id, bool extended,
 	/* Adjust filtering mask to only accept complete ID matches. */
 	CAN_ADLH = MOAMRn + (msg << OFF_MOn);
 	CAN_DATA01 = -1;
-	CAN_DATA23 = (1 << (BIT_MIDE - 16)) | (((1 << (CNT_AM - 16)) - 1) << BIT_AM);
+	CAN_DATA23 = (1 << (BIT_MIDE - 16)) | ((1 << (CNT_AM - (16 - BIT_AM))) - 1);
 	CAN_AD_WRITE(0xF);
 
 	/* Set message up for receiving. */
@@ -1150,6 +1150,12 @@ void hsk_can_fifo_setupRX(hsk_can_fifo idata fifo, ulong idata id,
 		| ((ubyte)extended << (BIT_IDE - 16)) | (PRI_ID << (BIT_PRI - 16));
 	CAN_AD_WRITE(0xF);
 
+	/* Adjust filtering mask to only accept complete ID matches. */
+	CAN_ADLH = MOAMRn + (fifo << OFF_MOn);
+	CAN_DATA01 = -1 << BIT_AM;
+	CAN_DATA23 = (1 << (BIT_MIDE - 16)) | ((1 << (CNT_AM - (16 - BIT_AM))) - 1);
+	CAN_AD_WRITE(0xF);
+
 	/* Enable RX and set message valid. */
 	CAN_ADLH = MOCTRn + (fifo << OFF_MOn);
 	RESET_DATA = (1 << BIT_TXEN0) | (1 << BIT_TXEN1);
@@ -1176,11 +1182,32 @@ void hsk_can_fifo_setupRX(hsk_can_fifo idata fifo, ulong idata id,
 	}
 }
 
+void hsk_can_fifo_setRXMask(hsk_can_fifo idata fifo, ulong idata msk) {
+
+	/* Shift msk into position. */
+	CAN_ADLH = MOARn + (fifo << OFF_MOn);
+	CAN_AD_READ();
+	if ((CAN_DATA23 >> (BIT_IDE - 16)) & 1) {
+		msk &= (1 << CNT_IDEXT) - 1;
+		msk <<= BIT_IDEXT;
+	} else {
+		msk &= (1 << CNT_IDSTD) - 1;
+		msk <<= BIT_IDSTD;
+	}
+
+	/* Adjust filtering mask. */
+	CAN_ADLH = MOAMRn + (fifo << OFF_MOn);
+	CAN_DATA01 = msk;
+	CAN_DATA23 = (1 << (BIT_MIDE - 16)) | (msk >> (16 - BIT_AM));
+	CAN_AD_WRITE(0xF);
+
+}
+
 /**
  * Move the selected FIFO to a different list.
  *
  * @param fifo
- * 	The identifier of the fifo
+ * 	The identifier of the FIFO
  * @param list
  * 	The list to move the FIFO to
  * @retval CAN_ERROR
