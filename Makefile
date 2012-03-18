@@ -8,6 +8,9 @@ HEXSUFX=	.hex
 DATE:=		$(shell date +%Y-%m-%d)
 DATE!=		date +%Y-%m-%d
 
+VERSION:=	$(shell hg tip 2> /dev/null | awk '/^changeset/ {print $$2}' || echo ${DATE})
+VERSION!=	hg tip 2> /dev/null | awk '/^changeset/ {print $$2}' || echo ${DATE}
+
 USERSRC:=	$(shell find src/ -name \*.h -o -name \*.txt)
 USERSRC!=	find src/ -name \*.h -o -name \*.txt
 
@@ -27,7 +30,7 @@ include build.mk
 
 html: html/user html/dev html/contrib
 
-html/contrib:
+html/contrib: contrib
 	@rm -rf html/contrib || true
 	@mkdir -p html
 	@cp -r contrib html/
@@ -45,18 +48,15 @@ html/dev: doc-private
 doc: ${USERSRC} doxygen.public.conf
 	@rm -rf doc || true
 	@mkdir -p doc
-	@echo PROJECT_NAME=${PROJECT} > doc/.conf
-	@echo PROJECT_NUMBER=user-${DATE} >> doc/.conf
+	@echo PROJECT_NUMBER=${VERSION} >> doc/.conf
 	@cat doxygen.public.conf doc/.conf | doxygen -
 
 doc-private: ${DEVSRC} doxygen.public.conf doxygen.private.conf
 	@rm -rf doc-private || true
 	@mkdir -p doc-private
-	@echo PROJECT_NAME=${PROJECT} > doc-private/.conf
-	@echo PROJECT_NUMBER=dev-${DATE} >> doc-private/.conf
+	@echo PROJECT_NUMBER=${VERSION} >> doc-private/.conf
 	@cat doxygen.public.conf doxygen.private.conf doc-private/.conf \
 		| doxygen -
-	@cp -r contrib doc-private/html/
 
 pdf: pdf/${PROJECT}-user.pdf pdf/${PROJECT}-dev.pdf
 

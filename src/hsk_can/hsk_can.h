@@ -291,10 +291,17 @@ bool hsk_can_msg_updated(hsk_can_msg idata msg);
 /** \file
  * \section fifos FIFOs
  *
- * Only RX FIFOs are currently implemented. In most use cases only the latest
- * version of a message is relevant and FIFOs are not required. But messages
- * containing multiplexed signals may contain critical signals that would be
- * overwritten by a message with the same ID, but a different multiplexor.
+ * FIFOs are the weapon of choice when dealing with large numbers of
+ * individual messages or when receving multiplexed data. In most use cases
+ * only the latest version of a message is relevant and FIFOs are not
+ * required. But messages containing multiplexed signals may contain critical
+ * signals that would be overwritten by a message with the same ID, but a
+ * different multiplexor.
+ *
+ * If more message IDs than available message objects are used to send and/or
+ * receive data, there is no choice but to use a FIFO.
+ *
+ * Currently only RX FIFOs are supported.
  *
  * A FIFO can act as a buffer the CAN module can store message data in until
  * it can be dealt with. The following example illustrates how to read from
@@ -307,6 +314,26 @@ bool hsk_can_msg_updated(hsk_can_msg idata msg);
  * 	[...]
  * }
  * \endcode
+ *
+ * When using a mask to accept several messages checking the ID becomes
+ * necessary:
+ * \code
+ * if (hsk_can_fifo_updated(fifo0)) {
+ * 	switch (hsk_can_fifo_getId()) {
+ * 	case MSG_0_ID:
+ * 		hsk_can_fifo_getData(fifo0, data0);
+ * 		[...]
+ * 		break;
+ * 	case MSG_1_ID:
+ * 		hsk_can_fifo_getData(fifo0, data1);
+ * 		[...]
+ * 		break;
+ * 	[...]
+ * 	}
+ * 	hsk_can_fifo_next(fifo0);
+ * }
+ * \endcode
+ * 
  *
  * FIFOs draw from the same message object pool regular message objects do.
  */
@@ -361,6 +388,7 @@ void hsk_can_fifo_setupRx(hsk_can_fifo idata fifo, ulong idata id,
  * To generate a mask from a list of IDs use the following formula:
  *	\f[ msk = \sim(id_0 | id_1 | ... | id_n) | (id_0 \& id_1 \& ... \& id_n)  \f]
  *
+ * @pre hsk_can_fifo_setupRx()
  * @param fifo
  * 	The FIFO to change the RX mask for
  * @param msk
