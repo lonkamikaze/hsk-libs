@@ -855,7 +855,7 @@ hsk_can_msg hsk_can_msg_create(ulong idata id, bool extended,
 	CAN_ADLH = MOCTRn + (msg << OFF_MOn);
 	RESET_DATA = (1 << BIT_TXEN0) | (1 << BIT_TXEN1) | (1 << BIT_RXPND);
 	SET_DATA = (1 << BIT_MSGVAL) | (1 << BIT_RXEN);
-	CAN_AD_WRITE(SET);
+	CAN_AD_WRITE(0xF);
 
 	return msg;
 }
@@ -1129,7 +1129,7 @@ hsk_can_fifo hsk_can_fifo_create(ubyte idata size) {
 	return base;
 }
 
-void hsk_can_fifo_setupRX(hsk_can_fifo idata fifo, ulong idata id,
+void hsk_can_fifo_setupRx(hsk_can_fifo idata fifo, ulong idata id,
 		bool extended, ubyte idata dlc) {
 	hsk_can_msg top;
 
@@ -1182,16 +1182,16 @@ void hsk_can_fifo_setupRX(hsk_can_fifo idata fifo, ulong idata id,
 	}
 }
 
-void hsk_can_fifo_setRXMask(hsk_can_fifo idata fifo, ulong idata msk) {
+void hsk_can_fifo_setRxMask(hsk_can_fifo idata fifo, ulong idata msk) {
 
 	/* Shift msk into position. */
 	CAN_ADLH = MOARn + (fifo << OFF_MOn);
 	CAN_AD_READ();
-	if ((CAN_DATA23 >> (BIT_IDE - 16)) & 1) {
-		msk &= (1 << CNT_IDEXT) - 1;
+	if ((CAN_DATA3 >> (BIT_IDE - 24)) & 1) {
+		msk &= (1ul << CNT_IDEXT) - 1;
 		msk <<= BIT_IDEXT;
 	} else {
-		msk &= (1 << CNT_IDSTD) - 1;
+		msk &= (1ul << CNT_IDSTD) - 1;
 		msk <<= BIT_IDSTD;
 	}
 
@@ -1327,6 +1327,25 @@ void hsk_can_fifo_getData(hsk_can_fifo idata fifo, ubyte * idata msgdata) {
 	CAN_ADLH = MOFGPRn + (fifo << OFF_MOn);
 	CAN_AD_READ();
 	hsk_can_msg_getData(MOFGPRn_SEL, msgdata);
+}
+
+ulong hsk_can_fifo_getId(hsk_can_fifo idata fifo) {
+	ulong result;
+
+	/* Get the current selection. */
+	CAN_ADLH = MOFGPRn + (fifo << OFF_MOn);
+	CAN_AD_READ();
+	CAN_ADLH = MOARn + (MOFGPRn_SEL << OFF_MOn);
+	CAN_AD_READ();
+	
+	#define extended ((CAN_DATA3 >> (BIT_IDE - 24)) & 1)
+	result = CAN_DATA23;
+	result <<= 16;
+	result |= CAN_DATA01;
+	result >>= extended ? BIT_IDEXT : BIT_IDSTD;
+	result &= (1ul << (extended ? CNT_IDEXT : CNT_IDSTD)) - 1;
+	return result;
+	#undef extended
 }
 
 /**
