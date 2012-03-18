@@ -5,6 +5,33 @@
  * CAN communication over the builtin CAN nodes 0 and 1.
  *
  * @author kami
+ *
+ * \section tuples CAN Message/Signal Tuples
+ *
+ * The recommended way to use messages and signals is not to specify them
+ * inline, but to provide defines with a set of parameters.
+ *
+ * These tupples should follow the following pattern:
+ * \code
+ * #define MSG_<MSGNAME>	<id>, <extended>, <dlc>
+ * #define SIG_<SIGNAME>	<endian>, <bitPos>, <bitCount>
+ * \endcode
+ *
+ * The symbols have the following meaning:
+ * 	- MSGNAME: The name of the message in capitals, e.g. AFB_CHANNELS
+ *	- id: The CAN id of the message, e.g. 0x403
+ *	- extended: Whether the CAN ID is extended or not, e.g. 0 for a
+ *	  regular ID
+ *	- dlc: The data length count of the message, e.g. 3
+ *	- SIGNAME: The name of the signal in capitals, e.g.
+ *	  AFB_CHANNEL0_CURRENT
+ *	- endian: Whether the signal is in little or big endian format,
+ *	  e.g. CAN_ENDIAN_INTEL
+ *	- bitPos: The starting bit of the signal, e.g. 0
+ *	- bitCount: The length of the signal in bits, e.g. 10
+ * 
+ * Tuples using the specified format can directly be used as parameters
+ * for several functions in the library.
  */
 
 #ifndef _HSK_CAN_H_
@@ -69,72 +96,6 @@
  * Big endian signal encoding.
  */
 #define CAN_ENDIAN_MOTOROLA	1
-
-
-/** \file
- * \section tuples CAN Message/Signal Tuples
- *
- * The recommended way to use messages and signals is not to specify them
- * inline, but to provide defines with a set of parameters.
- *
- * These tupples should follow the following pattern:
- * \code
- * #define MSG_<MSGNAME>	<id>, <extended>, <dlc>
- * #define SIG_<SIGNAME>	<endian>, <bitPos>, <bitCount>
- * \endcode
- *
- * The symbols have the following meaning:
- * 	- MSGNAME: The name of the message in capitals, e.g. AFB_CHANNELS
- *	- id: The CAN id of the message, e.g. 0x403
- *	- extended: Whether the CAN ID is extended or not, e.g. 0 for a
- *	  regular ID
- *	- dlc: The data length count of the message, e.g. 3
- *	- SIGNAME: The name of the signal in capitals, e.g.
- *	  AFB_CHANNEL0_CURRENT
- *	- endian: Whether the signal is in little or big endian format,
- *	  e.g. CAN_ENDIAN_INTEL
- *	- bitPos: The starting bit of the signal, e.g. 0
- *	- bitCount: The length of the signal in bits, e.g. 10
- * 
- * Tuples using the specified format can directly be used as parameters
- * for several functions in the library.
- */
-
-/**
- * Returns the CAN ID, from a message defining tuple.
- *
- * @param id
- *	The CAN ID to substitute for the entire tuple
- * @param extended
- *	Discarded
- * @param dlc
- * 	Discarded
- */
-#define CAN_GETID(id, extended, dlc)	id
-
-/**
- * Returns the extended setting from a message defining tuple.
- *
- * @param id
- *	Discarded
- * @param extended
- *	The extended bit to substitute for the tuple
- * @param dlc
- * 	Discarded
- */
-#define CAN_GETEXT(id, extended, dlc)	extended
-
-/**
- * Returns the DLC from a message defining tuple.
- *
- * @param id
- *	Discarded
- * @param extended
- *	Discarded
- * @param dlc
- * 	The data length code to substitute for the tuple
- */
-#define CAN_GETDLC(id, extended, dlc)	dlc
 
 /**
  * CAN node identifiers.
@@ -388,7 +349,7 @@ hsk_can_fifo hsk_can_fifo_create(ubyte idata size);
  * 	The data length code, # of bytes in the message, valid values
  * 	range from 0 to 8
  */
-void hsk_can_fifo_setupRX(hsk_can_fifo idata fifo, ulong idata id,
+void hsk_can_fifo_setupRx(hsk_can_fifo idata fifo, ulong idata id,
 	bool extended, ubyte idata dlc);
 
 /**
@@ -405,7 +366,7 @@ void hsk_can_fifo_setupRX(hsk_can_fifo idata fifo, ulong idata id,
  * @param msk
  *	The bit mask to set for the FIFO
  */
-void hsk_can_fifo_setRXMask(hsk_can_fifo idata fifo, ulong idata msk);
+void hsk_can_fifo_setRxMask(hsk_can_fifo idata fifo, ulong idata msk);
 
 /**
  * Connect a FIFO to a CAN node.
@@ -456,9 +417,19 @@ ubyte hsk_can_fifo_delete(hsk_can_fifo idata fifo);
  * next entry.
  *
  * @param fifo
- *	The ID of the FIFO to select the next entry from.
+ *	The ID of the FIFO to select the next entry from
  */
 void hsk_can_fifo_next(hsk_can_fifo idata fifo);
+
+/**
+ * Returns the CAN ID of the selected FIFO entry.
+ *
+ * @param fifo
+ *	The ID of the FIFO
+ * @return
+ *	The ID of the currently selected message object
+ */
+ulong hsk_can_fifo_getId(hsk_can_fifo idata fifo);
 
 /**
  * Return whether the currently selected FIFO entry was updated via CAN bus
