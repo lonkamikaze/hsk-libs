@@ -150,6 +150,7 @@ void init(void) {
 	//P3_DIR |= 0x30;
 	//P3_DATA |= 0x10;
 	P3_DIR = -1;
+	P3_DATA = 0;
 	EA = 1;
 
 	hsk_adc_warmup();
