@@ -45,9 +45,11 @@
 #define BIT_MXM			3
 
 /**
- * Set BIT_MXM to access XRAM, the alternative would be banking mode, which
- * would allow us to separate modules into their idividual memory spaces, but
- * deprive us of the use of XRAM.
+ * Set BIT_MXM to access the data memroy bank with MOVX instructions.
+ *
+ * Otherwise the current bank (whichever that is) would be addressed.
+ * MOVX is used to access external memory. The data memory bank is selected
+ * with the MXB bits.
  */
 #define XRAM_SELECTOR		1
 
