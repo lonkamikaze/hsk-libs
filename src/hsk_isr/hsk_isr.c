@@ -13,6 +13,11 @@
 #include "hsk_isr.h"
 
 /**
+ * SYSCON0 Special Function Register Map Control bit.
+ */
+#define BIT_RMAP	0
+
+/**
  * This is a dummy function to point unused function pointers to.
  *
  * @private
@@ -77,6 +82,9 @@ volatile struct hsk_isr5_callback xdata hsk_isr5 = {&dummy, &dummy, &dummy, &dum
  * @private
  */
 void ISR_hsk_isr5(void) interrupt 5 {
+	bool rmap = (SYSCON0 >> BIT_RMAP) & 1;
+	RESET_RMAP();
+
 	SFR_PAGE(_t2_0, SST0);
 	if (T2_T2CON & (1 << BIT_TF2)) {
 		T2_T2CON &= ~(1 << BIT_TF2);
@@ -113,6 +121,8 @@ void ISR_hsk_isr5(void) interrupt 5 {
 		hsk_isr5.CANSRC0();
 	}
 	SFR_PAGE(_su0, RST0);
+
+	rmap ? (SET_RMAP()) : (RESET_RMAP());
 }
 
 /**
@@ -154,6 +164,9 @@ volatile struct hsk_isr6_callback xdata hsk_isr6 = {&dummy, &dummy, &dummy, &dum
  * @private
  */
 void ISR_hsk_isr6(void) interrupt 6 {
+	bool rmap = (SYSCON0 >> BIT_RMAP) & 1;
+	RESET_RMAP();
+
 	SFR_PAGE(_su0, SST0);
 	if (IRCON1 & (1 << BIT_CANSRC1)) {
 		IRCON1 &= ~(1 << BIT_CANSRC1);
@@ -172,6 +185,8 @@ void ISR_hsk_isr6(void) interrupt 6 {
 		hsk_isr6.ADCSR1();
 	}
 	SFR_PAGE(_su0, RST0);
+
+	rmap ? (SET_RMAP()) : (RESET_RMAP());
 }
 
 /**
@@ -223,6 +238,9 @@ volatile struct hsk_isr9_callback xdata hsk_isr9 = {&dummy, &dummy, &dummy, &dum
  * @private
  */
 void ISR_hsk_isr9(void) interrupt 9 {
+	bool rmap = (SYSCON0 >> BIT_RMAP) & 1;
+	RESET_RMAP();
+
 	SFR_PAGE(_su0, SST0);
 	if (IRCON0 & (1 << BIT_EXINT3)) {
 		IRCON0 &= ~(1 << BIT_EXINT3);
@@ -245,6 +263,8 @@ void ISR_hsk_isr9(void) interrupt 9 {
 		hsk_isr9.CANSRC3();
 	}
 	SFR_PAGE(_su0, RST0);
+
+	rmap ? (SET_RMAP()) : (RESET_RMAP());
 }
 
 /**
@@ -290,6 +310,9 @@ volatile struct hsk_isr14_callback xdata hsk_isr14 = {&dummy, &dummy, &dummy, &d
  * @private
  */
 void ISR_hsk_isr14(void) interrupt 14 {
+	bool rmap = (SYSCON0 >> BIT_RMAP) & 1;
+	RESET_RMAP();
+
 	SFR_PAGE(_su0, SST2);
 	if (NMISR & (1 << BIT_NMIWDT)) {
 		NMISR &= ~(1 << BIT_NMIWDT);
@@ -312,5 +335,7 @@ void ISR_hsk_isr14(void) interrupt 14 {
 		hsk_isr14.NMIECC();
 	}
 	SFR_PAGE(_su0, RST2);
+
+	rmap ? (SET_RMAP()) : (RESET_RMAP());
 }
 
