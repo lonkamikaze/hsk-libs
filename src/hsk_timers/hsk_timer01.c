@@ -57,6 +57,11 @@ struct {
 } xdata hsk_timers[2];
 
 /**
+ * SYSCON0 Special Function Register Map Control bit.
+ */
+#define BIT_RMAP	0
+
+/**
  * The ISR for timer 0.
  *
  * Sets up the timer 0 count registers and calls the callback function.
@@ -64,10 +69,16 @@ struct {
  * @private
  */
 void ISR_hsk_timer0(void) interrupt 1 {
-	uword ticks = hsk_timers[0].overflow + ((TH0 << 8) | TL0);
+	uword ticks;
+	bool rmap = (SYSCON0 >> BIT_RMAP) & 1;
+	RESET_RMAP();
+
+	ticks = hsk_timers[0].overflow + ((TH0 << 8) | TL0);
 	TL0 = ticks;
 	TH0 = ticks >> 8;
 	hsk_timers[0].callback();
+
+	rmap ? (SET_RMAP()) : (RESET_RMAP());
 }
 
 /**
@@ -78,10 +89,16 @@ void ISR_hsk_timer0(void) interrupt 1 {
  * @private
  */
 void ISR_hsk_timer1(void) interrupt 3 {
-	uword ticks = hsk_timers[1].overflow + ((TH1 << 8) | TL1);
+	uword ticks;
+	bool rmap = (SYSCON0 >> BIT_RMAP) & 1;
+	RESET_RMAP();
+
+	ticks = hsk_timers[1].overflow + ((TH1 << 8) | TL1);
 	TL1 = ticks;
 	TH1 = ticks >> 8;
 	hsk_timers[1].callback();
+
+	rmap ? (SET_RMAP()) : (RESET_RMAP());
 }
 
 /**
