@@ -16,6 +16,10 @@
  *	SST3	RST3	NMI callback functions
  * \endcode
  *
+ * Every callback function is called with RMAP = 0. If the callback function
+ * changes RMAP it does not have to take care of restoring it. RMAP is always
+ * restored to its original state by the shared ISRs.
+ *
  * @author kami
  */
 

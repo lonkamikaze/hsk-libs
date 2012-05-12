@@ -489,6 +489,21 @@
             </File>
           </Files>
         </Group>
+        <Group>
+          <GroupName>HSK_PERSIST</GroupName>
+          <Files>
+            <File>
+              <FileName>hsk_persist.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\hsk_persist\hsk_persist.c</FilePath>
+            </File>
+            <File>
+              <FileName>hsk_persist.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\src\hsk_persist\hsk_persist.h</FilePath>
+            </File>
+          </Files>
+        </Group>
       </Groups>
     </Target>
   </Targets>
