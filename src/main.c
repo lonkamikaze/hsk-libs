@@ -18,6 +18,7 @@
 #include "hsk_adc/hsk_adc.h"
 #include "hsk_pwm/hsk_pwm.h"
 #include "hsk_pwc/hsk_pwc.h"
+#include "hsk_persist/hsk_persist.h"
 
 HSK_ICM7228_FACTORY(xxx, P1, P3, 0, P3, 1)
 
@@ -153,13 +154,14 @@ void init(void) {
 	P3_DATA = 0;
 	EA = 1;
 
+	//hsk_persist_write();
+
 	hsk_adc_warmup();
 
 	msgBoot = hsk_can_msg_create(0x7f0, 0, sizeof(ubyte));
 	hsk_can_msg_connect(msgBoot, CAN1);
 	hsk_can_msg_setData(msgBoot, &boot.count);
 	hsk_can_msg_send(msgBoot);
-
 }
 
 /**
@@ -226,7 +228,7 @@ void run(void) {
 		if (hsk_can_fifo_updated(fifo0)) {
 			if (hsk_can_fifo_getId(fifo0) == MSG_AFB_CHANNEL_ID) {
 				hsk_can_fifo_getData(fifo0, data0);
-				P3_DATA ^= 1 << hsk_can_data_getSignal(data0, CAN_ENDIAN_INTEL, 0, 3);
+				//P3_DATA ^= 1 << hsk_can_data_getSignal(data0, CAN_ENDIAN_INTEL, 0, 3);
 			}
 			hsk_can_fifo_next(fifo0);
 		}
