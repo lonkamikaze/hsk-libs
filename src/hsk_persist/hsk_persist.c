@@ -235,6 +235,16 @@ SFR(FCS1,	0xDD);
 #define BIT_PROG	0
 
 /**
+ * FCON/EECON Erase Bit.
+ */
+#define BIT_ERASE	1
+
+/**
+ * FCON/EECON Mass Erase Bit.
+ */
+#define BIT_MAS1	2
+
+/**
  * FCON/EECON Non-Volatile Store Bit.
  */
 #define BIT_NVSTR	3
@@ -287,9 +297,7 @@ SFR(FCS1,	0xDD);
 #undef code
 #define code	__code
 
-#elif defined __C51__
-/**
- * MOVC @(DPTR++),A instruction.
+#elif defined __C51__ /** * MOVC @(DPTR++),A instruction.
  */
 #define MOVCI	db	0xA5
 
@@ -298,9 +306,14 @@ SFR(FCS1,	0xDD);
 #endif
 
 /**
- * The state to use when starting to write to the flash.
+ * The state to use when starting to write to the D-Flash.
  */
 #define STATE_WRITE	0
+
+/**
+ * The state to use when mass erasing the D-Flash.
+ */
+#define STATE_RESET	20
 
 /**
  * Holds the persistence configuration.
@@ -377,6 +390,9 @@ void hsk_persist_isr_nmiflash(void) {
 	 * UM 1.1.
 	 */
 	case STATE_WRITE:
+		/* Set program flash timer mode, 5µs for an overflow. */
+		FTVAL &= ~(1 << BIT_MODE);
+
 		/* 1.
 		 * Set the bit FCON.PROG (P-Flash) or EECON.PROG (D-Flash) to
 		 * signal the start of a programming cyle. */
@@ -412,7 +428,7 @@ __endasm;
 		
 		hsk_persist.state++;
 		break;
-	case 1:
+	case STATE_WRITE + 1:
 		/* Turn off the timer after 5µs. */
 		FCS &= ~(1 << BIT_FTEN);
 
@@ -427,10 +443,10 @@ __endasm;
 		FCS |= 1 << BIT_FTEN;
 
 		/* fallthrough */
-	case 2:
+	case STATE_WRITE + 2:
 		hsk_persist.state++;
 		break;
-	case 3:
+	case STATE_WRITE + 3:
 		/* Turn the timer off after 10 µs. */
 		FCS &= ~(1 << BIT_FTEN);
 
@@ -479,12 +495,12 @@ __endasm;
 		FCS |= 1 << BIT_FTEN;
 
 		/* fallthrough */
-	case 4:
-	case 5:
-	case 6:
+	case STATE_WRITE + 4:
+	case STATE_WRITE + 5:
+	case STATE_WRITE + 6:
 		hsk_persist.state++;
 		break;
-	case 7:
+	case STATE_WRITE + 7:
 		/* Turn the timer off after 20µs. */
 		FCS &= ~(1 << BIT_FTEN);
 
@@ -499,7 +515,7 @@ __endasm;
 
 		hsk_persist.state++;
 		/* fallthrough */
-	case 8:
+	case STATE_WRITE + 8:
 		/* 10.
 		 * Clear the bit FCON/EECON.PROG. */
 		EECON &= ~(1 << BIT_PROG);
@@ -508,7 +524,7 @@ __endasm;
 		FCS |= 1 << BIT_FTEN;
 		hsk_persist.state++;
 		break;
-	case 9:
+	case STATE_WRITE + 9:
 		/* 12.
 		 * Clear the bit FCON/EECON.NVSTR. */
 		EECON &= ~(1 << BIT_NVSTR);
@@ -517,8 +533,96 @@ __endasm;
 		/* Actually just wait for another 5µs. */
 		hsk_persist.state++;
 		break;
-	case 10:
+	case STATE_WRITE + 10:
 		/* Turn the timer off after 5µs. */
+		FCS &= ~(1 << BIT_FTEN);
+		break;
+	/**
+	 * Implements the procedure called "Mass Erase Operation" from the XC878
+	 * UM 1.1.
+	 */
+	case STATE_RESET:
+		/* 1.
+		 * Set the bits FCON/EECON.ERASE and FCON/EECON.MAS1 to
+		 * trigger the start of the mass erase cycle. */
+		EECON |= (1 << BIT_ERASE) | (1 << BIT_MAS1);
+
+		/* 2.
+		 * Execute a “MOVC” instruction with a dummy data to any
+		 * address in the page to be erased. */
+#ifdef SDCC
+__asm
+		; Make a dummy write to the dflash
+		mov	dptr,#_hsk_persist_dflash
+		MOVCI
+__endasm;
+#elif defined __C51__
+#endif
+
+		/* 3.
+		 * Delay for a minimum of 5 μs (Tvns). */
+		FCS |= 1 << BIT_FTEN;
+		
+		hsk_persist.state++;
+		break;
+	case STATE_RESET + 1:
+		/* Turn off the timer after 5µs. */
+		FCS &= ~(1 << BIT_FTEN);
+
+		/* 4.
+		 * Set the bit FCON/EECON.NVSTR for charge pump to drive high
+		 * voltage. */
+		EECON |= 1 << BIT_NVSTR;
+
+		/* 5.
+		 * Delay for a minimum of 200 ms (Tme). */
+		/* Set erase flash timer mode, ~20ms for an overflow. */
+		FTVAL |= 1 << BIT_MODE;
+		FCS |= 1 << BIT_FTEN;
+		/* fallthrough */
+	case STATE_RESET + 2:
+	case STATE_RESET + 3:
+	case STATE_RESET + 4:
+	case STATE_RESET + 5:
+	case STATE_RESET + 6:
+	case STATE_RESET + 7:
+	case STATE_RESET + 8:
+	case STATE_RESET + 9:
+	case STATE_RESET + 10:
+		hsk_persist.state++;
+		break;
+	case STATE_RESET + 11:
+		/* Turn off the timer after 200ms. */
+		FCS &= ~(1 << BIT_FTEN);
+
+		/* 6.
+		 * Clear bit FCON/EECON.ERASE. */
+		EECON &= ~(1 << BIT_ERASE);
+
+		/* 7.
+		 * Delay for a minimum of 100 us (Tnvhl) */
+		/* Set overflow value to 1 = ~170µs. */
+		FTVAL = (FTVAL & ~(((1 << CNT_OFVAL) - 1) << BIT_OFVAL)) | (1 << BIT_OFVAL);
+		FCS |= 1 << BIT_FTEN;
+		hsk_persist.state++;
+		break;
+	case STATE_RESET + 12:
+		/* Turn off the timer after 170µs. */
+		FCS &= ~(1 << BIT_FTEN);
+
+		/* 8.
+		 * Clear the bit FCON/EECON.NVSTR and FCON/EECON.MAS1. */
+		EECON &= ~(1 << BIT_NVSTR) & ~(1 << BIT_MAS1);
+
+		/* 9.
+		 * Delay for a minimum of 1 us (Trcv). */
+		/* Actually restore the usual 5 µs timer cycle. */
+		FTVAL = 120 << BIT_OFVAL;
+		FCS |= 1 << BIT_FTEN;
+		hsk_persist.state++;
+		break;
+	case STATE_RESET + 13:
+		/* Turn off the timer after 5µs. */
 		FCS &= ~(1 << BIT_FTEN);
 		break;
 	}
@@ -591,8 +695,6 @@ bool hsk_persist_init(ubyte xdata * idata ptr, uword idata size,
 
 void hsk_persist_write(void) {
 	SET_RMAP();
-	/* Set flash timer mode for writing. */
-	FTVAL &= ~(1 << BIT_MODE);
 	/* Kick off the ISR. */
 	hsk_persist.state = STATE_WRITE;
 	hsk_persist_flashDptr = (ubyte code *)ADDR_DFLASH;
