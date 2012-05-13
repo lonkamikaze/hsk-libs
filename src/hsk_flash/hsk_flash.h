@@ -1,5 +1,5 @@
 /** \file
- * HSK Persistence Facility headers
+ * HSK Flash Facility headers
  *
  * This file contains function prototypes to menage information that survives
  * a reset and allow storage within the D-Flash.
@@ -27,7 +27,7 @@
 #define XC878_16FF
 #endif
 
-void hsk_persist_write(void);
+void hsk_flash_write(void);
 
 #endif /* _HSK_PERSIST_H_ */
 
