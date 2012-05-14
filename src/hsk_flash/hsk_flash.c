@@ -313,14 +313,24 @@ SFR(FCS1,	0xDD);
 #define STATE_IDLE	0
 
 /**
+ * The state to use to kick of a write/delete or idle.
+ */
+#define STATE_RUN	1
+
+/**
  * The state to use when starting to write to the D-Flash.
  */
-#define STATE_WRITE	1
+#define STATE_WRITE	10
 
 /**
  * The state to use when mass erasing the D-Flash.
  */
-#define STATE_RESET	20
+#define STATE_RESET	30
+
+/**
+ * The state to use when erasing D-Flash pages.
+ */
+#define STATE_DELETE	50
 
 /**
  * Holds the persistence configuration.
@@ -385,7 +395,7 @@ ubyte xdata * xdata hsk_flash_xdataDptr;
 /**
  * Flash delete/write state machine.
  *
- * When \f$hsk_flash.state == STATE_IDLE\f$, it is safe to set
+ * When hsk_flash.state == STATE_IDLE, it is safe to set
  * hsk_flash.state to STATE_WRITE or STATE_RESET.
  *
  * @private
@@ -406,6 +416,13 @@ void hsk_flash_isr_nmiflash(void) {
 		 * this state. */
 		FCS &= ~(1 << BIT_FTEN);
 		break;
+	/**
+	 * STATE_RUN implements the decision making process to kick off a
+	 * delete or write. A write always has precedence, a delete is started
+	 * if no writes are pending and hsk_flash.oldest points to a different
+	 * D-Flash page than hsk_flash.latest.
+	 */
+	case STATE_RUN:
 	/**
 	 * STATE_WRITE implements the procedure called "Program Operation"
 	 * from the XC878 UM 1.1.
@@ -551,7 +568,7 @@ __endasm;
 		EECON &= ~(1 << BIT_NVSTR);
 		/* 13.
 		 * Delay for a minimum of 1 us (Trcv). */
-		/* Actually just wait for another 5µs. */
+		/* Actually just wait for the completion of another 5µs. */
 		hsk_flash.state++;
 		break;
 	case STATE_WRITE + 10:
@@ -560,9 +577,92 @@ __endasm;
 		hsk_flash.state = STATE_IDLE;
 		break;
 	/**
+	 * STATE_DELETE implements the procedure called "Erase Operation"
+	 * from the XC878 UM 1.1.
+	 */
+	case STATE_DELETE:
+		/* 1.
+		 * Set the bit FCON/EECON.ERASE and clear the bit
+		 * FCON/EECON.MAS1 to trigger the start of the page erase
+		 * cycle. */
+		EECON = (EECON & ~(1 << BIT_MAS1)) | (1 << BIT_ERASE);
+
+		/* 2.
+		 * Execute a “MOVC” instruction with a dummy data to any
+		 * address in the page to be erased. */
+#ifdef SDCC
+__asm
+		; Backup used registers
+		push	ar0
+		; Load hsk_flash_flashDptr into r0, a
+		mov	dptr,#_hsk_flash_flashDptr
+		movx	a,@dptr
+		mov	r0,a
+		inc	dptr
+		movx	a,@dptr
+		; Follow hsk_flash_flashDptr
+		mov	dpl,r0
+		mov	dph,a
+		MOVCI
+		; Restore used registers
+		pop	ar0
+__endasm;
+#elif defined __C51__
+#endif
+
+		/* 3.
+		 * Delay for a minimum of 5 μs (Tvns). */
+		FCS |= 1 << BIT_FTEN;
+		hsk_flash.state++;
+		break;
+	case STATE_DELETE + 1:
+		/* Turn off the timer after 5µs. */
+		FCS &= ~(1 << BIT_FTEN);
+
+		/* 4.
+		 * Set the bit FCON/EECON.NVSTR for charge pump to drive high
+		 * voltage. */
+		EECON |= 1 << BIT_NVSTR;
+
+		/* 5.
+		 * Delay for a minimum of 20 ms (Terase). */
+		FTVAL |= 1 << BIT_MODE;
+		FCS |= 1 << BIT_FTEN;
+		hsk_flash.state++;
+		break;
+	case STATE_DELETE + 2:
+		/* Turn off the timer after 20ms. */
+		FCS &= ~(1 << BIT_FTEN);
+		/* Return to 5µs timer overflow cycle. */
+		FTVAL &= ~(1 << BIT_MODE);
+
+		/* 6.
+		 * Clear bit FCON/EECON.ERASE. */
+		EECON &= ~(1 << BIT_ERASE);
+
+		/* 7.
+		 * Delay for a minimum of 5 us (Tnvh) */
+		FCS |= 1 << BIT_FTEN;
+		hsk_flash.state++;
+		break;
+	case STATE_DELETE + 3:
+		/* 8.
+		 * Clear the bit FCON/EECON.NVSTR. */
+		EECON &= ~(1 << BIT_NVSTR);
+
+		/* 9.
+		 * Delay for a minimum of 1 us (Trcv). */
+		/* Just wait for the next 5µs tick. */
+		hsk_flash.state++;
+		break;
+	case STATE_DELETE + 4:
+		/* Turn the timer off after 5µs. */
+		FCS &= ~(1 << BIT_FTEN);
+		hsk_flash.state = STATE_IDLE;
+		break;
+	/**
 	 * STATE_RESET implements the procedure called "Mass Erase Operation"
-	 * from the XC878
-	 * UM 1.1.
+	 * from the XC878 UM 1.1.
 	 */
 	case STATE_RESET:
 		/* 1.
@@ -585,7 +685,6 @@ __endasm;
 		/* 3.
 		 * Delay for a minimum of 5 μs (Tvns). */
 		FCS |= 1 << BIT_FTEN;
-		
 		hsk_flash.state++;
 		break;
 	case STATE_RESET + 1:
@@ -667,11 +766,11 @@ __endasm;
  * @retval 0
  *	No valid data was found in the D-Flash
  * @retval 1
- *	Loading persisted data succeeded
- * \endcode
+ *	Restoring data from the D-Flash succeeded
  */
 bool hsk_flash_init(ubyte xdata * idata ptr, uword idata size,
 		ubyte idata version) {
+
 	/* Setup the xdata area to persist. */
 	hsk_flash.ptr = ptr;
 	hsk_flash.size = size;
@@ -683,45 +782,71 @@ bool hsk_flash_init(ubyte xdata * idata ptr, uword idata size,
 	hsk_isr14.NMIFLASH = &hsk_flash_isr_nmiflash;
 	NMICON |= 1 << BIT_NMIFLASH;
 
+	#define oldest	hsk_flash.oldest
+	#define wrap	hsk_flash.wrap
+	#define latest	hsk_flash.latest
+	#define state	hsk_flash.state
+	#define ident	hsk_flash.ident
 	/* Find an unused block. */
-	for (hsk_flash.oldest = 0;
-		hsk_flash_dflash[hsk_flash.oldest] != 0xff && hsk_flash.oldest < sizeof(hsk_flash_dflash);
-		hsk_flash.oldest += size + 2);
+	for (oldest = 0; oldest < wrap; oldest++) {
+		/* There is data written in this block. */
+		if (hsk_flash_dflash[oldest] != 0xff) {
+			/* Jump forward to the next block. */
+			oldest -= oldest % (size + 2);
+			oldest += size + 2;
+		}
+		/* End of block reached. */
+		else if (oldest % (size + 2) == size + 1) {
+			/* Go back to the beginning of the block. */
+			oldest -= oldest % (size + 2);
+			break;
+		}
+	}
 
 	/* No free blocks at all, mass delete obligatory! */
-	if (hsk_flash.oldest >= sizeof(hsk_flash_dflash)) {
-		//TODO execute mass delete with active waiting
-		hsk_flash.oldest = 0;
+	if (oldest >= wrap) {
+		/* The state machine will be busy for over 200ms. */
+		state = STATE_RESET;
+		hsk_flash_isr_nmiflash();
+		/* Set everything up for running with fresh memory. */
+		oldest = 0;
+		latest = 0;
+		return 0;
 	}
 
 	/* Walk left, seek the newest data. */
-	for (hsk_flash.latest = (hsk_flash.wrap - size - 2 + hsk_flash.oldest) % hsk_flash.wrap;
-		hsk_flash_dflash[hsk_flash.latest] == 0xff && hsk_flash.latest != hsk_flash.oldest;
-		hsk_flash.latest = (hsk_flash.wrap + hsk_flash.latest - size - 2) % hsk_flash.wrap);
+	for (latest = (wrap - size - 2 + oldest) % wrap;
+		hsk_flash_dflash[latest] == 0xff && latest != oldest;
+		latest = (wrap - size - 2 + latest) % wrap);
 
 	/* Walk right, seek the oldest data. */
-	for (hsk_flash.oldest = (hsk_flash.oldest + size + 2) % hsk_flash.wrap;
-		hsk_flash_dflash[hsk_flash.oldest] == 0xff && hsk_flash.oldest != hsk_flash.latest;
-		hsk_flash.oldest = (hsk_flash.oldest + size + 2) % hsk_flash.wrap);
+	for (oldest = (oldest + size + 2) % wrap;
+		hsk_flash_dflash[oldest] == 0xff && oldest != latest;
+		oldest = (oldest + 1) % wrap);
 
 	/* Validate the latest data. */
-	if (hsk_flash_dflash[hsk_flash.latest] != hsk_flash.ident \
-			|| hsk_flash_dflash[hsk_flash.latest] != hsk_flash.ident) {
+	if (hsk_flash_dflash[latest] != ident \
+			|| hsk_flash_dflash[latest + size + 1] != ident) {
 		return 0;
 	} else {
-		/* Copy persisted data. */
-		for (hsk_flash_flashDptr = (ubyte code *)hsk_flash_dflash + hsk_flash.latest + 1;
-			size > 0; size--, ptr++, hsk_flash_flashDptr++) {
+		/* Copy data from the D-Flash to the xram. */
+		for (hsk_flash_flashDptr = hsk_flash_dflash + latest + 1;
+				size > 0; size--, ptr++, hsk_flash_flashDptr++) {
 			ptr[0] = hsk_flash_flashDptr[0];
 		}
 		return 1;
 	}
+	#undef oldest
+	#undef wrap
+	#undef latest
+	#undef state
+	#undef ident
 }
 
 void hsk_flash_write(void) {
 	SET_RMAP();
 	/* Kick off the ISR. */
-	hsk_flash.state = STATE_WRITE;
+	hsk_flash.state = STATE_RUN;
 	hsk_flash_flashDptr = (ubyte code *)ADDR_DFLASH;
 	hsk_flash_xdataDptr = &(hsk_flash.ident);
 	hsk_flash_isr_nmiflash();

@@ -18,7 +18,7 @@
 #include "hsk_adc/hsk_adc.h"
 #include "hsk_pwm/hsk_pwm.h"
 #include "hsk_pwc/hsk_pwc.h"
-#include "hsk_persist/hsk_persist.h"
+#include "hsk_flash/hsk_flash.h"
 
 HSK_ICM7228_FACTORY(xxx, P1, P3, 0, P3, 1)
 
