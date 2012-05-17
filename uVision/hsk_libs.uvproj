@@ -490,17 +490,17 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>HSK_PERSIST</GroupName>
+          <GroupName>HSK_FLASH</GroupName>
           <Files>
             <File>
-              <FileName>hsk_persist.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\hsk_persist\hsk_persist.c</FilePath>
+              <FileName>hsk_flash.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\src\hsk_flash\hsk_flash.h</FilePath>
             </File>
             <File>
-              <FileName>hsk_persist.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\src\hsk_persist\hsk_persist.h</FilePath>
+              <FileName>hsk_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\hsk_flash\hsk_flash.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -34,19 +34,22 @@ void main(void) {
 	run();
 }
 
+#define PERSIST_VERSION	0
+
+
 /**
  * This structure is used to persist data between resets.
  */
-struct {
+HSK_FLASH_STRUCT_FACTORY(persist,
 	/**
-	 * A prefix to detect whether this is a power on or boot from a reset.
+	 * Used for boot counting.
 	 */
-	ulong prefix;
+	ubyte boot;
 
 	/**
 	 * Used for reset counting.
 	 */
-	ubyte count;
+	ubyte reset;
 
 	/**
 	 * For storing errors.
@@ -54,13 +57,7 @@ struct {
 	 * Certain errors like a WDT can only be reported after a reboot.
 	 */
 	ubyte error;
-
-	/**
-	 * A postfix to detect whether this is a power on or boot from a
-	 * reset.
-	 */
-	ulong postfix;
-} xdata boot;
+);
 
 /**
  * A counter used to detecting that 250ms have passed.
@@ -102,16 +99,18 @@ void init(void) {
 
 	/*
 	 * Boot/reset detection.
-	 * This is an experiment that will likely become its own library.
 	 */
-	if (boot.prefix == 0x64821273 && boot.postfix == 0x09050785) {
-		/* Just a reset. */
-		boot.count++;
-	} else {
-		/* Power on boot. */
-		memset(&boot, 0, sizeof(boot));
-		boot.prefix = 0x64821273;
-		boot.postfix = 0x09050785;
+	switch(hsk_flash_init(&persist, sizeof(persist), PERSIST_VERSION)) {
+	case 0:
+		/* Init stuff if needed. */
+		break;
+	case 1:
+		persist.reset++;
+		break;
+	case 2:
+		persist.boot++;
+		persist.reset = 0;
+		break;
 	}
 
 	/* Activate timer 0. */
@@ -154,13 +153,13 @@ void init(void) {
 	P3_DATA = 0;
 	EA = 1;
 
-	//hsk_persist_write();
+	//hsk_flash_write();
 
 	hsk_adc_warmup();
 
-	msgBoot = hsk_can_msg_create(0x7f0, 0, sizeof(ubyte));
+	msgBoot = hsk_can_msg_create(0x7f0, 0, 2);
 	hsk_can_msg_connect(msgBoot, CAN1);
-	hsk_can_msg_setData(msgBoot, &boot.count);
+	hsk_can_msg_setData(msgBoot, &persist.boot);
 	hsk_can_msg_send(msgBoot);
 }
 
@@ -228,7 +227,7 @@ void run(void) {
 		if (hsk_can_fifo_updated(fifo0)) {
 			if (hsk_can_fifo_getId(fifo0) == MSG_AFB_CHANNEL_ID) {
 				hsk_can_fifo_getData(fifo0, data0);
-				//P3_DATA ^= 1 << hsk_can_data_getSignal(data0, CAN_ENDIAN_INTEL, 0, 3);
+				P3_DATA ^= 1 << hsk_can_data_getSignal(data0, CAN_ENDIAN_INTEL, 0, 3);
 			}
 			hsk_can_fifo_next(fifo0);
 		}
