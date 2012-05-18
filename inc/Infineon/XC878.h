@@ -95,7 +95,6 @@
 //#define code                   __code
 #define code                   
 #define interrupt              __interrupt
-#define at                     __at
 #define reentrant              __reentrant
 #endif
 
@@ -614,7 +613,6 @@ SFR16( CCU6_T13PRLH, 0x9E);      // 16-bit Address
 SFR16( CD_CORDXLH, 0x9A);        // 16-bit Address
 SFR16( CD_CORDYLH, 0x9C);        // 16-bit Address
 SFR16( CD_CORDZLH, 0x9E);        // 16-bit Address
-SFR16( DPTR,   0x82);            // 16-bit Address
 SFR16( MDU_MD01, 0xB2);          // 16-bit Address
 SFR16( MDU_MD23, 0xB4);          // 16-bit Address
 SFR16( MDU_MD45, 0xB6);          // 16-bit Address
