@@ -20,7 +20,7 @@
 #include "hsk_pwc/hsk_pwc.h"
 #include "hsk_flash/hsk_flash.h"
 
-HSK_ICM7228_FACTORY(p1, P1, P3, 0, P3, 1)
+ICM7228_FACTORY(p1, P1, P3, 0, P3, 1)
 
 void main(void);
 void init(void);
@@ -43,7 +43,7 @@ void main(void) {
 /**
  * This structure is used to persist data between resets.
  */
-HSK_FLASH_STRUCT_FACTORY(
+FLASH_STRUCT_FACTORY(
 	/**
 	 * Used for boot counting.
 	 */

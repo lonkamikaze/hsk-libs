@@ -44,14 +44,14 @@
  * @param bitWrite
  *	The bit of the regWrite register that is connected to the write pin
  */
-#define HSK_ICM7228_FACTORY(prefix, regData, regMode, bitMode, regWrite, bitWrite) \
+#define ICM7228_FACTORY(prefix, regData, regMode, bitMode, regWrite, bitWrite) \
 \
 /** Buffer for display driver at  I/O port regData.
-@see HSK_ICM7228_FACTORY */\
+@see ICM7228_FACTORY */\
 ubyte xdata prefix##_buffer[8]; \
 \
 /** Set up buffer and ports for display driver at I/O port regData.
-@see HSK_ICM7228_FACTORY */\
+@see ICM7228_FACTORY */\
 void prefix##_init(void) { \
 	memset(prefix##_buffer, 0, sizeof(prefix##_buffer)); \
 \
@@ -61,7 +61,7 @@ void prefix##_init(void) { \
 } \
 \
 /** Reflesh displays at I/O port regData with the buffered data.
-@see HSK_ICM7228_FACTORY */\
+@see ICM7228_FACTORY */\
 void prefix##_refresh(void) { \
 	ubyte i; \
 \
@@ -90,7 +90,7 @@ void prefix##_refresh(void) { \
 	The position in the buffer to write the encoded string to
 @param len
 	The target length of the encoded string
-@see HSK_ICM7228_FACTORY
+@see ICM7228_FACTORY
 @see hsk_icm7228_writeString */\
 void prefix##_writeString(char * idata str, ubyte idata pos, ubyte idata len) { \
 	hsk_icm7228_writeString(prefix##_buffer, str, pos, len); \
@@ -105,7 +105,7 @@ void prefix##_writeString(char * idata str, ubyte idata pos, ubyte idata len) { 
 	The target position in the buffer
 @param len
 	The number of digits available to encode the number
-@see HSK_ICM7228_FACTORY
+@see ICM7228_FACTORY
 @see hsk_icm7228_writeDec */\
 void prefix##_writeDec(uword idata value, char idata power, ubyte idata pos, ubyte idata len) {\
 	hsk_icm7228_writeDec(prefix##_buffer, value, power, pos, len); \
@@ -120,7 +120,7 @@ void prefix##_writeDec(uword idata value, char idata power, ubyte idata pos, uby
 	The target position in the buffer
 @param len
 	The number of digits available to encode the number
-@see HSK_ICM7228_FACTORY
+@see ICM7228_FACTORY
 @see hsk_icm7228_writeHex */\
 void prefix##_writeHex(uword idata value, char idata power, ubyte idata pos, ubyte idata len) {\
 	hsk_icm7228_writeHex(prefix##_buffer, value, power, pos, len); \
@@ -131,7 +131,7 @@ void prefix##_writeHex(uword idata value, char idata power, ubyte idata pos, uby
  * buffer.
  *
  * This function is usually invoked through the \<prefix\>_writeString()
- * function created by HSK_ICM7228_FACTORY.
+ * function created by ICM7228_FACTORY.
  *
  * The function will write into the buffer until it has been filled with len
  * characters or it encounters a 0 character reading from str.
