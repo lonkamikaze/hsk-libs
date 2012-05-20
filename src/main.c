@@ -20,7 +20,7 @@
 #include "hsk_pwc/hsk_pwc.h"
 #include "hsk_flash/hsk_flash.h"
 
-HSK_ICM7228_FACTORY(xxx, P1, P3, 0, P3, 1)
+HSK_ICM7228_FACTORY(p1, P1, P3, 0, P3, 1)
 
 void main(void);
 void init(void);
@@ -34,13 +34,16 @@ void main(void) {
 	run();
 }
 
-#define PERSIST_VERSION	0
 
+/**
+ * The version of the persist struct.
+ */
+#define PERSIST_VERSION	0
 
 /**
  * This structure is used to persist data between resets.
  */
-HSK_FLASH_STRUCT_FACTORY(persist,
+HSK_FLASH_STRUCT_FACTORY(
 	/**
 	 * Used for boot counting.
 	 */
@@ -57,7 +60,7 @@ HSK_FLASH_STRUCT_FACTORY(persist,
 	 * Certain errors like a WDT can only be reported after a reboot.
 	 */
 	ubyte error;
-);
+) persist;
 
 /**
  * A counter used to detecting that 250ms have passed.

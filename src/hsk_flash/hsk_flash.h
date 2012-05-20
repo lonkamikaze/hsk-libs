@@ -34,18 +34,16 @@
  * The hsk_flash_init() function expects certain fields to exist, in the
  * struct, which are used to ensure the consistency of data in the flash.
  *
- * @param name
- *	The name of the resulting struct
  * @param members
  *	Struct member definitions
  */
-#define HSK_FLASH_STRUCT_FACTORY(name, members)	\
-struct  {\
+#define HSK_FLASH_STRUCT_FACTORY(members)	\
+struct {\
 	ubyte hsk_flash_prefix;\
 	members\
 	ubyte hsk_flash_chksum;\
 	ubyte hsk_flash_postfix;\
-} xdata name
+} xdata
 
 ubyte hsk_flash_init(void xdata * idata ptr, uword idata size,
 		ubyte idata version);

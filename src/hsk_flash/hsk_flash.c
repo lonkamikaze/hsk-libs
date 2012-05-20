@@ -350,6 +350,22 @@ SFR(FCS1,	0xDD);
 #define STATE_RESET	60
 
 /**
+ * The block indicated \ref hsk_flash.latest is available for writing.
+ */
+#define FREE_LATEST	0
+
+/**
+ * The block behind the block indicated by \ref hsk_flash.latest is available
+ * for writing.
+ */
+#define FREE_BEHIND	1
+
+/**
+ * There is no block available for writing.
+ */
+#define FREE_NONE	2
+
+/**
  * Holds the persistence configuration.
  */
 struct {
@@ -379,6 +395,16 @@ struct {
 	uword latest;
 
 	/**
+	 * This byte indicates where free space can be found in the D-Flash.
+	 *
+	 * Available values are:
+	 *	- \ref FREE_LATEST
+	 *	- \ref FREE_BEHIND
+	 *	- \ref FREE_NONE
+	 */
+	ubyte free;
+
+	/**
 	 * The prefix/postfix to identify the data structure in the flash.
 	 *
 	 * It consist of the last 6 bits of the version and two alternating
@@ -393,11 +419,6 @@ struct {
 	 * The current state of the flash ISR state machine.
 	 */
 	ubyte state;
-
-	/**
-	 * Set to request a state.
-	 */
-	ubyte stateRequest;
 } xdata hsk_flash;
 
 /**
