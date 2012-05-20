@@ -46,8 +46,12 @@
  */
 #define HSK_ICM7228_FACTORY(prefix, regData, regMode, bitMode, regWrite, bitWrite) \
 \
+/** Buffer for display driver at  I/O port regData.
+@see HSK_ICM7228_FACTORY */\
 ubyte xdata prefix##_buffer[8]; \
 \
+/** Set up buffer and ports for display driver at I/O port regData.
+@see HSK_ICM7228_FACTORY */\
 void prefix##_init(void) { \
 	memset(prefix##_buffer, 0, sizeof(prefix##_buffer)); \
 \
@@ -56,9 +60,8 @@ void prefix##_init(void) { \
 	regData##_DIR = -1; \
 } \
 \
-/**
- * Refresh the 7 segments displays with the buffered data.
- */ \
+/** Reflesh displays at I/O port regData with the buffered data.
+@see HSK_ICM7228_FACTORY */\
 void prefix##_refresh(void) { \
 	ubyte i; \
 \
@@ -80,14 +83,45 @@ void prefix##_refresh(void) { \
 	} \
 } \
 \
+/** Write an ASCII encoded string into \ref prefix##_buffer.
+@param str
+	The buffer to read the ASCII string from
+@param pos
+	The position in the buffer to write the encoded string to
+@param len
+	The target length of the encoded string
+@see HSK_ICM7228_FACTORY
+@see hsk_icm7228_writeString */\
 void prefix##_writeString(char * idata str, ubyte idata pos, ubyte idata len) { \
 	hsk_icm7228_writeString(prefix##_buffer, str, pos, len); \
 } \
 \
+/** Write a decimal number into \ref prefix##_buffer.
+@param value
+	The number to encode
+@param power
+	The 10 base power of the number to encode
+@param pos
+	The target position in the buffer
+@param len
+	The number of digits available to encode the number
+@see HSK_ICM7228_FACTORY
+@see hsk_icm7228_writeDec */\
 void prefix##_writeDec(uword idata value, char idata power, ubyte idata pos, ubyte idata len) {\
 	hsk_icm7228_writeDec(prefix##_buffer, value, power, pos, len); \
 } \
 \
+/** Write a hexadecimal number into \ref prefix##_buffer.
+@param value
+	The number to encode
+@param power
+	The 16 base power of the number to encode
+@param pos
+	The target position in the buffer
+@param len
+	The number of digits available to encode the number
+@see HSK_ICM7228_FACTORY
+@see hsk_icm7228_writeHex */\
 void prefix##_writeHex(uword idata value, char idata power, ubyte idata pos, ubyte idata len) {\
 	hsk_icm7228_writeHex(prefix##_buffer, value, power, pos, len); \
 } \
