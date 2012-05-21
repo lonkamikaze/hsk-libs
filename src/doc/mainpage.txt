@@ -283,13 +283,39 @@ portions of code to fixed addresses.
 
 The Misc dialogue holds the remaining linker settings.
 
-- disable Warning Numbers: 16
+- disable Warning Numbers: 15, 16
+	- Warning number 15 complains if a function might be called regularly
+	  or from an ISR at the same time, which causes memory corruption with
+	  non-reentrant functions. Unfortunately this useful feature cannot
+	  cope with function pointers and is thus rendered useless for this
+	  library
 	- Warning number 16 refers to not used functions, quite common in a
 	  general purpose library and thus without interest
-
+- Overlay
+	- This field can be used to add calls through function pointers to the
+	  call tree as is necessary for callback functions, the syntax is
+	  described in the µVision Help section OVERLAY Linker Directive
 
 \image html img/keil_options_LX51_Misc.png "Keil µVision LX51 Misc options dialogue"
 \image latex img/keil_options_LX51_Misc.png "Keil µVision LX51 Misc options dialogue" width=10cm
+
+\section toolchain_inline_asm Inline Assembler
+
+Inline assembler has to be activated for Groups or single files individually.
+The Group Options can be found in the context menu of a Group.
+
+To activate an option in this menu it needs to be unchecked and checked again.
+
+- Generate Assembler SRC File
+	- This option causes the compiler to generate assembler code instead
+	  of an object file
+- Assemble SRC File
+	- This option causes the compiler to assemble the generated assembler
+	  code
+
+\image html img/keil_options_Group.png "Keil µVision Group options dialogue"
+\image latex img/keil_options_Group.png "Keil µVision Group options dialogue" width=10cm
+
 
 \section toolchain_program Device Programming and Debugging
 
