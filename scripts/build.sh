@@ -5,7 +5,6 @@ IFS='
 '
 
 # Collect dependencies for the build target
-objects=
 all=
 files="$(find -s "$SRC" -name \*.c)"
 

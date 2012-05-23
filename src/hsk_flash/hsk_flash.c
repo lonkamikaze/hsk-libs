@@ -488,7 +488,7 @@ void hsk_flash_isr_nmiflash(void) {
 	 */
 	case STATE_REQUEST:
 		/* SW checks EEBSY */
-		if ((EECON >> BIT_EEBSY) & 1 == 0) {
+		if (((EECON >> BIT_EEBSY) & 1) == 0) {
 			/* SW clears NVSTR */
 			EECON &= ~(1 << BIT_NVSTR);
 			goto state_write;
