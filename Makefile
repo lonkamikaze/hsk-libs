@@ -86,15 +86,5 @@ clean-build:
 	@rm -rf ${BUILDDIR} || true
 
 zip: pdf
-	@cd .. && zip -r ${PROJECT}.${DATE}.zip ${PROJECT}
-	@zip -d ../${PROJECT}.${DATE}.zip \
-		${PROJECT}/bin.\* \
-		${PROJECT}/.hg\* \
-		${PROJECT}/doc\* \
-		${PROJECT}/html\* \
-		${PROJECT}/uVision/\*.lst \
-		${PROJECT}/uVision/\*.map \
-		${PROJECT}/uVision/\*.uvgui\* \
-		${PROJECT}/uVision/\*.uvopt\* \
-		${PROJECT}/uVision/\*.bak
+	@hg status -A | awk '$$1 != "I" {sub(/. /, "${PROJECT}/"); print}' | (cd .. && zip ${PROJECT}.${DATE}.zip -\@ -r ${PROJECT}/pdf)
 
