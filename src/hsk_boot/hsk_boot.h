@@ -68,6 +68,6 @@ void hsk_boot_mem(void);
  * @param clk
  *	The frequency of the external oscilator in Hz.
  */
-void hsk_boot_extClock(ulong idata clk);
+void hsk_boot_extClock(const ulong idata clk);
 
 #endif /* _HSK_BOOT_H_ */

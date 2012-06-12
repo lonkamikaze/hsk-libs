@@ -87,7 +87,8 @@ void hsk_adc_disable(void);
  * @param target
  *	A pointer where to store conversion results.
  */
-void hsk_adc_open(hsk_adc_channel idata channel, uword * idata target);
+void hsk_adc_open(const hsk_adc_channel idata channel,
+	uword * idata const target);
 
 /**
  * Close the given ADC channel.
@@ -97,7 +98,7 @@ void hsk_adc_open(hsk_adc_channel idata channel, uword * idata target);
  * @param channel
  *	The channel id.
  */
-void hsk_adc_close(hsk_adc_channel idata channel);
+void hsk_adc_close(const hsk_adc_channel idata channel);
 
 /**
  * A maintenance function that takes care of keeping AD conversions going.

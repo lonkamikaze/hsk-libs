@@ -80,8 +80,8 @@ struct {\
  * @retval 2
  *	Data restore from the D-Flash succeeded
  */
-ubyte hsk_flash_init(void xdata * idata ptr, uword idata size,
-		ubyte idata version);
+ubyte hsk_flash_init(void xdata * idata const ptr, const uword idata size,
+		const ubyte idata version);
 
 /**
  * Writes the current data to the D-Flash.

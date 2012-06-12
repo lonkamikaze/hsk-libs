@@ -118,7 +118,8 @@ void ISR_hsk_timer1(void) interrupt 3 {
  *	A function pointer to a callback function.
  * @private
  */
-void hsk_timer01_setup(ubyte idata id, uword idata interval, void (code * idata callback)(void)) {
+void hsk_timer01_setup(const ubyte idata id, const uword idata interval,
+		const void (code * idata const callback)(void)) {
 	/*
 	 * The timer ticks with PCLK / 2, we want 1µs precission, which is
 	 * up to 1000000 ticks per second.
@@ -141,7 +142,8 @@ void hsk_timer01_setup(ubyte idata id, uword idata interval, void (code * idata 
 	hsk_timers[id].callback = callback;
 }
 
-void hsk_timer0_setup(uword idata interval, void (code * idata callback)(void)) {
+void hsk_timer0_setup(const uword idata interval,
+		const void (code * idata const callback)(void)) {
 	hsk_timer01_setup(0, interval, callback);
 }
 
@@ -155,7 +157,8 @@ void hsk_timer0_disable(void) {
 	ET0 = 0;
 }
 
-void hsk_timer1_setup(uword idata interval, void (code * idata callback)(void)) {
+void hsk_timer1_setup(const uword idata interval,
+		const void (code * idata const callback)(void)) {
 	hsk_timer01_setup(1, interval, callback);
 }
 

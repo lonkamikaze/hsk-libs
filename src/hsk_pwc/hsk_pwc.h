@@ -182,7 +182,8 @@ void hsk_pwc_init(ulong idata window);
  * 	The number of pulse values to average over when returning a
  * 	value or speed. The value must be between 1 and CHAN_BUF_SIZE.
  */
-void hsk_pwc_channel_open(hsk_pwc_channel idata channel, ubyte idata averageOver);
+void hsk_pwc_channel_open(const hsk_pwc_channel idata channel,
+	ubyte idata averageOver);
 
 /**
  * Opens an input port and the connected channel.
@@ -195,7 +196,8 @@ void hsk_pwc_channel_open(hsk_pwc_channel idata channel, ubyte idata averageOver
  * 	The number of pulse values to average over when returning a
  * 	value or speed. The value must be between 1 and CHAN_BUF_SIZE
  */			    
-void hsk_pwc_port_open(hsk_pwc_port idata port, ubyte idata averageOver);
+void hsk_pwc_port_open(const hsk_pwc_port idata port,
+	ubyte idata averageOver);
 
 /**
  * Close a PWC channel.
@@ -203,7 +205,7 @@ void hsk_pwc_port_open(hsk_pwc_port idata port, ubyte idata averageOver);
  * @param channel
  * 	The channel to close.
  */
-void hsk_pwc_channel_close(hsk_pwc_channel idata channel);
+void hsk_pwc_channel_close(const hsk_pwc_channel idata channel);
 
 /**
  * Select the edge that is used to detect a pulse.
@@ -215,7 +217,8 @@ void hsk_pwc_channel_close(hsk_pwc_channel idata channel);
  * @param edgeMode
  * 	The selected edge detection mode.
  */
-void hsk_pwc_channel_edgeMode(hsk_pwc_channel idata channel, ubyte idata edgeMode);
+void hsk_pwc_channel_edgeMode(const hsk_pwc_channel idata channel,
+	const ubyte idata edgeMode);
 
 /**
  * Allows switching between external and soft trigger.
@@ -228,7 +231,8 @@ void hsk_pwc_channel_edgeMode(hsk_pwc_channel idata channel, ubyte idata edgeMod
  * @param captureMode
  * 	The mode to set the channel to.
  */
-void hsk_pwc_channel_captureMode(hsk_pwc_channel idata channel, ubyte idata captureMode);
+void hsk_pwc_channel_captureMode(const hsk_pwc_channel idata channel,
+	const ubyte idata captureMode);
 
 /**
  * Triggers a channel in soft trigger mode.
@@ -236,7 +240,7 @@ void hsk_pwc_channel_captureMode(hsk_pwc_channel idata channel, ubyte idata capt
  * @param channel
  * 	The channel to trigger.
  */
-void hsk_pwc_channel_trigger(hsk_pwc_channel idata channel);
+void hsk_pwc_channel_trigger(const hsk_pwc_channel idata channel);
 
 /**
  * Enables T2CCU module if disabled.
@@ -257,7 +261,7 @@ void hsk_pwc_disable(void);
  * @return
  *	The measured pulse width.
  */
-ulong hsk_pwc_channel_getWidthFclk(hsk_pwc_channel idata channel);
+ulong hsk_pwc_channel_getWidthFclk(const hsk_pwc_channel idata channel);
 
 /**
  * Returns the measured pulse width in ns.
@@ -267,7 +271,7 @@ ulong hsk_pwc_channel_getWidthFclk(hsk_pwc_channel idata channel);
  * @return
  *	The measured pulse width.
  */
-ulong hsk_pwc_channel_getWidthNs(hsk_pwc_channel idata channel);
+ulong hsk_pwc_channel_getWidthNs(const hsk_pwc_channel idata channel);
 
 /**
  * Returns the measured pulse width in µs.
@@ -277,7 +281,7 @@ ulong hsk_pwc_channel_getWidthNs(hsk_pwc_channel idata channel);
  * @return
  *	The measured pulse width.
  */
-ulong hsk_pwc_channel_getWidthUs(hsk_pwc_channel idata channel);
+ulong hsk_pwc_channel_getWidthUs(const hsk_pwc_channel idata channel);
 
 /**
  * Returns the measured pulse width in ms.
@@ -287,7 +291,7 @@ ulong hsk_pwc_channel_getWidthUs(hsk_pwc_channel idata channel);
  * @return
  *	The measured pulse width.
  */
-uword hsk_pwc_channel_getWidthMs(hsk_pwc_channel idata channel);
+uword hsk_pwc_channel_getWidthMs(const hsk_pwc_channel idata channel);
 
 /**
  * Returns the measured frequency in Hz.
@@ -297,7 +301,7 @@ uword hsk_pwc_channel_getWidthMs(hsk_pwc_channel idata channel);
  * @return
  *	The measured frequency or 0 if none was measured.
  */
-ulong hsk_pwc_channel_getFreqHz(hsk_pwc_channel idata channel);
+ulong hsk_pwc_channel_getFreqHz(const hsk_pwc_channel idata channel);
 
 /**
  * Returns the measured frequency in pulses per minute.
@@ -307,7 +311,7 @@ ulong hsk_pwc_channel_getFreqHz(hsk_pwc_channel idata channel);
  * @return
  *	The measured frequency or 0 if none was measured.
  */
-ulong hsk_pwc_channel_getFreqPpm(hsk_pwc_channel idata channel);
+ulong hsk_pwc_channel_getFreqPpm(const hsk_pwc_channel idata channel);
 
 /**
  * Returns the measured frequency in pulses per hour.
@@ -317,7 +321,7 @@ ulong hsk_pwc_channel_getFreqPpm(hsk_pwc_channel idata channel);
  * @return
  *	The measured frequency or 0 if none was measured.
  */
-ulong hsk_pwc_channel_getFreqPph(hsk_pwc_channel idata channel);
+ulong hsk_pwc_channel_getFreqPph(const hsk_pwc_channel idata channel);
 
 #endif /* _HSK_PWC_H_ */
 

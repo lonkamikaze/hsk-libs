@@ -77,7 +77,7 @@
  */
 #define BIT_TnSTR	6
 
-void hsk_pwm_init(hsk_pwm_channel idata channel, ulong idata freq) {
+void hsk_pwm_init(const hsk_pwm_channel idata channel, const ulong idata freq) {
 	/**
 	 * <b>PWM Timings</b>
 	 *
@@ -238,7 +238,7 @@ const struct {
 	/* PWM_OUT_63_P43 */ {3, 2}
 };
 
-void hsk_pwm_port_open(hsk_pwm_port idata port) {
+void hsk_pwm_port_open(const hsk_pwm_port idata port) {
 	/*
 	 * Warning, hard coded magic numbers.
 	 * Check the "CCU6 I/O Control Selection" table.
@@ -306,7 +306,7 @@ void hsk_pwm_port_open(hsk_pwm_port idata port) {
 	#undef portSel
 }
 
-void hsk_pwm_port_close(hsk_pwm_port idata port) {
+void hsk_pwm_port_close(const hsk_pwm_port idata port) {
 	/*
 	 * Warning, hard coded magic numbers.
 	 * Check the "CCU6 I/O Control Selection" table and the T12MSEL
@@ -366,7 +366,8 @@ void hsk_pwm_port_close(hsk_pwm_port idata port) {
 	#undef portSel
 }
 
-void hsk_pwm_channel_set(hsk_pwm_channel idata channel, uword idata max, uword idata value) {
+void hsk_pwm_channel_set(const hsk_pwm_channel idata channel,
+		const uword idata max, const uword idata value) {
 	ulong duty;
 
 	/* Set the new cycle and request shadow transfer. */
@@ -407,7 +408,8 @@ void hsk_pwm_channel_set(hsk_pwm_channel idata channel, uword idata max, uword i
 	}
 }
 
-void hsk_pwm_outChannel_dir(hsk_pwm_outChannel idata channel, bool up) {
+void hsk_pwm_outChannel_dir(hsk_pwm_outChannel idata channel,
+		const bool up) {
 	/* The configuration bit for COUT63 is misplaced. */
 	if (channel == PWM_COUT63) {
 		channel = BIT_PSL63;
