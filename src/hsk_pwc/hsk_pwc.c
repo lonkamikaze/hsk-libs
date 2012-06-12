@@ -106,7 +106,7 @@ struct {
  */
 #pragma save
 #pragma nooverlay
-void hsk_pwc_isr_ccn(hsk_pwc_channel idata channel, uword idata capture) {
+void hsk_pwc_isr_ccn(const hsk_pwc_channel idata channel, uword idata capture) {
 	#define channel	hsk_pwc_channels[channel]
 	/* Get the new value and store the current capture value for next
 	 * time. */
@@ -299,7 +299,8 @@ void hsk_pwc_init(ulong idata window) {
  */
 #define EDGE_DEFAULT_MODE	PWC_EDGE_BOTH
 
-void hsk_pwc_channel_open(hsk_pwc_channel idata channel, ubyte idata averageOver) {
+void hsk_pwc_channel_open(const hsk_pwc_channel idata channel,
+		ubyte idata averageOver) {
 	/*
 	 * Set up channel information.
 	 */
@@ -389,7 +390,8 @@ const struct {
 	/* PWC_CC3_P57 */ {7, 3, 5, 4, 3}
 };
 
-void hsk_pwc_port_open(hsk_pwc_port idata port, ubyte idata averageOver) {
+void hsk_pwc_port_open(const hsk_pwc_port idata port, 
+		ubyte idata averageOver) {
 	hsk_pwc_channel channel;
 
 	/*
@@ -499,7 +501,7 @@ void hsk_pwc_port_open(hsk_pwc_port idata port, ubyte idata averageOver) {
 	#undef inCount
 }
 
-void hsk_pwc_channel_close(hsk_pwc_channel idata channel) {
+void hsk_pwc_channel_close(const hsk_pwc_channel idata channel) {
 	/*
 	 * Deactivate the channel.
 	 */
@@ -557,7 +559,8 @@ void hsk_pwc_channel_close(hsk_pwc_channel idata channel) {
  */
 #define PWC_CC3_EXINT_BIT	4
 
-void hsk_pwc_channel_edgeMode(hsk_pwc_channel idata channel, ubyte idata edgeMode) {
+void hsk_pwc_channel_edgeMode(const hsk_pwc_channel idata channel,
+		const ubyte idata edgeMode) {
 	/*
 	 * Configure the corresponding external interrupt to trigger with
 	 * the desired edge.
@@ -580,7 +583,8 @@ void hsk_pwc_channel_edgeMode(hsk_pwc_channel idata channel, ubyte idata edgeMod
 	SFR_PAGE(_t2_0, noSST);	
 }
 
-void hsk_pwc_channel_captureMode(hsk_pwc_channel idata channel, ubyte idata captureMode) {
+void hsk_pwc_channel_captureMode(const hsk_pwc_channel idata channel,
+		const ubyte idata captureMode) {
 	/*
 	 * Configure capture mode for the channel.
 	 */
@@ -589,7 +593,7 @@ void hsk_pwc_channel_captureMode(hsk_pwc_channel idata channel, ubyte idata capt
 	SFR_PAGE(_t2_0, noSST);
 }
 
-void hsk_pwc_channel_trigger(hsk_pwc_channel idata channel) {
+void hsk_pwc_channel_trigger(const hsk_pwc_channel idata channel) {
 	switch (channel) {
 	case PWC_CC0:
 		SFR_PAGE(_t2_2, noSST);
@@ -643,7 +647,7 @@ void hsk_pwc_disable(void) {
  * 	The sum of buffered capture results for this channel.
  * @private
  */
-ulong hsk_pwc_channel_getSum(hsk_pwc_channel idata channel) {
+ulong hsk_pwc_channel_getSum(const hsk_pwc_channel idata channel) {
 	#define channel	hsk_pwc_channels[channel]
 	bool exm = EXM;
 	bool et2 = ET2;
@@ -680,28 +684,28 @@ ulong hsk_pwc_channel_getSum(hsk_pwc_channel idata channel) {
 	#undef channel
 }
 
-ulong hsk_pwc_channel_getWidthFclk(hsk_pwc_channel idata channel) {
+ulong hsk_pwc_channel_getWidthFclk(const hsk_pwc_channel idata channel) {
 	ulong sum = hsk_pwc_channel_getSum(channel);
 	return (sum << hsk_pwc_prescaler) / hsk_pwc_channels[channel].averageOver;
 }
 
-ulong hsk_pwc_channel_getWidthNs(hsk_pwc_channel idata channel) {
+ulong hsk_pwc_channel_getWidthNs(const hsk_pwc_channel idata channel) {
 	ulong sum = hsk_pwc_channel_getSum(channel);
 	return (sum << hsk_pwc_prescaler) * 1000 / 48 / hsk_pwc_channels[channel].averageOver;
 }
 
-ulong hsk_pwc_channel_getWidthUs(hsk_pwc_channel idata channel) {
+ulong hsk_pwc_channel_getWidthUs(const hsk_pwc_channel idata channel) {
 	ulong sum = hsk_pwc_channel_getSum(channel);
 	return (sum << hsk_pwc_prescaler) / 48 / hsk_pwc_channels[channel].averageOver;
 }
 
-uword hsk_pwc_channel_getWidthMs(hsk_pwc_channel idata channel) {
+uword hsk_pwc_channel_getWidthMs(const hsk_pwc_channel idata channel) {
 	ulong sum = hsk_pwc_channel_getSum(channel);
 	return ((sum << hsk_pwc_prescaler) / 48000 / hsk_pwc_channels[channel].averageOver);
 }
 
 
-ulong hsk_pwc_channel_getFreqHz(hsk_pwc_channel idata channel) {
+ulong hsk_pwc_channel_getFreqHz(const hsk_pwc_channel idata channel) {
 	ulong sum = hsk_pwc_channel_getSum(channel);
 	if (sum) {
 		return ((ulong)hsk_pwc_channels[channel].averageOver * 48000000ul / sum) >> hsk_pwc_prescaler;
@@ -709,7 +713,7 @@ ulong hsk_pwc_channel_getFreqHz(hsk_pwc_channel idata channel) {
 	return 0;
 }
 
-ulong hsk_pwc_channel_getFreqPpm(hsk_pwc_channel idata channel) {
+ulong hsk_pwc_channel_getFreqPpm(const hsk_pwc_channel idata channel) {
 	ulong sum = hsk_pwc_channel_getSum(channel);
 	if (sum) {
 		return (hsk_pwc_channels[channel].averageOver * 48000000 * 60 / sum) >> hsk_pwc_prescaler;
@@ -717,7 +721,7 @@ ulong hsk_pwc_channel_getFreqPpm(hsk_pwc_channel idata channel) {
 	return 0;
 }
 
-ulong hsk_pwc_channel_getFreqPph(hsk_pwc_channel idata channel) {
+ulong hsk_pwc_channel_getFreqPph(const hsk_pwc_channel idata channel) {
 	ulong sum = hsk_pwc_channel_getSum(channel);
 	if (sum) {
 		return hsk_pwc_channels[channel].averageOver * (48000000ul >> hsk_pwc_prescaler) * 3600 / sum;

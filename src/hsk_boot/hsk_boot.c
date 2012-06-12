@@ -257,7 +257,7 @@ void hsk_nmipll_isr(void) {
 }
 #pragma restore
 
-void hsk_boot_extClock(ulong idata clk) {
+void hsk_boot_extClock(const ulong idata clk) {
 	/**
 	 * <b>WARNING - Here be dragons ...</b>
 	 *

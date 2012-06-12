@@ -286,7 +286,8 @@ void hsk_adc_disable(void) {
  */
 #define BIT_EMPTY	5
 
-void hsk_adc_open(hsk_adc_channel idata channel, uword * idata target) {
+void hsk_adc_open(const hsk_adc_channel idata channel,
+		uword * idata const target) {
 	bool eadc = EADC;
 
 	EADC = 0;
@@ -301,7 +302,7 @@ void hsk_adc_open(hsk_adc_channel idata channel, uword * idata target) {
 	}
 }
 
-void hsk_adc_close(hsk_adc_channel idata channel) {
+void hsk_adc_close(const hsk_adc_channel idata channel) {
 	bool eadc = EADC;
 	EADC = 0;
 	/* Unregister conversion target address. */

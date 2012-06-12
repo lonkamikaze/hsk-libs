@@ -92,7 +92,8 @@ void prefix##_refresh(void) { \
 	The target length of the encoded string
 @see ICM7228_FACTORY
 @see hsk_icm7228_writeString */\
-void prefix##_writeString(char * idata str, ubyte idata pos, ubyte idata len) { \
+void prefix##_writeString(const char * idata const str, \
+		 const ubyte idata pos, const ubyte idata len) { \
 	hsk_icm7228_writeString(prefix##_buffer, str, pos, len); \
 } \
 \
@@ -107,7 +108,8 @@ void prefix##_writeString(char * idata str, ubyte idata pos, ubyte idata len) { 
 	The number of digits available to encode the number
 @see ICM7228_FACTORY
 @see hsk_icm7228_writeDec */\
-void prefix##_writeDec(uword idata value, char idata power, ubyte idata pos, ubyte idata len) {\
+void prefix##_writeDec(const uword idata value, const char idata power, \
+		const ubyte idata pos, const ubyte idata len) {\
 	hsk_icm7228_writeDec(prefix##_buffer, value, power, pos, len); \
 } \
 \
@@ -122,7 +124,8 @@ void prefix##_writeDec(uword idata value, char idata power, ubyte idata pos, uby
 	The number of digits available to encode the number
 @see ICM7228_FACTORY
 @see hsk_icm7228_writeHex */\
-void prefix##_writeHex(uword idata value, char idata power, ubyte idata pos, ubyte idata len) {\
+void prefix##_writeHex(const uword idata value, const char idata power, \
+		const ubyte idata pos, const ubyte idata len) {\
 	hsk_icm7228_writeHex(prefix##_buffer, value, power, pos, len); \
 } \
 
@@ -150,8 +153,8 @@ void prefix##_writeHex(uword idata value, char idata power, ubyte idata pos, uby
  * @param len
  *	The target length of the encoded string
  */
-void hsk_icm7228_writeString(ubyte xdata * idata buffer, char * idata str,
-		ubyte idata pos, ubyte idata len);
+void hsk_icm7228_writeString(ubyte xdata * idata const buffer, \
+	const char * idata str, ubyte idata pos, ubyte idata len);
 
 /**
  * Write a 7 segment encoded, right aligned decimal number into an xdata
@@ -175,8 +178,8 @@ void hsk_icm7228_writeString(ubyte xdata * idata buffer, char * idata str,
  * @param len
  *	The number of digits available to encode the number
  */
-void hsk_icm7228_writeDec(ubyte xdata * idata buffer, uword idata value,
-		char idata power, ubyte idata pos, ubyte idata len);
+void hsk_icm7228_writeDec(ubyte xdata * idata const buffer, uword idata value,
+	char idata power, const ubyte idata pos, ubyte idata len);
 
 /**
  * Write a 7 segment encoded, right aligned hexadecimal number into an xdata
@@ -200,8 +203,8 @@ void hsk_icm7228_writeDec(ubyte xdata * idata buffer, uword idata value,
  * @param len
  *	The number of digits available to encode the number
  */
-void hsk_icm7228_writeHex(ubyte xdata * idata buffer, uword idata value,
-		char idata power, ubyte idata pos, ubyte idata len);
+void hsk_icm7228_writeHex(ubyte xdata * idata const buffer, uword idata value,
+		char idata power, const ubyte idata pos, ubyte idata len);
 
 #endif /* _HSK_ICM7228_H_ */
 

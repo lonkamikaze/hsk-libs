@@ -52,8 +52,9 @@ const char code hsk_icm7228_codepage[] = {
 	0xB4,	0xB6,	0xC5,	0x00,	0x00,	0x00,	0x00,	0x00
 };
 
-void hsk_icm7228_writeString(ubyte xdata * idata buffer, char * idata str,
-		ubyte idata pos, ubyte idata len) {
+void hsk_icm7228_writeString(ubyte xdata * idata const buffer,
+		const char * idata str, ubyte idata pos,
+		ubyte idata len) {
 	while (len > 0 && str[0]) {
 		buffer[pos] = hsk_icm7228_codepage[str[0]];
 		len--;
@@ -66,8 +67,8 @@ void hsk_icm7228_writeString(ubyte xdata * idata buffer, char * idata str,
 	}
 }
 
-void hsk_icm7228_writeDec(ubyte xdata * idata buffer, uword idata value,
-		char idata power, ubyte idata pos, ubyte idata len) {
+void hsk_icm7228_writeDec(ubyte xdata * idata const buffer, uword idata value,
+		char idata power, const ubyte idata pos, ubyte idata len) {
 	ubyte point = power ? 0x7f : 0xff;
 
 	while (len > 0) {
@@ -79,8 +80,8 @@ void hsk_icm7228_writeDec(ubyte xdata * idata buffer, uword idata value,
 	}
 }
 
-void hsk_icm7228_writeHex(ubyte xdata * idata buffer, uword idata value,
-		char idata power, ubyte idata pos, ubyte idata len) {
+void hsk_icm7228_writeHex(ubyte xdata * idata const buffer, uword idata value,
+		char idata power, const ubyte idata pos, ubyte idata len) {
 	ubyte point = power ? 0x7f : 0xff;
 
 	while (len > 0) {

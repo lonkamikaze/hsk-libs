@@ -232,7 +232,7 @@ typedef ubyte hsk_pwm_port;
  * @param freq
  *	The desired PWM cycle frequency in units of 0.1Hz
  */
-void hsk_pwm_init(hsk_pwm_channel idata channel, ulong idata freq);
+void hsk_pwm_init(const hsk_pwm_channel idata channel, const ulong idata freq);
 
 /**
  * Set up a PWM output port.
@@ -248,7 +248,7 @@ void hsk_pwm_init(hsk_pwm_channel idata channel, ulong idata freq);
  * @param port
  *	The output port to activate
  */
-void hsk_pwm_port_open(hsk_pwm_port idata port);
+void hsk_pwm_port_open(const hsk_pwm_port idata port);
 
 /**
  * Close a PWM output port.
@@ -260,7 +260,7 @@ void hsk_pwm_port_open(hsk_pwm_port idata port);
  * @param port
  *	The output port to deactivate
  */
-void hsk_pwm_port_close(hsk_pwm_port idata port);
+void hsk_pwm_port_close(const hsk_pwm_port idata port);
 
 /**
  * Set the duty cycle for the given channel.
@@ -277,7 +277,8 @@ void hsk_pwm_port_close(hsk_pwm_port idata port);
  * @param value
  *	The current duty cycle value
  */
-void hsk_pwm_channel_set(hsk_pwm_channel idata channel, uword idata max, uword idata value);
+void hsk_pwm_channel_set(const hsk_pwm_channel idata channel,
+	const uword idata max, const uword idata value);
 
 /**
  * Set the direction of an output channel.
@@ -290,7 +291,8 @@ void hsk_pwm_channel_set(hsk_pwm_channel idata channel, uword idata max, uword i
  *	Set 1 to output a 1 during the cycle set with hsk_pwm_channel_set(),
  *	set 0 to output a 0 during the cycle set with hsk_pwm_channel_set()
  */
-void hsk_pwm_outChannel_dir(hsk_pwm_outChannel idata channel, bool up);
+void hsk_pwm_outChannel_dir(hsk_pwm_outChannel idata channel,
+	const bool up);
 
 /**
  * Turns on the CCU6.
