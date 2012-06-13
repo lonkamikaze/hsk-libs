@@ -942,7 +942,7 @@ ubyte hsk_can_msg_delete(const hsk_can_msg idata msg) {
 }
 
 void hsk_can_msg_getData(const hsk_can_msg idata msg,
-		ubyte * idata const msgdata) {
+		ubyte * const idata msgdata) {
 	ubyte dlc, i;
 
 	/* Get the DLC. */
@@ -971,7 +971,7 @@ void hsk_can_msg_getData(const hsk_can_msg idata msg,
 }
 
 void hsk_can_msg_setData(const hsk_can_msg idata msg,
-		const ubyte * idata const msgdata) {
+		const ubyte * const idata msgdata) {
 	ubyte dlc, i;
 
 	/* Get the DLC. */
@@ -1326,7 +1326,7 @@ bool hsk_can_fifo_updated(const hsk_can_fifo idata fifo) {
 }
 
 void hsk_can_fifo_getData(const hsk_can_fifo idata fifo,
-		ubyte * idata const msgdata) {
+		ubyte * const idata msgdata) {
 	/* Get the current selection. */
 	CAN_ADLH = MOFGPRn + (fifo << OFF_MOn);
 	CAN_AD_READ();
@@ -1365,7 +1365,7 @@ ulong hsk_can_fifo_getId(const hsk_can_fifo idata fifo) {
  * 	The signal value to write into the data field
  * @private
  */
-void hsk_can_data_setIntelSignal(ubyte * idata const msg,
+void hsk_can_data_setIntelSignal(ubyte * const idata msg,
 		char idata bitPos, char idata bitCount, ulong idata value) {
 	ubyte shift;
 	while (bitCount > 0) {
@@ -1424,7 +1424,7 @@ void hsk_can_data_setIntelSignal(ubyte * idata const msg,
  * 	The signal value to write into the data field
  * @private
  */
-void hsk_can_data_setMotorolaSignal(ubyte * idata const msg,
+void hsk_can_data_setMotorolaSignal(ubyte * const idata msg,
 		char idata bitPos, char idata bitCount, ulong idata value) {
 	char bits;
 
@@ -1442,7 +1442,7 @@ void hsk_can_data_setMotorolaSignal(ubyte * idata const msg,
 	}
 }
 
-void hsk_can_data_setSignal(ubyte * idata const msg, const bool endian,
+void hsk_can_data_setSignal(ubyte * const idata msg, const bool endian,
 		const char idata bitPos, const char idata bitCount,
 		const ulong idata value) {
 	switch((ubyte)endian) {
@@ -1468,7 +1468,7 @@ void hsk_can_data_setSignal(ubyte * idata const msg, const bool endian,
  *	The signal from the data field msg
  * @private
  */
-ulong hsk_can_data_getIntelSignal(const ubyte * idata const msg,
+ulong hsk_can_data_getIntelSignal(const ubyte * const idata msg,
 		char idata bitPos, char idata bitCount) {
 	ulong value = 0;
 	ubyte shift = 0;
@@ -1498,7 +1498,7 @@ ulong hsk_can_data_getIntelSignal(const ubyte * idata const msg,
  *	The signal from the data field msg
  * @private
  */
-ulong hsk_can_data_getMotorolaSignal(const ubyte * idata const  msg,
+ulong hsk_can_data_getMotorolaSignal(const ubyte * const idata  msg,
 		char idata bitPos, char idata bitCount) {
 	ulong value = 0;
 	char bits;
@@ -1517,7 +1517,7 @@ ulong hsk_can_data_getMotorolaSignal(const ubyte * idata const  msg,
 	return value;
 }
 
-ulong hsk_can_data_getSignal(const ubyte * idata const msg, const bool endian,
+ulong hsk_can_data_getSignal(const ubyte * const idata msg, const bool endian,
 		const char idata bitPos, const char idata bitCount) {
 	switch((ubyte)endian) {
 	case CAN_ENDIAN_INTEL:

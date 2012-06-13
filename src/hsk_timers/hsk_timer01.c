@@ -119,7 +119,7 @@ void ISR_hsk_timer1(void) interrupt 3 {
  * @private
  */
 void hsk_timer01_setup(const ubyte idata id, const uword idata interval,
-		const void (code * idata const callback)(void)) {
+		const void (code * const idata callback)(void)) {
 	/*
 	 * The timer ticks with PCLK / 2, we want 1µs precission, which is
 	 * up to 1000000 ticks per second.
@@ -143,7 +143,7 @@ void hsk_timer01_setup(const ubyte idata id, const uword idata interval,
 }
 
 void hsk_timer0_setup(const uword idata interval,
-		const void (code * idata const callback)(void)) {
+		const void (code * const idata callback)(void)) {
 	hsk_timer01_setup(0, interval, callback);
 }
 
@@ -158,7 +158,7 @@ void hsk_timer0_disable(void) {
 }
 
 void hsk_timer1_setup(const uword idata interval,
-		const void (code * idata const callback)(void)) {
+		const void (code * const idata callback)(void)) {
 	hsk_timer01_setup(1, interval, callback);
 }
 

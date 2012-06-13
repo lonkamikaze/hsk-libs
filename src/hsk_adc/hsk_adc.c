@@ -287,7 +287,7 @@ void hsk_adc_disable(void) {
 #define BIT_EMPTY	5
 
 void hsk_adc_open(const hsk_adc_channel idata channel,
-		uword * idata const target) {
+		uword * const idata target) {
 	bool eadc = EADC;
 
 	EADC = 0;

@@ -237,7 +237,7 @@ ubyte hsk_can_msg_delete(const hsk_can_msg idata msg);
  * 	The character array to store the message data in
  */
 void hsk_can_msg_getData(const hsk_can_msg idata msg,
-	ubyte * idata const msgdata);
+	ubyte * const idata msgdata);
 
 /**
  * Sets the current data in the CAN message.
@@ -250,7 +250,7 @@ void hsk_can_msg_getData(const hsk_can_msg idata msg,
  * 	The character array to get the message data from
  */
 void hsk_can_msg_setData(const hsk_can_msg idata msg,
-	const ubyte * idata const msgdata);
+	const ubyte * const idata msgdata);
 
 /**
  * Request transmission of a message.
@@ -489,7 +489,7 @@ bool hsk_can_fifo_updated(const hsk_can_fifo idata fifo);
  * 	The character array to store the message data in
  */
 void hsk_can_fifo_getData(const hsk_can_fifo idata fifo,
-	ubyte * idata const msgdata);
+	ubyte * const idata msgdata);
 
 /** \file
  * \section data Message Data
@@ -519,7 +519,7 @@ void hsk_can_fifo_getData(const hsk_can_fifo idata fifo,
  * @param value
  * 	The signal value to write into the data field
  */
-void hsk_can_data_setSignal(ubyte * idata const msg, const bool endian,
+void hsk_can_data_setSignal(ubyte * const idata msg, const bool endian,
 	const char idata bitPos, const char idata bitCount,
 	const ulong idata value);
 
@@ -537,7 +537,7 @@ void hsk_can_data_setSignal(ubyte * idata const msg, const bool endian,
  * @return
  *	The signal from the data field msg
  */
-ulong hsk_can_data_getSignal(const ubyte * idata const msg, const bool endian,
+ulong hsk_can_data_getSignal(const ubyte * const idata msg, const bool endian,
 	const char idata bitPos, const char idata bitCount);
 
 #endif /* _HSK_CAN_H_ */
