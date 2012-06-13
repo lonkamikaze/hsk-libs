@@ -939,7 +939,7 @@ __endasm;
 }
 #pragma restore
 
-ubyte hsk_flash_init(void xdata * idata const ptr, const uword idata size,
+ubyte hsk_flash_init(void xdata * const idata ptr, const uword idata size,
 		const ubyte idata version) {
 	uword i;
 	ubyte chksum;

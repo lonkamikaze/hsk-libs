@@ -92,7 +92,7 @@ void prefix##_refresh(void) { \
 	The target length of the encoded string
 @see ICM7228_FACTORY
 @see hsk_icm7228_writeString */\
-void prefix##_writeString(const char * idata const str, \
+void prefix##_writeString(const char * const idata str, \
 		 const ubyte idata pos, const ubyte idata len) { \
 	hsk_icm7228_writeString(prefix##_buffer, str, pos, len); \
 } \
@@ -153,7 +153,7 @@ void prefix##_writeHex(const uword idata value, const char idata power, \
  * @param len
  *	The target length of the encoded string
  */
-void hsk_icm7228_writeString(ubyte xdata * idata const buffer, \
+void hsk_icm7228_writeString(ubyte xdata * const idata buffer, \
 	const char * idata str, ubyte idata pos, ubyte idata len);
 
 /**
@@ -178,7 +178,7 @@ void hsk_icm7228_writeString(ubyte xdata * idata const buffer, \
  * @param len
  *	The number of digits available to encode the number
  */
-void hsk_icm7228_writeDec(ubyte xdata * idata const buffer, uword idata value,
+void hsk_icm7228_writeDec(ubyte xdata * const idata buffer, uword idata value,
 	char idata power, const ubyte idata pos, ubyte idata len);
 
 /**
@@ -203,7 +203,7 @@ void hsk_icm7228_writeDec(ubyte xdata * idata const buffer, uword idata value,
  * @param len
  *	The number of digits available to encode the number
  */
-void hsk_icm7228_writeHex(ubyte xdata * idata const buffer, uword idata value,
+void hsk_icm7228_writeHex(ubyte xdata * const idata buffer, uword idata value,
 		char idata power, const ubyte idata pos, ubyte idata len);
 
 #endif /* _HSK_ICM7228_H_ */

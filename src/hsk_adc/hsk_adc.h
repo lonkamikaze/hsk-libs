@@ -88,7 +88,7 @@ void hsk_adc_disable(void);
  *	A pointer where to store conversion results.
  */
 void hsk_adc_open(const hsk_adc_channel idata channel,
-	uword * idata const target);
+	uword * const idata target);
 
 /**
  * Close the given ADC channel.
