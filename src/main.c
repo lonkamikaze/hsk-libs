@@ -106,16 +106,13 @@ void init(void) {
 	switch(hsk_flash_init(&persist, sizeof(persist), PERSIST_VERSION)) {
 	case 0:
 		/* Init stuff if needed. */
-		P3_DATA = 1;
 		break;
 	case 1:
 		persist.reset++;
-		P3_DATA = 2;
 		break;
 	case 2:
 		persist.boot++;
 		persist.reset = 0;
-		P3_DATA = 4;
 		break;
 	}
 
@@ -156,7 +153,7 @@ void init(void) {
 	//P3_DIR |= 0x30;
 	//P3_DATA |= 0x10;
 	//P3_DIR = -1;
-	//P3_DATA = persist.boot;
+	P3_DATA = persist.boot;
 	EA = 1;
 
 	hsk_flash_write();
