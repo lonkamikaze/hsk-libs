@@ -51,7 +51,7 @@ volatile ubyte idata hsk_pwc_overflow;
 /**
  * Processing data for PWC channels.
  */
-struct {
+volatile struct {
 	/**
 	 * The sum of the values stored in the ring buffer.
 	 */

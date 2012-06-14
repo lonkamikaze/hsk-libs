@@ -292,7 +292,7 @@ void hsk_pwm_port_open(const hsk_pwm_port idata port) {
 	 * statements, the disparate case number will result in less optimised
 	 * code.
 	 * Without this workaround multiple calls to the function lock up the
-	 * controler. The first call always works. As far as I've been able to
+	 * controller. The first call always works. As far as I've been able to
 	 * determine the end of the function is reached, but the line after
 	 * the second function call never is.
 	 */

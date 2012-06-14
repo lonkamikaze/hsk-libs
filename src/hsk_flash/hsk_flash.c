@@ -34,6 +34,16 @@
 #define MOVCI	.db	0xA5
 
 /**
+ * DPTR low byte.
+ */
+#define DPL		dpl
+
+/**
+ * DPTR high byte.
+ */
+#define DPH		dph
+
+/**
  * Code data pointers need the code keyword just like in C51.
  */
 #undef code
@@ -54,6 +64,16 @@
  * MOVC @(DPTR++),A instruction.
  */
 #define MOVCI	db	0xA5
+
+/**
+ * DPTR low byte, C51 uses big endian logic here.
+ */
+#define DPL		dph
+
+/**
+ * DPTR high byte, C51 uses big endian logic here.
+ */
+#define DPH		dpl
 
 /**
  * Create variable at a certain address, C51 version.
@@ -386,7 +406,7 @@ SFR(FCS1,	0xDD);
 /**
  * Holds the persistence configuration.
  */
-struct {
+volatile struct {
 	/**
 	 * The pointer to the data structure to persist.
 	 */
@@ -444,14 +464,14 @@ struct {
  *
  * Not in a struct for easier inline assembler access.
  */
-ubyte code * xdata hsk_flash_flashDptr;
+volatile ubyte code * xdata hsk_flash_flashDptr;
 
 /**
  * A pointer to the xdata src address.
  *
  * Not in a struct for easier inline assembler access.
  */
-ubyte xdata * xdata hsk_flash_xdataDptr;
+volatile ubyte xdata * xdata hsk_flash_xdataDptr;
 
 /**
  * Flash delete/write state machine.
@@ -602,8 +622,8 @@ __asm
 		inc	dptr
 		movx	a,@dptr
 		; Follow hsk_flash_flashDptr
-		mov	dpl,a
-		mov	dph,r0
+		mov	DPL,r0
+		mov	DPH,a
 		MOVCI
 		; Restore used registers
 		pop	ar0
@@ -628,7 +648,6 @@ __endasm;
 		 * Set the bit FCON/EECON.NVSTR for charge pump to drive high
 		 * voltage. */
 		EECON |= 1 << BIT_NVSTR;
-
 
 		/* 5.
 		 * Delay for a minimum of 10 us (Tpgs). */
@@ -674,12 +693,12 @@ __asm
 		inc	dptr
 		movx	a,@dptr
 		; Follow hsk_flash_xdataDptr
-		mov	dpl,a
-		mov	dph,r2
+		mov	DPL,r2
+		mov	DPH,a
 		movx	a,@dptr
 		; Follow hsk_flash_flashDptr
-		mov	dpl,r1
-		mov	dph,r0
+		mov	DPL,r0
+		mov	DPH,r1
 		MOVCI
 		; Restore used registers
 		pop	ar0
@@ -786,8 +805,8 @@ __asm
 		inc	dptr
 		movx	a,@dptr
 		; Follow hsk_flash_flashDptr
-		mov	dpl,a
-		mov	dph,r0
+		mov	DPL,r0
+		mov	DPH,a
 		MOVCI
 		; Restore used registers
 		pop	ar0
@@ -949,6 +968,21 @@ __endasm;
 		FTVAL = 120 << BIT_OFVAL;
 		hsk_flash.state = STATE_IDLE;
 		break;
+	#ifdef SDCC
+	/*
+	 * This is here for what appears to be a bug in SDCC.
+	 * I suspect a problem with the jump table optimisation for switch
+	 * statements, the disparate case number will result in less optimised
+	 * code.
+	 * Without this workaround multiple calls to the function lock up the
+	 * controller. The first call always works. As far as I've been able to
+	 * determine the end of the function is reached, but the line after
+	 * the second function call never is.
+	 */
+	case 0xFF:
+		RESET_RMAP();
+		break;
+	#endif
 	}
 }
 #pragma restore
@@ -1062,10 +1096,11 @@ ubyte hsk_flash_init(void xdata * const idata ptr, const uword idata size,
 	/* Validate the data checksum. It is the simple checksum used in the
 	 * Intel HEX (.ihx) file format. */
 	chksum = 0;
-	for (i = latest; i < latest + size - 1; i++) {
-		chksum += hsk_flash_dflash[i];
+	for (i = 0; i < size - 1; i++) {
+		chksum += hsk_flash_dflash[latest + i];
 	}
-	if (hsk_flash_dflash[i] != -chksum) {
+	chksum = -chksum;
+	if (hsk_flash_dflash[latest + i] != chksum) {
 		/* Setup data envelope. */
 		memset(ptr, 0, size);
 		ptr[0] = ident;
@@ -1088,6 +1123,7 @@ ubyte hsk_flash_init(void xdata * const idata ptr, const uword idata size,
 
 bool hsk_flash_write(void) {
 	uword i;
+	ubyte chksum;
 
 	/* Turn off the state machine, because that's the only way to
 	 * safely access the hsk_flash struct. */
@@ -1139,11 +1175,12 @@ bool hsk_flash_write(void) {
 	/*
 	 * Create chksum.
 	 */
-	hsk_flash.ptr[hsk_flash.size - 1] = 0;
+	chksum = 0;
 	for (i = 0; i < hsk_flash.size - 1; i++) {
-		hsk_flash.ptr[hsk_flash.size - 1] += hsk_flash.ptr[i];
+		chksum += hsk_flash.ptr[i];
 	}
-	hsk_flash.ptr[hsk_flash.size - 1] = -hsk_flash.ptr[hsk_flash.size - 1];
+	chksum = -chksum;
+	hsk_flash.ptr[hsk_flash.size - 1] = chksum;
 
 	/*
 	 * Resume operation from the appropriate state.
