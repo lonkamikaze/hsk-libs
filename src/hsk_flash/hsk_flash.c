@@ -95,14 +95,14 @@
 #define LEN_PFLASH		(60u << 10)
 
 /**
- * XC878-16FF ld() of the number of bytes in a P-Flash page.
+ * XC878-16FF the number of bytes in a P-Flash page.
  */
-#define BYTES_PAGE_PFLASH	9
+#define BYTES_PAGE_PFLASH	(1 << 9)
 
 /**
- * XC878-16FF ld() of the number of bytes in a P-Flash wordline.
+ * XC878-16FF the number of bytes in a P-Flash wordline.
  */
-#define BYTES_WORDLINE_PFLASH	6
+#define BYTES_WORDLINE_PFLASH	(1 << 6)
 
 /**
  * XC878-16FF start address of the D-Flash.
@@ -115,14 +115,14 @@
 #define LEN_DFLASH		(4u << 10)
 
 /**
- * XC878-16FF ld() of the number of bytes in a D-Flash page.
+ * XC878-16FF the number of bytes in a D-Flash page.
  */
-#define BYTES_PAGE_DFLASH	6
+#define BYTES_PAGE_DFLASH	(1 << 6)
 
 /**
  * XC878-16FF ld() of the number of bytes in a D-Flash wordline.
  */
-#define BYTES_WORDLINE_DFLASH	5
+#define BYTES_WORDLINE_DFLASH	(1 << 5)
 
 /**
  * XC878-16FF start address of the Boot ROM.
@@ -170,14 +170,14 @@
 #define LEN_PFLASH		(48u << 10)
 
 /**
- * XC878-13FF ld() of the number of bytes in a P-Flash page.
+ * XC878-13FF the number of bytes in a P-Flash page.
  */
-#define BYTES_PAGE_PFLASH	9
+#define BYTES_PAGE_PFLASH	(1 << 9)
 
 /**
- * XC878-13FF ld() of the number of bytes in a P-Flash wordline.
+ * XC878-13FF the number of bytes in a P-Flash wordline.
  */
-#define BYTES_WORDLINE_PFLASH	6
+#define BYTES_WORDLINE_PFLASH	(1 << 6)
 
 /**
  * XC878-13FF start address of the D-Flash.
@@ -190,14 +190,14 @@
 #define LEN_DFLASH		(4u << 10)
 
 /**
- * XC878-13FF ld() of the number of bytes in a D-Flash page.
+ * XC878-13FF the number of bytes in a D-Flash page.
  */
-#define BYTES_PAGE_DFLASH	6
+#define BYTES_PAGE_DFLASH	(1 << 6)
 
 /**
- * XC878-13FF ld() of the number of bytes in a D-Flash wordline.
+ * XC878-13FF the number of bytes in a D-Flash wordline.
  */
-#define BYTES_WORDLINE_DFLASH	5
+#define BYTES_WORDLINE_DFLASH	(1 << 5)
 
 /**
  * XC878-13FF start address of the Boot ROM.
@@ -592,6 +592,8 @@ __asm
 #pragma asm
 #endif
 		; Backup used registers
+		push	psw
+		push	acc
 		push	ar0
 		; Load hsk_flash_flashDptr into r0, a
 		mov	dptr,#VAR_ASM(hsk_flash_flashDptr)
@@ -600,11 +602,13 @@ __asm
 		inc	dptr
 		movx	a,@dptr
 		; Follow hsk_flash_flashDptr
-		mov	dpl,r0
-		mov	dph,a
+		mov	dpl,a
+		mov	dph,r0
 		MOVCI
 		; Restore used registers
 		pop	ar0
+		pop	acc
+		pop	psw
 #ifdef SDCC
 __endasm;
 #elif defined __C51__
@@ -651,6 +655,8 @@ __asm
 #pragma asm
 #endif
 		; Backup used registers
+		push	psw
+		push	acc
 		push	ar2
 		push	ar1
 		push	ar0
@@ -668,28 +674,29 @@ __asm
 		inc	dptr
 		movx	a,@dptr
 		; Follow hsk_flash_xdataDptr
-		mov	dpl,r2
-		mov	dph,a
+		mov	dpl,a
+		mov	dph,r2
 		movx	a,@dptr
 		; Follow hsk_flash_flashDptr
-		mov	dpl,r0
-		mov	dph,r1
+		mov	dpl,r1
+		mov	dph,r0
 		MOVCI
 		; Restore used registers
 		pop	ar0
 		pop	ar1
 		pop	ar2
+		pop	acc
+		pop	psw
 #ifdef SDCC
 __endasm;
 #elif defined __C51__
 #pragma endasm
 #endif
 
-
 		/* 7.
 		 * Delay for a minimum of 20 us but not longer than 40 us
 		 * (Tprog). */
-		FCS |= 1 << BIT_FTEN;
+		/* Note FCS.FTEN was set by hardware. */
 
 		/* Point forward. */
 		hsk_flash_flashDptr++;
@@ -716,18 +723,16 @@ __endasm;
 			goto state_write_loop;
 		}
 
-		hsk_flash.state++;
-		/* fallthrough */
-	case STATE_WRITE + 8:
 		/* 10.
 		 * Clear the bit FCON/EECON.PROG. */
 		EECON &= ~(1 << BIT_PROG);
+
 		/* 11.
 		 * Delay for a minimum of 5 us (Tnvh) */
 		FCS |= 1 << BIT_FTEN;
 		hsk_flash.state++;
 		break;
-	case STATE_WRITE + 9:
+	case STATE_WRITE + 8:
 		/* 12.
 		 * Clear the bit FCON/EECON.NVSTR. */
 		EECON &= ~(1 << BIT_NVSTR);
@@ -754,6 +759,7 @@ __endasm;
 		/* Set program flash timer mode, 5µs for an overflow. */
 		FTVAL &= ~(1 << BIT_MODE);
 	state_delete:
+		FTVAL &= ~(1 << BIT_MODE);
 		hsk_flash.state = STATE_DELETE;
 		/* 1.
 		 * Set the bit FCON/EECON.ERASE and clear the bit
@@ -770,6 +776,8 @@ __asm
 #pragma asm
 #endif
 		; Backup used registers
+		push	psw
+		push	acc
 		push	ar0
 		; Load hsk_flash_flashDptr into r0, a
 		mov	dptr,#VAR_ASM(hsk_flash_flashDptr)
@@ -778,11 +786,13 @@ __asm
 		inc	dptr
 		movx	a,@dptr
 		; Follow hsk_flash_flashDptr
-		mov	dpl,r0
-		mov	dph,a
+		mov	dpl,a
+		mov	dph,r0
 		MOVCI
 		; Restore used registers
 		pop	ar0
+		pop	acc
+		pop	psw
 #ifdef SDCC
 __endasm;
 #elif defined __C51__
@@ -865,9 +875,13 @@ __asm
 #elif defined __C51__
 #pragma asm
 #endif
+		; Backup used registers
+		push	psw
 		; Make a dummy write to the dflash
 		mov	dptr,#VAR_ASM(hsk_flash_dflash)
 		MOVCI
+		; Restore used registers
+		pop	psw
 #ifdef SDCC
 __endasm;
 #elif defined __C51__
@@ -987,13 +1001,18 @@ ubyte hsk_flash_init(void xdata * const idata ptr, const uword idata size,
 		/* Kick off the ISR, start to delete. */
 		state = STATE_DETECT;
 		NMICON |= 1 << BIT_NMIFLASH;
-		hsk_flash_isr_nmiflash();
+		SET_RMAP();
+		FCS |= 1 << BIT_FTEN;
+		RESET_RMAP();
+
 		/* Check whether XRAM data is consistent. */
-		if (ptr[0] == ident \
-				&& ptr[size - 1] == ident) {
+		if (ptr[0] == ident) {
 			return 1;
 		}
-		memset(&ptr[1], 0, size - 3);
+
+		/* Setup data envelope. */
+		memset(ptr, 0, size);
+		ptr[0] = ident;
 		return 0;
 	}
 
@@ -1021,35 +1040,41 @@ ubyte hsk_flash_init(void xdata * const idata ptr, const uword idata size,
 	/* Kick off the ISR, in case there is something to delete. */
 	state = STATE_DETECT;
 	NMICON |= 1 << BIT_NMIFLASH;
-	hsk_flash_isr_nmiflash();
+	SET_RMAP();
+	FCS |= 1 << BIT_FTEN;
+	RESET_RMAP();
 
 	/* Check whether XRAM data is consistent. */
-	if (ptr[0] == ident \
-			&& ptr[size - 1] == ident) {
+	if (ptr[0] == ident) {
 		return 1;
 	}
 
 	/*
 	 * Restore data from the D-Flash.
 	 */
-	/* Validate the envelope. */
-	if (hsk_flash_dflash[latest] != ident \
-			|| hsk_flash_dflash[latest + size - 1] != ident) {
+	/* Validate the prefix. */
+	if (hsk_flash_dflash[latest] != ident) {
+		/* Setup data envelope. */
+		memset(ptr, 0, size);
+		ptr[0] = ident;
 		return 0;
 	}
 	/* Validate the data checksum. It is the simple checksum used in the
 	 * Intel HEX (.ihx) file format. */
 	chksum = 0;
-	for (i = latest; i < latest + size - 2; i++) {
-		chksum += hsk_flash_dflash[latest];
+	for (i = latest; i < latest + size - 1; i++) {
+		chksum += hsk_flash_dflash[i];
 	}
 	if (hsk_flash_dflash[i] != -chksum) {
+		/* Setup data envelope. */
+		memset(ptr, 0, size);
+		ptr[0] = ident;
 		return 0;
 	}
 
 	/* Copy data from the D-Flash to the xram. */
 	for (i = 0; i < size; i++) {
-		ptr[i] = hsk_flash_flashDptr[latest + i];
+		ptr[i] = hsk_flash_dflash[latest + i];
 	}
 	return 2;
 	#undef ptr
@@ -1062,6 +1087,8 @@ ubyte hsk_flash_init(void xdata * const idata ptr, const uword idata size,
 }
 
 bool hsk_flash_write(void) {
+	uword i;
+
 	/* Turn off the state machine, because that's the only way to
 	 * safely access the hsk_flash struct. */
 	NMICON &= ~(1 << BIT_NMIFLASH);
@@ -1093,8 +1120,8 @@ bool hsk_flash_write(void) {
 	 */
 	/* Return the flash timer to the default state (5µs cycle, off). */
 	SET_RMAP();
-	FTVAL = 120 << BIT_OFVAL;
 	FCS &= ~(1 << BIT_FTEN);
+	FTVAL = 120 << BIT_OFVAL;
 	RESET_RMAP();
 	/* Now that the interrupt generating clock is turned off, it is safe
 	 * to reactivate the interrupt. */
@@ -1110,6 +1137,15 @@ bool hsk_flash_write(void) {
 	hsk_flash_flashDptr = hsk_flash_dflash + hsk_flash.latest;
 
 	/*
+	 * Create chksum.
+	 */
+	hsk_flash.ptr[hsk_flash.size - 1] = 0;
+	for (i = 0; i < hsk_flash.size - 1; i++) {
+		hsk_flash.ptr[hsk_flash.size - 1] += hsk_flash.ptr[i];
+	}
+	hsk_flash.ptr[hsk_flash.size - 1] = -hsk_flash.ptr[hsk_flash.size - 1];
+
+	/*
 	 * Resume operation from the appropriate state.
 	 */
 	if (hsk_flash.state == STATE_IDLE) {
@@ -1117,7 +1153,10 @@ bool hsk_flash_write(void) {
 	} else {
 		hsk_flash.state = STATE_REQUEST;
 	}
-	hsk_flash_isr_nmiflash();
+	SET_RMAP();
+	FTVAL = 120 << BIT_OFVAL;
+	FCS |= 1 << BIT_FTEN;
+	RESET_RMAP();
 	return 1;
 }
 
