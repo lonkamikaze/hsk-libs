@@ -22,7 +22,7 @@
  *
  * @private
  */
-void dummy(void) {
+void dummy(void) reentrant {
 }
 
 /**

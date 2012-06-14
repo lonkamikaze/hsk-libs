@@ -52,8 +52,6 @@ struct {\
 	members\
 	/** For data integrity detection. @private */\
 	ubyte hsk_flash_chksum;\
-	/** For data integrity/compatibilty detection. @private */\
-	ubyte hsk_flash_postfix;\
 } xdata
 
 /**

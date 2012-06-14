@@ -34,11 +34,10 @@ void main(void) {
 	run();
 }
 
-
 /**
  * The version of the persist struct.
  */
-#define PERSIST_VERSION	0
+#define PERSIST_VERSION	1
 
 /**
  * This structure is used to persist data between resets.
@@ -103,16 +102,20 @@ void init(void) {
 	/*
 	 * Boot/reset detection.
 	 */
+	P3_DIR = -1;
 	switch(hsk_flash_init(&persist, sizeof(persist), PERSIST_VERSION)) {
 	case 0:
 		/* Init stuff if needed. */
+		P3_DATA = 1;
 		break;
 	case 1:
 		persist.reset++;
+		P3_DATA = 2;
 		break;
 	case 2:
 		persist.boot++;
 		persist.reset = 0;
+		P3_DATA = 4;
 		break;
 	}
 
@@ -152,11 +155,11 @@ void init(void) {
 
 	//P3_DIR |= 0x30;
 	//P3_DATA |= 0x10;
-	P3_DIR = -1;
-	P3_DATA = persist.boot;
+	//P3_DIR = -1;
+	//P3_DATA = persist.boot;
 	EA = 1;
 
-	//hsk_flash_write();
+	hsk_flash_write();
 
 	hsk_adc_warmup();
 
@@ -230,7 +233,7 @@ void run(void) {
 		if (hsk_can_fifo_updated(fifo0)) {
 			if (hsk_can_fifo_getId(fifo0) == MSG_AFB_CHANNEL_ID) {
 				hsk_can_fifo_getData(fifo0, data0);
-				P3_DATA ^= 1 << hsk_can_data_getSignal(data0, CAN_ENDIAN_INTEL, 0, 3);
+				//P3_DATA ^= 1 << hsk_can_data_getSignal(data0, CAN_ENDIAN_INTEL, 0, 3);
 			}
 			hsk_can_fifo_next(fifo0);
 		}
