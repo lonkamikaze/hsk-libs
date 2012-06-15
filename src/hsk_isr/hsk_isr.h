@@ -33,6 +33,15 @@
 #include "hsk_isr.isr"
 #endif /* SDCC */
 
+/*
+ * SDCC does not like the \c code keyword for function pointers, C51 needs it
+ * or it will use generic pointers.
+ */
+#ifdef SDCC
+#undef code
+#define code
+#endif /* SDCC */
+
 /**
  * Shared interrupt 5 routine. Activate the interrupt by setting ET2 = 1.
  *
@@ -230,5 +239,13 @@ struct hsk_isr14_callback {
  * SST1/RST1, because they might interrupt other ISRs.
  */
 extern volatile struct hsk_isr14_callback xdata hsk_isr14;
+
+/*
+ * Restore the usual meaning of \c code.
+ */
+#ifdef SDCC
+#undef code
+#define code	__code
+#endif /* SDCC */
 
 #endif /* _HSK_ISR_H_ */

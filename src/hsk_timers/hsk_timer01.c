@@ -11,6 +11,15 @@
 
 #include "hsk_timer01.h"
 
+/*
+ * SDCC does not like the code keyword for function pointers, C51 needs it
+ * or it will use generic pointers.
+ */
+#ifdef SDCC
+#undef code
+#define code
+#endif /* SDCC */
+
 /**
  * IEN0 Timer 0 Overflow Interrupt Enable bit.
  */

@@ -17,6 +17,15 @@
 #include "hsk_timer01.isr"
 #endif /* SDCC */
 
+/*
+ * SDCC does not like the \c code keyword for function pointers, C51 needs it
+ * or it will use generic pointers.
+ */
+#ifdef SDCC
+#undef code
+#define code
+#endif /* SDCC */
+
 /**
  * Setup timer 0 to tick at a given interval.
  *
@@ -59,7 +68,7 @@ void hsk_timer0_disable(void);
  *	A function pointer to a callback function.
  */
 void hsk_timer1_setup(const uword idata interval,
-	void (code * const idata callback)(void));
+	const void (code * const idata callback)(void));
 
 /**
  * Enables the timer 1 and its interrupt.
@@ -70,5 +79,13 @@ void hsk_timer1_enable(void);
  * Disables timer 1 and its interrupt.
  */
 void hsk_timer1_disable(void);
+
+/*
+ * Restore the usual meaning of \c code.
+ */
+#ifdef SDCC
+#undef code
+#define code	__code
+#endif
 
 #endif /* _HSK_TIMER01_H_ */

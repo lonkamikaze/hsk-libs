@@ -196,7 +196,9 @@ uword xdata ndiv;
  * @private
  */
 #pragma save
+#ifdef SDCC
 #pragma nooverlay
+#endif
 void hsk_nmipll_isr(void) {
 	/*
 	 * Loop counter for active waiting.

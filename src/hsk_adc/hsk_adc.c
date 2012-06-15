@@ -93,7 +93,9 @@ volatile uword * xdata hsk_adc_targets[ADC_CHANNELS];
  * @private
  */
 #pragma save
+#ifdef SDCC
 #pragma nooverlay
+#endif
 void hsk_adc_isr(void) {
 	hsk_adc_channel channel;
 	uword result;
@@ -350,7 +352,9 @@ void hsk_adc_service(void) {
  * @private
  */
 #pragma save
+#ifdef SDCC
 #pragma nooverlay
+#endif
 void hsk_adc_isr_warmup(void) {
 	ubyte i;
 

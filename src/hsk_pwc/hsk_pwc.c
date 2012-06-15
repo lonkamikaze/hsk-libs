@@ -105,7 +105,9 @@ volatile struct {
  * @private
  */
 #pragma save
+#ifdef SDCC
 #pragma nooverlay
+#endif
 void hsk_pwc_isr_ccn(const hsk_pwc_channel idata channel, uword idata capture) {
 	#define channel	hsk_pwc_channels[channel]
 	/* Get the new value and store the current capture value for next

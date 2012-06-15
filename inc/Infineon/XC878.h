@@ -92,8 +92,7 @@
 #define idata                  __idata
 #define xdata                  __xdata
 #define bit                    __bit
-//#define code                   __code
-#define code                   
+#define code                   __code
 #define interrupt              __interrupt
 #define reentrant              __reentrant
 #endif
