@@ -291,12 +291,7 @@ portions of code to fixed addresses.
 
 The Misc dialogue holds the remaining linker settings.
 
-- disable Warning Numbers: 15, 16
-	- Warning number 15 complains if a function might be called regularly
-	  or from an ISR at the same time, which causes memory corruption with
-	  non-reentrant functions. Unfortunately this useful feature cannot
-	  cope with function pointers and is thus rendered useless for this
-	  library
+- disable Warning Numbers: 16
 	- Warning number 16 refers to not used functions, quite common in a
 	  general purpose library and thus without interest
 - Overlay
