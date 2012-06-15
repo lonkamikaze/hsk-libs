@@ -75,7 +75,9 @@ volatile ubyte tick0_count_20 = 10;
  * A ticking function called back by the timer T0 ISR.
  */
 #pragma save
+#ifdef SDCC
 #pragma nooverlay
+#endif
 void tick0(void) {
 	tick0_count_250++;
 	tick0_count_20++;

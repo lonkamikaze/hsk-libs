@@ -44,6 +44,8 @@ and like the applications still subject to a lot of change.
 	- Doxygen setting changes to create the developer documentation
 - \c doxygen.public.conf
 	- Basic doxygen settings, generates the user documentation
+- \c uVisionupdate.sh
+	- Updates the µVision project's overlaying instructions
 - \c bin.c51/
 	- C51 toolchain output produced by Keil µVision (safe to delete)
 - \c bin.sdcc/
@@ -69,13 +71,19 @@ and like the applications still subject to a lot of change.
 - \c pdf/
 	- Contains the PDF version of these manuals
 - \c scripts/
-	Contains build scripts used by the Makefile
+	- Contains build scripts used by the \c Makefile
 - \c scripts/build.sh
 	- Generates the build.mk file
 - \c scripts/filter.sugar.awk
 	- Filters inline defines from the code for the doxygen toolchain
 - \c scripts/includes.awk
-	- Used by build.sh to get the includes of a source file
+	- Used by \c build.sh to get the includes of a source file
+- \c scripts/overlays.awk
+	- Used by \c uVisionupdate.sh to produce a list of ISR callbacks for
+	  \ref toolchain_lx51_misc
+- \c scripts/xml.awk
+	- A command line XML parser/editor used by \c uVisionupdate.sh to
+	  update the µVision settings
 - \c src/
 	- The project source code
 - \c src/hsk_.../
@@ -295,6 +303,8 @@ The Misc dialogue holds the remaining linker settings.
 	- This field can be used to add calls through function pointers to the
 	  call tree as is necessary for callback functions, the syntax is
 	  described in the µVision Help section OVERLAY Linker Directive
+	- Manually filling this field can be avoided by running the
+	  \c uVisionupdate.sh script
 
 \image html img/keil_options_LX51_Misc.png "Keil µVision LX51 Misc options dialogue"
 \image latex img/keil_options_LX51_Misc.png "Keil µVision LX51 Misc options dialogue" width=10cm
@@ -444,31 +454,52 @@ In order to write compatible code, the compatiblity glue in the
 Infineon/XC878.h header maps keywords like \c data, \c idata, \c xdata etc.
 to their SDCC equivalents \c __data, \c __idata and \c  __xdata.
 
-One exception is the \c code token, which is mapped to nothing (as in it
-will be removed by the precompiler and become invisible to the C compiling
-stage of SDCC). The reason is that SDCC always treats constants and function
-pointers as memory-specific. And the use of the \c __code keyword is largely
-forbidden.
+Starting with SDCC 3.x C51 \c code and SDCC \c __code are largely
+interchangeable. This wasn't always the case, which results in two different
+styles for using \c code.
 
-Using the C51 toolchain a variable can be located in the code segment with:
+E.g. putting a variable into \c code space, C51 style:
 \code
 ubyte code foo = 0x2A;
 \endcode
 
-The SDCC equivalent would simply result in a compiler error:
-\code
-ubyte __code foo = 0x2A;
-\endcode
-
-The variable \c foo can instead be placed in the code segment with the keyword
-\c const:
+SDCC style:
 \code
 const ubyte foo = 0x2A;
 \endcode
 
-The same will not work for C51. The solution is to use \c const and \c code:
+The C51 style is consistent with other variable space assignments and
+portable (it did not work with SDCC 2.x, but works with 3.x).
+The SDCC style is more logical in terms of writing code that communicates
+what one intends to do. The recommendation within this project is to use a
+redundant style, which also worked with SDCC 2.x with some C macro magic:
 \code
 const ubyte code foo = 0x2A;
+\endcode
+
+<b>Function pointers</b> are a special case. To SDCC all function pointers
+refer to \c code, C51 uses (slower, larger) generic pointers if the \c code
+keyword is missing. Unfortunately there is no compatible syntax to place
+\c code in a function pointer declaration. This can be circumvented with
+preprocessor instructions:
+\code
+#ifdef SDCC
+#undef code
+#define code
+#endif /* SDCC */
+\endcode
+
+A function pointer declaration may look like this:
+\code
+void (code *foo)(void);
+\endcode
+
+Take care to restore \c code before the end of a <tt>.h</tt> file:
+\code
+#ifdef SDCC
+#undef code
+#define code	__code
+#endif /* SDCC */
 \endcode
 
 \section sdcc_interrupts Interrupts
@@ -517,6 +548,18 @@ Unfortunately this causes a compiler warning when using C51:
 \verbatim
 ..\src\main.c(49): warning C245: unknown #pragma, line ignored
 \endverbatim
+
+This can be avoided by making nooverlay conditional:
+\code
+#pragma save
+#ifdef SDCC
+#pragma nooverlay
+#endif
+void isr_callback(void) {
+	[...]
+}
+#pragma restore
+\endcode
 
 
 \page make The Project Makefile

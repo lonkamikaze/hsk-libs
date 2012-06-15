@@ -42,7 +42,8 @@ END {
 
 	# Print groups
 	for (isr in callbacks) {
-		printf (sep++ ? ",\r\n" : "") "%s ! (%s)", isr, callbacks[isr]
+		printf (sep++ ? ",\r\n" : "") "* ~ (%s)", callbacks[isr]
+		printf ",\r\n%s ! (%s)", isr, callbacks[isr]
 	}
 }
 

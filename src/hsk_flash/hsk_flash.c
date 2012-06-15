@@ -44,12 +44,6 @@
 #define DPH		dph
 
 /**
- * Code data pointers need the code keyword just like in C51.
- */
-#undef code
-#define code	__code
-
-/**
  * Create variable at a certain address, SDCC version.
  */
 #define VAR_AT(type, name, addr)	type __at(addr) name
@@ -482,7 +476,9 @@ volatile ubyte xdata * xdata hsk_flash_xdataDptr;
  * @private
  */
 #pragma save
+#ifdef SDCC
 #pragma nooverlay
+#endif
 void hsk_flash_isr_nmiflash(void) {
 	SET_RMAP();
 
