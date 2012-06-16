@@ -1374,7 +1374,7 @@ ulong hsk_can_fifo_getId(const hsk_can_fifo idata fifo) {
  * @private
  */
 void hsk_can_data_setIntelSignal(ubyte * const idata msg,
-		char idata bitPos, char idata bitCount, ulong idata value) {
+		ubyte idata bitPos, char idata bitCount, ulong idata value) {
 	ubyte shift;
 	while (bitCount > 0) {
 		shift = bitPos % 8;
@@ -1433,7 +1433,7 @@ void hsk_can_data_setIntelSignal(ubyte * const idata msg,
  * @private
  */
 void hsk_can_data_setMotorolaSignal(ubyte * const idata msg,
-		char idata bitPos, char idata bitCount, ulong idata value) {
+		ubyte idata bitPos, char idata bitCount, ulong idata value) {
 	char bits;
 
 	while (bitCount > 0) {
@@ -1451,7 +1451,7 @@ void hsk_can_data_setMotorolaSignal(ubyte * const idata msg,
 }
 
 void hsk_can_data_setSignal(ubyte * const idata msg, const bool endian,
-		const char idata bitPos, const char idata bitCount,
+		const ubyte idata bitPos, const char idata bitCount,
 		const ulong idata value) {
 	switch((ubyte)endian) {
 	case CAN_ENDIAN_INTEL:
@@ -1477,7 +1477,7 @@ void hsk_can_data_setSignal(ubyte * const idata msg, const bool endian,
  * @private
  */
 ulong hsk_can_data_getIntelSignal(const ubyte * const idata msg,
-		char idata bitPos, char idata bitCount) {
+		ubyte idata bitPos, char idata bitCount) {
 	ulong value = 0;
 	ubyte shift = 0;
 	while (bitCount > 0) {
@@ -1507,7 +1507,7 @@ ulong hsk_can_data_getIntelSignal(const ubyte * const idata msg,
  * @private
  */
 ulong hsk_can_data_getMotorolaSignal(const ubyte * const idata  msg,
-		char idata bitPos, char idata bitCount) {
+		ubyte idata bitPos, char idata bitCount) {
 	ulong value = 0;
 	char bits;
 
@@ -1526,7 +1526,7 @@ ulong hsk_can_data_getMotorolaSignal(const ubyte * const idata  msg,
 }
 
 ulong hsk_can_data_getSignal(const ubyte * const idata msg, const bool endian,
-		const char idata bitPos, const char idata bitCount) {
+		const ubyte idata bitPos, const char idata bitCount) {
 	switch((ubyte)endian) {
 	case CAN_ENDIAN_INTEL:
 		return hsk_can_data_getIntelSignal(msg, bitPos, bitCount);
