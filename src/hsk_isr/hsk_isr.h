@@ -8,13 +8,12 @@
  * Callback functions should preserve SFR pages with SST1/RST1.
  *
  * The following table must be obeyed to avoid memory corruption:
- * \code
- *	Save	Restore	Function
- *	SST0	RST0	ISRs
- *	SST1	RST1	ISR callback functions
- *	SST2	RST2	NMI ISR
- *	SST3	RST3	NMI callback functions
- * \endcode
+ * | Save	| Restore	| Function
+ * |------------|---------------|------------------------
+ * | SST0	| RST0		| ISRs
+ * | SST1	| RST1		| ISR callback functions
+ * | SST2	| RST2		| NMI ISR
+ * | SST3	| RST3		| NMI callback functions
  *
  * Every callback function is called with RMAP = 0. If the callback function
  * changes RMAP it does not have to take care of restoring it. RMAP is always
@@ -38,8 +37,8 @@
  * or it will use generic pointers.
  */
 #ifdef SDCC
-#undef code
-#define code
+	#undef code
+	#define code
 #endif /* SDCC */
 
 /**
@@ -244,8 +243,8 @@ extern volatile struct hsk_isr14_callback xdata hsk_isr14;
  * Restore the usual meaning of \c code.
  */
 #ifdef SDCC
-#undef code
-#define code	__code
+	#undef code
+	#define code	__code
 #endif /* SDCC */
 
 #endif /* _HSK_ISR_H_ */

@@ -16,8 +16,8 @@
  * or it will use generic pointers.
  */
 #ifdef SDCC
-#undef code
-#define code
+	#undef code
+	#define code
 #endif /* SDCC */
 
 /**

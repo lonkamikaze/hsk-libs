@@ -4,7 +4,76 @@
  * This file contains function prototypes to menage information that survives
  * a reset and allow storage within the D-Flash.
  *
+ * It provides the \ref FLASH_STRUCT_FACTORY to create a struct with data that
+ * can be stored with hsk_flash_write() and recovered with hsk_flash_init().
+ *
+ * The D-Flash is used as a ring buffer, this distributes writes over the
+ * entire flash to gain the maximum achievable lifetime. The lifetime
+ * expectancy depends on your usage scenario and the size of the struct.
+ *
+ * Refer to section 3.3 table 20 and table 21 of the
+ * <a href="../contrib/Microcontroller-XC87x-Data-Sheet-V15-infineon.pdf">
+ * XC87x data sheet</a> for D-Flash life times.
+ *
+ * Complete coverage of the D-Flash counts as a single D-Flash cycle. Thus the
+ * formula for the expected number of write calls is:
+ * \f[
+ * 	writes = floor(4096 / sizeof(struct)) * expectedcycles
+ * \f]
+ *
+ * - \c expectedcycles
+ * 	- The expected number of possible write cycles
+ * 	  depending on the usage scenario in table 20
+ * - \c sizeof(struct)
+ * 	- The number of bytes the struct covers
+ * - \c floor()
+ * 	- Round down to the next smaller integer
+ *
+ * E.g. to store 20 bytes of configuration data, the struct factory adds 2
+ * bytes overhead to be able to check the consistency of written data, so
+ * \f$ sizeof(struct) = 22 \f$.  Expecting that most of the µC use is
+ * within the first year, table 20 suggests that
+ * \f$ expectedcycles = 100000 \f$. In that case the expected number of
+ * possible hsk_flash_write() calls is 18.6 million.
+ *
  * @author kami
+ *
+ * \section flash_byte_order Byte Order
+ *
+ * C51 stores multiple byte variables in big endian order, whereas the
+ * DPTR register, several SFRs and SDCC use little endian. 
+ *
+ * If the data struct contains multibyte members such as int/uword or
+ * long/ulong, this can lead to data corruption, when switching compilers.
+ *
+ * Both the checksum and identifier are single byte values and thus will
+ * still match after a compiler switch, causing multibyte values to be 
+ * restored from the flash with the wrong byte order.
+ *
+ * A byte order change can be detected with a byte order word in the struct.
+ * A BOW initialized with 0x1234 would read 0x3412 after a an order change.
+ *
+ * The suggested solution is to only create struct members with byte wise
+ * access. E.g. a ulong member may be defined in the following way:
+ * \code
+ * ubyte ulongMember[sizeof(ulong)];
+ * \endcode
+ *
+ * The value can be set like this:
+ * \code
+ * myStruct.ulongMember[0] = ulongValue;
+ * myStruct.ulongMember[1] = ulongValue >> 8;
+ * myStruct.ulongMember[2] = ulongValue >> 16;
+ * myStruct.ulongMember[3] = ulongValue >> 24;
+ * \endcode
+ *
+ * Reading works similarly:
+ * \code
+ * ulongValue  = (ubyte)myStruct.ulongMember[0];
+ * ulongValue |= (uword)myStruct.ulongMember[1] << 8;
+ * ulongValue |= (ulong)myStruct.ulongMember[2] << 16;
+ * ulongValue |= (ulong)myStruct.ulongMember[3] << 24;
+ * \endcode
  */
 
 #ifndef _HSK_PERSIST_H_
@@ -46,13 +115,49 @@
  *	Struct member definitions
  */
 #define FLASH_STRUCT_FACTORY(members)	\
-struct {\
+volatile struct {\
 	/** For data integrity/compatibilty detection. @private */\
 	ubyte hsk_flash_prefix;\
 	members\
 	/** For data integrity detection. @private */\
 	ubyte hsk_flash_chksum;\
 } xdata
+
+/**
+ * Returned by hsk_flash_init() when the µC boots for the first time.
+ *
+ * This statements holds true <i>as far as can be told</i>. I.e. a first
+ * boot is diagnosed when all attempts to recover data have failed.
+ *
+ * Two scenarios may cause this:
+ * - No valid data has yet been written to the D-Flash
+ * - The latest flash data is corrupted, may happen in case of power
+ *   down during write
+ */
+#define FLASH_PWR_FIRST		0
+
+/**
+ * Returned by hsk_flash_init() after booting from a reset without power
+ * loss.
+ *
+ * The typical mark of a reset is that \c xdata memory still holds data from
+ * the previous session. If such data is found it will just be picked up.
+ *
+ * For performance reasons access to the struct is not guarded, which means
+ * that there can be no protection against data corruption, such as might
+ * be caused by a software bug like an overflow.
+ */
+#define FLASH_PWR_RESET		1
+
+/**
+ * Returned by hsk_flash_init() during power on, if valid data was recovered
+ * from the D-Flash.
+ *
+ * A power on is detected when two criteria are met:
+ * - Data could not be recovered from \c xdata memory
+ * - Valid data was recovered from the D-Flash
+ */
+#define FLASH_PWR_ON		2
 
 /**
  * Recovers a struct from a previous session and sets everything up for
@@ -71,11 +176,11 @@ struct {\
  *	A pointer to the xdata struct/array to persist
  * @param size
  *	The size of the data structure to persist
- * @retval 0
+ * @retval FLASH_PWR_FIRST
  *	No valid data was recovered
- * @retval 1
+ * @retval FLASH_PWR_RESET
  *	Continue operation after a reset
- * @retval 2
+ * @retval FLASH_PWR_ON
  *	Data restore from the D-Flash succeeded
  */
 ubyte hsk_flash_init(void xdata * const idata ptr, const uword idata size,

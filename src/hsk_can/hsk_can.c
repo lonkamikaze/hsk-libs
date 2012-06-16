@@ -10,30 +10,30 @@
  * The following is a little excursion about CAN on the XC878.
  *
  * The MultiCAN module is accessible through 3 registers:
- * \code
- * 	CAN_ADCON	CAN Address/Data Control Register	 8bits
- * 	CAN_AD		CAN Address Register			16bits
- * 	CAN_DATA	CAN Data Register			32bits
- * \endcode
+ *
+ * | Register	| Function				| Width
+ * |------------|---------------------------------------|--------:
+ * | CAN_ADCON	| CAN Address/Data Control Register	|  8 bits
+ * | CAN_AD	| CAN Address Register			| 16 bits
+ * | CAN_DATA	| CAN Data Register			| 32 bits
  *
  * These registers give access to a bus. CAN_ADCON is used to control
  * bus (e.g. write or read), everything else is done by writing
  * the desired MultiCAN address into the CAN_AD register. The desired
  * MultiCAN register is then accessible through the CAN_DATA register.
  *
- * \code
- *	Register	Representation	Bits	Starting
- *	CAN_ADCON	CAN_ADCON	 8	 0
- *	CAN_AD		CAN_ADL		 8	 0
- *			CAN_ADH		 8	 8
- *			CAN_ADLH	16	 0
- *	CAN_DATA	CAN_DATA0	 8	 0
- *			CAN_DATA1	 8	 8
- *			CAN_DATA2	 8	16
- *			CAN_DATA3	 8	24
- *			CAN_DATA01	16	 0
- *			CAN_DATA23	16	16
- * \endcode
+ * | Register	| Representation	| Bits	| Starting
+ * |------------|-----------------------|------:|---------:
+ * | CAN_ADCON	| CAN_ADCON		|  8	|  0
+ * | CAN_AD	| CAN_ADL		|  8	|  0
+ * | 		| CAN_ADH		|  8	|  8
+ * | 		| CAN_ADLH		| 16	|  0
+ * | CAN_DATA	| CAN_DATA0		|  8	|  0
+ * | 		| CAN_DATA1		|  8	|  8
+ * | 		| CAN_DATA2		|  8	| 16
+ * | 		| CAN_DATA3		|  8	| 24
+ * | 		| CAN_DATA01		| 16	|  0
+ * | 		| CAN_DATA23		| 16	| 16
  *
  * Internally the MultiCAN module has register groups, i.e. a structured set
  * of registers that are repeated for each item having the registers.
@@ -451,8 +451,13 @@ void hsk_can_init(const ubyte idata pins, const ulong idata baud) {
 	/**
 	 * <b>Configure the Bit Timing Unit</b>
 	 *
-	 * Carefully read the chapter in the manual to understand this.
-	 * Minima and maxima are specified in ISO 11898.
+	 * \note
+	 * 	Careful study of section 16.1.3 "CAN Node Control" of the
+	 *	<a href="../contrib/XC878_um_v1_1.pdf">XC878 Reference Manual</a>
+	 *	is advised before changing the following code.
+	 *
+	 * \note
+	 *	Minima and maxima are specified in ISO 11898.
 	 *
 	 * One bit is s separated into 3 blocks, each of which are multiples
 	 * of a time quantum. The size of the time quantum (TQ) is controlled
@@ -461,24 +466,26 @@ void hsk_can_init(const ubyte idata pins, const ulong idata baud) {
 	 * should be made up of a minimum of TQs, so TSYNC doesn't get too
 	 * short (making a bit up of more TQs requires each one to be shorter
 	 * at the same baud rate).
-	 * However, the minimum number of TQs is 8 and we need some spare
-	 * quantums to adjust the timing between each bit transmission.
-	 * \code
-	 * 	TSYNC = 1 (fixed, not changeable)
-	 * 	TSEG1 = 8 (min 3)	encoded 7
-	 * 	TSEG2 = 3 (min 2)	encoded 2
-	 * \endcode
-	 * The above values give us 4 time quantums to adjust between bits
-	 * without dropping below 8 quantums.
-	 * \code
-	 * 	SJW = 4			encoded 3
-	 * \endcode
+	 * However, the minimum number of TQs is 8 and some spare quantums
+	 * are needed to adjust the timing between each bit transmission.
+	 *
+	 * | Time Slice	| Value	| Minimum	| Encoding
+	 * |------------|-------|---------------|-----------
+	 * | TSYNC	| 1	| Fixed		| Implicite
+	 * | TSEG1	| 8	| 3		| 7
+	 * | TSEG2	| 3	| 2		| 2
+	 * | SWJ	| 4	| -		| 3
+	 *
+	 * The above values provide 4 time quantums to adjust between bits
+	 * without dropping below 8 quantums. The adjustment value is provided
+	 * with the SWJ time slice.
 	 *
 	 * The sample point is between TSEG1 and TSEG2, i.e. at 75%.
 	 *
-	 * This means we need 12 cycles per bit. Now the BRP bits can be
+	 * This means one bit requires 12 cycles. The BRP bits can be
 	 * used to achieve the desired baud rate:
 	 * 	\f[ baud = 48000000 / 12 / BRP\f]
+	 *	\f[ BRP = 48000000 / 12 / baud\f]
 	 *
 	 * The encoding of BRT is also VALUE+1.
 	 */
@@ -493,8 +500,9 @@ void hsk_can_init(const ubyte idata pins, const ulong idata baud) {
 	 * There are 7 different I/O pin configurations, four are availabe
 	 * to node 0 and three to node 1.
 	 *
-	 * See the MultiCAN Port Control subsection of the user manual for
-	 * details.
+	 * @see
+	 * 	Section 16.1.11 "MultiCAN Port Control" of the
+	 *	<a href="../contrib/XC878_um_v1_1.pdf">XC878 Reference Manual</a>
 	 */
 
 	CAN_ADLH = NPCRx + (node << OFF_NODEx);

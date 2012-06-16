@@ -1,6 +1,6 @@
 /**
 
-\if USER
+\cond USER
 \mainpage HSK XC878 µC Library Users' Manual
 
 \section preface Preface
@@ -10,11 +10,11 @@ manual. This document is intended for those who want to use the libraries
 for their own µC applications.
 
 This document contains all the availabe library header documentation.
-\endif
+\endcond
 
 
 
-\if DEV
+\cond DEV
 \mainpage HSK XC878 µC Library Developers' Manual
 
 \section preface Preface
@@ -24,7 +24,7 @@ developers' manual. This document is intended for those who want to perform
 library development.
 
 This document contains all the library header and code documentation.
-\endif
+\endcond
 
 
 
@@ -54,6 +54,8 @@ and like the applications still subject to a lot of change.
 	- This directory contains 3rd party documentation
 - \c contrib/ICM7228.pdf
 	- Intersil ICM7228 8-Digit, LED Display Decoder Driver data sheet
+- \c contrib/Microcontroller-XC87x-Data-Sheet-V15-infineon.pdf
+	- Data sheet for the Infineon XC87x series
 - \c contrib/XC878_um_v1_1.pdf
 	- Infineon XC878 User Manual Version 1.1
 - \c contrib/sdccman.pdf
@@ -477,12 +479,7 @@ refer to \c code, C51 uses (slower, larger) generic pointers if the \c code
 keyword is missing. Unfortunately there is no compatible syntax to place
 \c code in a function pointer declaration. This can be circumvented with
 preprocessor instructions:
-\code
-#ifdef SDCC
-#undef code
-#define code
-#endif /* SDCC */
-\endcode
+\snippet examples sdcc funcptr workaround open
 
 A function pointer declaration may look like this:
 \code
@@ -490,12 +487,7 @@ void (code *foo)(void);
 \endcode
 
 Take care to restore \c code before the end of a <tt>.h</tt> file:
-\code
-#ifdef SDCC
-#undef code
-#define code	__code
-#endif /* SDCC */
-\endcode
+\snippet examples sdcc funcptr workaround close
 
 \section sdcc_interrupts Interrupts
 
@@ -504,29 +496,19 @@ is that prototypes for the interrupts must be visible in the context of the
 main() function. 
 
 These prototypes can be enclosed in an \c \#ifdef:
-\code
-#ifdef SDCC
-void ISR_hsk_isr5(void) interrupt 5;
-void ISR_hsk_isr6(void) interrupt 6;
-void ISR_hsk_isr9(void) interrupt 9;
-#endif /* SDCC */ 
-\endcode
+\include hsk_isr.isr
 
-\if DEV
+\cond DEV
 In this project the issue is solved by placing the prototypes in a dedicated
 file with the file name suffix .isr. It is then included in the relevant headers in
 the following fashion:
-\code
-#ifdef SDCC
-#include "hsk_timer01.isr"
-#endif /* SDCC */
-\endcode
+\snippet examples sdcc isr propagate
 
 By not placing the ISR prototypes directly in the header file, unwanted
 and otherwise unnecessary inclusion of headers can be avoided. Only the
 small file with the ISR prototypes needs to be included in header files
 of ISR using code.
-\endif
+\endcond
 
 According to the SDCC manual functions called by ISRs must be reentrant or
 protected from memory overlay. This is done with a compiler instruction:
@@ -545,17 +527,7 @@ Unfortunately this causes a compiler warning when using C51:
 \endverbatim
 
 This can be avoided by making nooverlay conditional:
-\code
-#pragma save
-#ifdef SDCC
-#pragma nooverlay
-#endif
-void isr_callback(void) {
-	[...]
-}
-#pragma restore
-\endcode
-
+\snippet examples sdcc isr callback
 
 \page make The Project Makefile
 
@@ -617,7 +589,7 @@ sdcc -mmcs51 [...] -o bin.sdcc/main.hex bin.sdcc/hsk_timers/hsk_timer01.rel [...
 All compiler output is dumped into the bin.sdcc/ directory. All the .c files
 are built, independent of whether they are linked into a .hex file.
 
-\if DEV
+\cond DEV
 \section make_details Implementation Details
 
 The Makefile consits of three parts:
@@ -658,12 +630,9 @@ target removes the directory doc-private/ and the target \c clean-build removes
 the directory \c BUILDDIR, which defaults to bin.sdcc/.
 
 The meta-target \c clean invokes all these targets.
+\endcond
 
-\endif
-
- */
-/**
-\if DEV
+\cond DEV
 \page conventions Coding Conventions and Guidelines
 
 This section describes the coding style used in these libraries.
@@ -671,38 +640,34 @@ This section describes the coding style used in these libraries.
 The term \a member in this section applies to functions, globals, structs,
 unions, typedefs and defines of the current library.
 
+\section conventions_indent Code/Comment Indention
+
+Use 8 spaces wide real tabs when working with the comment or documentation.
+This is my (\ref authors "kami") personal preference, and thus has found its way into
+more than 10000 lines of HSK code. It won't be changed just because you
+prefer 4 spaces wide tabs or tabs converted to spaces (you sicko!).
+
 \section conventions_comments General Comment Guidlines
 
 Every member is to be documented in one of the following manners:
-\verbatim
-/**
- * <brief>
- */
-<member>
-\endverbatim
+\snippet examples member doc brief
+\snippet examples member doc long
 
-\verbatim
-/**
- * <brief>
- *
- * <description>
- */
-<member>
-\endverbatim
-
-\<brief\>: A short, single sentence description of the member\n
-\<description\>: A detailed description of the member
+- \c \<brief>
+	- A short, single sentence description of the member
+- \c \<description>
+	- A detailed description of the member
 
 \subsection conventions_comments_lists List Formatting
 Descriptions may contain syntactical sugar such as lists:
-\code
+\verbatim
 This is a list:
  	- List entry 0
  	- List entry 1 is wider than 80 characters, including the tabular
 	  indention and thus needs to cover multiple lines
 		- List entry 1.0
 	- List entry 2
-\endcode
+\endverbatim
 
 Every list entry is indented by 1 tab per level. In multiple line entries the
 successive lines are indented 2 spaces to align them with the first line.
@@ -710,67 +675,107 @@ successive lines are indented 2 spaces to align them with the first line.
 Unless it is a keyword the first word of a list entry needs to be a capital
 letter. Entries do not end with a full stop.
 
+\subsection conventions_comments_tables Tables
+
+The syntax for tables is:
+\verbatim
+| Heading 0	| Heading 1
+|---------------|--------------
+| Row 0, col 0	| Row 0, col 1
+| Row 1, col 0	| Row 1, col 1
+\endverbatim
+
+The resulting table looks like this:
+| Heading 0	| Heading 1
+|---------------|--------------
+| Row 0, col 0	| Row 0, col 1
+| Row 1, col 0	| Row 1, col 1
+
+
+Use a colons in the seperator row to align columns:
+\verbatim
+| Heading Left	| Heading Centre	| Heading Right
+|:--------------|:---------------------:|--------------:
+| Left		| Centre		| Right
+\endverbatim
+
+| Heading Left	| Heading Centre	| Heading Right
+|:--------------|:---------------------:|--------------:
+| Left		| Centre		| Right
+
+\note
+Take care to obey the \ref conventions_indent guidelines, using the wrong
+tab width looks especially disturbing in the plain text version of a table.
+
 \subsection conventions_comments_inline Inline Comments
 
 Inline comments not intended to appear in the documentation can take one of
 the following shapes.\n
 Compact:
-\verbatim
-/* <comment> */
-\endverbatim
+\snippet examples inline compact
 
 Multiline compact:
-\verbatim
-/* <comment line 0>
- * <comment line 1> */
-\endverbatim
+\snippet examples inline long
 
 Significant:
-\verbatim
-/*
- * <comment>
- */
-\endverbatim
+\snippet examples inline significant
 
-\subsection conventions_comments_functions Function Documentation
-
-Both function implementations as well as prototypes in header files should
-be documented. They commonly have the same documentation, but that is neither
-necessary nor always sensible.
+\section conventions_functions Function Documentation
 
 Every parameter of a member function and the return value if present need
 JavaDoc style \c \@param and \c \@return documentations in their descriptions:
+\snippet examples function doc
+
+\subsection conventions_functions_return Return Values
+
+Use \c \@retval to document return values with logical instead of numerical
+meanings:
 \verbatim
-/**
- * <brief>
- *
- * <description>
- *
- * @param <parameter>
- * 	<parameter description>
- * @return
- * 	<return value description>
- */
+@retval 0
+	The operation failed
+@retval 1
+	The operation succeeded
 \endverbatim
 
+The resulting documentation takes the following appearance:
+@retval 0
+	The operation failed
+@retval 1
+	The operation succeeded
+
+\subsection conventions_functions_scope Public and Private Functions
+
+The documentation to public functions belongs into the <tt>.h</tt> file.
+All functions that have a prototype in the header file are considered public,
+private functions are those, which are only used internally in the <tt>.c</tt>
+file.
+
+If a function is public additional documentation may be placed in the
+<tt>.c</tt> file, it will only show up in the developers' manual.
+
 Inline comments within functions may appear in JavaDoc style, in that case they
-are appended to the function documentation.
+are also appended to the function documentation of the developers' manual.
+
+Private functions should be marked with \c \@private at the end of their
+documentation block.
 
 \section conventions_files File Naming and Documentation
 
 Three different file type suffixes are used in the construction of these
-libraries, \c c for C files, \c h for header files and \c isr for headers
-that only contain ISR prototypes.
+libraries, <tt>.c</tt> for C files, <tt>.h</tt> for header files and
+<tt>.isr</tt> for headers that only contain ISR prototypes.
 
-The following naming conventions exists for each file:
+The following naming conventions exist for each file:
 \verbatim
 hsk_<category>/hsk_<name>.<suffix>
 \endverbatim
 
-\<category\>: The library category, often identical to name, but not
-	necessarily so\n
-\<name\>: The name of the library\n
-\<suffix\>: The file type suffix
+- \c \<category>
+	- The library category, often identical to name, but not necessarily so
+- \c \<name>
+	- The name of the library
+- \c \<suffix>
+	- The file type suffix
 
 \subsection conventions_files_headers Headers
 
@@ -783,72 +788,52 @@ code might have to include headers for the generated code and headers.
 The second exception are \ref conventions_files_isr.
 
 Every header file begins with a JavaDoc style comment:
-\verbatim
-/** \file
- * HSK <brief> headers
- *
- * <description>
- *
- * @author <author tag>
- */
-\endverbatim
+\snippet examples header doc
 
-\<brief\>: A descriptive title such as "Analog Digital Conversion"
-	this description appears in the file list, nouns, verbs and adjectives
-	in the brief should start with capital letters\n
-\<description\>: A text containing all the necessary information to
-	use the provided functions\n
-\<author tag\>: A short author tag from \ref authors\n
-\<iso date\>: The ISO 8601 date (YYYY-MM-DD) of the last edit
+- \c \<brief>
+	- A descriptive title such as "Analog Digital Conversion"
+	  this description appears in the file list, nouns, verbs and
+	   adjectives in the brief should start with capital letters
+- \c \<description>
+	- A text containing all the necessary information to
+	  use the provided functions
+- <tt>\<author tag></tt>
+	- A short author tag from \ref authors
+- <tt>\<iso date></tt>
+	- The ISO 8601 date (YYYY-MM-DD) of the last edit
 
 The next block contains the traditional header opening:
-\code
-#ifndef _<FILE>_
-#define _<FILE>_
-\endcode
+\snippet examples header open
 
-\<FILE\>: The file name with the following translation '[:lower:].'
-	'[:upper:]_', e.g. hsk_isr.h becomes HSK_ISR_H
+- \c \<FILE>
+	- The file name with the following translation '[:lower:].'
+	  '[:upper:]_', e.g. hsk_isr.h becomes HSK_ISR_H
 
 The \c \#ifndef block is closed at the end of the header file with:
-\code
-#endif /* _<FILE>_ */
-\endcode
+\snippet examples header close
 
 Prototypes etc. belong within the block.
 
 \subsection conventions_files_c C Files
 
 Like header files every C file starts with a JavaDoc style comment:
-\verbatim
-/** \file
- * HSK <brief> implementation
- *
- * <description>
- *
- * @author <author tag>
- */
-\endverbatim
+\snippet examples code doc
 
-\<brief\>: Should be the same title as in the header file\n
-\<description\>: Instead of how to use the library this should make mention
-	of all things of interest, when working on the implementation\n
-\<author tag\>: A short author tag from \ref authors\n
-\<iso date\>: The ISO 8601 date (YYYY-MM-DD) of the last edit
+- \c \<brief>
+	- Should be the same title as in the header file
+- \c \<description>
+	- Instead of how to use the library this should make mention
+	  of all things of interest, when working on the implementation
+- <tt>\<author tag></tt>
+	- A short author tag from \ref authors
+- <tt>\<iso date></tt>
+	- The ISO 8601 date (YYYY-MM-DD) of the last edit
 
 The first include in a C file is the Infineon/XC878.h header, followed
 by the own header file. The next (optional) include block contains all the
 required C library headers. The final include block includes the headers of
 other libraries. The following example is from hsk_adc.c:
-\code
-#include <Infineon/XC878.h>
-
-#include "hsk_adc.h"
-
-#include <string.h> /* memset() */
-
-#include "../hsk_isr/hsk_isr.h"
-\endcode
+\snippet examples code includes
 
 Comments for public members of a C file do not need to be copied from the
 header.
@@ -861,26 +846,14 @@ visible from the context of the main() function.
 Every implementation providing an interrupt has has to provide a .isr file.
 The file should just contain a very plain list of prototypes, the following
 examples is from hsk_timer01.isr:
-\code
-#ifndef _HSK_TIMER01_ISR_
-#define _HSK_TIMER01_ISR_
-void ISR_hsk_timer0(void) interrupt 1;
-void ISR_hsk_timer1(void) interrupt 3;
-#endif /* _HSK_TIMER01_ISR_ */
-\endcode
+\include hsk_timer01.isr
 
-The .isr file should be included from the header file of the library providing
-it as well as from the header files of all libraries using that library.
+The <tt>.isr</tt> file should be included from the header file of the library
+providing it as well as from the header files of all libraries using that
+library.
 
 The file should be included in the following manner:
-\code
-/*
- * * Required for SDCC to propagate ISR prototypes.
- */
-#ifdef SDCC
-#include "../hsk_isr/hsk_isr.isr"
-#endif /* SDCC */
-\endcode
+\snippet examples isr header include
 
 \section conventions_memory Variables and Memory
 
@@ -954,21 +927,21 @@ parameters:
 Typedefs give primitive data types a meaningful name for use in a certain
 context. This library has functions that work on CAN nodes and functions
 that work on message objects:
-\skipline hsk_can_node
-\skipline hsk_can_msg
+\skipline typedef ubyte hsk_can_node
+\skipline typedef ubyte hsk_can_msg
 
 The CAN nodes are the central structure of the library. Functions in the
 \c hsk_can context always take a node as the first parameter:
-\skip hsk_can_init
+\skip void hsk_can_init
 \until ;
-\skip hsk_can_enable
+\skip void hsk_can_enable
 \until ;
 
 Other functions work around the concepts of messages and message data,
 which are represented in their context prefixes:
-\skip hsk_can_msg
+\skip void hsk_can_msg
 \until ;
-\skip hsk_can_data
+\skip void hsk_can_data
 \until ;
 
 \subsection conventions_members_defines Defines
@@ -987,7 +960,8 @@ specify a count:
 \skipline BIT_RXSEL
 \skipline CNT_RXSEL
 
-\endif
+\endcond
+
 
 \page authors Authors
 
@@ -999,4 +973,4 @@ and the aliases they use.
 	kamikaze <kamikaze@bsdforen.de>\n
 	Head of Electronics Development season 2010/2011
 
-*/
+ */

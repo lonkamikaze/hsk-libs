@@ -1,0 +1,163 @@
+//! [sdcc funcptr workaround open]
+/*
+ * SDCC does not like the \c code keyword for function pointers, C51 needs it
+ * or it will use generic pointers.
+ */
+#ifdef SDCC
+	#undef code
+	#define code
+#endif /* SDCC */
+//! [sdcc funcptr workaround open]
+
+
+
+//! [sdcc funcptr workaround close]
+/*
+ * Restore the usual meaning of \c code.
+ */
+#ifdef SDCC
+	#undef code
+	#define code	__code
+#endif /* SDCC */
+//! [sdcc funcptr workaround close]
+
+
+
+//! [sdcc isr propagate]
+/*
+ * Required for SDCC to propagate ISR prototypes.
+ */
+#ifdef SDCC
+#include "../hsk_isr/hsk_isr.isr"
+#endif /* SDCC */
+//! [sdcc isr propagate]
+
+
+
+//! [sdcc isr callback]
+#pragma save
+#ifdef SDCC
+#pragma nooverlay
+#endif
+void isr_callback(void) {
+	[...]
+}
+#pragma restore
+//! [sdcc isr callback]
+
+
+
+//! [member doc brief]
+/**
+ * <brief>
+ */
+<member>
+//! [member doc brief]
+
+
+
+//! [member doc long]
+/**
+ * <brief>
+ *
+ * <description>
+ */
+<member>
+//! [member doc long]
+
+
+
+//! [inline compact]
+/* <comment> */
+//! [inline compact]
+
+
+
+//! [inline long]
+/* <comment line 0>
+ * <comment line 1> */
+//! [inline long]
+
+
+
+//! [inline significant]
+/*
+ * <comment>
+ */
+//! [inline significant]
+
+
+
+//! [function doc]
+/**
+ * <brief>
+ *
+ * <description>
+ *
+ * @param <parameter>
+ * 	<parameter description>
+ * @return
+ * 	<return value description>
+ */
+//! [function doc]
+
+
+
+//! [header doc]
+/** \file
+ * HSK <brief> headers
+ *
+ * <description>
+ *
+ * @author <author tag>
+ */
+//! [header doc]
+
+
+
+//! [header open]
+#ifndef _<FILE>_
+#define _<FILE>_
+//! [header open]
+
+
+
+//! [header close]
+#endif /* _<FILE>_ */
+//! [header close]
+
+
+
+//! [code doc]
+/** \file
+ * HSK <brief> implementation
+ *
+ * <description>
+ *
+ * @author <author tag>
+ */
+//! [code doc]
+
+
+
+//! [code includes]
+#include <Infineon/XC878.h>
+
+#include "hsk_adc.h"
+
+#include <string.h> /* memset() */
+
+#include "../hsk_isr/hsk_isr.h"
+//! [code includes]
+
+
+
+//! [isr header include]
+/*
+ * ISR prototypes for SDCC.
+ */
+#ifdef SDCC
+#include "hsk_timer01.isr"
+#endif /* SDCC */
+//! [isr header include]
+

@@ -22,8 +22,8 @@
  * or it will use generic pointers.
  */
 #ifdef SDCC
-#undef code
-#define code
+	#undef code
+	#define code
 #endif /* SDCC */
 
 /**
@@ -84,8 +84,8 @@ void hsk_timer1_disable(void);
  * Restore the usual meaning of \c code.
  */
 #ifdef SDCC
-#undef code
-#define code	__code
+	#undef code
+	#define code	__code
 #endif
 
 #endif /* _HSK_TIMER01_H_ */
