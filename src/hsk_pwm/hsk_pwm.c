@@ -5,8 +5,8 @@
  * channel configuration.
  *
  * The init function buys a lot of simplicity by limiting the CCU6 use to
- * generating PWM. Also, all channels PWM_60, PWM_61 and PWM_62 operate at
- * the same base frequency and period.
+ * generating PWM. Also, the channels PWM_60, PWM_61 and PWM_62 operate at
+ * the same base frequency and period. This is a hardware limitation.
  *
  * @author kami
  */

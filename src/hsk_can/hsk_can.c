@@ -484,8 +484,8 @@ void hsk_can_init(const ubyte idata pins, const ulong idata baud) {
 	 *
 	 * This means one bit requires 12 cycles. The BRP bits can be
 	 * used to achieve the desired baud rate:
-	 * 	\f[ baud = 48000000 / 12 / BRP\f]
-	 *	\f[ BRP = 48000000 / 12 / baud\f]
+	 * 	\f[ baud = 48000000 / 12 / BRP \f]
+	 *	\f[ BRP = 48000000 / 12 / baud \f]
 	 *
 	 * The encoding of BRT is also VALUE+1.
 	 */
