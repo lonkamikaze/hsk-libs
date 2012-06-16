@@ -106,13 +106,13 @@ void init(void) {
 	 */
 	P3_DIR = -1;
 	switch(hsk_flash_init(&persist, sizeof(persist), PERSIST_VERSION)) {
-	case 0:
+	case FLASH_PWR_FIRST:
 		/* Init stuff if needed. */
 		break;
-	case 1:
+	case FLASH_PWR_RESET:
 		persist.reset++;
 		break;
-	case 2:
+	case FLASH_PWR_ON:
 		persist.boot++;
 		persist.reset = 0;
 		break;

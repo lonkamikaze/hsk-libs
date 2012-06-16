@@ -1,5 +1,8 @@
 #!/usr/bin/awk -f
 
-/^[[:space:]]+#/ {sub(".*", "")}
+/^[[:space:]]+#/ {sub(/.*/, "")}
+/\/\*\*/ {comment=1}
+/\*\// {comment=0}
+comment {sub(/^[[:space:]]*\* ?/, "")}
 {print}
 

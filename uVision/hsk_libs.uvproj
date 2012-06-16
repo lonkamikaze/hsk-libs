@@ -468,6 +468,11 @@ ISR_hsk_timer0 ! (tick0)</OverlayString>
               <FileType>5</FileType>
               <FilePath>..\src\doc\mainpage.dtxt</FilePath>
             </File>
+            <File>
+              <FileName>examples</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\src\doc\examples</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

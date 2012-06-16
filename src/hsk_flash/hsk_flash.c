@@ -10,10 +10,19 @@
  * All registers are in the mapped register are, i.e. RMAP=1 must be set to
  * access them.
  *
- * \subsection flash_timer Flash Timer
+ * \section flash_timer Flash Timer
  *
  * Non-blocking flash reading/writing is controlled by a dedicated flash
- * timer.
+ * timer. Timings, especially flash writing, are so critical that all the
+ * flash delete/write procedures are implemented in a single state machine
+ * within hsk_flash_isr_nmiflash(), which is called by a non-maskable
+ * interrupt upon timer overflow.
+ *
+ * \section flash_dptr DPTR Byte Order
+ * 
+ * Due to the \ref flash_byte_order differences between SDCC and C51, the
+ * \ref DPL and \ref DPH macros are used to adjust DPTR assignments in
+ * inline assembler.
  */
 
 #include <Infineon/XC878.h>
@@ -60,12 +69,16 @@
 #define MOVCI	db	0xA5
 
 /**
- * DPTR low byte, C51 uses big endian logic here.
+ * DPTR low byte.
+ *
+ * @see 
  */
 #define DPL		dph
 
 /**
- * DPTR high byte, C51 uses big endian logic here.
+ * DPTR high byte.
+ *
+ * @see DPL
  */
 #define DPH		dpl
 
@@ -338,11 +351,12 @@ SFR(FCS1,	0xDD);
 /**
  * FTVAL MODE bit.
  *
- * \code
- *	Mode	Value	Effect
- *	Program	0	1 count per CCLK (24MHz) clock cycle
- *	Erase	1	1 count per CCLK/2^12 clock cycles
- * \endcode
+ * Controls the flash timer speed.
+ *
+ * Mode		| Value	| Effect
+ * -------------|-------|---------------------------------------------
+ * Program	| 0	| 1 count per \f$ CCLK \f$ (24MHz) clock cycle
+ * Erase	| 1	| 1 count per \f$ CCLK/2^{12} \f$ clock cycles
  */
 #define BIT_MODE	7
 
@@ -473,6 +487,10 @@ volatile ubyte xdata * xdata hsk_flash_xdataDptr;
  * Every named state is the root of a state machine that performs a specific
  * task.
  *
+ * @see
+ * 	Section 4.4 <i>Flash Memory</i> - <i>Operating Modes</i> from the
+ * 	XC8787 reference manual:
+ *	<a href="../contrib/XC878_um_v1_1.pdf">XC878_um_v1_1.pdf</a>
  * @private
  */
 #pragma save
@@ -484,23 +502,19 @@ void hsk_flash_isr_nmiflash(void) {
 
 	switch(hsk_flash.state) {
 	/**
-	 * <b>STATE_IDLE</b>
-	 * 
-	 * \ref STATE_IDLE is a sleeping state that turns off the state
-	 * machine. This state is a dead end, the state machine has to be
-	 * reactivated externally to resume operation.
+	 * - \ref STATE_IDLE is a sleeping state that turns off the state
+	 *   machine. This state is a dead end, the state machine has to be
+	 *   reactivated externally to resume operation.
 	 */
 	case STATE_IDLE:
 		/* Turn off the timer. */
 		FCS &= ~(1 << BIT_FTEN);
 		break;
 	/**
-	 * <b>STATE_REQUEST</b>
-	 *
-	 * \ref STATE_REQUEST implements the procedure called "Abort Operation"
-	 * from the XC878 UM 1.1.
-	 *
-	 * After completing the abort \ref STATE_WRITE is entered.
+	 * - \ref STATE_REQUEST implements the procedure called
+	 *   "Abort Operation" from the XC878 UM 1.1.
+	 *   
+	 *   After completing the abort \ref STATE_WRITE is entered.
 	 */
 	case STATE_REQUEST:
 		/* SW checks EEBSY */
@@ -545,12 +559,10 @@ void hsk_flash_isr_nmiflash(void) {
 		goto state_write;
 		break;
 	/**
-	 * <b>STATE_DETECT</b>
-	 *
-	 * \ref STATE_DETECT checks whether there is a page that should be
-	 * deleted.
-	 * 
-	 * It either goes into \ref STATE_DELETE or \ref STATE_IDLE.
+	 * - \ref STATE_DETECT checks whether there is a page that should be
+	 *   deleted.
+	 *   
+	 *   It either goes into \ref STATE_DELETE or \ref STATE_IDLE.
 	 */
 	case STATE_DETECT:
 		/* Turn off the timer. */
@@ -578,14 +590,12 @@ void hsk_flash_isr_nmiflash(void) {
 		hsk_flash.state = STATE_IDLE;
 		break;
 	/**
-	 * <b>STATE_WRITE</b>
-	 *
-	 * \ref STATE_WRITE implements the procedure called "Program Operation"
-	 * from the XC878 UM 1.1.
-	 *
-	 * The next address to write is expected in \ref hsk_flash_flashDptr.
-	 * The next address to read from XRAM is expected in
-	 * \ref hsk_flash_xdataDptr.
+	 * - \ref STATE_WRITE implements the procedure called
+	 *   "Program Operation" from the XC878 UM 1.1.
+	 *  
+	 *   The next address to write is expected in \ref hsk_flash_flashDptr.
+	 *   The next address to read from XRAM is expected in
+	 *   \ref hsk_flash_xdataDptr.
 	 */
 	case STATE_WRITE:
 		/* Set program flash timer mode, 5µs for an overflow. */
@@ -765,10 +775,8 @@ __endasm;
 		}
 		break;
 	/**
-	 * <b>STATE_DELETE</b>
-	 *
-	 * \ref STATE_DELETE implements the procedure called "Erase Operation"
-	 * from the XC878 UM 1.1.
+	 * - \ref STATE_DELETE implements the procedure called
+	 *   "Erase Operation" from the XC878 UM 1.1.
 	 */
 	case STATE_DELETE:
 		/* Set program flash timer mode, 5µs for an overflow. */
@@ -871,10 +879,8 @@ __endasm;
 		hsk_flash.state = STATE_DETECT;
 		break;
 	/**
-	 * <b>STATE_RESET</b>
-	 *
-	 * \ref STATE_RESET implements the procedure called
-	 * "Mass Erase Operation" from the XC878 UM 1.1.
+	 * - \ref STATE_RESET implements the procedure called
+	 *   "Mass Erase Operation" from the XC878 UM 1.1.
 	 */
 	case STATE_RESET:
 		/* 1.
