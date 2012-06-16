@@ -99,7 +99,7 @@ and like the applications still subject to a lot of change.
 
 \page platform The XC878 8-Bit Microcontroller Platform
 
-The XC878 is an Intel 8051 compatible µC architecture. This entails strong
+The XC878 is an Intel 8051/8052 compatible µC architecture. This entails strong
 memory limitations with severe implications to writing code.
 
 The strength of the architecture is that the controller contains many
@@ -114,6 +114,7 @@ Critical for this project are the following kinds of modules:
 \see XC878 Reference Manual: <a href="../contrib/XC878_um_v1_1.pdf">XC878_um_v1_1.pdf</a>
 \see ARM Keil Infineon XC878-16FF page: <a href="http://www.keil.com/dd/chip/4480.htm">http://www.keil.com/dd/chip/4480.htm</a>
 \see Infineon XC87x Series Overview: <a href="http://www.infineon.com/cms/en/product/microcontrollers/8-bit/xc800-a-family-automotive/xc87x-series/channel.html?channel=db3a304323b87bc20123dcee653f7007&tab=2">http://www.infineon.com/cms/en/product/microcontrollers/8-bit/xc800-a-family-automotive/xc87x-series/channel.html?channel=db3a304323b87bc20123dcee653f7007&tab=2</a>
+\see 8051 Basics Tutorial: <a href="http://www.8052.com/tut8051">http://www.8052.com/tut8051</a>
 
 \section platform_registers Registers and Paging
 
@@ -642,7 +643,7 @@ unions, typedefs and defines of the current library.
 
 \section conventions_indent Code/Comment Indention
 
-Use 8 spaces wide real tabs when working with the comment or documentation.
+Use 8 spaces wide real tabs when working with the code or documentation.
 This is my (\ref authors "kami") personal preference, and thus has found its way into
 more than 10000 lines of HSK code. It won't be changed just because you
 prefer 4 spaces wide tabs or tabs converted to spaces (you sicko!).
