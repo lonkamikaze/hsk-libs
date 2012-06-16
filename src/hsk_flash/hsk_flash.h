@@ -74,6 +74,14 @@
  * ulongValue |= (ulong)myStruct.ulongMember[2] << 16;
  * ulongValue |= (ulong)myStruct.ulongMember[3] << 24;
  * \endcode
+ *
+ * Another alternative is to use a single ubyte[] array and store/read
+ * all data with the hsk_can_data_setSignal()/\ref hsk_can_data_getSignal()
+ * functions. Due to the bit addressing of CAN message data the
+ * maximum length of such an array would be 32 bytes (256bits).
+ *
+ * An advantage would be that less memory is required, because data
+ * no longer needs to be byte aligned.
  */
 
 #ifndef _HSK_PERSIST_H_
