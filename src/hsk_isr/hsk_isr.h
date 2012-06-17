@@ -100,7 +100,7 @@ struct hsk_isr5_callback {
 /**
  * Introduce callback function pointers for ISR 5.
  */
-extern volatile struct hsk_isr5_callback xdata hsk_isr5;
+extern volatile struct hsk_isr5_callback pdata hsk_isr5;
 
 /**
  * Shared interrupt 6 routine. Activate the interrupt by setting EADC = 1.
@@ -140,7 +140,7 @@ struct hsk_isr6_callback {
 /**
  * Introduce callback function pointers for ISR 6.
  */
-extern volatile struct hsk_isr6_callback xdata hsk_isr6;
+extern volatile struct hsk_isr6_callback pdata hsk_isr6;
 
 /**
  * Shared interrupt 9 routine. Activate the interrupt by setting EXM = 1.
@@ -187,7 +187,7 @@ struct hsk_isr9_callback {
 /**
  * Introduce callback function pointers for ISR 9.
  */
-extern volatile struct hsk_isr9_callback xdata hsk_isr9;
+extern volatile struct hsk_isr9_callback pdata hsk_isr9;
 
 /**
  * Shared non-maskable interrupt routine.
@@ -237,7 +237,7 @@ struct hsk_isr14_callback {
  * Functions called back from the NMI ISR should use SST3/RST3 instead of
  * SST1/RST1, because they might interrupt other ISRs.
  */
-extern volatile struct hsk_isr14_callback xdata hsk_isr14;
+extern volatile struct hsk_isr14_callback pdata hsk_isr14;
 
 /*
  * Restore the usual meaning of \c code.

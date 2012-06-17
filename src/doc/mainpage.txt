@@ -164,6 +164,10 @@ Variables are declared in \c xdata with the following syntax:
 <type> xdata <identifier> [= <value>];
 \endcode
 
+The first 256 bytes of \c xdata memory are also accessible as 8 bit addressed
+\c pdata. Using \c pdata is faster than \c xdata. The \c p in \c pdata
+stands for paged, however the paging register is missing on the XC878.
+
 There also is a 128 bits wide memory range of \c bit variables, which is used
 by single bit variables of the type \c bool.
 
@@ -867,9 +871,6 @@ The Infineon/XC878.h header defines some unsigned data types:
 Signed types should only be used when necessary, floating point arithmetic
 should be avoided if in any way possible.
 
-Use \c data, \c idata and \c xdata for local and global variables, use
-\c idata variables for function parameters.
-
 The correct place to store a variable depends on four factors:
 	- Size
 	- Lifetime
@@ -879,13 +880,12 @@ The correct place to store a variable depends on four factors:
 Size, and frequency are the most obvious, considering \ref platform_memory.
 It is desireable to use fast memory for frequently accessed variables.
 Large data structures like buffers, arrays and structs simply use too much
-of the precious memory space to put them anywhere but \c xdata or at least
-\c idata.
+of the precious memory space to put them anywhere but \c xdata.
 
 Both the C51 and SDCC compilers use a technique called overlay to fit all
-variables into memory. A stack is only used in reentrant functions. Stacks
-are not a native ability of the 8051 architecture and have to be realized
-in code.
+variables into memory. A stack is only used in reentrant functions. Only
+\c data/idata variables can be stacked with \c push/pop instructions. Stacking
+\c xdata is emulated in software and thus very slow.
 
 The overlay approach is to build a call graph and thus decide which variables
 are never used at the same time. These variables are mapped to the same
@@ -900,6 +900,21 @@ ISRs and functions called by ISRs also cannot share memory, because there
 is no sensible way to make sure that a given function is not running when
 an interrupt occurs. In technical terms, each ISR is the root node of its
 own call graph.
+
+The following table lists recommended memory types:
+| Context	|  Size		| Critical	| Memory
+|---------------|---------------|---------------|--------------
+| *		| bit		| *		| bool
+| parameter	| *		| *		| idata
+| const		| *		| *		| code
+| local		| byte, word	| *		| data
+|		| >= long	| no		| xdata
+|		|		| ISR/blocking	| pdata, xdata
+| static/global	| *		| no		| xdata
+|		| *		| ISR/blocking	| pdata, xdata
+
+\c ISR/blocking refers to memory accessed by ISRs, functions called back by
+ISRs and sections of code that block an interrupt.
 
 \section conventions_members Member Naming Conventions
 
@@ -972,6 +987,6 @@ and the aliases they use.
 \author	kami\n
 	Dominic Fandrey <dominic.fandrey@highspeed-karlsruhe.de>\n
 	kamikaze <kamikaze@bsdforen.de>\n
-	Head of Electronics Development season 2010/2011
+	Head of Electronics Development season 2010/2011, 2011/2012
 
  */

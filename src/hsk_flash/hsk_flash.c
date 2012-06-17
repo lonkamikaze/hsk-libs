@@ -45,12 +45,12 @@
 /**
  * DPTR low byte.
  */
-#define DPL		dpl
+#define DPL	dpl
 
 /**
  * DPTR high byte.
  */
-#define DPH		dph
+#define DPH	dph
 
 /**
  * Create variable at a certain address, SDCC version.
@@ -73,14 +73,14 @@
  *
  * @see 
  */
-#define DPL		dph
+#define DPL	dph
 
 /**
  * DPTR high byte.
  *
  * @see DPL
  */
-#define DPH		dpl
+#define DPH	dpl
 
 /**
  * Create variable at a certain address, C51 version.

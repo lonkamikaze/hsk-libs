@@ -64,12 +64,12 @@ FLASH_STRUCT_FACTORY(
 /**
  * A counter used to detecting that 250ms have passed.
  */
-volatile uword tick0_count_250 = 0;
+volatile uword pdata tick0_count_250 = 0;
 
 /**
  * A counter used to detecting that 20ms have passed.
  */
-volatile ubyte tick0_count_20 = 10;
+volatile ubyte pdata tick0_count_20 = 10;
 
 /**
  * A ticking function called back by the timer T0 ISR.
@@ -87,7 +87,7 @@ void tick0(void) {
 /**
  * The storage variable for the potentiometer on the eval board.
  */
-volatile uword adc7;
+volatile uword pdata adc7;
 
 /**
  * Initialize ports, timers and ISRs.
@@ -108,6 +108,7 @@ void init(void) {
 	switch(hsk_flash_init(&persist, sizeof(persist), PERSIST_VERSION)) {
 	case FLASH_PWR_FIRST:
 		/* Init stuff if needed. */
+		hsk_flash_write();
 		break;
 	case FLASH_PWR_RESET:
 		persist.reset++;
@@ -115,6 +116,7 @@ void init(void) {
 	case FLASH_PWR_ON:
 		persist.boot++;
 		persist.reset = 0;
+		hsk_flash_write();
 		break;
 	}
 
@@ -157,8 +159,6 @@ void init(void) {
 	//P3_DIR = -1;
 	P3_DATA = persist.boot;
 	EA = 1;
-
-	hsk_flash_write();
 
 	hsk_adc_warmup();
 
@@ -212,7 +212,7 @@ void run(void) {
 			hsk_pwm_channel_set(PWM_62, 100, adc7_copy * 5 / 1023 + 5);
 			hsk_pwm_channel_set(PWM_63, 1023, adc7_copy);
 			hsk_adc_service();
-			//P3_DATA = hsk_pwc_channel_getFreqHz(PWC_CC0);
+			/*P3_DATA =*/ hsk_pwc_channel_getValue(PWC_CC0, PWC_UNIT_FREQ_S);
 		}		 
 
 		if (ticks250 >= 250) {

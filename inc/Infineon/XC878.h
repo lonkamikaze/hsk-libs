@@ -90,6 +90,7 @@
 #define SFR16(name, addr)      __sfr16 __at(((addr+1U)<<8) | addr)     name
 #define data                   __data
 #define idata                  __idata
+#define pdata                  __pdata
 #define xdata                  __xdata
 #define bit                    __bit
 #define code                   __code

@@ -50,7 +50,7 @@ hsk_adc_channel xdata hsk_adc_nextChannel = ADC_CHANNELS;
 /**
  * An array of target addresses to write conversion results into.
  */
-volatile uword * xdata hsk_adc_targets[ADC_CHANNELS];
+volatile uword * pdata hsk_adc_targets[ADC_CHANNELS];
 
 /**
  * ADC_RESRxL Channel Number bits.
