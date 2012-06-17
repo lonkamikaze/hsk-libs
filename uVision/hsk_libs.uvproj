@@ -32,7 +32,7 @@
           <SFDFile></SFDFile>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
-          <IncludePath></IncludePath>
+          <IncludePath>../../CAN/src</IncludePath>
           <LibPath></LibPath>
           <RegisterFilePath>Infineon\</RegisterFilePath>
           <DBRegisterFilePath>Infineon\</DBRegisterFilePath>
@@ -118,7 +118,7 @@
             <Oh166RecLen>16</Oh166RecLen>
           </OPTHX>
           <Simulator>
-            <UseSimulator>0</UseSimulator>
+            <UseSimulator>1</UseSimulator>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
             <RunToMain>1</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
@@ -129,7 +129,7 @@
             <LimitSpeedToRealTime>1</LimitSpeedToRealTime>
           </Simulator>
           <Target>
-            <UseTarget>1</UseTarget>
+            <UseTarget>0</UseTarget>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
             <RunToMain>1</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
@@ -297,7 +297,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath></IncludePath>
+              <IncludePath>../../CAN-106/src</IncludePath>
             </VariousControls>
           </C51>
           <Ax51>
@@ -309,7 +309,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath></IncludePath>
+              <IncludePath>../../CAN-106/src</IncludePath>
             </VariousControls>
           </Ax51>
           <Lx51>
@@ -542,7 +542,7 @@ ISR_hsk_timer0 ! (tick0)</OverlayString>
                   <MiscControls></MiscControls>
                   <Define></Define>
                   <Undefine></Undefine>
-                  <IncludePath></IncludePath>
+                  <IncludePath>../../CAN-106/src</IncludePath>
                 </VariousControls>
               </C51>
               <Ax51>
@@ -554,7 +554,7 @@ ISR_hsk_timer0 ! (tick0)</OverlayString>
                   <MiscControls></MiscControls>
                   <Define></Define>
                   <Undefine></Undefine>
-                  <IncludePath></IncludePath>
+                  <IncludePath>../../CAN-106/src</IncludePath>
                 </VariousControls>
               </Ax51>
             </Group51>

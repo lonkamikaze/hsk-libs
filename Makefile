@@ -1,6 +1,8 @@
 BUILDDIR=	bin.sdcc
 CC=		sdcc
-CFLAGS=		-mmcs51 --xram-loc 0xF000 --xram-size 3072 -I inc/
+CFLAGS=		-mmcs51 --xram-loc 0xF000 --xram-size 3072 -Iinc/ -I${CANDIR}
+
+CANDIR=		../CAN/src
 
 OBJSUFX=	.rel
 HEXSUFX=	.hex
@@ -19,6 +21,11 @@ DEVSRC!=	find src/ -name \*.\[hc] -o -name \*.txt
 
 PROJECT:=	$(shell pwd | xargs basename)
 PROJECT!=	pwd | xargs basename
+
+_LOCAL_MK:=	$(shell test -f Makefile.local || touch Makefile.local)
+_LOCAL_MK!=	test -f Makefile.local || touch Makefile.local
+
+include Makefile.local
 
 build:
 
