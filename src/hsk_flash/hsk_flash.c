@@ -1005,7 +1005,8 @@ ubyte hsk_flash_init(void xdata * const idata ptr, const uword idata size,
 	/* Set up the NMIFLASH ISR. */
 	hsk_isr14.NMIFLASH = &hsk_flash_isr_nmiflash;
 
-	#define ptr		((ubyte xdata *)ptr)
+	#define ptr		hsk_flash.ptr
+	#define size		hsk_flash.size
 	#define oldest		hsk_flash.oldest
 	#define wrap		hsk_flash.wrap
 	#define latest		hsk_flash.latest
@@ -1115,6 +1116,7 @@ ubyte hsk_flash_init(void xdata * const idata ptr, const uword idata size,
 	}
 	return 2;
 	#undef ptr
+	#undef size
 	#undef oldest
 	#undef wrap
 	#undef latest
