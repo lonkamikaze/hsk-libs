@@ -28,7 +28,7 @@ void dummy(void) reentrant {
 /**
  * Define callback function pointers for ISR 5.
  */
-volatile struct hsk_isr5_callback xdata hsk_isr5 = {&dummy, &dummy, &dummy, &dummy, &dummy, &dummy, &dummy};
+volatile struct hsk_isr5_callback pdata hsk_isr5 = {&dummy, &dummy, &dummy, &dummy, &dummy, &dummy, &dummy};
 
 /**
  * T2_T2CON Timer 2 Overflow bit.
@@ -128,7 +128,7 @@ void ISR_hsk_isr5(void) interrupt 5 {
 /**
  * Define callback function pointers for ISR 6.
  */
-volatile struct hsk_isr6_callback xdata hsk_isr6 = {&dummy, &dummy, &dummy, &dummy};
+volatile struct hsk_isr6_callback pdata hsk_isr6 = {&dummy, &dummy, &dummy, &dummy};
 
 /**
  * IRCON1 Interrupt Flag 1 for MultiCAN bit.
@@ -192,7 +192,7 @@ void ISR_hsk_isr6(void) interrupt 6 {
 /**
  * Define callback function pointers for ISR 9.
  */
-volatile struct hsk_isr9_callback xdata hsk_isr9 = {&dummy, &dummy, &dummy, &dummy, &dummy};
+volatile struct hsk_isr9_callback pdata hsk_isr9 = {&dummy, &dummy, &dummy, &dummy, &dummy};
 
 /**
  * IRCON0 Interrupt Flag for External Interrupt 3 or T2CC0 Capture/Compare
@@ -270,7 +270,7 @@ void ISR_hsk_isr9(void) interrupt 9 {
 /**
  * Define callback function pointers for NMI ISR.
  */
-volatile struct hsk_isr14_callback xdata hsk_isr14 = {&dummy, &dummy, &dummy, &dummy, &dummy};
+volatile struct hsk_isr14_callback pdata hsk_isr14 = {&dummy, &dummy, &dummy, &dummy, &dummy};
 
 /**
  * NMISR Watchdog Timer NMI Flag bit.

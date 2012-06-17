@@ -8,15 +8,16 @@
  * will block this interrupt and change its configuration.
  * 
  * Pulse with measurement has a window time that is configured with
- * hsk_pwc_init() and defines the time frame within which pulses are
+ * hsk_pwc_init() and defines the time frame within which pulses can be
  * detected.
  *
  * If no pulse occurs during the window, the channel buffer is invalidated
- * and all the hsk_pwc_channel_get* functions will return invalid (0) until
+ * and the hsk_pwc_channel_getValue() function will returns invalid (0) until
  * the buffer is repopulated with valid measurements.
  * 
- * In order to maintain data integrity one of the hsk_pwc_channel_get*
- * functions should be called at least once every 256 window times.
+ * In order to guarantee the detection of invalid channels, the
+ * hsk_pwc_channel_getValue() function has to be called at least once every
+ * 256 window times.
  * 
  * @author kami
  */
@@ -180,7 +181,7 @@ void hsk_pwc_init(ulong idata window);
  *	The PWC channel to open
  * @param averageOver
  * 	The number of pulse values to average over when returning a
- * 	value or speed. The value must be between 1 and CHAN_BUF_SIZE.
+ * 	value or speed. The value must be between 1 and 8.
  */
 void hsk_pwc_channel_open(const hsk_pwc_channel idata channel,
 	ubyte idata averageOver);
@@ -253,75 +254,78 @@ void hsk_pwc_enable(void);
 void hsk_pwc_disable(void);
 
 /**
- * Returns the measured pulse width in FCLK cycles.
- * I.e. 1/48µs.
+ * Sum of buffered pulse widths in multiples of \f$ 1/48 * 10^{-6} s \f$.
+ *
+ * This is the sum of the buffered values, not the average.
+ *
+ * Use this if precision is of the utmost importance.
+ */
+#define PWC_UNIT_SUM_RAW	0
+
+/**
+ * Average of buffered pulse widths in multiples of \f$ 1/48 * 10^{-6} s \f$.
+ */
+#define PWC_UNIT_WIDTH_RAW	1
+
+/**
+ * Average of buffered pulse widths in multiples of \f$ 10^{-9} s \f$.
+ */
+#define PWC_UNIT_WIDTH_NS	2
+
+/**
+ * Average of buffered pulse widths in multiples of \f$ 10^{-6} s \f$.
+ */
+#define PWC_UNIT_WIDTH_US	3
+
+/**
+ * Average of buffered pulse widths in multiples of \f$ 10^{-3} s \f$.
+ */
+#define PWC_UNIT_WIDTH_MS	4
+
+/**
+ * Average frequency of buffered pulses in multiples of \f$ 1/s \f$.
+ */
+#define PWC_UNIT_FREQ_S		5
+
+/**
+ * Average frequency of buffered pulses in multiples of \f$ 1/m \f$.
+ *
+ * To prevent overflow issues this value is always a multiple of the number
+ * of averaged values.
+ */
+#define PWC_UNIT_FREQ_M		6
+
+/**
+ * Average frequency of buffered pulses in multiples of \f$ 1/h \f$.
+ *
+ * To prevent overflow issues this value is always a multiple of the number
+ * of averaged values * 60.
+ *
+ * This is just a convenience feature for quick testing, it is possible to
+ * achieve much better precision if the use case is known.
+ */
+#define PWC_UNIT_FREQ_H		7
+
+/**
+ * Returns a measure of the values in a channel buffer.
+ *
+ * It also takes care of invalidating channels that haven't been captured
+ * for too long.
+ *
+ * The value is returned in a requested unit, the units defined as
+ * PWC_UNIT_* are available.
  *
  * @param channel
- * 	The channel to return the pulse width for.
- * @return
- *	The measured pulse width.
+ * 	The channel to return the buffer sum of
+ * @param unit
+ '	The unit to return the channel value in
+ * @retval >0
+ * 	The channel value in the requested unit
+ * @retval 0
+ *	Invalid channel, measurement timed out
  */
-ulong hsk_pwc_channel_getWidthFclk(const hsk_pwc_channel idata channel);
-
-/**
- * Returns the measured pulse width in ns.
- *
- * @param channel
- * 	The channel to return the pulse width for.
- * @return
- *	The measured pulse width.
- */
-ulong hsk_pwc_channel_getWidthNs(const hsk_pwc_channel idata channel);
-
-/**
- * Returns the measured pulse width in µs.
- *
- * @param channel
- * 	The channel to return the pulse width for.
- * @return
- *	The measured pulse width.
- */
-ulong hsk_pwc_channel_getWidthUs(const hsk_pwc_channel idata channel);
-
-/**
- * Returns the measured pulse width in ms.
- *
- * @param channel
- * 	The channel to return the pulse width for.
- * @return
- *	The measured pulse width.
- */
-uword hsk_pwc_channel_getWidthMs(const hsk_pwc_channel idata channel);
-
-/**
- * Returns the measured frequency in Hz.
- * 
- * @param channel
- * 	The channel to return the frequency from.
- * @return
- *	The measured frequency or 0 if none was measured.
- */
-ulong hsk_pwc_channel_getFreqHz(const hsk_pwc_channel idata channel);
-
-/**
- * Returns the measured frequency in pulses per minute.
- * 
- * @param channel
- * 	The channel to return the frequency from.
- * @return
- *	The measured frequency or 0 if none was measured.
- */
-ulong hsk_pwc_channel_getFreqPpm(const hsk_pwc_channel idata channel);
-
-/**
- * Returns the measured frequency in pulses per hour.
- * 
- * @param channel
- * 	The channel to return the frequency from.
- * @return
- *	The measured frequency or 0 if none was measured.
- */
-ulong hsk_pwc_channel_getFreqPph(const hsk_pwc_channel idata channel);
+ulong hsk_pwc_channel_getValue(const hsk_pwc_channel idata channel,
+	const ubyte idata unit);
 
 #endif /* _HSK_PWC_H_ */
 

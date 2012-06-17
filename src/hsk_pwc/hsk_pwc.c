@@ -21,32 +21,25 @@
 #define PWC_CHANNELS		4
 
 /**
- * The size of a channel ring buffer in \f$2^n\f$.
- *
- * This must not be greater than 5 or the calculation of pulse times might
- * overflow.
- */
-#define CHAN_BUF_DEPTH		4
-
-/**
  * The size of a PWC ring buffer.
+ *
+ * This must not be greater than 32 or the calculation of values returned
+ * by hsk_pwc_channel_getValue() might overflow.
+ *
+ * The value 8 should be a sensible compromise between an interest to get
+ * averages from a sufficient number of values and memory use.
  */
-#define CHAN_BUF_SIZE		(1 << CHAN_BUF_DEPTH)
-
-/**
- * The window time in timer cycles that should be observed.
- */
-volatile uword idata hsk_pwc_window;
+#define CHAN_BUF_SIZE		8
 
 /**
  * The prescaling factor.
  */
-volatile uword idata hsk_pwc_prescaler;
+ubyte xdata hsk_pwc_prescaler;
 
 /**
  * A CCT overflow counter.
  */
-volatile ubyte idata hsk_pwc_overflow;
+volatile ubyte pdata hsk_pwc_overflow;
 
 /**
  * Processing data for PWC channels.
@@ -93,7 +86,7 @@ volatile struct {
 	 * are only output by getSum when all values are valid.
 	 */
 	ubyte invalid;
-} xdata hsk_pwc_channels[PWC_CHANNELS];
+} pdata hsk_pwc_channels[PWC_CHANNELS];
 
 /**
  * This is the common implementation of the Capture ISRs.
@@ -231,7 +224,7 @@ void hsk_pwc_isr_cctOverflow(void) {
 
 void hsk_pwc_init(ulong idata window) {
 	/* The prescaler in powers of 2. */
-	ubyte prescaler = 0;
+	hsk_pwc_prescaler = 0;
 
 	/*
 	 * Get the lowest prescaler that delivers the desired window time.
@@ -240,22 +233,16 @@ void hsk_pwc_init(ulong idata window) {
 	 * a new prescaler until it fits into 2^16 - 1 timer cycles.
 	 */
 	window *= 48000;
-	for (; prescaler < 12 && window >= (1ul << 16); prescaler++, window >>= 1);
-
-	/*
-	 * Store the timer specs.
-	 */
-	hsk_pwc_window = window;
-	hsk_pwc_prescaler = prescaler;
+	for (; hsk_pwc_prescaler < 12 && window >= (1ul << 16); \
+		hsk_pwc_prescaler++, window >>= 1);
 
 	/*
 	 * Set the prescaler.
 	 */
 	SFR_PAGE(_su1, noSST);
 	/* Set T2CCUCLK to FCLK or PCLK. */
-	if (prescaler) {
+	if (hsk_pwc_prescaler) {
 		/* PCLK */
-		prescaler--;
 		CR_MISC &= ~(1 << BIT_T2CCFG);
 	} else {
 		/* FCLK */
@@ -265,7 +252,7 @@ void hsk_pwc_init(ulong idata window) {
 
 	SFR_PAGE(_t2_1, noSST);
 	/* Set the internal prescaler. */
-	T2CCU_CCTCON = prescaler << BIT_CCTPRE;
+	T2CCU_CCTCON = (hsk_pwc_prescaler ? hsk_pwc_prescaler - 1 : 0) << BIT_CCTPRE;
 
 	/* 
 	 * Start the Capture/Compare Timer and the overflow interrupt.
@@ -640,23 +627,13 @@ void hsk_pwc_disable(void) {
 	SFR_PAGE(_su0, noSST);
 }
 
-/**
- * Returns the current sum of values in a channel buffer.
- *
- * @param channel
- * 	The channel to return the buffer sum of.
- * @return
- * 	The sum of buffered capture results for this channel.
- * @private
- */
-ulong hsk_pwc_channel_getSum(const hsk_pwc_channel idata channel) {
+ulong hsk_pwc_channel_getValue(const hsk_pwc_channel idata channel, \
+		const ubyte idata unit) {
 	#define channel	hsk_pwc_channels[channel]
 	bool exm = EXM;
 	bool et2 = ET2;
 	bool ea = EA;
-	ubyte overflow;
-	long capture;
-
+	ulong age;
 
 	/* Get the current timer data, make this quick. */
 	SFR_PAGE(_t2_1, noSST);
@@ -664,70 +641,60 @@ ulong hsk_pwc_channel_getSum(const hsk_pwc_channel idata channel) {
 	EXM = 0;
 	ET2 = 0;
 	EA = ea;
-	/* Get the last capture interval. */
-	capture = T2CCU_CCTLH;
-	capture -= channel.lastCapture;
-	/* Get the overflow. */
-	overflow = hsk_pwc_overflow - channel.overflow;
+	/* Get the age of the last capture event. */
+	age = (ulong)((ubyte)(hsk_pwc_overflow - channel.overflow)) << 16;
+	age |= T2CCU_CCTLH;
+	age -= channel.lastCapture;
 	EA = 0;
 	EXM = exm;
 	ET2 = et2;
 	EA = ea;
 	SFR_PAGE(_t2_0, noSST);
 	/* Check whether the window time frame has been left. */
-	if ((ulong)hsk_pwc_window < ((ulong)overflow << 16) + capture) {
+	if (age >= (1ul << 16)) {
 		channel.invalid = channel.averageOver + 1;
 	}
+	/* Return 0 for invalid channels. */
 	if (channel.invalid) {
 		return 0;
-	} else {
-		return channel.sum;
+	}
+
+	/*
+	 * Return the buffered values in the requested format.
+	 */
+	switch(unit) {
+	case PWC_UNIT_SUM_RAW:
+		return channel.sum << hsk_pwc_prescaler;
+		break;
+	case PWC_UNIT_WIDTH_RAW:
+		return (channel.sum << hsk_pwc_prescaler) \
+			/ channel.averageOver;
+		break;
+	case PWC_UNIT_WIDTH_NS:
+		return (channel.sum << hsk_pwc_prescaler) \
+			* 250 / 12 / channel.averageOver;
+		break;
+	case PWC_UNIT_WIDTH_US:
+		return (channel.sum << hsk_pwc_prescaler) \
+			/ 48 / channel.averageOver;
+		break;
+	case PWC_UNIT_WIDTH_MS:
+		return (channel.sum << hsk_pwc_prescaler) \
+			/ 48000 / channel.averageOver;
+		break;
+	case PWC_UNIT_FREQ_S:
+		return (48000000ul * channel.averageOver \
+			/ channel.sum) >> hsk_pwc_prescaler;
+		break;
+	case PWC_UNIT_FREQ_M:
+		return ((48000000ul * 60) >> hsk_pwc_prescaler) \
+			/ channel.sum * channel.averageOver;
+		break;
+	case PWC_UNIT_FREQ_H:
+		return ((48000000ul * 60) >> hsk_pwc_prescaler) \
+			/ channel.sum * 60 * channel.averageOver;
+		break;
 	}
 	#undef channel
-}
-
-ulong hsk_pwc_channel_getWidthFclk(const hsk_pwc_channel idata channel) {
-	ulong sum = hsk_pwc_channel_getSum(channel);
-	return (sum << hsk_pwc_prescaler) / hsk_pwc_channels[channel].averageOver;
-}
-
-ulong hsk_pwc_channel_getWidthNs(const hsk_pwc_channel idata channel) {
-	ulong sum = hsk_pwc_channel_getSum(channel);
-	return (sum << hsk_pwc_prescaler) * 1000 / 48 / hsk_pwc_channels[channel].averageOver;
-}
-
-ulong hsk_pwc_channel_getWidthUs(const hsk_pwc_channel idata channel) {
-	ulong sum = hsk_pwc_channel_getSum(channel);
-	return (sum << hsk_pwc_prescaler) / 48 / hsk_pwc_channels[channel].averageOver;
-}
-
-uword hsk_pwc_channel_getWidthMs(const hsk_pwc_channel idata channel) {
-	ulong sum = hsk_pwc_channel_getSum(channel);
-	return ((sum << hsk_pwc_prescaler) / 48000 / hsk_pwc_channels[channel].averageOver);
-}
-
-
-ulong hsk_pwc_channel_getFreqHz(const hsk_pwc_channel idata channel) {
-	ulong sum = hsk_pwc_channel_getSum(channel);
-	if (sum) {
-		return ((ulong)hsk_pwc_channels[channel].averageOver * 48000000ul / sum) >> hsk_pwc_prescaler;
-	}
-	return 0;
-}
-
-ulong hsk_pwc_channel_getFreqPpm(const hsk_pwc_channel idata channel) {
-	ulong sum = hsk_pwc_channel_getSum(channel);
-	if (sum) {
-		return (hsk_pwc_channels[channel].averageOver * 48000000 * 60 / sum) >> hsk_pwc_prescaler;
-	}
-	return 0;
-}
-
-ulong hsk_pwc_channel_getFreqPph(const hsk_pwc_channel idata channel) {
-	ulong sum = hsk_pwc_channel_getSum(channel);
-	if (sum) {
-		return hsk_pwc_channels[channel].averageOver * (48000000ul >> hsk_pwc_prescaler) * 3600 / sum;
-	}
-	return 0;
 }
 
