@@ -9,6 +9,8 @@
 
 #include <Infineon/XC878.h>
 
+#include <dbc/Primary.h>
+
 #include "config.h"
 
 #include "hsk_boot/hsk_boot.h"
@@ -190,8 +192,6 @@ void run(void) {
 
 	fifo0 = hsk_can_fifo_create(7);
 	hsk_can_fifo_connect(fifo0, CAN1);
-	#define MSG_AFB_CHANNEL_ID	0x403
-	#define MSG_AFB_CHANNEL		MSG_AFB_CHANNEL_ID, 0, 3
 	hsk_can_fifo_setupRx(fifo0, MSG_AFB_CHANNEL);
 	hsk_can_fifo_setRxMask(fifo0, 0x7f0); /* Take any message from the AFB */
 
@@ -230,7 +230,7 @@ void run(void) {
 		}
 
 		if (hsk_can_fifo_updated(fifo0)) {
-			if (hsk_can_fifo_getId(fifo0) == MSG_AFB_CHANNEL_ID) {
+			if (hsk_can_fifo_getId(fifo0) == ID_AFB_CHANNEL) {
 				hsk_can_fifo_getData(fifo0, data0);
 				//P3_DATA ^= 1 << hsk_can_data_getSignal(data0, CAN_ENDIAN_INTEL, 0, 3);
 			}
