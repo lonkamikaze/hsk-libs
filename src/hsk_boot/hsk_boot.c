@@ -54,6 +54,13 @@
 #define XRAM_SELECTOR		1
 
 /**
+ * The page to locate pdata at.
+ *
+ * Use the first XRAM page, because that is where the compilers expect it.
+ */
+#define PDATA_PAGE		0xF0
+
+/**
  * Sets up xdata memory access.
  *
  * Refer to the Processor Architecture and Memory Organization chapters of the
@@ -63,6 +70,12 @@ void hsk_boot_mem(void) {
 	MEX3 = XRAM_SELECTOR << BIT_MXM \
 		| ((XRAM_BANK & ((1 << CNT_MXB) - 1)) << BIT_MXB) \
 		| ((XRAM_BANK >> CNT_MXB) << BIT_MXB19);
+
+
+	/* Set pdata page. */	
+	SFR_PAGE(_su3, noSST);
+	XADDRH = PDATA_PAGE;
+	SFR_PAGE(_su0, noSST);
 }
 
 /**
@@ -180,7 +193,7 @@ void hsk_boot_mem(void) {
  * See table 7-5 in the data sheet for desired PDIV values.
  * See the PDIV description for value encoding.
  */
-ubyte xdata pdiv;
+ubyte pdata pdiv;
 
 /**
  * The NDIV value for the configured clock speed.
@@ -188,10 +201,12 @@ ubyte xdata pdiv;
  * See table 7-5 in the data sheet for desired NDIV values.
  * See the NDIV description for value encoding.
  */
-uword xdata ndiv;
+uword pdata ndiv;
 
 /**
  * Loss of clock recovery ISR.
+ *
+ * This takes very long.
  *
  * @private
  */
@@ -203,9 +218,10 @@ void hsk_nmipll_isr(void) {
 	/*
 	 * Loop counter for active waiting.
 	 */
-	ubyte xdata activeWait;
+	ubyte activeWait;
 
-	/* Go to page1 where all the oscillator registers are. */
+	/* Go to page 1 where all the oscillator registers and the PASSWD
+	 * registers are. */
 	SFR_PAGE(_su1, SST3);
 
 	do {
@@ -228,7 +244,9 @@ void hsk_nmipll_isr(void) {
 		/* Wait for 65 cycles based on internal oscillator frequency. */
 		/* If bit OSC_CON.EXTOSCR is set after 65 internal oscillator
 		 * clock cycles, then: */
-		for (activeWait = 100; activeWait > 0; activeWait--);
+		/* That would be about 4 - 8 cycles, through the loop. That's
+		 * not reliable at all. */
+		for (activeWait = 32; activeWait > 0; activeWait--);
 	} while (!((OSC_CON >> BIT_EXTOSCR) & 0x01));
 
 	/* Select the external oscillator as the source of oscillator
@@ -256,6 +274,7 @@ void hsk_nmipll_isr(void) {
 
 	/*  Restore original page. */
 	SFR_PAGE(_su1, RST3);
+
 }
 #pragma restore
 
@@ -303,8 +322,9 @@ void hsk_boot_extClock(const ulong idata clk) {
 	/* Wait for 1.5 ms until the external oscillator is stable (the delay
 	 * time should be adjusted according to different external oscillators).
 	 */
-	/* Well, actually just do some active waiting for a safe time. */
-	for (activeWait = 200; activeWait > 0; activeWait--);
+	/* That would be about 4 - 8 cycles, through the loop. That's
+	 * not reliable at all. */
+	for (activeWait = 32; activeWait > 0; activeWait--);
 	/* Restart the external oscillator watchdog by setting bit EORDRES. */
 	MAIN_vUnlockProtecReg();
 	OSC_CON |= 1 << BIT_EORDRES;

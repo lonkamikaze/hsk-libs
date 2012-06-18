@@ -21,6 +21,7 @@
 #include "hsk_pwm/hsk_pwm.h"
 #include "hsk_pwc/hsk_pwc.h"
 #include "hsk_flash/hsk_flash.h"
+#include "hsk_wdt/hsk_wdt.h"
 
 ICM7228_FACTORY(p1, P1, P3, 0, P3, 1)
 
@@ -121,6 +122,7 @@ void init(void) {
 		hsk_flash_write();
 		break;
 	}
+	P3_DATA = persist.reset;
 
 	/* Activate timer 0. */
 	hsk_timer0_setup(1000, &tick0);
@@ -159,10 +161,13 @@ void init(void) {
 	//P3_DIR |= 0x30;
 	//P3_DATA |= 0x10;
 	//P3_DIR = -1;
-	P3_DATA = persist.boot;
 	EA = 1;
 
 	hsk_adc_warmup();
+
+	/* Service watchdog every 20ms, so wait for 30ms. */
+	hsk_wdt_init(3000);
+	hsk_wdt_enable();
 
 	msgBoot = hsk_can_msg_create(0x7f0, 0, 2);
 	hsk_can_msg_connect(msgBoot, CAN1);
@@ -212,6 +217,7 @@ void run(void) {
 			hsk_pwm_channel_set(PWM_62, 100, adc7_copy * 5 / 1023 + 5);
 			hsk_pwm_channel_set(PWM_63, 1023, adc7_copy);
 			hsk_adc_service();
+			hsk_wdt_service();
 			/*P3_DATA =*/ hsk_pwc_channel_getValue(PWC_CC0, PWC_UNIT_FREQ_S);
 		}		 
 

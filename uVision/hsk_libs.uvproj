@@ -118,7 +118,7 @@
             <Oh166RecLen>16</Oh166RecLen>
           </OPTHX>
           <Simulator>
-            <UseSimulator>1</UseSimulator>
+            <UseSimulator>0</UseSimulator>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
             <RunToMain>1</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
@@ -129,7 +129,7 @@
             <LimitSpeedToRealTime>1</LimitSpeedToRealTime>
           </Simulator>
           <Target>
-            <UseTarget>0</UseTarget>
+            <UseTarget>1</UseTarget>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
             <RunToMain>1</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
@@ -297,7 +297,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>../../CAN-106/src</IncludePath>
+              <IncludePath>../../CAN/src</IncludePath>
             </VariousControls>
           </C51>
           <Ax51>
@@ -309,7 +309,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>../../CAN-106/src</IncludePath>
+              <IncludePath>../../CAN/src</IncludePath>
             </VariousControls>
           </Ax51>
           <Lx51>
@@ -335,7 +335,7 @@ ISR_hsk_timer0 ! (tick0)</OverlayString>
             <Assign></Assign>
             <ReserveString></ReserveString>
             <CClasses></CClasses>
-            <UserClasses></UserClasses>
+            <UserClasses>PDATA (X:0xF000-X:0xF0FF)</UserClasses>
             <CSection></CSection>
             <UserSection></UserSection>
             <CodeBaseAddress></CodeBaseAddress>
@@ -542,7 +542,7 @@ ISR_hsk_timer0 ! (tick0)</OverlayString>
                   <MiscControls></MiscControls>
                   <Define></Define>
                   <Undefine></Undefine>
-                  <IncludePath>../../CAN-106/src</IncludePath>
+                  <IncludePath>../../CAN/src</IncludePath>
                 </VariousControls>
               </C51>
               <Ax51>
@@ -554,7 +554,7 @@ ISR_hsk_timer0 ! (tick0)</OverlayString>
                   <MiscControls></MiscControls>
                   <Define></Define>
                   <Undefine></Undefine>
-                  <IncludePath>../../CAN-106/src</IncludePath>
+                  <IncludePath>../../CAN/src</IncludePath>
                 </VariousControls>
               </Ax51>
             </Group51>
@@ -569,6 +569,21 @@ ISR_hsk_timer0 ! (tick0)</OverlayString>
               <FileName>hsk_flash.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\hsk_flash\hsk_flash.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>HSK_WDT</GroupName>
+          <Files>
+            <File>
+              <FileName>hsk_wdt.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\src\hsk_wdt\hsk_wdt.h</FilePath>
+            </File>
+            <File>
+              <FileName>hsk_wdt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\hsk_wdt\hsk_wdt.c</FilePath>
             </File>
           </Files>
         </Group>

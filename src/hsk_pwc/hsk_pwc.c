@@ -695,6 +695,7 @@ ulong hsk_pwc_channel_getValue(const hsk_pwc_channel idata channel, \
 			/ channel.sum * 60 * channel.averageOver;
 		break;
 	}
+	return 0;
 	#undef channel
 }
 
