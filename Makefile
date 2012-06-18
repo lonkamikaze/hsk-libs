@@ -29,8 +29,8 @@ include Makefile.local
 
 build:
 
-_BUILD_MK:=	$(shell sh scripts/build.sh src/ > build.mk)
-_BUILD_MK!=	sh scripts/build.sh src/ > build.mk
+_BUILD_MK:=	$(shell sh scripts/build.sh src/ ${CANDIR}/ > build.mk)
+_BUILD_MK!=	sh scripts/build.sh src/ ${CANDIR}/ > build.mk
 
 # Gmake style, works with FreeBSD make, too
 include build.mk

@@ -1,7 +1,8 @@
 ^(.*/)?\..*
 ^(.*/)?Thumbs.db$
 ^bin.*
-^build.mk$
+^build\.mk$
+\.local$
 ^doc/
 ^doc-private/
 ^html/
