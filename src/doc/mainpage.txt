@@ -130,7 +130,7 @@ To circumvent the 128 register limit each functional block of registers has
 a paging register that can be used to access different Pages of registers.
 In C code this is done using the SFR_PAGE() macro defined in the
 Infineon/XC878.h header file that is provided by Keil µVision, the IDE used
-for this project or can be directly
+for this project or the headers can directly be
 <a href="http://www.keil.com/dd/docs/c51/infineon/xc878.h">downloaded from ARM</a>.
 
 Paging only affects code that directly interacts with the hardware. One of
@@ -155,6 +155,11 @@ than to \c data. The syntax for declaring a variable in \c idtata memory is:
 <type> idata <identifier> [= <value>];
 \endcode
 
+The additional \c idata memory is located in the upper half of the address
+range. The lower half accesses \c data memory. Any \c data access to a
+pointer actually is \c idata access. This is why SFRs cannot be accessed
+with pointers. They are masked by \c idata memory.
+
 The slowest kind of memory used by this library is the \c xdata
 memory. The \c xdata memory makes 3kb of additional memory available and
 the libraries place all large data structures in them.
@@ -166,13 +171,17 @@ Variables are declared in \c xdata with the following syntax:
 
 The first 256 bytes of \c xdata memory are also accessible as 8 bit addressed
 \c pdata. Using \c pdata is faster than \c xdata. The \c p in \c pdata
-stands for paged, however the paging register is missing on the XC878.
+stands for paged. Historically the 8052 family of µCs used register \c P2
+for paging. The XC878 instead provides an SFR name XADDRH.
+
+However current 8051 C compilers don't support paging. I.e. one would have to
+ensure that structs and buffers do not cross page borders and update \c XADDRH
+manually. So instead of making the code more complicated and messing with the
+linkers \c XADDRH is fixed to the first \c xdata page and \c pdata is simply
+used as an additional 256 bytes of relatively fast memory.
 
 There also is a 128 bits wide memory range of \c bit variables, which is used
 by single bit variables of the type \c bool.
-
-Preassigning values to global \c xdata variables has no effect. They have to
-be initialized using runtime code.
 
 In contrast to the small amount of available RAM, 64k of ROM are available
 to hold executable code. Thus a program well designed to the XC878 is one
@@ -188,8 +197,8 @@ also be placed in the \c code block.
 Due to the existence of different kinds of memory, pointers come in two
 variations, generic pointers and memory-specific pointers. Generic pointers
 take 3 bytes of memory and are by far the slowest to process.
-Memory-specific pointers take 1 byte for \c data or \c idata and 2 bytes for
-\c xdata org \c code. They are also faster to process.
+Memory-specific pointers take 1 byte for \c data, \c idata or \c pdata and
+2 bytes for \c xdata or \c code. They are also faster to process.
 
 Note that the \c data keyword needs to be explicitely specified for \c data
 pointers. Pointers declared without explicit mention of the memory type always
@@ -234,7 +243,7 @@ The following options need to be set:
 	  otherwise flashing and debugging might be unreliable
 - Memory Model: Small
 	- This setting means that variables are by default assigned
-	  to the first 128 bytes of direct addressable RAM, variables
+	  to the first 128 bytes of directly addressable RAM, variables
 	  can still be mapped to different memory sections manaully as
 	  described in \ref platform_memory
 - Code ROM Size: Large: 64K program
@@ -588,11 +597,13 @@ containing a main() function will also be linked, resulting in a .hex file:
 sdcc -mmcs51 [...] -o bin.sdcc/hsk_adc/hsk_adc.rel -c src/hsk_adc/hsk_adc.c
 sdcc -mmcs51 [...] -o bin.sdcc/hsk_boot/hsk_boot.rel -c src/hsk_boot/hsk_boot.c
 sdcc -mmcs51 [...] -o bin.sdcc/hsk_can/hsk_can.rel -c src/hsk_can/hsk_can.c
+sdcc -mmcs51 [...] -o bin.sdcc/hsk_wdt/hsk_wdt.rel -c src/hsk_wdt/hsk_wdt.c
 sdcc -mmcs51 [...] -o bin.sdcc/hsk_icm7228/hsk_icm7228.rel -c src/hsk_icm7228/hsk_icm7228.c
 sdcc -mmcs51 [...] -o bin.sdcc/hsk_isr/hsk_isr.rel -c src/hsk_isr/hsk_isr.c
 sdcc -mmcs51 [...] -o bin.sdcc/hsk_pwc/hsk_pwc.rel -c src/hsk_pwc/hsk_pwc.c
 sdcc -mmcs51 [...] -o bin.sdcc/hsk_pwm/hsk_pwm.rel -c src/hsk_pwm/hsk_pwm.c
 sdcc -mmcs51 [...] -o bin.sdcc/hsk_timers/hsk_timer01.rel -c src/hsk_timers/hsk_timer01.c
+sdcc -mmcs51 [...] -o bin.sdcc/hsk_flash/hsk_flash.rel -c src/hsk_flash/hsk_flash.c
 sdcc -mmcs51 [...] -o bin.sdcc/main.rel -c src/main.c
 sdcc -mmcs51 [...] -o bin.sdcc/main.hex bin.sdcc/hsk_timers/hsk_timer01.rel [...]
 \endverbatim
