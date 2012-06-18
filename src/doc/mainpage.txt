@@ -269,7 +269,7 @@ are not obligatory for use of the HSK libraries, but recommended.
 		  largest reduction of memory use
 	- Emphasis: Favor speed
 		- Surprisingly this often produces smaller code than the
-		  \c favor \c size setting
+		  <tt>favor size</tt> setting
 	- Global Register Coloring
 		- This setting allows the compiler to optimise register use
 		  throughout the entire application, reducing memory use and
@@ -287,9 +287,15 @@ are not obligatory for use of the HSK libraries, but recommended.
 \section toolchain_lx51_locate LX51 Locate
 
 LX51 is the extended linker of the C51 compiler tool chain, the Locate
-dialogue is used to map memory ranges. Just make sure the "User Memory Layout
-from Target Dialog" setting is activated. The form can also be used to assign
+dialogue is used to map memory ranges. The form can also be used to assign
 portions of code to fixed addresses.
+
+- User Memory Layout from Target Dialog
+	- This option assigns the XC878 memory types to the appropriate
+	  address ranges
+- User Classes: PDATA (X:0xF000-X:0xF0FF)
+	- This option maps the \c pdata memory into the first 256 bytes of
+	  \c xdata
 
 \image html img/keil_options_LX51_Locate.png "Keil µVision LX51 Locate options dialogue"
 \image latex img/keil_options_LX51_Locate.png "Keil µVision LX51 Locate options dialogue" width=10cm
@@ -911,7 +917,7 @@ The following table lists recommended memory types:
 |		| >= long	| no		| xdata
 |		|		| ISR/blocking	| pdata, xdata
 | static/global	| *		| no		| xdata
-|		| *		| ISR/blocking	| pdata, xdata
+|		|		| ISR/blocking	| pdata, xdata
 
 \c ISR/blocking refers to memory accessed by ISRs, functions called back by
 ISRs and sections of code that block an interrupt.

@@ -465,7 +465,7 @@ volatile struct {
 	 * The current state of the flash ISR state machine.
 	 */
 	ubyte state;
-} xdata hsk_flash;
+} pdata hsk_flash;
 
 /**
  * A pointer to the flash target address.
