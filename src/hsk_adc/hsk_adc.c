@@ -342,6 +342,18 @@ void hsk_adc_service(void) {
 	SFR_PAGE(_ad0, noSST);
 }
 
+void hsk_adc_request(const hsk_adc_channel idata channel) {
+	/* Check for empty slots in the queue. */
+	SFR_PAGE(_ad6, noSST);
+	if (ADC_QSR0 & (1 << BIT_EMPTY) || (ADC_QSR0 >> BIT_FILL) & ((1 << CNT_FILL) - 1) ^ ((1 << CNT_FILL) - 1)) {
+		/* Set next channel. */
+		ADC_QINR0 = ADC_QINR0 & ~((1 << CNT_REQCHNR) - 1) | (channel << BIT_REQCHNR);
+		/* Request next conversion. */
+		ADC_QMR0 |= 1 << BIT_TREV;
+	}
+	SFR_PAGE(_ad0, noSST);
+}
+
 /**
  * Special ISR for warming up the conversion.
  *

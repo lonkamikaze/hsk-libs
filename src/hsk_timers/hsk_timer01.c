@@ -89,7 +89,7 @@ void ISR_hsk_timer0(void) interrupt 1 using 1 {
 	RESET_RMAP();
 
 	TL0 += hsk_timers[0].overflow;
-	TH0 += (ubyte)OV;
+	TH0 += (ubyte)CY;
 	TH0 += hsk_timers[0].overflow >> 8;
 	hsk_timers[0].callback();
 
@@ -108,7 +108,7 @@ void ISR_hsk_timer1(void) interrupt 3 using 1 {
 	RESET_RMAP();
 
 	TL1 += hsk_timers[1].overflow;
-	TH1 += (ubyte)OV;
+	TH1 += (ubyte)CY;
 	TH1 += hsk_timers[1].overflow >> 8;
 	hsk_timers[1].callback();
 
@@ -134,13 +134,6 @@ void ISR_hsk_timer1(void) interrupt 3 using 1 {
  */
 void hsk_timer01_setup(const ubyte idata id, const uword idata interval,
 		const void (code * const idata callback)(void) using(1)) {
-	/*
-	 * The timer ticks with PCLK / 2, we want 1µs precission, which is
-	 * up to 1000000 ticks per second.
-	 *
-	 * PCLK / 2 / precission = 12
-	 */
-	ulong ticks = 12 * interval;
 
 	/* Set 16 bit mode. */
 	switch (id) {
@@ -151,8 +144,13 @@ void hsk_timer01_setup(const ubyte idata id, const uword idata interval,
 		TMOD = TMOD & ~(((1 << CNT_T1M) - 1) << BIT_T1M) | 1 << BIT_T1M;
 		break;
 	}
+
+	/**
+	 * The timer ticks with PCLK / 2, which means 12 timer ticks per µs.
+	 */
+
 	/* Set up timer data for the ISRs. */
-	hsk_timers[id].overflow = (-1) - ticks;
+	hsk_timers[id].overflow = - (interval * 12);
 	hsk_timers[id].callback = callback;
 }
 
