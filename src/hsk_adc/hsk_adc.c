@@ -96,7 +96,7 @@ volatile uword * pdata hsk_adc_targets[ADC_CHANNELS];
 #ifdef SDCC
 #pragma nooverlay
 #endif
-void hsk_adc_isr(void) {
+void hsk_adc_isr(void) using 1 {
 	hsk_adc_channel channel;
 	uword result;
 
@@ -355,7 +355,7 @@ void hsk_adc_service(void) {
 #ifdef SDCC
 #pragma nooverlay
 #endif
-void hsk_adc_isr_warmup(void) {
+void hsk_adc_isr_warmup(void) using 1 {
 	ubyte i;
 
 	/* Let the original ISR do its thing. */

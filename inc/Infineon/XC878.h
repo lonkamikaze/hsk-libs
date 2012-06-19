@@ -96,6 +96,7 @@
 #define code                   __code
 #define interrupt              __interrupt
 #define reentrant              __reentrant
+#define using                  __using
 #endif
 
 

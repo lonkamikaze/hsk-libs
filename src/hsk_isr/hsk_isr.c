@@ -6,6 +6,20 @@
  * the hsk_isr* data structures.
  *
  * @author kami
+ *
+ * \section isr_speed ISR Callback Reaction Time
+ *
+ * The following table describes what happens up to the point that the NMI
+ * ISR starts operation (based on SDCC code):
+ * | CCLK Cycles| Task				| Instruction	| Duration
+ * |-----------:|-------------------------------|---------------|-----------
+ * | 0		| Core: Poll interrupt request	|		| 2
+ * | 2		| Core: Call ISR		| lcall		| 1 x 4
+ * | 6		| ISR setup: Push registers	| 6 x push	| 6 x 4
+ * | 30		| ISR setup: Reset PSW		| 1 x mov dir,# | 1 x 4
+ * | 34		| ISR: Backup RMAP		| …		| 3 x 2 + 4
+ * | 44		| ISR: Reset RMAP		| …		| 2 x 2 + 4
+ * | 52		| ISR: Select callback		| …		| … 
  */
 
 #include <Infineon/XC878.h>
@@ -22,7 +36,16 @@
  *
  * @private
  */
-void dummy(void) reentrant {
+void dummy(void) using 1 {
+}
+
+
+/**
+ * This is a dummy function to point unused function pointers to.
+ *
+ * @private
+ */
+void nmidummy(void) using 2 {
 }
 
 /**
@@ -81,7 +104,7 @@ volatile struct hsk_isr5_callback pdata hsk_isr5 = {&dummy, &dummy, &dummy, &dum
  *
  * @private
  */
-void ISR_hsk_isr5(void) interrupt 5 {
+void ISR_hsk_isr5(void) interrupt 5 using 1 {
 	bool rmap = (SYSCON0 >> BIT_RMAP) & 1;
 	RESET_RMAP();
 
@@ -163,7 +186,7 @@ volatile struct hsk_isr6_callback pdata hsk_isr6 = {&dummy, &dummy, &dummy, &dum
  *
  * @private
  */
-void ISR_hsk_isr6(void) interrupt 6 {
+void ISR_hsk_isr6(void) interrupt 6 using 1 {
 	bool rmap = (SYSCON0 >> BIT_RMAP) & 1;
 	RESET_RMAP();
 
@@ -237,7 +260,7 @@ volatile struct hsk_isr9_callback pdata hsk_isr9 = {&dummy, &dummy, &dummy, &dum
  *
  * @private
  */
-void ISR_hsk_isr9(void) interrupt 9 {
+void ISR_hsk_isr9(void) interrupt 9 using 1 {
 	bool rmap = (SYSCON0 >> BIT_RMAP) & 1;
 	RESET_RMAP();
 
@@ -270,7 +293,7 @@ void ISR_hsk_isr9(void) interrupt 9 {
 /**
  * Define callback function pointers for NMI ISR.
  */
-volatile struct hsk_isr14_callback pdata hsk_isr14 = {&dummy, &dummy, &dummy, &dummy, &dummy};
+volatile struct hsk_isr14_callback pdata hsk_isr14 = {&nmidummy, &nmidummy, &nmidummy, &nmidummy, &nmidummy};
 
 /**
  * NMISR Watchdog Timer NMI Flag bit.
@@ -309,7 +332,7 @@ volatile struct hsk_isr14_callback pdata hsk_isr14 = {&dummy, &dummy, &dummy, &d
  *
  * @private
  */
-void ISR_hsk_isr14(void) interrupt 14 {
+void ISR_hsk_isr14(void) interrupt 14 using 2 {
 	bool rmap = (SYSCON0 >> BIT_RMAP) & 1;
 	RESET_RMAP();
 

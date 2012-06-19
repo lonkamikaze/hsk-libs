@@ -5,10 +5,19 @@
  * sources. A callback function can be provided for each available interrupt
  * source.
  *
- * Callback functions should preserve SFR pages with SST1/RST1.
+ * @author kami
  *
- * The following table must be obeyed to avoid memory corruption:
- * | Save	| Restore	| Function
+ * \section isr_pages SFR Pages
+ *
+ * An ISR callback function cannot make assumptions about current SFR pages
+ * like the regular functions that can expect all pages to be set to 0.
+ *
+ * Instead a callback function needs to set all pages and restore whatever
+ * page was in use previously.
+ *
+ * The following table lists the store and restore selectors by context and
+ * must be obeyed to avoid memory corruption:
+ * | Save	| Restore	| Context
  * |------------|---------------|------------------------
  * | SST0	| RST0		| ISRs
  * | SST1	| RST1		| ISR callback functions
@@ -19,7 +28,31 @@
  * changes RMAP it does not have to take care of restoring it. RMAP is always
  * restored to its original state by the shared ISRs.
  *
- * @author kami
+ * \section isr_banks Register Banks
+ *
+ * Interrupts are each a root node of their own call tree. This is why they
+ * must preserve all the working registers.
+ *
+ * the pushing and popping of the 8 \c Rn registers for each interrupt call
+ * costs 64 CCLK cycles.
+ *
+ * To avoid this overhead different register banks are used. Call trees, i.e.
+ * interrupts, can use the same register bank if they cannot interrupt each
+ * other. Each used register bank costs 8 bytes of regular \c data memory.
+ * To minimize this cost all interrupts must have the same priority.
+ *
+ * The following table is used:
+ * | Priority	| Context		| Bank
+ * |-----------:|-----------------------|------
+ * | -		| Regular code		| 0
+ * | 0		| ISR, callback		| 1
+ * | 1		| ISR, callback		| -
+ * | 2		| ISR, callback		| -
+ * | 3		| ISR, callback		| -
+ * | NMI	| NMI ISR, callback	| 2
+ *
+ * Assigning higher priority to an ISR will affect (as in break) the operation
+ * of all lower priority ISRs.
  */
 
 #ifndef _HSK_ISR_H_
@@ -41,6 +74,13 @@
 	#define code
 #endif /* SDCC */
 
+/*
+ * C51 does not include the used register bank in pointer types.
+ */
+#ifdef __C51__
+	#define using(bank)
+#endif
+
 /**
  * Shared interrupt 5 routine. Activate the interrupt by setting ET2 = 1.
  *
@@ -58,43 +98,43 @@ struct hsk_isr5_callback {
 	 * Function to be called back when the TF2 interrupt event is
 	 * triggered.
 	 */
-	void (code *TF2)(void);
+	void (code *TF2)(void) using(1);
 
 	/**
 	 * Function to be called back when the EXF2 interrupt event is
 	 * triggered.
 	 */
-	void (code *EXF2)(void);
+	void (code *EXF2)(void) using(1);
 
 	/**
 	 * Function to be called back when the CCTOVF interrupt event is
 	 * triggered.
 	 */
-	void (code *CCTOVF)(void);
+	void (code *CCTOVF)(void) using(1);
 
 	/**
 	 * Function to be called back when the NDOV interrupt event is
 	 * triggered.
 	 */
-	void (code *NDOV)(void);
+	void (code *NDOV)(void) using(1);
 
 	/**
 	 * Function to be called back when the EOFSYN interrupt event is
 	 * triggered.
 	 */
-	void (code *EOFSYN)(void);
+	void (code *EOFSYN)(void) using(1);
 
 	/**
 	 * Function to be called back when the ERRSYN interrupt event is
 	 * triggered.
 	 */
-	void (code *ERRSYN)(void);
+	void (code *ERRSYN)(void) using(1);
 
 	/**
 	 * Function to be called back when the CANSRC0 interrupt event is
 	 * triggered.
 	 */
-	void (code *CANSRC0)(void);
+	void (code *CANSRC0)(void) using(1);
 };
 
 /**
@@ -116,25 +156,25 @@ struct hsk_isr6_callback {
 	 * Function to be called back when the CANSRC1 interrupt event is
 	 * triggered.
 	 */
-	void (code *CANSRC1)(void);
+	void (code *CANSRC1)(void) using(1);
 
 	/**
 	 * Function to be called back when the CANSRC2 interrupt event is
 	 * triggered.
 	 */
-	void (code *CANSRC2)(void);
+	void (code *CANSRC2)(void) using(1);
 
 	/**
 	 * Function to be called back when the ADCSR0 interrupt event is
 	 * triggered.
 	 */
-	void (code *ADCSR0)(void);
+	void (code *ADCSR0)(void) using(1);
 
 	/**
 	 * Function to be called back when the ADCSR1 interrupt event is
 	 * triggered.
 	 */
-	void (code *ADCSR1)(void);
+	void (code *ADCSR1)(void) using(1);
 };
 
 /**
@@ -157,31 +197,31 @@ struct hsk_isr9_callback {
 	 * Function to be called back when the EXINT3/T2CC0 interrupt event is
 	 * triggered.
 	 */
-	void (code *EXINT3)(void);
+	void (code *EXINT3)(void) using(1);
 
 	/**
 	 * Function to be called back when the EXINT4/T2CC1 interrupt event is
 	 * triggered.
 	 */
-	void (code *EXINT4)(void);
+	void (code *EXINT4)(void) using(1);
 
 	/**
 	 * Function to be called back when the EXINT5/T2CC2 interrupt event is
 	 * triggered.
 	 */
-	void (code *EXINT5)(void);
+	void (code *EXINT5)(void) using(1);
 
 	/**
 	 * Function to be called back when the EXINT6/T2CC3 interrupt event is
 	 * triggered.
 	 */
-	void (code *EXINT6)(void);
+	void (code *EXINT6)(void) using(1);
 
 	/**
 	 * Function to be called back when the CANSRC3 interrupt event is
 	 * triggered.
 	 */
-	void (code *CANSRC3)(void);
+	void (code *CANSRC3)(void) using(1);
 };
 
 /**
@@ -204,31 +244,31 @@ struct hsk_isr14_callback {
 	 * Function to be called back when the NMIWDT interrupt event is
 	 * triggered.
 	 */
-	void (code *NMIWDT)(void);
+	void (code *NMIWDT)(void) using(2);
 
 	/**
 	 * Function to be called back when the NMIPLL interrupt event is
 	 * triggered.
 	 */
-	void (code *NMIPLL)(void);
+	void (code *NMIPLL)(void) using(2);
 
 	/**
 	 * Function to be called back when the NMIFLASH interrupt event is
 	 * triggered.
 	 */
-	void (code *NMIFLASH)(void);
+	void (code *NMIFLASH)(void) using(2);
 
 	/**
 	 * Function to be called back when the NMIVDDP interrupt event is
 	 * triggered.
 	 */
-	void (code *NMIVDDP)(void);
+	void (code *NMIVDDP)(void) using(2);
 
 	/**
 	 * Function to be called back when the NMIECC interrupt event is
 	 * triggered.
 	 */
-	void (code *NMIECC)(void);
+	void (code *NMIECC)(void) using(2);
 };
 
 /**
@@ -246,5 +286,12 @@ extern volatile struct hsk_isr14_callback pdata hsk_isr14;
 	#undef code
 	#define code	__code
 #endif /* SDCC */
+
+/*
+ * Restore the usual meaning of \c using(bank).
+ */
+#ifdef __C51__
+	#undef using
+#endif /* __C51__ */
 
 #endif /* _HSK_ISR_H_ */
