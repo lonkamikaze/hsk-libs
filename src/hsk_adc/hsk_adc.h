@@ -18,6 +18,9 @@
  * Making the hsk_adc_service() call only as often as needed reduces the
  * drain on the analogue input and reduces flickering.
  *
+ * Alternatively hsk_adc_request() can be used to request single just in time
+ * conversions.
+ *
  * @author kami
  */
 
@@ -63,9 +66,9 @@ typedef ubyte hsk_adc_channel;
  * All already open channels will be closed upon calling this function.
  *
  * @param resolution
- *	The conversion resolution, any of ADC_RESOLUTION_*.
+ *	The conversion resolution, any of ADC_RESOLUTION_*
  * @param convTime
- *	The desired conversion time in µs.
+ *	The desired conversion time in µs
  */
 void hsk_adc_init(ubyte idata resolution, uword idata convTime);
 
@@ -83,9 +86,9 @@ void hsk_adc_disable(void);
  * Open the given ADC channel.
  *
  * @param channel
- *	The channel id.
+ *	The channel id
  * @param target
- *	A pointer where to store conversion results.
+ *	A pointer where to store conversion results
  */
 void hsk_adc_open(const hsk_adc_channel idata channel,
 	uword * const idata target);
@@ -96,7 +99,7 @@ void hsk_adc_open(const hsk_adc_channel idata channel,
  * Stopp ADC if no more channels were left.
  *
  * @param channel
- *	The channel id.
+ *	The channel id
  */
 void hsk_adc_close(const hsk_adc_channel idata channel);
 
@@ -119,5 +122,19 @@ void hsk_adc_service(void);
  * This function will not terminate unless interrupts are enabled.
  */
 void hsk_adc_warmup(void);
+
+/**
+ * Requests an ADC for a specific channel.
+ *
+ * This function is an alternative to hsk_adc_service(). Make requests
+ * in time before the updated value is required.
+ *
+ * This function uses the same queue as hsk_adc_service(), if the queue is
+ * full it fails silently.
+ *
+ * @param channel
+ *	The channel id
+ */
+void hsk_adc_request(const hsk_adc_channel idata channel);
 
 #endif /* _HSK_ADC_H_ */

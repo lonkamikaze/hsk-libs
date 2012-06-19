@@ -216,7 +216,7 @@ void run(void) {
 
 			hsk_pwm_channel_set(PWM_62, 100, adc7_copy * 5 / 1023 + 5);
 			hsk_pwm_channel_set(PWM_63, 1023, adc7_copy);
-			hsk_adc_service();
+			hsk_adc_request(7);
 			hsk_wdt_service();
 			/*P3_DATA =*/ hsk_pwc_channel_getValue(PWC_CC0, PWC_UNIT_FREQ_S);
 		}		 
