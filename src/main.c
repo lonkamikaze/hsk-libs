@@ -81,7 +81,7 @@ volatile ubyte pdata tick0_count_20 = 10;
 #ifdef SDCC
 #pragma nooverlay
 #endif
-void tick0(void) {
+void tick0(void) using 1 {
 	tick0_count_250++;
 	tick0_count_20++;
 }

@@ -18,6 +18,13 @@
 #endif /* SDCC */
 
 /*
+ * C51 does not include the used register bank in pointer types.
+ */
+#ifdef __C51__
+	#define using(bank)
+#endif
+
+/*
  * SDCC does not like the \c code keyword for function pointers, C51 needs it
  * or it will use generic pointers.
  */
@@ -41,7 +48,7 @@
  *	A function pointer to a callback function.
  */
 void hsk_timer0_setup(const uword idata interval,
-	const void (code * const idata callback)(void));
+	const void (code * const idata callback)(void) using(1));
 
 /**
  * Enables the timer 0 and its interrupt.
@@ -68,7 +75,7 @@ void hsk_timer0_disable(void);
  *	A function pointer to a callback function.
  */
 void hsk_timer1_setup(const uword idata interval,
-	const void (code * const idata callback)(void));
+	const void (code * const idata callback)(void) using(1));
 
 /**
  * Enables the timer 1 and its interrupt.
@@ -87,5 +94,12 @@ void hsk_timer1_disable(void);
 	#undef code
 	#define code	__code
 #endif
+
+/*
+ * Restore the usual meaning of \c using(bank).
+ */
+#ifdef __C51__
+	#undef using
+#endif /* __C51__ */
 
 #endif /* _HSK_TIMER01_H_ */

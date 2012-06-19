@@ -20,6 +20,13 @@
 	#define code
 #endif /* SDCC */
 
+/*
+ * C51 does not include the used register bank in pointer types.
+ */
+#ifdef __C51__
+	#define using(bank)
+#endif
+
 /**
  * IEN0 Timer 0 Overflow Interrupt Enable bit.
  */
@@ -62,7 +69,7 @@ struct {
 	/**
 	 * A callback function pointer used by the ISR.
 	 */
-	void (code *callback)(void);
+	void (code *callback)(void) using(1);
 } pdata hsk_timers[2];
 
 /**
@@ -77,7 +84,7 @@ struct {
  *
  * @private
  */
-void ISR_hsk_timer0(void) interrupt 1 {
+void ISR_hsk_timer0(void) interrupt 1 using 1 {
 	bool rmap = (SYSCON0 >> BIT_RMAP) & 1;
 	RESET_RMAP();
 
@@ -96,7 +103,7 @@ void ISR_hsk_timer0(void) interrupt 1 {
  *
  * @private
  */
-void ISR_hsk_timer1(void) interrupt 3 {
+void ISR_hsk_timer1(void) interrupt 3 using 1 {
 	bool rmap = (SYSCON0 >> BIT_RMAP) & 1;
 	RESET_RMAP();
 
@@ -126,7 +133,7 @@ void ISR_hsk_timer1(void) interrupt 3 {
  * @private
  */
 void hsk_timer01_setup(const ubyte idata id, const uword idata interval,
-		const void (code * const idata callback)(void)) {
+		const void (code * const idata callback)(void) using(1)) {
 	/*
 	 * The timer ticks with PCLK / 2, we want 1µs precission, which is
 	 * up to 1000000 ticks per second.
@@ -150,7 +157,7 @@ void hsk_timer01_setup(const ubyte idata id, const uword idata interval,
 }
 
 void hsk_timer0_setup(const uword idata interval,
-		const void (code * const idata callback)(void)) {
+		const void (code * const idata callback)(void) using(1)) {
 	hsk_timer01_setup(0, interval, callback);
 }
 
@@ -165,7 +172,7 @@ void hsk_timer0_disable(void) {
 }
 
 void hsk_timer1_setup(const uword idata interval,
-		const void (code * const idata callback)(void)) {
+		const void (code * const idata callback)(void) using(1)) {
 	hsk_timer01_setup(1, interval, callback);
 }
 

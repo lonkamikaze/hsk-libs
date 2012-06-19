@@ -188,20 +188,25 @@ void hsk_boot_mem(void) {
 #define BIT_NMIPLL 		1
 
 /**
- * The PDIV value for the configured clock speed.
- *
- * See table 7-5 in the data sheet for desired PDIV values.
- * See the PDIV description for value encoding.
+ * Boot parameter storage for the loss of clock ISR callback.
  */
-ubyte pdata pdiv;
-
-/**
- * The NDIV value for the configured clock speed.
- *
- * See table 7-5 in the data sheet for desired NDIV values.
- * See the NDIV description for value encoding.
- */
-uword pdata ndiv;
+struct {
+	/**
+	 * The PDIV value for the configured clock speed.
+	 *
+	 * See table 7-5 in the data sheet for desired PDIV values.
+	 * See the PDIV description for value encoding.
+	 */
+	ubyte pdiv;
+	
+	/**
+	 * The NDIV value for the configured clock speed.
+	 *
+	 * See table 7-5 in the data sheet for desired NDIV values.
+	 * See the NDIV description for value encoding.
+	 */
+	uword ndiv;
+} pdata hsk_boot;
 
 /**
  * Loss of clock recovery ISR.
@@ -214,7 +219,7 @@ uword pdata ndiv;
 #ifdef SDCC
 #pragma nooverlay
 #endif
-void hsk_nmipll_isr(void) {
+void hsk_boot_isr_nmipll(void) using 2 {
 	/*
 	 * Loop counter for active waiting.
 	 */
@@ -242,11 +247,11 @@ void hsk_nmipll_isr(void) {
 		MAIN_vUnlockProtecReg();
 		OSC_CON	&= ~(1 << BIT_OSCSS);
 		/* Wait for 65 cycles based on internal oscillator frequency. */
+		/* That would be about 4 - 8 loop cycles. A little more does
+		 * not hurt, though. */
+		for (activeWait = 16; activeWait > 0; activeWait--);
 		/* If bit OSC_CON.EXTOSCR is set after 65 internal oscillator
 		 * clock cycles, then: */
-		/* That would be about 4 - 8 cycles, through the loop. That's
-		 * not reliable at all. */
-		for (activeWait = 32; activeWait > 0; activeWait--);
 	} while (!((OSC_CON >> BIT_EXTOSCR) & 0x01));
 
 	/* Select the external oscillator as the source of oscillator
@@ -254,10 +259,10 @@ void hsk_nmipll_isr(void) {
 	MAIN_vUnlockProtecReg();
 	OSC_CON	|= 1 << BIT_OSCSS;
 	/* Reprogram NDIV, PDIV and KDIV values is necessary. */
-	activeWait = (uword)ndiv >> CNT_NDIVL;
+	activeWait = hsk_boot.ndiv >> CNT_NDIVL;
 	MAIN_vUnlockProtecReg();
-	PLL_CON1 = (activeWait << BIT_NDIVH) | (pdiv << BIT_PDIV);
-	activeWait = ndiv & ((1 << CNT_NDIVL) - 1);
+	PLL_CON1 = (activeWait << BIT_NDIVH) | (hsk_boot.pdiv << BIT_PDIV);
+	activeWait = hsk_boot.ndiv & ((1 << CNT_NDIVL) - 1);
 	MAIN_vUnlockProtecReg();
 	PLL_CON = activeWait << BIT_NDIVL;
 
@@ -305,8 +310,8 @@ void hsk_boot_extClock(const ulong idata clk) {
 	 * See table 7-5 in the data sheet for desired NDIV and PDIV values.
 	 * See the NDIV and PDIV descriptions for value encoding.
 	 */
-	ndiv = 144 - 2;
-	pdiv = clk / 1000000UL - 2;
+	hsk_boot.ndiv = 144 - 2;
+	hsk_boot.pdiv = clk / 1000000UL - 2;
 
 	/* Go to page1 where all the oscillator registers are. */
 	SFR_PAGE(_su1, noSST);
@@ -322,9 +327,12 @@ void hsk_boot_extClock(const ulong idata clk) {
 	/* Wait for 1.5 ms until the external oscillator is stable (the delay
 	 * time should be adjusted according to different external oscillators).
 	 */
-	/* That would be about 4 - 8 cycles, through the loop. That's
-	 * not reliable at all. */
-	for (activeWait = 32; activeWait > 0; activeWait--);
+	/* 
+	 * At this point the core is still running with 4MHz, so 1ms (1 really
+	 * ought to be enough) would be 4000 clock cycles. One cycle through
+	 * the active waiting loop can be expected to take around 16clk cycles.
+	 */
+	for (activeWait = 250; activeWait > 0; activeWait--);
 	/* Restart the external oscillator watchdog by setting bit EORDRES. */
 	MAIN_vUnlockProtecReg();
 	OSC_CON |= 1 << BIT_EORDRES;
@@ -337,10 +345,10 @@ void hsk_boot_extClock(const ulong idata clk) {
 	OSC_CON	|= 1 << BIT_OSCSS;
 	/* Program desired NDIV, PDIV and KDIV values. */
 	/* The KDIV value is not touched. */
-	activeWait = (uword)ndiv >> CNT_NDIVL;
+	activeWait = hsk_boot.ndiv >> CNT_NDIVL;
 	MAIN_vUnlockProtecReg();
-	PLL_CON1 = (activeWait << BIT_NDIVH) | (pdiv << BIT_PDIV);
-	activeWait = ndiv & ((1 << CNT_NDIVL) - 1);
+	PLL_CON1 = (activeWait << BIT_NDIVH) | (hsk_boot.pdiv << BIT_PDIV);
+	activeWait = hsk_boot.ndiv & ((1 << CNT_NDIVL) - 1);
 	MAIN_vUnlockProtecReg();
 	PLL_CON = activeWait << BIT_NDIVL;
 
@@ -359,7 +367,7 @@ void hsk_boot_extClock(const ulong idata clk) {
 	SFR_PAGE(_su0, noSST);
 
 	/* Activate PLL Loss of Clock non-maskable interrupt. */
-	hsk_isr14.NMIPLL = &hsk_nmipll_isr;
+	hsk_isr14.NMIPLL = &hsk_boot_isr_nmipll;
 	NMICON |= 1 << BIT_NMIPLL;
 }
 

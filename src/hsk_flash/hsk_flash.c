@@ -497,7 +497,7 @@ volatile ubyte xdata * xdata hsk_flash_xdataDptr;
 #ifdef SDCC
 #pragma nooverlay
 #endif
-void hsk_flash_isr_nmiflash(void) {
+void hsk_flash_isr_nmiflash(void) using 2 {
 	SET_RMAP();
 
 	switch(hsk_flash.state) {

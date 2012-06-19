@@ -101,7 +101,7 @@ volatile struct {
 #ifdef SDCC
 #pragma nooverlay
 #endif
-void hsk_pwc_isr_ccn(const hsk_pwc_channel idata channel, uword idata capture) {
+void hsk_pwc_isr_ccn(const hsk_pwc_channel idata channel, uword idata capture) using 1 {
 	#define channel	hsk_pwc_channels[channel]
 	/* Get the new value and store the current capture value for next
 	 * time. */
@@ -126,7 +126,7 @@ void hsk_pwc_isr_ccn(const hsk_pwc_channel idata channel, uword idata capture) {
  *
  * @private
  */
-void hsk_pwc_isr_cc0(void) {
+void hsk_pwc_isr_cc0(void) using 1 {
 	SFR_PAGE(_t2_2, SST1);
 	hsk_pwc_isr_ccn(0, T2CCU_CC0LH);
 	SFR_PAGE(_t2_2, RST1);
@@ -138,7 +138,7 @@ void hsk_pwc_isr_cc0(void) {
  *
  * @private
  */
-void hsk_pwc_isr_cc1(void) {
+void hsk_pwc_isr_cc1(void) using 1 {
 	SFR_PAGE(_t2_2, SST1);
 	hsk_pwc_isr_ccn(1, T2CCU_CC1LH);
 	SFR_PAGE(_t2_2, RST1);
@@ -150,7 +150,7 @@ void hsk_pwc_isr_cc1(void) {
  *
  * @private
  */
-void hsk_pwc_isr_cc2(void) {
+void hsk_pwc_isr_cc2(void) using 1 {
 	SFR_PAGE(_t2_2, SST1);
 	hsk_pwc_isr_ccn(2, T2CCU_CC2LH);
 	SFR_PAGE(_t2_2, RST1);
@@ -162,7 +162,7 @@ void hsk_pwc_isr_cc2(void) {
  *
  * @private
  */
-void hsk_pwc_isr_cc3(void) {
+void hsk_pwc_isr_cc3(void) using 1 {
 	SFR_PAGE(_t2_3, SST1);
 	hsk_pwc_isr_ccn(3, T2CCU_CC3LH);
 	SFR_PAGE(_t2_3, RST1);
@@ -177,7 +177,7 @@ void hsk_pwc_isr_cc3(void) {
  *
  * @private
  */
-void hsk_pwc_isr_cctOverflow(void) {
+void hsk_pwc_isr_cctOverflow(void) using 1 {
 	hsk_pwc_overflow++;
 }
 #pragma restore
