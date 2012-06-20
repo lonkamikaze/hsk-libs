@@ -260,6 +260,20 @@ void hsk_can_msg_setData(const hsk_can_msg idata msg,
  */
 void hsk_can_msg_send(const hsk_can_msg idata msg);
 
+
+/**
+ * Return whether the message was successfully sent between this and the
+ * previous call of this method.
+ *
+ * @param msg
+ * 	The identifier of the message to check
+ * @retval 1
+ *	The message was sent since the last call of this function
+ * @retval 0
+ *	The message has not been sent since the last call of this function
+ */
+bool hsk_can_msg_sent(const hsk_can_msg idata msg);
+
 /**
  * Return the message into RX mode after sending a message.
  *
