@@ -44,14 +44,14 @@ void hsk_wdt_init(const uword idata window) {
 	 * 256 is the overflow value of WDTH, \f$ 32 / 15 \f$ is the
 	 * overflow time of the low byte \f$ 256 / 120 \f$.
 	 */
-	if (window < 256 * 32 / 15) {
+	if (window <= 256 * 32 / 15) {
 		WDTCON &= ~(1 << BIT_WDTIN);
 		/* Set the reload value. */
-		WDTREL = 255 - window * 15 / 32;
+		WDTREL = - (window * 15 + 16) / 32;
 	} else {
 		WDTCON |= 1 << BIT_WDTIN;
 		/* Set the reload value. */
-		WDTREL = 255 - window / 64 * 15 / 32;
+		WDTREL = - (window / 64 * 15 + 16) / 32;
 	}
 
 	RESET_RMAP();
@@ -65,32 +65,40 @@ void hsk_wdt_init(const uword idata window) {
 #define	BIT_WDTEN	2
 
 void hsk_wdt_enable(void) {
+	bool ea = EA;
+
 	SFR_PAGE(_su1, noSST);
+	EA = 0;
 	MAIN_vUnlockProtecReg();
 	SET_RMAP();
 	WDTCON |= 1 << BIT_WDTEN;
-	RESET_RMAP();
+	EA = ea;
 	SFR_PAGE(_su0, noSST);
+	RESET_RMAP();
 }
 
 void hsk_wdt_disable(void) {
+	bool ea = EA;
+
 	SFR_PAGE(_su1, noSST);
+	EA = 0;
 	MAIN_vUnlockProtecReg();
 	SET_RMAP();
 	WDTCON &= ~(1 << BIT_WDTEN);
-	RESET_RMAP();
+	EA = ea;
 	SFR_PAGE(_su0, noSST);
+	RESET_RMAP();
 }
 
 /**
  * WDTCON WDT Refresh Start bit.
  */
-#define	BIT_WDTRES	1
+#define	BIT_WDTRS	1
 
 void hsk_wdt_service(void) {
 	SET_RMAP();
-	/* Set the watchdog timer reset (WDTRES) bit. */
-	WDTCON |= 1 << BIT_WDTRES;
+	/* Set the watchdog timer refresh (WDTRS) bit. */
+	WDTCON |= 1 << BIT_WDTRS;
 	RESET_RMAP();
 }
 
