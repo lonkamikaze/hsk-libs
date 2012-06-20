@@ -673,6 +673,11 @@ void hsk_can_disable(const hsk_can_node idata node) {
 #define BIT_RXPND		0
 
 /**
+ * MOCTRn/MOSTATn Transmit Pending bit.
+ */
+#define BIT_TXPND		1
+
+/**
  * MOCTRn/MOSTATn Message Valid bit.
  */
 #define BIT_MSGVAL		5
@@ -1016,6 +1021,22 @@ void hsk_can_msg_send(const hsk_can_msg idata msg) {
 	SET_DATA = (1 << BIT_TXEN0) | (1 << BIT_TXEN1) | (1 << BIT_TXRQ) | (1 << BIT_DIR);
 	RESET_DATA = (1 << BIT_RXEN);
 	CAN_AD_WRITE(0xF);
+}
+
+bool hsk_can_msg_sent(const hsk_can_msg idata msg) {
+
+	/* Get the message status. */
+	CAN_ADLH = MOSTATn + (msg << OFF_MOn);
+	CAN_AD_READ();
+	if (!((CAN_DATA0 >> BIT_TXPND) & 1)) {
+		return 0;
+	}
+
+	/* Reset the TXPND bit. */
+	RESET_DATA = 1 << BIT_TXPND;
+	CAN_AD_WRITE(RESET);
+
+	return 1;
 }
 
 void hsk_can_msg_receive(const hsk_can_msg idata msg) {
