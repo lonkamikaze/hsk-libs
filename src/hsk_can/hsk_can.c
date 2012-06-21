@@ -1474,6 +1474,11 @@ void hsk_can_data_setMotorolaSignal(ubyte * const idata msg,
 void hsk_can_data_setSignal(ubyte * const idata msg, const bool endian,
 		const bool sign, const ubyte idata bitPos,
 		const char idata bitCount, const ulong idata value) {
+	/**
+	 * The sign parameter is not required for setting signals, it is just
+	 * there so that one signal configuration tuple suffices for
+	 * hsk_can_data_setSignal() and hsk_can_data_getSignal().
+	 */
 	/* Shut up the compiler about unused parameters. */
 	sign;
 
@@ -1492,6 +1497,8 @@ void hsk_can_data_setSignal(ubyte * const idata msg, const bool endian,
  *
  * @param msg
  * 	The message data field to read from
+ * @param sign
+ *	Indicates whether the value has a signed type
  * @param bitPos
  * 	The bit position of the signal
  * @param bitCount
@@ -1526,6 +1533,8 @@ ulong hsk_can_data_getIntelSignal(const ubyte * const idata msg,
  *	For details on the difference between big and little endian
  * @param msg
  * 	The message data field to read from
+ * @param sign
+ *	Indicates whether the value has a signed type
  * @param bitPos
  * 	The bit position of the signal
  * @param bitCount

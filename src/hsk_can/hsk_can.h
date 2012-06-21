@@ -526,6 +526,8 @@ void hsk_can_fifo_getData(const hsk_can_fifo idata fifo,
  * 	The message data field to write into
  * @param endian
  *	Little or big endian encoding
+ * @param sign
+ *	Indicates whether the value has a signed type
  * @param bitPos
  * 	The bit position of the signal
  * @param bitCount
@@ -544,6 +546,8 @@ void hsk_can_data_setSignal(ubyte * const idata msg, const bool endian,
  * 	The message data field to read from
  * @param endian
  *	Little or big endian encoding
+ * @param sign
+ *	Indicates whether the value has a signed type
  * @param bitPos
  * 	The bit position of the signal
  * @param bitCount
