@@ -88,6 +88,11 @@ volatile uword * pdata hsk_adc_targets[ADC_CHANNELS];
 #define BIT_TREV		6
 
 /**
+ * ADC_GLOBCTR Data Width bit.
+ */
+#define BIT_DW			6
+
+/**
  * Write the conversion result to the targeted memory address.
  *
  * @private
@@ -103,17 +108,24 @@ void hsk_adc_isr(void) using 1 {
 	/* Read the result. */
 	SFR_PAGE(_ad2, SST1);
 	result = ADC_RESR0LH;
-	SFR_PAGE(_ad2, RST1);
 
 	/*
 	 * Deliver the conversion result.
 	 */
 	/* Extract the channel. */
+	SFR_PAGE(_ad0, noSST);
 	channel = (result >> BIT_CHNR) & ((1 << CNT_CHNR) - 1);
+	if (((ADC_GLOBCTR >> BIT_DW) & 1) == ADC_RESOLUTION_10) {
+		result = (result >> BIT_RESULT) & ((1 << CNT_RESULT) - 1);
+	} else {
+		result = (result >> (BIT_RESULT + 2)) & ((1 << (CNT_RESULT - 2)) - 1);
+	}
+	SFR_PAGE(_ad2, RST1);
+
 	/* Deliver result to the target address. */
 	if (hsk_adc_targets[channel]) {
 		/* Get the result bits and deliver them. */
-		*hsk_adc_targets[channel] = (result >> BIT_RESULT) & ((1 << CNT_RESULT) - 1);
+		*hsk_adc_targets[channel] = result;
 	}
 }
 #pragma restore
@@ -127,11 +139,6 @@ void hsk_adc_isr(void) using 1 {
  * CTC bit count.
  */
 #define CNT_CTC			2
-
-/**
- * ADC_GLOBCTR Data Width bit.
- */
-#define BIT_DW			6
 
 /**
  * ADC_PRAR Arbitration Slot Sequential Enable bit.
