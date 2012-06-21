@@ -1472,8 +1472,11 @@ void hsk_can_data_setMotorolaSignal(ubyte * const idata msg,
 }
 
 void hsk_can_data_setSignal(ubyte * const idata msg, const bool endian,
-		const ubyte idata bitPos, const char idata bitCount,
-		const ulong idata value) {
+		const bool sign, const ubyte idata bitPos,
+		const char idata bitCount, const ulong idata value) {
+	/* Shut up the compiler about unused parameters. */
+	sign;
+
 	switch((ubyte)endian) {
 	case CAN_ENDIAN_INTEL:
 		hsk_can_data_setIntelSignal(msg, bitPos, bitCount, value);
@@ -1498,7 +1501,7 @@ void hsk_can_data_setSignal(ubyte * const idata msg, const bool endian,
  * @private
  */
 ulong hsk_can_data_getIntelSignal(const ubyte * const idata msg,
-		ubyte idata bitPos, char idata bitCount) {
+		const bool sign, ubyte idata bitPos, char idata bitCount) {
 	ulong value = 0;
 	ubyte shift = 0;
 	while (bitCount > 0) {
@@ -1508,6 +1511,10 @@ ulong hsk_can_data_getIntelSignal(const ubyte * const idata msg,
 		bitCount -= 8 - (bitPos % 8);
 		shift += 8 - (bitPos % 8);
 		bitPos += 8 - (bitPos % 8);
+	}
+
+	if (sign && (value >> (shift + bitCount - 1))) {
+		return ((-1) << (shift + bitCount)) | value;
 	}
 	return value;
 }
@@ -1528,8 +1535,9 @@ ulong hsk_can_data_getIntelSignal(const ubyte * const idata msg,
  * @private
  */
 ulong hsk_can_data_getMotorolaSignal(const ubyte * const idata  msg,
-		ubyte idata bitPos, char idata bitCount) {
+		const bool sign, ubyte idata bitPos, char idata bitCount) {
 	ulong value = 0;
+	ubyte shift = bitCount;
 	char bits;
 
 	while (bitCount > 0) {
@@ -1537,22 +1545,26 @@ ulong hsk_can_data_getMotorolaSignal(const ubyte * const idata  msg,
 		bits = bitPos % 8 + 1;
 		bits = bits < bitCount ? bits : bitCount;
 		/* Get the most significant bits. */
-		value |= ((msg[bitPos / 8] >> (bitPos % 8 + 1 - bits)) & ((1 << bits) - 1)) << (bitCount - bits);
-		/* Get the next bit position. */
 		bitCount -= bits;
+		value |= ((msg[bitPos / 8] >> (bitPos % 8 + 1 - bits)) & ((1 << bits) - 1)) << bitCount;
+		/* Get the next bit position. */
 		bitPos = (bitPos & ~(0x07)) + 15;
 	}
 
+	if (sign && (value >> (shift - 1))) {
+		return ((-1) << shift) | value;
+	}
 	return value;
 }
 
 ulong hsk_can_data_getSignal(const ubyte * const idata msg, const bool endian,
-		const ubyte idata bitPos, const char idata bitCount) {
+		const bool sign, const ubyte idata bitPos,
+		const char idata bitCount) {
 	switch((ubyte)endian) {
 	case CAN_ENDIAN_INTEL:
-		return hsk_can_data_getIntelSignal(msg, bitPos, bitCount);
+		return hsk_can_data_getIntelSignal(msg, sign, bitPos, bitCount);
 	case CAN_ENDIAN_MOTOROLA:
-		return hsk_can_data_getMotorolaSignal(msg, bitPos, bitCount);
+		return hsk_can_data_getMotorolaSignal(msg, sign, bitPos, bitCount);
 	default:
 		/* This cannot actually happen. */
 		return CAN_ERROR;
