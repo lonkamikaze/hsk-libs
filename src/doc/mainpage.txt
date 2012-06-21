@@ -669,6 +669,9 @@ This is my (\ref authors "kami") personal preference, and thus has found its way
 more than 10000 lines of HSK code. It won't be changed just because you
 prefer 4 spaces wide tabs or tabs converted to spaces (you sicko!).
 
+\image html img/keil_configuration_Editor.png "Keil µVision Editor tab of the configuration dialogue"
+\image latex img/keil_configuration_Editor.png "Keil µVision Editor tab of the configuration dialogue" width=10cm
+
 \section conventions_comments General Comment Guidlines
 
 Every member is to be documented in one of the following manners:
