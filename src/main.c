@@ -187,8 +187,8 @@ void run(void) {
 	ubyte xdata buffer[8];
 	uword adc7_copy;
 
-	hsk_can_data_setSignal(buffer, CAN_ENDIAN_MOTOROLA, 3, 16, 0x1234);
-	adc7_copy = hsk_can_data_getSignal(buffer, CAN_ENDIAN_MOTOROLA, 3, 16);
+	hsk_can_data_setSignal(buffer, CAN_ENDIAN_MOTOROLA, 0, 3, 16, 0x1234);
+	adc7_copy = hsk_can_data_getSignal(buffer, CAN_ENDIAN_MOTOROLA, 0, 3, 16);
 
 	hsk_icm7228_writeHex(buffer, 123, -1, 0, 5);
 
@@ -230,7 +230,7 @@ void run(void) {
 			EADC = 1;
 
 			//P3_DATA ^= 0x30;
-			hsk_can_data_setSignal(data0, CAN_ENDIAN_MOTOROLA, 7, 16, adc7_copy);
+			hsk_can_data_setSignal(data0, CAN_ENDIAN_MOTOROLA, 0, 7, 16, adc7_copy);
 			hsk_can_msg_setData(msg0, data0);
 			hsk_can_msg_send(msg0);
 		}

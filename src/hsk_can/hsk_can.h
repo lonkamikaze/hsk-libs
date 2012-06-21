@@ -534,8 +534,8 @@ void hsk_can_fifo_getData(const hsk_can_fifo idata fifo,
  * 	The signal value to write into the data field
  */
 void hsk_can_data_setSignal(ubyte * const idata msg, const bool endian,
-	const ubyte idata bitPos, const char idata bitCount,
-	const ulong idata value);
+	const bool sign, const ubyte idata bitPos,
+	const char idata bitCount, const ulong idata value);
 
 /**
  * Get a signal value from a data field.
@@ -552,6 +552,7 @@ void hsk_can_data_setSignal(ubyte * const idata msg, const bool endian,
  *	The signal from the data field msg
  */
 ulong hsk_can_data_getSignal(const ubyte * const idata msg, const bool endian,
-	const ubyte idata bitPos, const char idata bitCount);
+	const bool sign, const ubyte idata bitPos,
+	const char idata bitCount);
 
 #endif /* _HSK_CAN_H_ */
