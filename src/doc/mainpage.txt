@@ -172,7 +172,7 @@ Variables are declared in \c xdata with the following syntax:
 The first 256 bytes of \c xdata memory are also accessible as 8 bit addressed
 \c pdata. Using \c pdata is faster than \c xdata. The \c p in \c pdata
 stands for paged. Historically the 8052 family of µCs used register \c P2
-for paging. The XC878 instead provides an SFR name XADDRH.
+for paging. The XC878 instead provides an SFR named XADDRH.
 
 However current 8051 C compilers don't support paging. I.e. one would have to
 ensure that structs and buffers do not cross page borders and update \c XADDRH
