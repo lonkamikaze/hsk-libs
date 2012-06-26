@@ -50,7 +50,7 @@ hsk_adc_channel xdata hsk_adc_nextChannel = ADC_CHANNELS;
 /**
  * An array of target addresses to write conversion results into.
  */
-volatile uword * pdata hsk_adc_targets[ADC_CHANNELS];
+volatile uword * pdata hsk_adc_targets[ADC_CHANNELS] = {0};
 
 /**
  * ADC_RESRxL Channel Number bits.
@@ -352,12 +352,10 @@ void hsk_adc_service(void) {
 void hsk_adc_request(const hsk_adc_channel idata channel) {
 	/* Check for empty slots in the queue. */
 	SFR_PAGE(_ad6, noSST);
-	if (ADC_QSR0 & (1 << BIT_EMPTY) || (ADC_QSR0 >> BIT_FILL) & ((1 << CNT_FILL) - 1) ^ ((1 << CNT_FILL) - 1)) {
-		/* Set next channel. */
-		ADC_QINR0 = ADC_QINR0 & ~((1 << CNT_REQCHNR) - 1) | (channel << BIT_REQCHNR);
-		/* Request next conversion. */
-		ADC_QMR0 |= 1 << BIT_TREV;
-	}
+	/* Set next channel. */
+	ADC_QINR0 = ADC_QINR0 & ~((1 << CNT_REQCHNR) - 1) | (channel << BIT_REQCHNR);
+	/* Request next conversion. */
+	ADC_QMR0 |= 1 << BIT_TREV;
 	SFR_PAGE(_ad0, noSST);
 }
 
