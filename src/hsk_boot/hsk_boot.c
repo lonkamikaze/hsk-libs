@@ -337,6 +337,7 @@ void hsk_boot_extClock(const ulong idata clk) {
 	MAIN_vUnlockProtecReg();
 	OSC_CON |= 1 << BIT_EORDRES;
 	/* Wait for 65 cycles based on internal oscillator frequency. */
+	for (activeWait = 16; activeWait > 0; activeWait--);
 	/* Wait until EXTOSCR is set. */
 	while (!((OSC_CON >> BIT_EXTOSCR) & 0x01));
 	/* The source of external oscillator is selected by setting bit OSCSS.
