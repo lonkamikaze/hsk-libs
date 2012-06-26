@@ -1480,7 +1480,7 @@ void hsk_can_data_setSignal(ubyte * const idata msg, const bool endian,
 	 * hsk_can_data_setSignal() and hsk_can_data_getSignal().
 	 */
 	/* Shut up the compiler about unused parameters. */
-	sign;
+	if (sign);
 
 	switch((ubyte)endian) {
 	case CAN_ENDIAN_INTEL:
