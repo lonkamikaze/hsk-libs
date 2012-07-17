@@ -779,9 +779,8 @@ __endasm;
 	 *   "Erase Operation" from the XC878 UM 1.1.
 	 */
 	case STATE_DELETE:
-		/* Set program flash timer mode, 5µs for an overflow. */
-		FTVAL &= ~(1 << BIT_MODE);
 	state_delete:
+		/* Set program flash timer mode, 5µs for an overflow. */
 		FTVAL &= ~(1 << BIT_MODE);
 		hsk_flash.state = STATE_DELETE;
 		/* 1.
