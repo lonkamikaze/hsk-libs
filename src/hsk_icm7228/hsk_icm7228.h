@@ -128,6 +128,20 @@ void prefix##_writeHex(const uword idata value, const char idata power, \
 		const ubyte idata pos, const ubyte idata len) {\
 	hsk_icm7228_writeHex(prefix##_buffer, value, power, pos, len); \
 } \
+\
+/** Illuminate a number of segments in \ref prefix##_buffer.
+@param segments
+	The number of segments to illuminate
+@param pos
+	The target position in the buffer
+@param len
+	The number of digits available to encode the number
+@see ICM7228_FACTORY
+@see hsk_icm7228_illuminate */\
+void prefix##_illuminate(const ubyte idata segments, const ubyte idata pos, \
+		const ubyte idata len) {\
+	hsk_icm7228_illuminate(prefix##_buffer, segments, pos, len); \
+} \
 
 /**
  * Convert an ASCII string to 7 segment encoding and store it in an xdata
@@ -204,7 +218,22 @@ void hsk_icm7228_writeDec(ubyte xdata * const idata buffer, uword idata value,
  *	The number of digits available to encode the number
  */
 void hsk_icm7228_writeHex(ubyte xdata * const idata buffer, uword idata value,
-		char idata power, const ubyte idata pos, ubyte idata len);
+	char idata power, const ubyte idata pos, ubyte idata len);
+
+/**
+ * Illumante the given number of segments.
+ *
+ * @param buffer
+ *	The target buffer for the encoded string
+ * @param segments
+ *	The number of segments to illuminate
+ * @param pos
+ *	The target position in the buffer
+ * @param len
+ *	The number of digits available to encode the number
+ */
+void hsk_icm7228_illuminate(ubyte xdata * const idata buffer,
+	ubyte idata segments, ubyte idata pos, ubyte idata len);
 
 #endif /* _HSK_ICM7228_H_ */
 
