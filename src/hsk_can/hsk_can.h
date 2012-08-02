@@ -154,6 +154,108 @@ void hsk_can_enable(const hsk_can_node idata node);
  */
 void hsk_can_disable(const hsk_can_node idata node);
 
+/**
+ * \defgroup CAN_STATUS CAN Node Status Fields
+ *
+ * This group of defines specifies status fields that can be queried from
+ * hsk_can_status().
+ *
+ * @{
+ */
+
+/**
+ * The Last Error Code field provides the error triggered by the last message
+ * on the bus.
+ *
+ * For details check table 16-8 from the User Manual 1.1.
+ *
+ * @retval 0
+ *	No Error
+ * @retval 1
+ *	Stuff Error, 5 consecutive bits of the same value are stuffed, this
+ *	error is triggered when the stuff bit is missing
+ * @retval 2
+ *	Form Error, the frame format was violated
+ * @retval 3
+ *	Ack Error, the message was not acknowledged, maybe nobody else
+ *	is on the bus
+ * @retval 4
+ *	Bit1 Error, a recessive (1) bit was sent out of sync
+ * @retval 5
+ *	Bit0 Error, a recessive (1) bit won against a dominant (0) bit
+ * @retval 6
+ *	CRC Error, wrong checksum for a received message
+ */
+#define CAN_STATUS_LEC		0
+
+/**
+ * Message Transmitted Successfully.
+ *
+ * @retval 0
+ *	No successful transmission since TXOK was queried last time
+ * @retval 1
+ *	A message was transmitted and acknowledged successfully
+ */
+#define CAN_STATUS_TXOK		1
+
+/**
+ * Message Received Successfully.
+ *
+ * @retval 0
+ *	No successful receptions since the last time this field was queried
+ * @retval 1
+ *	A message was received successfully
+ */
+#define CAN_STATUS_RXOK		2
+
+/**
+ * Alert Warning.
+ *
+ * @retval 0
+ *	No warnings
+ * @retval 1
+ *	One of the following error conditions applies: \ref CAN_STATUS_EWRN;
+ *	\ref CAN_STATUS_BOFF
+ */
+#define CAN_STATUS_ALERT	3
+
+/**
+ * Error Warning Status.
+ *
+ * @retval 0
+ *	No error warnings exceeded
+ * @retval 1
+ *	An error counter has exceeded the warning level of 96
+ */
+#define CAN_STATUS_EWRN		4
+
+/**
+ * Bus-off Status
+ *
+ * @retval 0
+ *	The bus is not off
+ * @retval 1
+ *	The bus is turned off due to an error counter exceeding 256
+ */
+#define CAN_STATUS_BOFF		5
+
+/**
+ * @}
+ */
+
+/**
+ * Returns a status field of a CAN node.
+ *
+ * @param node
+ * 	The CAN node to return the status of
+ * @param field
+ *	The status field to select
+ * @return
+ *	The status field state
+ * @see \ref CAN_STATUS
+ */
+ubyte hsk_can_status(const hsk_can_node idata node, const ubyte idata field);
+
 /** \file
  * \section CAN Message Object Management
  *
