@@ -1,6 +1,6 @@
 #ifndef _HSK_TIMER01_ISR_
 #define _HSK_TIMER01_ISR_
-void ISR_hsk_timer0(void) interrupt 1;
-void ISR_hsk_timer1(void) interrupt 3;
+void ISR_hsk_timer0(void) interrupt 1 using 1;
+void ISR_hsk_timer1(void) interrupt 3 using 1;
 #endif /* _HSK_TIMER01_ISR_ */
 
