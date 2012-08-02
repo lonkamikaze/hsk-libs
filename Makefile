@@ -55,12 +55,14 @@ html/dev: doc-private
 doc: ${USERSRC} doxygen.public.conf
 	@rm -rf doc || true
 	@mkdir -p doc
+	@echo PROJECT_NAME=\"${PROJECT}-user\" >> doc/.conf
 	@echo PROJECT_NUMBER=${VERSION} >> doc/.conf
 	@cat doxygen.public.conf doc/.conf | doxygen -
 
 doc-private: ${DEVSRC} doxygen.public.conf doxygen.private.conf
 	@rm -rf doc-private || true
 	@mkdir -p doc-private
+	@echo PROJECT_NAME=\"${PROJECT}-dev\" >> doc-private/.conf
 	@echo PROJECT_NUMBER=${VERSION} >> doc-private/.conf
 	@cat doxygen.public.conf doxygen.private.conf doc-private/.conf \
 		| doxygen -
