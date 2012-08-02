@@ -30,6 +30,21 @@ BEGIN {RS = ";"}
 	overlays[$0]
 }
 
+# Catch external interrupts
+/^hsk_ex_channel_enable\(EX_EXINT[2-6],.*,&[[:alnum:]_]+\)$/ {
+	chan = $0
+	sub(/.*EX_EXINT/, "", nr)
+	sub(/,.*/, "", nr)
+	if (nr == 2) {
+		nr = 8
+	} else {
+		nr = 9
+	}
+	sub(/.*,&/, "ISR_hsk_isr!" nr)
+	sub(/\)$/, "")
+	overlays[$0]
+}
+
 END {
 	# Group overlays
 	for (overlay in overlays) {

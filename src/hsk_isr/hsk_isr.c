@@ -213,6 +213,123 @@ void ISR_hsk_isr6(void) interrupt 6 using 1 {
 }
 
 /**
+ * Define callback function pointers for ISR 8.
+ */
+volatile struct hsk_isr8_callback pdata hsk_isr8 = {&dummy, &dummy, &dummy, &dummy, &dummy, &dummy, &dummy, &dummy, &dummy};
+
+
+/**
+ * IRCON0 Interrupt Flag for External Interrupt 2 bit.
+ */
+#define BIT_EXINT2	2
+
+/**
+ * SCON Serial Interface Receiver Interrupt Flag.
+ */
+#define BIT_RI		0
+
+/**
+ * SCON Serial Interface Transmitter Interrupt Flag.
+ */
+#define BIT_TI		1
+
+/**
+ * T2_T2CON Timer 2 Overflow/Underflow Flag.
+ */
+#define BIT_TF2		7
+
+/**
+ * T2_T2CON Timer 2 External Flag.
+ */
+#define BIT_EXF2	6
+
+/**
+ * FDCON Overflow Flag in Normal Divider Mode.
+ */
+#define BIT_NDOV	2
+
+/**
+ * CD_STATC End of Calculation Flag.
+ */
+#define BIT_EOC		2
+
+/**
+ * MDU_MDUSTAT Interrupt on Result Ready bit.
+ */
+#define BIT_IRDY	0
+
+/**
+ * MDU_MDUSTAT Interrupt on Error bit.
+ */
+#define BIT_IERR	1
+
+/**
+ * Shared interrupt 8 routine.
+ *
+ * Activate the interrupt by setting EX2 = 1.
+ *
+ * This interrupt has the following sources:
+ *	- External Interrupt 2 (EXINT2)
+ *	- UART1 (RI)
+ *	- UART1 (TI)
+ *	- Timer 21 Overflow (TF2)
+ *	- T21EX (EXF2)
+ *	- UART1 Fractional Divider (Normal Divider Overflow) (NDOV)
+ *	- CORDIC (EOC)
+ *	- MDU Result Ready (IRDY)
+ *	- MDU Error (IERR)
+ *
+ * @private
+ */
+void ISR_hsk_isr8(void) interrupt 8 using 1 {
+	bool rmap = (SYSCON0 >> BIT_RMAP) & 1;
+	RESET_RMAP();
+
+	SFR_PAGE(_su0, SST0);
+	if (IRCON0 & (1 << BIT_EXINT2)) {
+		hsk_isr8.EXINT2();
+	}
+	if (FDCON & (1 << BIT_NDOV)) {
+		hsk_isr8.NDOV();
+	}
+	SFR_PAGE(_su0, RST0);
+
+	if (SCON & (1 << BIT_RI)) {
+		hsk_isr8.RI();
+	}
+	if (SCON & (1 << BIT_TI)) {
+		hsk_isr8.TI();
+	}
+
+	SFR_PAGE(_t2_0, SST0);
+	if (T2_T2CON & (1 << BIT_TF2)) {
+		hsk_isr8.TF2();
+	}
+	if (T2_T2CON & (1 << BIT_EXF2)) {
+		hsk_isr8.EXF2();
+	}
+	SFR_PAGE(_t2_0, RST0);
+
+	SET_RMAP();
+	if (CD_STATC & (1 << BIT_EOC)) {
+		RESET_RMAP();
+		hsk_isr8.EOC();
+	}
+	SET_RMAP();
+	if (MDU_MDUSTAT & (1 << BIT_IRDY)) {
+		RESET_RMAP();
+		hsk_isr8.IRDY();
+	}
+	SET_RMAP();
+	if (MDU_MDUSTAT & (1 << BIT_IERR)) {
+		RESET_RMAP();
+		hsk_isr8.IERR();
+	}
+
+	rmap ? (SET_RMAP()) : (RESET_RMAP());
+}
+
+/**
  * Define callback function pointers for ISR 9.
  */
 volatile struct hsk_isr9_callback pdata hsk_isr9 = {&dummy, &dummy, &dummy, &dummy, &dummy};

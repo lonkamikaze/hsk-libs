@@ -183,6 +183,81 @@ struct hsk_isr6_callback {
 extern volatile struct hsk_isr6_callback pdata hsk_isr6;
 
 /**
+ * Shared interrupt 8 routine. Activate the interrupt by setting EX2 = 1.
+ *
+ * This interrupt has the following sources:
+ *	- External Interrupt 2 (EXINT2)
+ *	- UART1 (RI)
+ *	- UART1 (TI)
+ *	- Timer 21 Overflow (TF2)
+ *	- T21EX (EXF2)
+ *	- UART1 Fractional Divider (Normal Divider Overflow) (NDOV)
+ *	- CORDIC (EOC)
+ *	- MDU Result Ready (IRDY)
+ *	- MDU Error (IERR)
+ */
+struct hsk_isr8_callback {
+	/**
+	 * Function to be called back when the EXINT2 interrupt event is
+	 * triggered.
+	 */
+	void (code *EXINT2)(void) using(1);
+
+	/**
+	 * Function to be called back when the RI interrupt event is
+	 * triggered.
+	 */
+	void (code *RI)(void) using(1);
+
+	/**
+	 * Function to be called back when the TI interrupt event is
+	 * triggered.
+	 */
+	void (code *TI)(void) using(1);
+
+	/**
+	 * Function to be called back when the TF2 interrupt event is
+	 * triggered.
+	 */
+	void (code *TF2)(void) using(1);
+
+	/**
+	 * Function to be called back when the EXF2 interrupt event is
+	 * triggered.
+	 */
+	void (code *EXF2)(void) using(1);
+
+	/**
+	 * Function to be called back when the NDOV interrupt event is
+	 * triggered.
+	 */
+	void (code *NDOV)(void) using(1);
+
+	/**
+	 * Function to be called back when the EOC interrupt event is
+	 * triggered.
+	 */
+	void (code *EOC)(void) using(1);
+
+	/**
+	 * Function to be called back when the IRDY interrupt event is
+	 * triggered.
+	 */
+	void (code *IRDY)(void) using(1);
+
+	/**
+	 * Function to be called back when the IERR interrupt event is
+	 * triggered.
+	 */
+	void (code *IERR)(void) using(1);
+};
+
+/**
+ * Introduce callback function pointers for ISR 8.
+ */
+extern volatile struct hsk_isr8_callback pdata hsk_isr8;
+
+/**
  * Shared interrupt 9 routine. Activate the interrupt by setting EXM = 1.
  *
  * This interrupt has the following sources:
