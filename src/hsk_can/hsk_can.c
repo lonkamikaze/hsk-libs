@@ -589,6 +589,45 @@ void hsk_can_disable(const hsk_can_node idata node) {
 	CAN_AD_WRITE(0x1);		
 }
 
+ubyte hsk_can_status(const hsk_can_node idata node, const ubyte idata field) {
+	ubyte status = -1;
+
+	/* Get the Node x Status Register. */
+	CAN_ADLH = NSRx + (node << OFF_NODEx);
+	CAN_AD_READ();
+
+	switch (field) {
+	case CAN_STATUS_LEC:
+		status = CAN_DATA0 & 0x7;
+		break;
+	case CAN_STATUS_TXOK:
+		status = (CAN_DATA0 >> 3) & 1;
+		CAN_DATA0 &= ~(1 << 3);
+		CAN_AD_WRITE(0x1);
+		break;
+	case CAN_STATUS_RXOK:
+		status = (CAN_DATA0 >> 4) & 1;
+		CAN_DATA0 &= ~(1 << 4);
+		CAN_AD_WRITE(0x1);
+		break;
+	case CAN_STATUS_ALERT:
+		status = (CAN_DATA0 >> 5) & 1;
+		CAN_DATA0 &= ~(1 << 5);
+		CAN_AD_WRITE(0x1);
+		break;
+	case CAN_STATUS_EWRN:
+		status = (CAN_DATA0 >> 6) & 1;
+		CAN_DATA0 &= ~(1 << 6);
+		CAN_AD_WRITE(0x1);
+		break;
+	case CAN_STATUS_BOFF:
+		status = (CAN_DATA0 >> 7) & 1;
+		break;
+	}
+
+	return status;
+}
+
 /** \file
  * \section lists CAN List Management
  * 
