@@ -33,14 +33,14 @@ BEGIN {RS = ";"}
 # Catch external interrupts
 /^hsk_ex_channel_enable\(EX_EXINT[2-6],.*,&[[:alnum:]_]+\)$/ {
 	chan = $0
-	sub(/.*EX_EXINT/, "", nr)
-	sub(/,.*/, "", nr)
-	if (nr == 2) {
-		nr = 8
+	sub(/.*EX_EXINT/, "", chan)
+	sub(/,.*/, "", chan)
+	if (chan == 2) {
+		chan = 8
 	} else {
-		nr = 9
+		chan = 9
 	}
-	sub(/.*,&/, "ISR_hsk_isr!" nr)
+	sub(/.*,&/, "ISR_hsk_isr" chan "!")
 	sub(/\)$/, "")
 	overlays[$0]
 }
@@ -57,7 +57,11 @@ END {
 
 	# Print groups
 	for (isr in callbacks) {
-		printf (sep++ ? ",\r\n" : "") "* ~ (%s)", callbacks[isr]
+		if (!severed[callbacks[isr]]++) {
+			printf (sep++ ? ",\r\n" : "") "* ~ (%s)", callbacks[isr]
+		}
+	}
+	for (isr in callbacks) {
 		printf ",\r\n%s ! (%s)", isr, callbacks[isr]
 	}
 }
