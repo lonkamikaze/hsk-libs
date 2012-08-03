@@ -287,7 +287,7 @@ void hsk_ex_port_open(const hsk_ex_port idata port) {
 	#define portAltsel	hsk_ex_ports[port].portAltsel
 	switch (port) {
 	case EX_EXINT0_P05:
-		P0_DIR |= 1 << portBit;
+		P0_DIR &= ~(1 << portBit);
 		SFR_PAGE(_pp2, noSST);
 		P0_ALTSEL0 &= ~(1 << portBit);
 		P0_ALTSEL0 |= (portAltsel & 1) << portBit;
@@ -298,7 +298,7 @@ void hsk_ex_port_open(const hsk_ex_port idata port) {
 	case EX_EXINT0_P14:
 	case EX_EXINT5_P15:
 	case EX_EXINT6_P16:
-		P1_DIR |= 1 << portBit;
+		P1_DIR &= ~(1 << portBit);
 		SFR_PAGE(_pp2, noSST);
 		P1_ALTSEL0 &= ~(1 << portBit);
 		P1_ALTSEL0 |= (portAltsel & 1) << portBit;
@@ -310,7 +310,7 @@ void hsk_ex_port_open(const hsk_ex_port idata port) {
 	case EX_EXINT5_P33:
 	case EX_EXINT6_P34:
 	case EX_EXINT4_P37:
-		P3_DIR |= 1 << portBit;
+		P3_DIR &= ~(1 << portBit);
 		SFR_PAGE(_pp2, noSST);
 		P3_ALTSEL0 &= ~(1 << portBit);
 		P3_ALTSEL0 |= (portAltsel & 1) << portBit;
@@ -322,7 +322,7 @@ void hsk_ex_port_open(const hsk_ex_port idata port) {
 	case EX_EXINT6_P42:
 	case EX_EXINT5_P44:
 	case EX_EXINT6_P45:
-		P4_DIR |= 1 << portBit;
+		P4_DIR &= ~(1 << portBit);
 		SFR_PAGE(_pp2, noSST);
 		P4_ALTSEL0 &= ~(1 << portBit);
 		P4_ALTSEL0 |= (portAltsel & 1) << portBit;
@@ -337,7 +337,7 @@ void hsk_ex_port_open(const hsk_ex_port idata port) {
 	case EX_EXINT3_P55:
 	case EX_EXINT4_P56:
 	case EX_EXINT6_P57:
-		P5_DIR |= 1 << portBit;
+		P5_DIR &= ~(1 << portBit);
 		SFR_PAGE(_pp2, noSST);
 		P5_ALTSEL0 &= ~(1 << portBit);
 		P5_ALTSEL0 |= (portAltsel & 1) << portBit;
