@@ -118,7 +118,7 @@ typedef ubyte hsk_ex_channel;
  *
  * The callback function can be set to 0 if a change of the function is
  * not desired. For channels EXINT0 and EXINT1 the callback is ignored,
- * implement interrupt.
+ * implement interrupts 0 and 2 instead.
  *
  * @param channel
  *	The channel to activate, one of \ref EX_EXINT
