@@ -1,15 +1,21 @@
 /** \file
- * HSK I/O Port headers
+ * HSK I/O headers
  *
- * This file contains macro definitions to use and initialize I/O ports.
+ * This file contains macro definitions to use and initialize I/O ports
+ * and variables bitwise.
  *
  * All the macros take a port and a mask to select the affected pins. All
  * operations are masked with the selected pins so it is safe to define
  * -1 (every bit 1) to activate a certain property.
  *
+ * Set and get macros take a bit field to define the value that represents
+ * the \c on or \c true state, so the logic code can always use a \c 1 for
+ * <tt>true</tt>/<tt>on</tt>.
+ *
  * The macros are grouped as:
- *	- \ref PORTS_IN
- *	- \ref PORTS_OUT
+ *	- \ref IO_PORT_IN
+ *	- \ref IO_PORT_OUT
+ *	- \ref IO_VAR
  *
  * @author kami
  *
@@ -28,39 +34,39 @@
  * | P5		| 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1
  */
 
-#ifndef _HSK_PORTS_H_
-#define _HSK_PORTS_H_
+#ifndef _HSK_IO_H_
+#define _HSK_IO_H_
 
 /**
- * \defgroup PORTS_IN Input Port Access
+ * \defgroup IO_PORT_IN Input Port Access
  * @{
  */
 
 /**
  * Bit mask to disable pull up/down for all selected pins.
  */
-#define PORTS_PULL_DISABLE	0
+#define IO_PORT_PULL_DISABLE	0
 
 /**
  * Bit mask to enable pull up/down for all selected pins.
  */
-#define PORTS_PULL_ENABLE	-1
+#define IO_PORT_PULL_ENABLE	-1
 
 /**
  * Bit mask to select pull down for all selected pins.
  */
-#define PORTS_PULL_DOWN		0
+#define IO_PORT_PULL_DOWN		0
 
 /**
  * Bit mask to select pull up for all selected pins.
  */
-#define PORTS_PULL_UP		-1
+#define IO_PORT_PULL_UP		-1
 
 /**
  * Initializes a set of port pins as inputs.
  *
  * @warning
- *	This function must not be used in an interrupt
+ *	Expects port page 0 and RMAP 0, take care in ISRs
  * @param port
  *	The parallel port to configure
  * @param pins
@@ -70,7 +76,7 @@
  * @param dir
  *	A bit mask of pins to set the pull direction
  */
-#define PORTS_IN_INIT(port, pins, pull, dir)	{ \
+#define IO_PORT_IN_INIT(port, pins, pull, dir)	{ \
 	port##_DIR &= ~(pins); \
 	SFR_PAGE(_pp1, noSST); \
 	port##_PUDSEL &= (dir) | ~(pins); \
@@ -84,32 +90,34 @@
  * Bit mask to set the logical 1 to GND level for all selected pins.
  *
  * @note
- *	Can also be used for \ref PORTS_OUT
+ *	Can also be used for \ref IO_PORT_OUT
  */
-#define PORTS_ON_GND		0
+#define IO_PORT_ON_GND		0
 
 /**
  * Bit mask to set the logical 1 to high level for all selected pins.
  *
  * @note
- *	Can also be used for \ref PORTS_OUT
+ *	Can also be used for \ref IO_PORT_OUT
  */
-#define PORTS_ON_HIGH		-1
+#define IO_PORT_ON_HIGH		-1
 
 
 /**
  * Evaluates to a bit mask of logical pin states of a port.
  *
  * @note
- *	Can also be used for \ref PORTS_OUT
+ *	Can also be used for \ref IO_PORT_OUT
+ * @warning
+ *	Expects port page 0 and RMAP 0, take care in ISRs
  * @param port
- *	The parallel port to configure
+ *	The parallel port to access
  * @param pins
  *	A bit mask of the pins to select
  * @param on
- *	A bit mask of pins that defines the state which is considered on
+ *	A bit mask of pins that defines the states which represent on
  */
-#define PORTS_GET(port, pins, on) ( \
+#define IO_PORT_GET(port, pins, on) ( \
 	(port##_DATA ^ ~(on)) & (pins) \
 )
 
@@ -118,35 +126,35 @@
  */
 
 /**
- * \defgroup PORTS_OUT Output Port Access
+ * \defgroup IO_PORT_OUT Output Port Access
  * @{
  */
 
 /**
  * Bit mask to set weak drive strength for all selected pins.
  */
-#define PORTS_STRENGTH_WEAK	0
+#define IO_PORT_STRENGTH_WEAK	0
 
 /**
  * Bit mask to set strong drive strength for all selected pins.
  */
-#define PORTS_STRENGTH_STRONG	-1
+#define IO_PORT_STRENGTH_STRONG	-1
 
 /**
  * Bit mask to disable drain mode for all selected pins.
  */
-#define PORTS_DRAIN_DISABLE	0
+#define IO_PORT_DRAIN_DISABLE	0
 
 /**
  * Bit mask to enable drain mode for all selected pins.
  */
-#define PORTS_DRAIN_ENABLE	-1
+#define IO_PORT_DRAIN_ENABLE	-1
 
 /**
  * Initializes a set of port pins as outputs.
  *
  * @warning
- *	This function must not be used in an interrupt
+ *	Expects port page 0 and RMAP 0, take care in ISRs
  * @param port
  *	The parallel port to configure
  * @param pins
@@ -156,13 +164,13 @@
  * @param drain
  *	A bit mask of pins that only drive GND
  * @param on
- *	A bit mask of pins that defines the state which is considered on
- * @see PORTS_ON_GND
- * @see PORTS_ON_HIGH
+ *	A bit mask of pins that defines the states which represent on
+ * @see IO_PORT_ON_GND
+ * @see IO_PORT_ON_HIGH
  * @param set
  *	Initial logical values for the defined outputs
  */
-#define PORTS_OUT_INIT(port, pins, strength, drain, on, set)	{\
+#define IO_PORT_OUT_INIT(port, pins, strength, drain, on, set)	{\
 	port##_DIR |= pins; \
 	SFR_PAGE(_pp3, noSST); \
 	port##_OD &= (drain) | ~(pins); \
@@ -178,19 +186,19 @@
  * Set a set of output port pins.
  *
  * @warning
- *	This function must not be used in an interrupt
+ *	Expects port page 0 and RMAP 0, take care in ISRs
  * @param port
- *	The parallel port to configure
+ *	The parallel port to set
  * @param pins
  *	A bit mask of the pins to select
  * @param on
- *	A bit mask of pins that defines the state which is considered on
- * @see PORTS_ON_GND
- * @see PORTS_ON_HIGH
+ *	A bit mask of pins that defines the states which represent on
+ * @see IO_PORT_ON_GND
+ * @see IO_PORT_ON_HIGH
  * @param set
  *	Set logical values for the defined outputs
  */
-#define PORTS_OUT_SET(port, pins, on, set)	{\
+#define IO_PORT_OUT_SET(port, pins, on, set)	{\
 	port##_DATA &= ((set) ^ ~(on)) | ~(pins); \
 	port##_DATA |= ((set) ^ ~(on)) & (pins); \
 }
@@ -199,5 +207,45 @@
  * @}
  */
 
+/**
+ * \defgroup IO_VAR Variable Access
+ * @{
+ */
 
-#endif /* _HSK_PORTS_H_ */
+/**
+ * Set a set of variable bits.
+ *
+ * @param var
+ *	The variable to set
+ * @param bits
+ *	A bit mask of the bits to select
+ * @param on
+ *	A bit mask that defines the states which represent true
+ * @param set
+ *	Set logical values for the defined bits
+ */
+#define IO_VAR_SET(var, bits, on, set)	{\
+	(var) &= ((set) ^ ~(on)) | ~(bits); \
+	(var) |= ((set) ^ ~(on)) & (bits); \
+}
+
+/**
+ * Evaluates to a bit mask of logical states of a variable.
+ *
+ * @param var
+ *	The variable to access
+ * @param bits
+ *	A bit mask of the bits to select
+ * @param on
+ *	A bit mask that defines the states which represent true
+ */
+#define IO_VAR_GET(var, bits, on) ( \
+	((var) ^ ~(on)) & (bits) \
+)
+
+/**
+ * @}
+ */
+
+#endif /* _HSK_IO_H_ */
+
