@@ -22,6 +22,7 @@
 #include "hsk_pwc/hsk_pwc.h"
 #include "hsk_flash/hsk_flash.h"
 #include "hsk_wdt/hsk_wdt.h"
+#include "hsk_io/hsk_io.h"
 
 ICM7228_FACTORY(p1, P1, P3, 0, P3, 1)
 
@@ -107,7 +108,7 @@ void init(void) {
 	/*
 	 * Boot/reset detection.
 	 */
-	P3_DIR = -1;
+	IO_PORT_OUT_INIT(P3, -1, IO_PORT_STRENGTH_WEAK, IO_PORT_DRAIN_DISABLE, -1, 0);
 	switch(hsk_flash_init(&persist, sizeof(persist), PERSIST_VERSION)) {
 	case FLASH_PWR_FIRST:
 		/* Init stuff if needed. */
@@ -122,7 +123,7 @@ void init(void) {
 		hsk_flash_write();
 		break;
 	}
-	P3_DATA = persist.reset;
+	IO_PORT_OUT_SET(P3, -1, -1, persist.reset);
 
 	/* Activate timer 0. */
 	hsk_timer0_setup(1000, &tick0);
