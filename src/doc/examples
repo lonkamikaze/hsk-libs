@@ -103,6 +103,37 @@ void isr_callback(void) {
 
 
 
+//! [group doc]
+/**
+ * \defgroup TRI_STATE Tri-State States
+ *
+ * Defines in this group represent one of the tri-state states
+ *
+ * @{
+ */
+
+/**
+ * Tri state off.
+ */
+#define TRI_STATE_OFF	0
+
+/**
+ * Tri state on.
+ */
+#define TRI_STATE_ON	1
+
+/**
+ * Tri state high impedance.
+ */
+#define TRI_STATE_Z	2
+
+/**
+ * @}
+ */
+//! [group doc]
+
+
+
 //! [header doc]
 /** \file
  * HSK <brief> headers
@@ -160,4 +191,5 @@ void isr_callback(void) {
 #include "hsk_timer01.isr"
 #endif /* SDCC */
 //! [isr header include]
+
 
