@@ -33,6 +33,9 @@ typedef ubyte hsk_ex_channel;
 
 /**
  * \defgroup EX_EXINT External Interrupt Channels
+ *
+ * This group consists of defines representing external interrupt channels.
+ *
  * @{
  */
 
@@ -91,6 +94,9 @@ typedef ubyte hsk_ex_channel;
 
 /**
  * \defgroup EX_EDGE External Interrupt Triggers
+ *
+ * This group contains defines representing the different edge triggers
+ *
  * @{
  */
 
@@ -149,6 +155,10 @@ typedef ubyte hsk_ex_port;
 
 /**
  * \defgroup EX_EXINT_P External Interrupt Input Ports
+ *
+ * Each define of this group represents an external interrupt port
+ * configuration
+ *
  * @{
  */
 

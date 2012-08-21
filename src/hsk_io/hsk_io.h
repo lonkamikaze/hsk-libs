@@ -39,6 +39,10 @@
 
 /**
  * \defgroup IO_PORT_IN Input Port Access
+ *
+ * This group contains defines and macros to initialize port pins as inputs
+ * and read them.
+ *
  * @{
  */
 
@@ -127,6 +131,10 @@
 
 /**
  * \defgroup IO_PORT_OUT Output Port Access
+ *
+ * This group contains macros and defines to initialize port pins for output
+ * and safely set output states.
+ *
  * @{
  */
 
@@ -209,6 +217,11 @@
 
 /**
  * \defgroup IO_VAR Variable Access
+ *
+ * This group specifies macros to access bits of a variable. Their value lies
+ * in the seperation of encoded \c on state and logical \c on (1), as well as
+ * the safe bit masking.
+ *
  * @{
  */
 

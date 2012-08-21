@@ -784,6 +784,15 @@ are also appended to the function documentation of the developers' manual.
 Private functions should be marked with \c \@private at the end of their
 documentation block.
 
+\section conventions_groups Grouping Documentation
+
+In some cases a set of documented members belong together, such as a set
+of defines for a certain function parameter. In such a cases the members
+can be grouped:
+\snippet examples group doc
+
+Groups are listed in the Modules chapter.
+
 \section conventions_files File Naming and Documentation
 
 Three different file type suffixes are used in the construction of these
