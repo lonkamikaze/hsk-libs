@@ -16,6 +16,25 @@
  *	of erratic behaviour like reset races or a complete lockup.
  * @author
  *	kami
+ *
+ * \section hazards Hazards
+ *
+ * The WDT has proven a useful tool in hazardous EMI conditions. Severe EMI
+ * may freeze the µC without causing a proper reboot. In most cases the WDT
+ * can mitigate this issue by reactivating the system.
+ *
+ * However the WDT is trigger happy. A series of refresh time interval
+ * measurements shows that the WDT resets the µC long before the end of
+ * its interval shortly after boot. The best mitigation is to refresh
+ * the WDT with the hsk_wdt_service() function unconditionally. Instead
+ * of using fixed timings (e.g. for 20ms watchdog time a 5ms refresh interval
+ * should have been quite safe).
+ *
+ * That however does not solve the problem with NMIs. Any non-maskable
+ * interrupt may cause the WDT to reset the µC. This means it is incopatible
+ * to the hsk_flash library, which requires precise timings with only a couple
+ * of µs tolerance. To meet this requirement the library uses the Flash Timer
+ * of the XC878, which triggers NMIs.
  */
 
 #ifndef _HSK_WDT_H_

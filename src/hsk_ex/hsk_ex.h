@@ -1,6 +1,9 @@
 /** \file
  * HSK External Interrupt Routing headers
  *
+ * This file offers functions to activate external interrupts and connect
+ * them to the available input pins.
+ *
  * @author kami
  */
 
@@ -36,14 +39,14 @@ typedef ubyte hsk_ex_channel;
 /**
  * External interrupt channel EXINT0.
  *
- * Mask with EX0.
+ * Mask with EA, disable with EX0.
  */
 #define EX_EXINT0	0
 
 /**
  * External interrupt channel EXINT1.
  *
- * Mask with EX1.
+ * Mask with EA, disable with EX1.
  */
 #define EX_EXINT1	1
 
