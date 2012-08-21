@@ -10,7 +10,7 @@
  * \ref hsk_isr14 member \ref hsk_isr14_callback::NMIWDT and setting
  * the NMICON.NMIWDT bit.
  *
- * @note
+ * @warning
  *	The WDT should be set up at the end of the boot procedure. Setting
  *	the WDT up at the beginning of the boot process can trigger all kinds
  *	of erratic behaviour like reset races or a complete lockup.
