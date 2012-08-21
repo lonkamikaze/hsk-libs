@@ -202,7 +202,7 @@ void hsk_pwm_init(const hsk_pwm_channel idata channel, const ulong idata freq) {
 	}
 }
 
-/**
+/** \var hsk_pwm_ports
  * Data structure to hold output port configurations.
  */
 const struct {

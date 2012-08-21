@@ -183,7 +183,7 @@ void hsk_ex_channel_disable(const hsk_ex_channel idata channel) {
 	}
 }
 
-/**
+/** \var hsk_ex_ports
  * External input configuration structure.
  */
 const struct {

@@ -187,7 +187,7 @@ void hsk_boot_mem(void) {
  */
 #define BIT_NMIPLL 		1
 
-/**
+/** \var hsk_boot
  * Boot parameter storage for the loss of clock ISR callback.
  */
 struct {

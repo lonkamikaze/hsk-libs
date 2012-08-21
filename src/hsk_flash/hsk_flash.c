@@ -411,7 +411,7 @@ SFR(FCS1,	0xDD);
  */
 #define FREE_NONE	2
 
-/**
+/** \var hsk_flash
  * Holds the persistence configuration.
  */
 volatile struct {

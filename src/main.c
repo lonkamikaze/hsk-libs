@@ -43,7 +43,7 @@ void main(void) {
  */
 #define PERSIST_VERSION	1
 
-/**
+/** \var persist
  * This structure is used to persist data between resets.
  */
 FLASH_STRUCT_FACTORY(
