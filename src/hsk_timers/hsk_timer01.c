@@ -57,7 +57,7 @@
  */
 #define CNT_T1M		2
 
-/**
+/** \var hsk_timers
  * Struct representing runtime information for a timer.
  */
 struct {

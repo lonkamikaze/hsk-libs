@@ -41,7 +41,7 @@ ubyte xdata hsk_pwc_prescaler;
  */
 volatile ubyte pdata hsk_pwc_overflow;
 
-/**
+/** \var hsk_pwc_channels
  * Processing data for PWC channels.
  */
 volatile struct {
@@ -336,7 +336,7 @@ void hsk_pwc_channel_open(const hsk_pwc_channel idata channel,
 	hsk_pwc_channel_edgeMode(channel, EDGE_DEFAULT_MODE);
 }
 
-/**
+/** \var hsk_pwc_ports
  * External input configuration structure.
  */
 const struct {
