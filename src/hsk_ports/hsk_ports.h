@@ -32,7 +32,7 @@
 #define _HSK_PORTS_H_
 
 /**
- * \defgroup PORTS_IN Input Port Configuration
+ * \defgroup PORTS_IN Input Port Access
  * @{
  */
 
@@ -118,7 +118,7 @@
  */
 
 /**
- * \defgroup PORTS_OUT Output Port Configuration
+ * \defgroup PORTS_OUT Output Port Access
  * @{
  */
 
@@ -198,5 +198,6 @@
 /**
  * @}
  */
+
 
 #endif /* _HSK_PORTS_H_ */
