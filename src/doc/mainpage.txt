@@ -654,6 +654,30 @@ the directory \c BUILDDIR, which defaults to bin.sdcc/.
 The meta-target \c clean invokes all these targets.
 \endcond
 
+\page requirements Code Requirements
+
+To use these libraries the utilizing code must meet a small number of
+requirements.
+
+\section requirements_pages SFR Pages
+
+All public functions expect all pages set to 0 and reset all pages they
+touch to 0 before they exit.
+
+All public functions also expect RMAP 0.
+
+\section requirements_isrs ISRs
+
+The \ref hsk_isr.h documentation lists the rules that need to be obeyed when
+implementing ISRs and callback functions:
+	- \ref isr_pages
+	- \ref isr_banks
+
+\section requirements_mem Memory
+
+All functions expect properly set up \c xdata memory and a \c pdata memory
+page. It is paramount to call hsk_boot_mem() before any other function.
+
 \cond DEV
 \page conventions Coding Conventions and Guidelines
 
