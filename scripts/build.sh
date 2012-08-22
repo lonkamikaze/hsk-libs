@@ -51,5 +51,11 @@ for file in $files; do
 "
 done
 
+printf "all:"
+for target in $all; do
+	printf " $target"
+done
+echo
+
 echo "build:$build"
 
