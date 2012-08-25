@@ -69,6 +69,11 @@
  */
 #define BIT_EXINT6	4
 
+/**
+ * SYSCON0 Interrupt Structure 2 Mode Select bit.
+ */
+#define BIT_IMODE	4
+
 void hsk_ex_channel_enable(const hsk_ex_channel idata channel,
 		const ubyte idata edge,
 		const void (code * const idata callback)(void) using(1)) {
@@ -132,6 +137,9 @@ void hsk_ex_channel_enable(const hsk_ex_channel idata channel,
 		break;
 	}
 
+	/* Set IMODE, 1 so that individual interrupts may be masked without
+	 * loosing them. */
+	SYSCON0 |= 1 << BIT_IMODE;
 }
 
 /**

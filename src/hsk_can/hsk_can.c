@@ -1552,7 +1552,7 @@ ulong hsk_can_data_getIntelSignal(const ubyte * const idata msg,
 	ubyte shift = 0;
 	while (bitCount > 0) {
 		/* Get the bottommost part of the value. */
-		value |= ((msg[bitPos / 8] >> (bitPos % 8)) & ((1 << bitCount) - 1)) << shift;
+		value |= ((msg[bitPos / 8] >> (bitPos % 8)) & ((1ul << bitCount) - 1)) << shift;
 		/* Update counters. */
 		bitCount -= 8 - (bitPos % 8);
 		shift += 8 - (bitPos % 8);
@@ -1594,7 +1594,7 @@ ulong hsk_can_data_getMotorolaSignal(const ubyte * const idata  msg,
 		bits = bits < bitCount ? bits : bitCount;
 		/* Get the most significant bits. */
 		bitCount -= bits;
-		value |= ((msg[bitPos / 8] >> (bitPos % 8 + 1 - bits)) & ((1 << bits) - 1)) << bitCount;
+		value |= ((msg[bitPos / 8] >> (bitPos % 8 + 1 - bits)) & ((1ul << bits) - 1)) << bitCount;
 		/* Get the next bit position. */
 		bitPos = (bitPos & ~(0x07)) + 15;
 	}
