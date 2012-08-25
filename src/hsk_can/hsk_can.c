@@ -1560,7 +1560,7 @@ ulong hsk_can_data_getIntelSignal(const ubyte * const idata msg,
 	}
 
 	if (sign && (value >> (shift + bitCount - 1))) {
-		return ((-1) << (shift + bitCount)) | value;
+		return ((-1ul) << (shift + bitCount)) | value;
 	}
 	return value;
 }
@@ -1600,7 +1600,7 @@ ulong hsk_can_data_getMotorolaSignal(const ubyte * const idata  msg,
 	}
 
 	if (sign && (value >> (shift - 1))) {
-		return ((-1) << shift) | value;
+		return ((-1ul) << shift) | value;
 	}
 	return value;
 }
