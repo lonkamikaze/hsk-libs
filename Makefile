@@ -13,10 +13,10 @@ DATE!=		date +%Y-%m-%d
 VERSION:=	$(shell hg tip 2> /dev/null | awk '/^changeset/ {print $$2}' || echo ${DATE})
 VERSION!=	hg tip 2> /dev/null | awk '/^changeset/ {print $$2}' || echo ${DATE}
 
-USERSRC:=	$(shell find src/ -name \*.h -o -name \*.txt)
-USERSRC!=	find src/ -name \*.h -o -name \*.txt -o -name examples
+USERSRC:=	$(shell find src/ -name \*.h -o -name main.c -o -name \*.txt -o name examples)
+USERSRC!=	find src/ -name \*.h -o -name main.c -o -name \*.txt -o -name examples
 
-DEVSRC:=	$(shell find src/ -name \*.\[hc] -o -name \*.txt)
+DEVSRC:=	$(shell find src/ -name \*.\[hc] -o -name \*.txt -o name examples)
 DEVSRC!=	find src/ -name \*.\[hc] -o -name \*.txt -o -name examples
 
 PROJECT:=	$(shell pwd | xargs basename)
