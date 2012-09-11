@@ -20,6 +20,8 @@
  * Generates a filter.
  *
  * The filter can be accessed with:
+ *	- void \<prefix\>_init(void)
+ *		- Initializes the filter with 0
  *	- \<valueType\> \<prefix\>_update(const \<valueType\> value)
  *		- Update the filter and return the current average
  *
@@ -44,7 +46,12 @@ struct { \
 	sumType sum; \
 	/** The index of the oldest buffered value. */ \
 	sizeType current; \
-} xdata prefix = {0}; \
+} xdata prefix; \
+\
+/** Initializes the buffer with 0. */ \
+void prefix##_init(void) { \
+	memset(&prefix, 0, sizeof(prefix)); \
+} \
 \
 /** Updates the filter and returns the current sliding average of
 buffered values.
@@ -59,6 +66,7 @@ valueType prefix##_update(const valueType value) { \
 	prefix.current %= size; \
 	return prefix.sum / size; \
 } \
+
 
 /**
  * Generates a group of filters.
