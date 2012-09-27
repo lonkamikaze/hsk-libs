@@ -1,0 +1,11 @@
+inc/Infineon/XC878.h
+--------------------
+This file is provided with Keil µVision and was generated using the Infineon
+DAVE tools.
+
+Everything Else
+---------------
+Dominic Fandrey <kamikaze@bsdforen.de> wrote all of it and it's free for
+whatever use you want to put it to. If you want to give something back,
+consider supporting High Speed Karlsruhe.
+
