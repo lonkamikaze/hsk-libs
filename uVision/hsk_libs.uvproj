@@ -320,14 +320,14 @@
             <WarningLevel>2</WarningLevel>
             <DataOverlaying>1</DataOverlaying>
             <OverlayString>* ~ (hsk_boot_isr_nmipll, hsk_flash_isr_nmiflash),
-ISR_hsk_isr14 ! (hsk_boot_isr_nmipll, hsk_flash_isr_nmiflash),
 * ~ (hsk_pwc_isr_cctOverflow),
-ISR_hsk_isr5 ! (hsk_pwc_isr_cctOverflow),
 * ~ (hsk_adc_isr, hsk_adc_isr_warmup),
-ISR_hsk_isr6 ! (hsk_adc_isr, hsk_adc_isr_warmup),
 * ~ (hsk_pwc_isr_cc0, hsk_pwc_isr_cc1, hsk_pwc_isr_cc2, hsk_pwc_isr_cc3),
-ISR_hsk_isr9 ! (hsk_pwc_isr_cc0, hsk_pwc_isr_cc1, hsk_pwc_isr_cc2, hsk_pwc_isr_cc3),
 * ~ (tick0),
+ISR_hsk_isr14 ! (hsk_boot_isr_nmipll, hsk_flash_isr_nmiflash),
+ISR_hsk_isr5 ! (hsk_pwc_isr_cctOverflow),
+ISR_hsk_isr6 ! (hsk_adc_isr, hsk_adc_isr_warmup),
+ISR_hsk_isr9 ! (hsk_pwc_isr_cc0, hsk_pwc_isr_cc1, hsk_pwc_isr_cc2, hsk_pwc_isr_cc3),
 ISR_hsk_timer0 ! (tick0)</OverlayString>
             <MiscControls></MiscControls>
             <DisableWarningNumbers>16</DisableWarningNumbers>
