@@ -44,11 +44,15 @@
 
 /**
  * DPTR low byte.
+ *
+ * @see \ref flash_dptr
  */
 #define DPL	dpl
 
 /**
  * DPTR high byte.
+ *
+ * @see \ref flash_dptr
  */
 #define DPH	dph
 
@@ -71,14 +75,14 @@
 /**
  * DPTR low byte.
  *
- * @see 
+ * @see \ref flash_dptr
  */
 #define DPL	dph
 
 /**
  * DPTR high byte.
  *
- * @see DPL
+ * @see \ref flash_dptr
  */
 #define DPH	dpl
 

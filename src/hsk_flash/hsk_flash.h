@@ -18,7 +18,7 @@
  * Complete coverage of the D-Flash counts as a single D-Flash cycle. Thus the
  * formula for the expected number of write calls is:
  * \f[
- * 	writes = floor(4096 / sizeof(struct)) * expectedcycles
+ * 	writes = \lfloor 4096 / sizeof(struct) \rfloor * expectedcycles
  * \f]
  *
  * - \c expectedcycles
