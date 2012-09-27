@@ -124,10 +124,20 @@
  */
 #define FLASH_STRUCT_FACTORY(members)	\
 volatile struct {\
-	/** For data integrity/compatibilty detection. @private */\
+	/**
+	 * For data integrity/compatibilty detection.
+	 *
+	 * @private
+	 */\
 	ubyte hsk_flash_prefix;\
+	\
 	members\
-	/** For data integrity detection. @private */\
+	\
+	/**
+	 * For data integrity detection.
+	 *
+	 * @private
+	 */\
 	ubyte hsk_flash_chksum;\
 } xdata
 
