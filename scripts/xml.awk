@@ -220,7 +220,7 @@ node, i, name) {
 	for (node in selection) {
 		# Seek the attribute
 		for (i = 0; attributeNames[node, i] && attributeNames[node, i] != name; i++);
-		# The clever part is, that i either points behind the other
+		# The clever part is, that it either points behind the other
 		# attributes or to the attribute that has to be updated, either
 		# way it can just be overwritten.
 		attributeNames[node, i] = name
