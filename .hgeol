@@ -1,0 +1,8 @@
+[repository]
+native = LF 
+
+[patterns]
+**.png = BIN
+**.jpg = BIN
+**.pdf = BIN
+
