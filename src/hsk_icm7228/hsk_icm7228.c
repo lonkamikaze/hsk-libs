@@ -18,7 +18,7 @@
  *
  * The ASCII character can be used to receive the desired 7 segment code.
  * E.g. hsk_icm7228_codepage['A'] retrieves the letter 'A' from the table.
- *
+ * 
  * Some letters like 'X' are badly recognisable, others cannot be well
  * represented at all. E.g. the letters 'M' and 'W' are identical to the
  * letters 'N' and 'U'.

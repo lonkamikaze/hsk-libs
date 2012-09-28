@@ -41,13 +41,13 @@
  * \section flash_byte_order Byte Order
  *
  * C51 stores multiple byte variables in big endian order, whereas the
- * DPTR register, several SFRs and SDCC use little endian.
+ * DPTR register, several SFRs and SDCC use little endian. 
  *
  * If the data struct contains multibyte members such as int/uword or
  * long/ulong, this can lead to data corruption, when switching compilers.
  *
  * Both the checksum and identifier are single byte values and thus will
- * still match after a compiler switch, causing multibyte values to be
+ * still match after a compiler switch, causing multibyte values to be 
  * restored from the flash with the wrong byte order.
  *
  * A byte order change can be detected with a byte order word in the struct.

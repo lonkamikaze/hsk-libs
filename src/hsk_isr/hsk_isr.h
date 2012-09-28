@@ -312,7 +312,7 @@ extern volatile struct hsk_isr9_callback pdata hsk_isr9;
  *	- PLL NMI (NMIPLL)
  *	- Flash Timer NMI (NMIFLASH)
  *	- VDDP Prewarning NMI (NMIVDDP)
- *	- Flash ECC NMI (NMIECC)
+ *	- Flash ECC NMI (NMIECC) 
  */
 struct hsk_isr14_callback {
 	/**

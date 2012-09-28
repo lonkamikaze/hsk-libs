@@ -1,6 +1,6 @@
 /** \file
  * HSK Boot headers
- *
+ * 
  * This file contains the prototypes to put the µC into working condition.
  *
  * Currently implemented:

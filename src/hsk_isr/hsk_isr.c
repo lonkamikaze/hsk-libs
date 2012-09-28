@@ -1,7 +1,7 @@
 /** \file
  * HSK Shared Interrupt Service Routine implementation
  *
- * This contains interrupts, shared between several interrupt sources. These
+ * This contains interrupts, shared between several interrupt sources. These 
  * interrupt sources can hook into the ISRs by storing a callback function in
  * the hsk_isr* data structures.
  *
@@ -19,7 +19,7 @@
  * | 30		| ISR setup: Reset PSW		| 1 x mov dir,# | 1 x 4
  * | 34		| ISR: Backup RMAP		| …		| 3 x 2 + 4
  * | 44		| ISR: Reset RMAP		| …		| 2 x 2 + 4
- * | 52		| ISR: Select callback		| …		| …
+ * | 52		| ISR: Select callback		| …		| … 
  */
 
 #include <Infineon/XC878.h>
@@ -445,7 +445,7 @@ volatile struct hsk_isr14_callback pdata hsk_isr14 = {&nmidummy, &nmidummy, &nmi
  *	- PLL NMI (NMIPLL)
  *	- Flash Timer NMI (NMIFLASH)
  *	- VDDP Prewarning NMI (NMIVDDP)
- *	- Flash ECC NMI (NMIECC)
+ *	- Flash ECC NMI (NMIECC) 
  *
  * @private
  */

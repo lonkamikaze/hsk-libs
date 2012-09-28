@@ -4,7 +4,7 @@
  * This file implements the functions defined in hsk_adc.h.
  *
  * To be able to use all 8 channels the ADC is kept in sequential mode.
- *
+ * 
  * @author kami
  */
 
@@ -219,7 +219,7 @@ void hsk_adc_init(ubyte idata resolution, uword idata convTime) {
 	}
 	/* Make sure STC fits into an 8 bit register. */
 	stc = stc >= 1 << 8 ? (1 << 8) - 1 : stc;
-
+	
 	/* Set ADC module clk */
 	ADC_GLOBCTR = ADC_GLOBCTR & ~(((1 << CNT_CTC) - 1) << BIT_CTC) | (ctc << BIT_CTC);
 	/* Set sample time in multiples of ctc scaled clock cycles. */
@@ -273,7 +273,7 @@ void hsk_adc_enable(void) {
 	SFR_PAGE(_su0, noSST);
 }
 
-void hsk_adc_disable(void) {
+void hsk_adc_disable(void) {  
 	/* Stop clock in module. */
 	SFR_PAGE(_su1, noSST);
 	PMCON1 |= 1 << BIT_ADC_DIS;

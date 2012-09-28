@@ -247,7 +247,7 @@ The following options need to be set:
 	  can still be mapped to different memory sections manaully as
 	  described in \ref platform_memory
 - Code ROM Size: Large: 64K program
-	- This setting allows up to 64k of program data to be written to
+	- This setting allows up to 64k of program data to be written to 
 	  the device
 - Use On-chip ROM
 - Use On-chip XRAM
@@ -513,7 +513,7 @@ Take care to restore \c code before the end of a <tt>.h</tt> file:
 
 The most significant difference between interrupt handling in SDCC and C51
 is that prototypes for the interrupts must be visible in the context of the
-main() function.
+main() function. 
 
 These prototypes can be enclosed in an \c \#ifdef:
 \include hsk_isr.isr
