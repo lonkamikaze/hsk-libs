@@ -43,7 +43,7 @@
  * \code
  * 	CAN_ADLH = REGISTER + ITEM_OFFSET
  * \endcode
- * 
+ *
  * The following example points CAN_DATA to the Node 1 Status register:
  * \code
  * 	CAN_ADLH = NSRx + (1 << OFF_NODEx)
@@ -121,7 +121,7 @@
 
 /**
  * Make sure the last read/write has completed.
- * 
+ *
  * This is supposed to be mandatory for accessing the data bytes and
  * CAN_ADCON, but tests show that the busy flag is never set if the
  * module runs at 2 times PCLK, which is what this library does.
@@ -409,7 +409,7 @@ void hsk_can_init(const ubyte idata pins, const ulong idata baud) {
 		SFR_PAGE(_su1, noSST);
 		PMCON1 &= ~(1 << BIT_CAN_DIS);
 
-		/* 
+		/*
 		 * Set the MultiCAN module to run at 2*PCLK speed (48MHz),
 		 * to reduce the waiting time for bus transmissions.
 		 */
@@ -586,7 +586,7 @@ void hsk_can_disable(const hsk_can_node idata node) {
 	CAN_AD_READ();
 	/* Deactivate the node! */
 	CAN_DATA0 |= 1 << BIT_CANDIS;
-	CAN_AD_WRITE(0x1);		
+	CAN_AD_WRITE(0x1);
 }
 
 ubyte hsk_can_status(const hsk_can_node idata node, const ubyte idata field) {
@@ -630,7 +630,7 @@ ubyte hsk_can_status(const hsk_can_node idata node, const ubyte idata field) {
 
 /** \file
  * \section lists CAN List Management
- * 
+ *
  * The MultiCAN module offers 32 message objects that can be linked
  * to one of 8 lists.
  *
@@ -653,7 +653,7 @@ ubyte hsk_can_status(const hsk_can_node idata node, const ubyte idata field) {
  * Message Object n FIFO/Gateway Pointer Register base address.
  */
 #define MOFGPRn		0x0401
- 
+
 /**
  * Message Object n Acceptance Mask Register base address.
  */
@@ -859,7 +859,7 @@ hsk_can_msg hsk_can_msg_create(const ulong idata id, const bool extended,
 		const ubyte idata dlc) {
 	hsk_can_msg msg;
 
-	/* 
+	/*
 	 * Fetch message into list of pending message objects.
 	 */
 	CAN_ADLH = PANCTR;
@@ -876,19 +876,19 @@ hsk_can_msg hsk_can_msg_create(const ulong idata id, const bool extended,
 	}
 	msg = PANAR1;
 
-	/* 
-	 * Set the DLC and message mode. 
+	/*
+	 * Set the DLC and message mode.
 	 */
 	CAN_ADLH = MOFCRn + (msg << OFF_MOn);
 	CAN_DATA3 = (dlc <= 8 ? dlc : 8) << BIT_DLC;
 	CAN_DATA0 = MMC_DEFAULT << BIT_MMC;
 	CAN_AD_WRITE(0x9);
 
-	/* 
+	/*
 	 * Set ID.
 	 */
 	CAN_ADLH = MOARn + (msg << OFF_MOn);
-	CAN_DATA01 = id << (extended ? BIT_IDEXT : BIT_IDSTD); 
+	CAN_DATA01 = id << (extended ? BIT_IDEXT : BIT_IDSTD);
 	CAN_DATA23 = (extended ? id >> (16 - BIT_IDEXT) : id << (BIT_IDSTD - 16)) \
 		| ((ubyte)extended << (BIT_IDE - 16)) | (PRI_ID << (BIT_PRI - 16));
 	CAN_AD_WRITE(0xF);
@@ -1106,7 +1106,7 @@ hsk_can_fifo hsk_can_fifo_create(ubyte idata size) {
 	hsk_can_fifo base;
 	hsk_can_msg top;
 
-	/* 
+	/*
 	 * Fetch message into list of pending message objects.
 	 */
 	CAN_ADLH = PANCTR;
@@ -1203,19 +1203,19 @@ void hsk_can_fifo_setupRx(hsk_can_fifo idata fifo, const ulong idata id,
 		const bool extended, const ubyte idata dlc) {
 	hsk_can_msg top;
 
-	/* 
-	 * Set the DLC and message mode. 
+	/*
+	 * Set the DLC and message mode.
 	 */
 	CAN_ADLH = MOFCRn + (fifo << OFF_MOn);
 	CAN_DATA3 = (dlc <= 8 ? dlc : 8) << BIT_DLC;
 	CAN_DATA0 = MMC_RXBASEFIFO << BIT_MMC;
 	CAN_AD_WRITE(0x9);
 
-	/* 
+	/*
 	 * Set ID.
 	 */
 	CAN_ADLH = MOARn + (fifo << OFF_MOn);
-	CAN_DATA01 = id << (extended ? BIT_IDEXT : BIT_IDSTD); 
+	CAN_DATA01 = id << (extended ? BIT_IDEXT : BIT_IDSTD);
 	CAN_DATA23 = (extended ? id >> (16 - BIT_IDEXT) : id << (BIT_IDSTD - 16)) \
 		| ((ubyte)extended << (BIT_IDE - 16)) | (PRI_ID << (BIT_PRI - 16));
 	CAN_AD_WRITE(0xF);
@@ -1243,7 +1243,7 @@ void hsk_can_fifo_setupRx(hsk_can_fifo idata fifo, const ulong idata id,
 		CAN_ADLH = MOSTATn + (fifo << OFF_MOn);
 		CAN_AD_READ();
 		fifo = MOSTATn_PNEXT;
-	
+
 		/* Set message valid. */
 		CAN_ADLH = MOCTRn + (fifo << OFF_MOn);
 		RESET_DATA = (1 << BIT_TXEN1);
@@ -1409,7 +1409,7 @@ ulong hsk_can_fifo_getId(const hsk_can_fifo idata fifo) {
 	CAN_AD_READ();
 	CAN_ADLH = MOARn + (MOFGPRn_SEL << OFF_MOn);
 	CAN_AD_READ();
-	
+
 	#define extended ((CAN_DATA3 >> (BIT_IDE - 24)) & 1)
 	result = CAN_DATA23;
 	result <<= 16;
@@ -1462,7 +1462,7 @@ void hsk_can_data_setIntelSignal(ubyte * const idata msg,
  * \code
  * 	 9  8  7  6  5  4  3  2  1  0
  * \endcode
- * 
+ *
  * In that example bit 9 is the most significant bit, bit 0 the least
  * significant. The most significant bit of a signal will be stored in
  * the most significant bits of the message. Under the assumption that
@@ -1472,7 +1472,7 @@ void hsk_can_data_setIntelSignal(ubyte * const idata msg,
  *	Signal	 9  8  7  6  5  4  3  2  1  0
  * 	Message	 2  1  0 15 14 13 12 11 10  9
  * \endcode
- * 
+ *
  * Note that the signal spreads to the most significant bits of the next
  * byte. Special care needs to be taken, when mixing little and big endian
  * signals. A 10 bit little endian signal with start bit 2 would cover the

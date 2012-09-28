@@ -6,7 +6,7 @@
  *
  * Every caputre channel blocks an external interrupt. Opening a channel
  * will block this interrupt and change its configuration.
- * 
+ *
  * Pulse with measurement has a window time that is configured with
  * hsk_pwc_init() and defines the time frame within which pulses can be
  * detected.
@@ -14,11 +14,11 @@
  * If no pulse occurs during the window, the channel buffer is invalidated
  * and the hsk_pwc_channel_getValue() function will returns invalid (0) until
  * the buffer is repopulated with valid measurements.
- * 
+ *
  * In order to guarantee the detection of invalid channels, the
  * hsk_pwc_channel_getValue() function has to be called at least once every
  * 256 window times.
- * 
+ *
  * @author kami
  */
 
@@ -156,7 +156,7 @@ typedef ubyte hsk_pwc_port;
  * The window time is the time frame within which pulses should be detected.
  * A smaller time frame results in higher precission, but detection of longer
  * pulses will fail.
- * 
+ *
  * Window times vary between ~1ms (\f$(2^{16} - 1) / (48 * 10^6)\f$) and ~5592ms
  * (\f$(2^{16} - 1) * 2^{12} / (48 * 10^6)\f$). The shortest window time delivers
  * ~20ns and the longest time ~85µs precision.
@@ -196,7 +196,7 @@ void hsk_pwc_channel_open(const hsk_pwc_channel idata channel,
  * @param averageOver
  * 	The number of pulse values to average over when returning a
  * 	value or speed. The value must be between 1 and CHAN_BUF_SIZE
- */			    
+ */
 void hsk_pwc_port_open(const hsk_pwc_port idata port,
 	ubyte idata averageOver);
 
@@ -237,7 +237,7 @@ void hsk_pwc_channel_captureMode(const hsk_pwc_channel idata channel,
 
 /**
  * Triggers a channel in soft trigger mode.
- * 
+ *
  * @param channel
  * 	The channel to trigger.
  */
