@@ -228,7 +228,7 @@ void hsk_pwc_init(ulong idata window) {
 
 	/*
 	 * Get the lowest prescaler that delivers the desired window time.
-	 *
+	 * 
 	 * I.e. change the window time base to clock cycles and adjust it to
 	 * a new prescaler until it fits into 2^16 - 1 timer cycles.
 	 */
@@ -254,7 +254,7 @@ void hsk_pwc_init(ulong idata window) {
 	/* Set the internal prescaler. */
 	T2CCU_CCTCON = (hsk_pwc_prescaler ? hsk_pwc_prescaler - 1 : 0) << BIT_CCTPRE;
 
-	/*
+	/* 
 	 * Start the Capture/Compare Timer and the overflow interrupt.
 	 */
 	T2CCU_CCTCON |= (1 << BIT_CCTOVEN) | (1 << BIT_CCTST);
@@ -379,7 +379,7 @@ const struct {
 	/* PWC_CC3_P57 */ {7, 3, 5, 4, 3}
 };
 
-void hsk_pwc_port_open(const hsk_pwc_port idata port,
+void hsk_pwc_port_open(const hsk_pwc_port idata port, 
 		ubyte idata averageOver) {
 	hsk_pwc_channel channel;
 
@@ -569,7 +569,7 @@ void hsk_pwc_channel_edgeMode(const hsk_pwc_channel idata channel,
 		PWC_CC3_EXINT_REG = PWC_CC3_EXINT_REG & ~(((1 << CNT_EXINTx) - 1) << PWC_CC3_EXINT_BIT) | (edgeMode << PWC_CC3_EXINT_BIT);
 		break;
 	}
-	SFR_PAGE(_t2_0, noSST);
+	SFR_PAGE(_t2_0, noSST);	
 }
 
 void hsk_pwc_channel_captureMode(const hsk_pwc_channel idata channel,
@@ -609,7 +609,7 @@ void hsk_pwc_channel_trigger(const hsk_pwc_channel idata channel) {
 }
 
 /**
- * PMCON1 T2CCU Disable Request bit.
+ * PMCON1 T2CCU Disable Request bit. 
  */
 #define BIT_T2CCU_DIS		3
 

@@ -1,6 +1,6 @@
 /** \file
  * HSK Boot implementation
- *
+ * 
  * The High Speed Karlsruhe XC878 boot up code implementation.
  *
  * This obsoletes 3rd party provided assembler boot code.
@@ -72,7 +72,7 @@ void hsk_boot_mem(void) {
 		| ((XRAM_BANK >> CNT_MXB) << BIT_MXB19);
 
 
-	/* Set pdata page. */
+	/* Set pdata page. */	
 	SFR_PAGE(_su3, noSST);
 	XADDRH = PDATA_PAGE;
 	SFR_PAGE(_su0, noSST);
@@ -198,7 +198,7 @@ struct {
 	 * See the PDIV description for value encoding.
 	 */
 	ubyte pdiv;
-
+	
 	/**
 	 * The NDIV value for the configured clock speed.
 	 *
@@ -327,7 +327,7 @@ void hsk_boot_extClock(const ulong idata clk) {
 	/* Wait for 1.5 ms until the external oscillator is stable (the delay
 	 * time should be adjusted according to different external oscillators).
 	 */
-	/*
+	/* 
 	 * At this point the core is still running with 4MHz, so 1ms (1 really
 	 * ought to be enough) would be 4000 clock cycles. One cycle through
 	 * the active waiting loop can be expected to take around 16clk cycles.

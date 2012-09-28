@@ -3,7 +3,7 @@
  *
  * This file provides function prototypes to perform Timer T12 and T13
  * based PWM with CCU6.
- *
+ * 
  * The CCU6 offers the following PWM channels:
  * 	- PWM_60
  *	- PWM_61
@@ -224,7 +224,7 @@ typedef ubyte hsk_pwm_port;
  * The following formula results in the freq value that yields exactly the
  * desired precision, this is useful to avoid precision loss by rounding:
  *	\f[freq(precision) = 480000000 * precision\f]
- *
+ * 
  * E.g. 10 bit precision: \f$freq(1/2^{10}) = 468750\f$
  *
  * @param channel
@@ -241,7 +241,7 @@ void hsk_pwm_init(const hsk_pwm_channel idata channel, const ulong idata freq);
  * corresponding output channels.
  *
  * The port can be any one of the PWM_OUT_x_* defines.
- *
+ * 
  * @pre
  *	This function should only be called after hsk_pwm_enable(), otherwise
  *	the output port will be driven (1) until PWM is enabled
@@ -256,7 +256,7 @@ void hsk_pwm_port_open(const hsk_pwm_port idata port);
  * This configures the necessary port direction bits.
  *
  * The port can be any one of the PWM_OUT_x_* defines.
- *
+ * 
  * @param port
  *	The output port to deactivate
  */
