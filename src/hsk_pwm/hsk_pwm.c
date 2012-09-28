@@ -415,7 +415,7 @@ void hsk_pwm_outChannel_dir(hsk_pwm_outChannel idata channel,
 		channel = BIT_PSL63;
 	}
 
-	/* Change the direction bit in the PSLR. */ 
+	/* Change the direction bit in the PSLR. */
 	SFR_PAGE(_cc2, noSST);
 	CCU6_PSLR = CCU6_PSLR & ~(1 << channel) | ((ubyte)up << channel);
 	SFR_PAGE(_cc0, noSST);
