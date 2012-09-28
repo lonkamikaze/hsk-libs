@@ -332,7 +332,7 @@ prefix, i, p) {
 	# Print all children and the node
 	for (i = 0; children[node, i]; i++) {
 		# µVision separates tags on this level by a newline
-		if (uVisionsugar && node ~ "^0" SUBSEP) {
+		if (uVisionsugar && parent[node] == "-1" SUBSEP "-1") {
 			printf "\n"
 		}
 		# Indent and opening tag
@@ -373,7 +373,7 @@ prefix, i, p) {
 		}
 	}
 	# µVision separates tags on this level by a newline
-	if (uVisionsugar && node ~ "^0" SUBSEP) {
+	if (uVisionsugar && parent[node] == "-1" SUBSEP "-1") {
 		printf "\n"
 	}
 	# Print contents of the node
