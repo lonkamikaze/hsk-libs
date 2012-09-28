@@ -1,6 +1,6 @@
 /** \file
  * Simple test file that is not linked into the library.
- * 
+ *
  * This file is normally rigged to run on the XC800 Starter Kit eval board
  * and used for testing whatever code is currently under development.
  *
@@ -220,7 +220,7 @@ void run(void) {
 			hsk_adc_request(7);
 			hsk_wdt_service();
 			/*P3_DATA =*/ hsk_pwc_channel_getValue(PWC_CC0, PWC_UNIT_FREQ_S);
-		}		 
+		}
 
 		if (ticks250 >= 250) {
 			EA = 0;

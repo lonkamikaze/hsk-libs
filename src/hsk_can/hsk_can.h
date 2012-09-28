@@ -29,7 +29,7 @@
  *	  e.g. CAN_ENDIAN_INTEL
  *	- bitPos: The starting bit of the signal, e.g. 0
  *	- bitCount: The length of the signal in bits, e.g. 10
- * 
+ *
  * Tuples using the specified format can directly be used as parameters
  * for several functions in the library.
  */
@@ -451,7 +451,7 @@ bool hsk_can_msg_updated(const hsk_can_msg idata msg);
  * 	hsk_can_fifo_next(fifo0);
  * }
  * \endcode
- * 
+ *
  *
  * FIFOs draw from the same message object pool regular message objects do.
  */
@@ -460,10 +460,10 @@ bool hsk_can_msg_updated(const hsk_can_msg idata msg);
  * Creates a message FIFO.
  *
  * FIFOs can be used to ensure that multiplexed signals are not lost.
- * 
+ *
  * For receiving multiplexed signals it is recommended to use a FIFO as large
  * as the number of multiplexed messages that might occur in a single burst.
- * 
+ *
  * If the multiplexor is large, e.g. 8 bits, it's obviously not possible to
  * carve a 256 messages FIFO out of 32 message objects. Make an educated
  * guess and hope that the signal provider is not hostile.
@@ -471,7 +471,7 @@ bool hsk_can_msg_updated(const hsk_can_msg idata msg);
  * If the number of available message objects is at least one, but less than
  * the requested length this function succeeds, but the FIFO is only created
  * as long as possible.
- * 
+ *
  * @param size
  *	The desired FIFO size
  * @retval CAN_ERROR

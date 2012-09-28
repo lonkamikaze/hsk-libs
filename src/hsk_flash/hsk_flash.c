@@ -19,7 +19,7 @@
  * interrupt upon timer overflow.
  *
  * \section flash_dptr DPTR Byte Order
- * 
+ *
  * Due to the \ref flash_byte_order differences between SDCC and C51, the
  * \ref DPL and \ref DPH macros are used to adjust DPTR assignments in
  * inline assembler.
@@ -517,7 +517,7 @@ void hsk_flash_isr_nmiflash(void) using 2 {
 	/**
 	 * - \ref STATE_REQUEST implements the procedure called
 	 *   "Abort Operation" from the XC878 UM 1.1.
-	 *   
+	 *
 	 *   After completing the abort \ref STATE_WRITE is entered.
 	 */
 	case STATE_REQUEST:
@@ -565,7 +565,7 @@ void hsk_flash_isr_nmiflash(void) using 2 {
 	/**
 	 * - \ref STATE_DETECT checks whether there is a page that should be
 	 *   deleted.
-	 *   
+	 *
 	 *   It either goes into \ref STATE_DELETE or \ref STATE_IDLE.
 	 */
 	case STATE_DETECT:
@@ -596,7 +596,7 @@ void hsk_flash_isr_nmiflash(void) using 2 {
 	/**
 	 * - \ref STATE_WRITE implements the procedure called
 	 *   "Program Operation" from the XC878 UM 1.1.
-	 *  
+	 *
 	 *   The next address to write is expected in \ref hsk_flash_flashDptr.
 	 *   The next address to read from XRAM is expected in
 	 *   \ref hsk_flash_xdataDptr.
