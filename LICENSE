@@ -1,11 +1,20 @@
 inc/Infineon/XC878.h
---------------------
+====================
+
 This file is provided with Keil µVision and was generated using the Infineon
 DAVE tools.
 
 Everything Else
----------------
-Dominic Fandrey <kamikaze@bsdforen.de> wrote all of it and it's free for
-whatever use you want to put it to. If you want to give something back,
-consider supporting High Speed Karlsruhe.
+===============
+
+# ----------------------------------------------------------------------------
+# "THE BEER-WARE LICENSE HIGH SPEED EDITION" (Revision 42):
+# <kamikaze@bsdforen.de> wrote these files. As long as you retain this notice
+# you can do whatever you want with this stuff. If we meet some day, and you
+# think this stuff is worth it, you can buy me a beer in return or become a
+# sponsor of High Speed Karlsruhe.                             Dominic Fandrey
+# ----------------------------------------------------------------------------
+
+Thanks and a beer of my own (should we meet again) go to Poul-Henning Kamp
+for the original beer-ware license.
 
