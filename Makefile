@@ -1,6 +1,6 @@
 BUILDDIR=	bin.sdcc
 CC=		sdcc
-CFLAGS=		-mmcs51 --xram-loc 0xF000 --xram-size 3072 -Iinc/ -I${CANDIR}
+CFLAGS=		-mmcs51 --peep-file peeprules.sdcc --xram-loc 0xF000 --xram-size 3072 -Iinc/ -I${CANDIR}
 
 CANDIR=		../CAN/src
 

@@ -123,7 +123,7 @@ void init(void) {
 		hsk_flash_write();
 		break;
 	}
-	IO_PORT_OUT_SET(P3, -1, -1, persist.reset);
+	IO_PORT_OUT_SET(P3, -1, -1, persist.boot);
 
 	/* Activate timer 0. */
 	hsk_timer0_setup(1000, &tick0);
