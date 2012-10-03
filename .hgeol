@@ -5,6 +5,7 @@ native = LF
 **.png = BIN
 **.jpg = BIN
 **.pdf = BIN
+src/**.txt = CRLF
 src/**.[hc] = CRLF
 inc/**.[hc] = CRLF
 uVision/** = BIN

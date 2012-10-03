@@ -36,14 +36,24 @@ and like the applications still subject to a lot of change.
 
 \subsection documentation_layout Project Layout
 
+- \c .hgeol
+	- Line ending rules for version control
+- \c .hgignore
+	- Regular expressions excepting files from version control
+- \c LICENSE
+	- Distribution license
 - \c Makefile
 	- Makefile to invoke the SDCC and doxygen toolchain
+- \c Makefile.local
+	- Local non-revisioned Makefile for overriding default parameters
 - \c build.mk
 	- Generated code dependency and compile instructions for SDCC
 - \c doxygen.private.conf
 	- Doxygen setting changes to create the developer documentation
 - \c doxygen.public.conf
 	- Basic doxygen settings, generates the user documentation
+- \c peeprules.sdcc
+	- Assembler code compatibility tweaks for SDCC
 - \c uVisionupdate.sh
 	- Updates the µVision project's overlaying instructions
 - \c bin.c51/
