@@ -284,21 +284,6 @@ void hsk_ex_port_open(const hsk_ex_port idata port) {
 		MODPISEL1 |= modpiselSel << modpiselBit;
 		SFR_PAGE(_su0, noSST);
 		break;
-	#ifdef SDCC
-	/*
-	 * This is here for what appears to be a bug in SDCC.
-	 * I suspect a problem with the jump table optimisation for switch
-	 * statements, the disparate case number will result in less optimised
-	 * code.
-	 * Without this workaround multiple calls to the function lock up the
-	 * controller. The first call always works. As far as I've been able to
-	 * determine the end of the function is reached, but the line after
-	 * the second function call never is.
-	 */
-	case 0xFF:
-		SFR_PAGE(_pp0, noSST);
-		break;
-	#endif
 	}
 	#undef modpiselBit
 	#undef modpiselSel
@@ -367,21 +352,6 @@ void hsk_ex_port_open(const hsk_ex_port idata port) {
 		P5_ALTSEL1 &= ~(1 << portBit);
 		P5_ALTSEL1 |= ((portAltsel >> 1) & 1) << portBit;
 		break;
-	#ifdef SDCC
-	/*
-	 * This is here for what appears to be a bug in SDCC.
-	 * I suspect a problem with the jump table optimisation for switch
-	 * statements, the disparate case number will result in less optimised
-	 * code.
-	 * Without this workaround multiple calls to the function lock up the
-	 * controller. The first call always works. As far as I've been able to
-	 * determine the end of the function is reached, but the line after
-	 * the second function call never is.
-	 */
-	case 0xFF:
-		SFR_PAGE(_pp0, noSST);
-		break;
-	#endif
 	}
 	SFR_PAGE(_pp0, noSST);
 	#undef portBit
@@ -442,21 +412,6 @@ void hsk_ex_port_close(const hsk_ex_port idata port) {
 		P5_ALTSEL0 &= ~(1 << portBit);
 		P5_ALTSEL1 &= ~(1 << portBit);
 		break;
-	#ifdef SDCC
-	/*
-	 * This is here for what appears to be a bug in SDCC.
-	 * I suspect a problem with the jump table optimisation for switch
-	 * statements, the disparate case number will result in less optimised
-	 * code.
-	 * Without this workaround multiple calls to the function lock up the
-	 * controller. The first call always works. As far as I've been able to
-	 * determine the end of the function is reached, but the line after
-	 * the second function call never is.
-	 */
-	case 0xFF:
-		SFR_PAGE(_pp0, noSST);
-		break;
-	#endif
 	}
 	SFR_PAGE(_pp0, noSST);
 	#undef portBit

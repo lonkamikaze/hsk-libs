@@ -973,21 +973,6 @@ __endasm;
 		FTVAL = 120 << BIT_OFVAL;
 		hsk_flash.state = STATE_IDLE;
 		break;
-	#ifdef SDCC
-	/*
-	 * This is here for what appears to be a bug in SDCC.
-	 * I suspect a problem with the jump table optimisation for switch
-	 * statements, the disparate case number will result in less optimised
-	 * code.
-	 * Without this workaround multiple calls to the function lock up the
-	 * controller. The first call always works. As far as I've been able to
-	 * determine the end of the function is reached, but the line after
-	 * the second function call never is.
-	 */
-	case 0xFF:
-		RESET_RMAP();
-		break;
-	#endif
 	}
 }
 #pragma restore
