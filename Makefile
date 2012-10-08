@@ -2,7 +2,9 @@ BUILDDIR=	bin.sdcc
 CC=		sdcc
 CFLAGS=		-mmcs51 --peep-file peeprules.sdcc --xram-loc 0xF000 --xram-size 3072 -Iinc/ -I${CANDIR}
 
-CANDIR=		../CAN/src
+CANPROJDIR=	../CAN
+
+CANDIR=		${CANPROJDIR}/src
 
 OBJSUFX=	.rel
 HEXSUFX=	.hex
@@ -34,6 +36,11 @@ _BUILD_MK!=	sh scripts/build.sh src/ ${CANDIR}/ > build.mk
 
 # Gmake style, works with FreeBSD make, too
 include build.mk
+
+printEnv:
+	@echo export PROJECT=\"${PROJECT}\"
+	@echo export CANPROJDIR=\"${CANPROJDIR}\"
+	@echo export CANDIR=\"${CANDIR}\"
 
 html: html/user html/dev html/contrib
 

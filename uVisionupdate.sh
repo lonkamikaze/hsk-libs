@@ -3,11 +3,7 @@
 IFS='
 '
 
-CANDIR=$(make -VCANDIR 2> /dev/null)
-if [ -z "$CANDIR" ]; then
-	eval "$(sed -Ene '/CANDIR=/s/CANDIR=[[:space:]]*(.*)/CANDIR="\1"/p' \
-		Makefile Makefile.local)"
-fi
+eval "$(make printEnv)"
 
 overlays="$(awk -f scripts/overlays.awk $(find src/ -name \*.c))"
 
