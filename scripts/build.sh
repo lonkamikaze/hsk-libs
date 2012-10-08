@@ -3,7 +3,7 @@
 IFS='
 '
 
-find -s "$@" -name \*.c | xargs awk -f scripts/includes.awk "$@"
+find -s "$@" -name \*.c | xargs awk -f $(dirname "$0")/includes.awk "$@"
 
 all=
 for SRC in "$@"; do
@@ -41,7 +41,7 @@ for file in $files; do
 	echo "$target" | grep -qFx "$all" && continue
 	all="${all:+$all$IFS}$target"
 	build="$build $target"
-	linklist="$(awk -f scripts/includes.awk "$@" $file | cut -d: -f1 \
+	linklist="$(awk -f $(dirname "$0")/includes.awk "$@" $file | cut -d: -f1 \
 		| sed -ne "$filter" -e "s:\.c\$:\${OBJSUFX}:p" \
 		| rs -TC\  )"
 
