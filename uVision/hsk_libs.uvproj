@@ -120,7 +120,7 @@
           <Simulator>
             <UseSimulator>1</UseSimulator>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
-            <RunToMain>1</RunToMain>
+            <RunToMain>0</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
             <RestoreWatchpoints>1</RestoreWatchpoints>
             <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
@@ -329,8 +329,8 @@ ISR_hsk_isr5 ! (hsk_pwc_isr_cctOverflow),
 ISR_hsk_isr6 ! (hsk_adc_isr, hsk_adc_isr_warmup),
 ISR_hsk_isr9 ! (hsk_pwc_isr_cc0, hsk_pwc_isr_cc1, hsk_pwc_isr_cc2, hsk_pwc_isr_cc3),
 ISR_hsk_timer0 ! (tick0)</OverlayString>
-            <MiscControls></MiscControls>
-            <DisableWarningNumbers>16</DisableWarningNumbers>
+            <MiscControls>REMOVEUNUSED</MiscControls>
+            <DisableWarningNumbers></DisableWarningNumbers>
             <LinkerCmdFile></LinkerCmdFile>
             <Assign></Assign>
             <ReserveString></ReserveString>
@@ -382,6 +382,11 @@ ISR_hsk_timer0 ! (tick0)</OverlayString>
               <FileName>hsk_boot.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\src\hsk_boot\hsk_boot.h</FilePath>
+            </File>
+            <File>
+              <FileName>startup.a51</FileName>
+              <FileType>2</FileType>
+              <FilePath>..\src\hsk_boot\startup.a51</FilePath>
             </File>
           </Files>
         </Group>
@@ -584,6 +589,31 @@ ISR_hsk_timer0 ! (tick0)</OverlayString>
               <FileName>hsk_wdt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\hsk_wdt\hsk_wdt.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>HSK_EX</GroupName>
+          <Files>
+            <File>
+              <FileName>hsk_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\hsk_ex\hsk_ex.c</FilePath>
+            </File>
+            <File>
+              <FileName>hsk_ex.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\src\hsk_ex\hsk_ex.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>HSK_IO</GroupName>
+          <Files>
+            <File>
+              <FileName>hsk_io.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\src\hsk_io\hsk_io.h</FilePath>
             </File>
           </Files>
         </Group>

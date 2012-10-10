@@ -43,9 +43,19 @@
 #define ADC_CHANNELS		8
 
 /**
+ * Number of queue slots.
+ */
+#define ADC_QUEUE		4
+
+/**
  * Holds the channel of the next conversion that will be requested.
  */
-hsk_adc_channel xdata hsk_adc_nextChannel = ADC_CHANNELS;
+hsk_adc_channel pdata hsk_adc_nextChannel = ADC_CHANNELS;
+
+/**
+ * Holds the number of queue entries.
+ */
+volatile ubyte pdata hsk_adc_queue = 0;
 
 /**
  * An array of target addresses to write conversion results into.
@@ -108,6 +118,9 @@ void hsk_adc_isr(void) using 1 {
 	/* Read the result. */
 	SFR_PAGE(_ad2, SST1);
 	result = ADC_RESR0LH;
+
+	/* Update the queue counter. */
+	hsk_adc_queue--;
 
 	/*
 	 * Deliver the conversion result.
@@ -331,29 +344,31 @@ void hsk_adc_close(const hsk_adc_channel idata channel) {
 }
 
 void hsk_adc_service(void) {
-	/* Check for empty slots in the queue. */
-	SFR_PAGE(_ad6, noSST);
-	if (ADC_QSR0 & (1 << BIT_EMPTY) || (ADC_QSR0 >> BIT_FILL) & ((1 << CNT_FILL) - 1) ^ ((1 << CNT_FILL) - 1)) {
-		/* Start the next conversion. */
-		if (hsk_adc_nextChannel < ADC_CHANNELS) {
-			/* Set next channel. */
-			ADC_QINR0 = ADC_QINR0 & ~((1 << CNT_REQCHNR) - 1) | (hsk_adc_nextChannel << BIT_REQCHNR);
-			/* Request next conversion. */
-			ADC_QMR0 |= 1 << BIT_TREV;
-
-			/* Find next conversion channel. */
-			while (!hsk_adc_targets[++hsk_adc_nextChannel % ADC_CHANNELS]);
-			hsk_adc_nextChannel %= ADC_CHANNELS;
-		}
+	/* Check for a full queue and available channels. */
+	if (hsk_adc_queue >= ADC_QUEUE || hsk_adc_nextChannel >= ADC_CHANNELS) {
+		return;
 	}
+	SFR_PAGE(_ad6, noSST);
+	/* Set next channel. */
+	ADC_QINR0 = ADC_QINR0 & ~(((1 << CNT_REQCHNR) - 1) << BIT_REQCHNR) | (hsk_adc_nextChannel << BIT_REQCHNR);
+	/* Request next conversion. */
+	ADC_QMR0 |= 1 << BIT_TREV;
 	SFR_PAGE(_ad0, noSST);
+
+	/* Find next conversion channel. */
+	while (!hsk_adc_targets[++hsk_adc_nextChannel % ADC_CHANNELS]);
+	hsk_adc_nextChannel %= ADC_CHANNELS;
 }
 
 void hsk_adc_request(const hsk_adc_channel idata channel) {
+	/* Check for a full queue. */
+	if (hsk_adc_queue >= ADC_QUEUE) {
+		return;
+	}
 	/* Check for empty slots in the queue. */
 	SFR_PAGE(_ad6, noSST);
 	/* Set next channel. */
-	ADC_QINR0 = ADC_QINR0 & ~((1 << CNT_REQCHNR) - 1) | (channel << BIT_REQCHNR);
+	ADC_QINR0 = ADC_QINR0 & ~(((1 << CNT_REQCHNR) - 1) << BIT_REQCHNR) | (channel << BIT_REQCHNR);
 	/* Request next conversion. */
 	ADC_QMR0 |= 1 << BIT_TREV;
 	SFR_PAGE(_ad0, noSST);
