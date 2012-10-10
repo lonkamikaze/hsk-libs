@@ -13,6 +13,7 @@
 #include "hsk_boot.h"
 
 #include "../hsk_isr/hsk_isr.h"
+#include "../hsk_io/hsk_io.h"
 
 /**
  * MEX3 XRAM Bank Number bits.
@@ -59,6 +60,26 @@
  * Use the first XRAM page, because that is where the compilers expect it.
  */
 #define PDATA_PAGE		0xF0
+
+/**
+ * Turns off pullup/-down for all ports prior to global/static initialisation.
+ *
+ * This function is automatically linked by SDCC and called from start.a51
+ * by Keil C51.
+ *
+ * @return
+ *	Always returns 0, which indicates that SDCC should initialise globals
+ *	and statics
+ * @private
+ */
+ubyte _sdcc_external_startup(void) {
+	IO_PORT_IN_INIT(P0, -1, IO_PORT_PULL_DISABLE, IO_PORT_PULL_UP);
+	IO_PORT_IN_INIT(P1, -1, IO_PORT_PULL_DISABLE, IO_PORT_PULL_UP);
+	IO_PORT_IN_INIT(P3, -1, IO_PORT_PULL_DISABLE, IO_PORT_PULL_UP);
+	IO_PORT_IN_INIT(P4, -1, IO_PORT_PULL_DISABLE, IO_PORT_PULL_UP);
+	IO_PORT_IN_INIT(P5, -1, IO_PORT_PULL_DISABLE, IO_PORT_PULL_UP);
+	return 0;
+}
 
 /**
  * Sets up xdata memory access.
