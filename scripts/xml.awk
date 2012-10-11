@@ -12,10 +12,10 @@ BEGIN {
 	selection[ROOT] = 1
 	uVisionsugar = 1
 	for (i = 1; i < ARGC; i++) {
-		if (ARGV[i] ~ /^-/) {
+		if (ARGV[i] ~ /^[[:space:]]*-/) {
 			p = 1 * p
 			commands[p] = ARGV[i]
-			sub(/-/, "", commands[p])
+			sub(/[[:space:]]*-/, "", commands[p])
 			sub(/:.*/, "", commands[p])
 			arguments[p] = ARGV[i]
 			sub(/[^:]*(:|$)/, "", arguments[p++])
