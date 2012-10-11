@@ -158,7 +158,7 @@ Because 128 bytes are insufficient, the 8051 architecture knows several kinds
 of memory that are accessed in different manners and thus quicker or slower to
 access.
 
-The 8051 has an additional 128 bytes of indirectly addressable memory. This
+The 8052 has an additional 128 bytes of indirectly addressable memory. This
 memory is accessed through the key word \c idata. Access to \c idata is slower
 than to \c data. The syntax for declaring a variable in \c idtata memory is:
 \code
@@ -201,6 +201,36 @@ memory use.
 Code resides in its own address range, the \c code block. The µC can be run
 from code residing in \c xdata as well, to bootstrap the µC. Constants can
 also be placed in the \c code block.
+
+\subsection platform_memory_overlaying Overlaying
+
+In order to mitigate the memory limitations of the platform the C51 and SDCC
+compilers perform an optimisation called overlaying.
+
+The compilers build a call graph, much like the one in the documentation of
+main(). The call graph is a directed graph and functions (i.e. their local
+variables and parameters) may occupy the same space in memory, provided they
+cannot reach each other in the graph.
+
+E.g. main() can reach both init() and run(), thus main() may not occupy the
+same memory as init() and run(). However run() and init() cannot reach each
+other, so they may store their data in the same memory.
+
+This reduces the use of the stack, which is expensive in terms of runtime
+(this statement is not generally true, it just applies to the 8051 family
+of µCs).
+
+Functions may not be called more than once at a time. I.e. they may not
+be recursive or called from regular code and interrupts both. Both compilers
+provide a \c reentrant keyword to make functions operate on the stack. Its
+use should be avoided if possible.
+
+Both C51 and SDCC do not track function pointers. Thus creating a function
+pointer results in a false call in the call tree. A call through a function
+pointer is not added to the call tree.
+
+The C51 tool chain offers \ref toolchain_lx51_misc "call tree manipulations" and SDCC
+provides the \ref sdcc_interrupts "nooverlay pragma" to mitigate this.
 
 \section platform_pointers Pointers
 
@@ -323,15 +353,14 @@ portions of code to fixed addresses.
 
 The Misc dialogue holds the remaining linker settings.
 
-- disable Warning Numbers: 16
-	- Warning number 16 refers to not used functions, quite common in a
-	  general purpose library and thus without interest
 - Overlay
 	- This field can be used to add calls through function pointers to the
 	  call tree as is necessary for callback functions, the syntax is
 	  described in the µVision Help section OVERLAY Linker Directive
 	- Manually filling this field can be avoided by running the
 	  \c uVisionupdate.sh script
+- Misc controls: REMOVEUNUSED
+	- This linker flag saves memory by discarding unused functions
 
 \image html img/keil_options_LX51_Misc.png "Keil µVision LX51 Misc options dialogue"
 \image latex img/keil_options_LX51_Misc.png "Keil µVision LX51 Misc options dialogue" width=10cm
@@ -978,6 +1007,13 @@ The following table lists recommended memory types:
 
 \c ISR/blocking refers to memory accessed by ISRs, functions called back by
 ISRs and sections of code that block an interrupt.
+
+\note
+C51 ignores parameter memory. However, its overlaying is performed during link
+time unlike SDCC, which overlays during compile time. I.e. C51 performs
+overlaying for the entire application, SDCC only within the scape of a \c .c
+file. Thus C51 usually requires much less memory, which more than mitigates
+this limitation.
 
 \section conventions_members Member Naming Conventions
 
