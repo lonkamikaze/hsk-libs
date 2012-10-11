@@ -348,6 +348,7 @@ void hsk_adc_service(void) {
 	if (hsk_adc_queue >= ADC_QUEUE || hsk_adc_nextChannel >= ADC_CHANNELS) {
 		return;
 	}
+	hsk_adc_queue++;
 	SFR_PAGE(_ad6, noSST);
 	/* Set next channel. */
 	ADC_QINR0 = ADC_QINR0 & ~(((1 << CNT_REQCHNR) - 1) << BIT_REQCHNR) | (hsk_adc_nextChannel << BIT_REQCHNR);
@@ -365,6 +366,7 @@ void hsk_adc_request(const hsk_adc_channel idata channel) {
 	if (hsk_adc_queue >= ADC_QUEUE) {
 		return;
 	}
+	hsk_adc_queue++;
 	/* Check for empty slots in the queue. */
 	SFR_PAGE(_ad6, noSST);
 	/* Set next channel. */
