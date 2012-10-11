@@ -32,7 +32,7 @@
           <SFDFile></SFDFile>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
-          <IncludePath>../../CAN/src</IncludePath>
+          <IncludePath></IncludePath>
           <LibPath></LibPath>
           <RegisterFilePath>Infineon\</RegisterFilePath>
           <DBRegisterFilePath>Infineon\</DBRegisterFilePath>
@@ -297,7 +297,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>../../CAN/src</IncludePath>
+              <IncludePath>..\..\CAN\src</IncludePath>
             </VariousControls>
           </C51>
           <Ax51>
@@ -309,7 +309,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>../../CAN/src</IncludePath>
+              <IncludePath></IncludePath>
             </VariousControls>
           </Ax51>
           <Lx51>
@@ -371,7 +371,7 @@ ISR_hsk_timer0 ! (tick0)</OverlayString>
           </Files>
         </Group>
         <Group>
-          <GroupName>HSK_Boot</GroupName>
+          <GroupName>HSK_BOOT</GroupName>
           <Files>
             <File>
               <FileName>hsk_boot.c</FileName>
@@ -391,7 +391,7 @@ ISR_hsk_timer0 ! (tick0)</OverlayString>
           </Files>
         </Group>
         <Group>
-          <GroupName>HSK_Timers</GroupName>
+          <GroupName>HSK_TIMERS</GroupName>
           <Files>
             <File>
               <FileName>hsk_timer01.c</FileName>
@@ -547,7 +547,7 @@ ISR_hsk_timer0 ! (tick0)</OverlayString>
                   <MiscControls></MiscControls>
                   <Define></Define>
                   <Undefine></Undefine>
-                  <IncludePath>../../CAN/src</IncludePath>
+                  <IncludePath></IncludePath>
                 </VariousControls>
               </C51>
               <Ax51>
@@ -559,7 +559,7 @@ ISR_hsk_timer0 ! (tick0)</OverlayString>
                   <MiscControls></MiscControls>
                   <Define></Define>
                   <Undefine></Undefine>
-                  <IncludePath>../../CAN/src</IncludePath>
+                  <IncludePath></IncludePath>
                 </VariousControls>
               </Ax51>
             </Group51>
