@@ -10,7 +10,7 @@
  *
  * \section wdt_registers Watchdog Timer Registers
  *
- * All registers are in the mapped register are, i.e. RMAP=1 must be set to
+ * All registers are in the mapped register area, i.e. RMAP=1 must be set to
  * access them.
  */
 

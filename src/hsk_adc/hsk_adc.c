@@ -53,9 +53,9 @@
 hsk_adc_channel pdata hsk_adc_nextChannel = ADC_CHANNELS;
 
 /**
- * Holds the number of queue entries.
+ * Holds the number of queue slots left.
  */
-volatile ubyte pdata hsk_adc_queue = 0;
+volatile ubyte pdata hsk_adc_queue = ADC_QUEUE;
 
 /**
  * An array of target addresses to write conversion results into.
@@ -83,21 +83,6 @@ volatile uword * pdata hsk_adc_targets[ADC_CHANNELS] = {0};
 #define CNT_RESULT		10
 
 /**
- * ADC_QINR0 Request Channel Number bits.
- */
-#define BIT_REQCHNR		0
-
-/**
- * REQCHNR bit count.
- */
-#define CNT_REQCHNR		3
-
-/**
- * ADC_QMR0 Trigger Event bit.
- */
-#define BIT_TREV		6
-
-/**
  * ADC_GLOBCTR Data Width bit.
  */
 #define BIT_DW			6
@@ -117,17 +102,17 @@ void hsk_adc_isr(void) using 1 {
 
 	/* Read the result. */
 	SFR_PAGE(_ad2, SST1);
+	channel = (ADC_RESR0L >> BIT_CHNR) & ((1 << CNT_CHNR) - 1);
 	result = ADC_RESR0LH;
 
 	/* Update the queue counter. */
-	hsk_adc_queue--;
-
+	hsk_adc_queue++;
+	
 	/*
 	 * Deliver the conversion result.
 	 */
 	/* Extract the channel. */
 	SFR_PAGE(_ad0, noSST);
-	channel = (result >> BIT_CHNR) & ((1 << CNT_CHNR) - 1);
 	if (((ADC_GLOBCTR >> BIT_DW) & 1) == ADC_RESOLUTION_10) {
 		result = (result >> BIT_RESULT) & ((1 << CNT_RESULT) - 1);
 	} else {
@@ -171,7 +156,7 @@ void hsk_adc_isr(void) using 1 {
 /**
  * RCRx Wait-for-Read Mode.
  */
-#define BIT_WFR			5
+#define BIT_WFR			6
 
 /**
  * RCRx Valid Flag Control bit.
@@ -343,37 +328,46 @@ void hsk_adc_close(const hsk_adc_channel idata channel) {
 	}
 }
 
-void hsk_adc_service(void) {
-	/* Check for a full queue and available channels. */
-	if (hsk_adc_queue >= ADC_QUEUE || hsk_adc_nextChannel >= ADC_CHANNELS) {
-		return;
-	}
-	hsk_adc_queue++;
-	SFR_PAGE(_ad6, noSST);
-	/* Set next channel. */
-	ADC_QINR0 = ADC_QINR0 & ~(((1 << CNT_REQCHNR) - 1) << BIT_REQCHNR) | (hsk_adc_nextChannel << BIT_REQCHNR);
-	/* Request next conversion. */
-	ADC_QMR0 |= 1 << BIT_TREV;
-	SFR_PAGE(_ad0, noSST);
+/**
+ * ADC_QINR0 Request Channel Number bits.
+ */
+#define BIT_REQCHNR		0
 
-	/* Find next conversion channel. */
-	while (!hsk_adc_targets[++hsk_adc_nextChannel % ADC_CHANNELS]);
-	hsk_adc_nextChannel %= ADC_CHANNELS;
+/**
+ * REQCHNR bit count.
+ */
+#define CNT_REQCHNR		3
+
+bool hsk_adc_service(void) {
+	/* Check for available channels. */
+	if (hsk_adc_nextChannel >= ADC_CHANNELS) {
+		return 0;
+	}
+	/* Check for a full queue. */
+	if (hsk_adc_request(hsk_adc_nextChannel)) {
+		/* Find next conversion channel. */
+		while (!hsk_adc_targets[++hsk_adc_nextChannel % ADC_CHANNELS]);
+		hsk_adc_nextChannel %= ADC_CHANNELS;
+		return 1;
+	}
+	return 0;
 }
 
-void hsk_adc_request(const hsk_adc_channel idata channel) {
+bool hsk_adc_request(const hsk_adc_channel idata channel) {
+	bool eadc = EADC;
 	/* Check for a full queue. */
-	if (hsk_adc_queue >= ADC_QUEUE) {
-		return;
+	EADC = 0;
+	if (!hsk_adc_queue) {
+		EADC = eadc;
+		return 0;
 	}
-	hsk_adc_queue++;
-	/* Check for empty slots in the queue. */
-	SFR_PAGE(_ad6, noSST);
+	hsk_adc_queue--;
+	EADC = eadc;
 	/* Set next channel. */
-	ADC_QINR0 = ADC_QINR0 & ~(((1 << CNT_REQCHNR) - 1) << BIT_REQCHNR) | (channel << BIT_REQCHNR);
-	/* Request next conversion. */
-	ADC_QMR0 |= 1 << BIT_TREV;
+	SFR_PAGE(_ad6, noSST);
+	ADC_QINR0 = channel << BIT_REQCHNR;
 	SFR_PAGE(_ad0, noSST);
+	return 1;
 }
 
 /**

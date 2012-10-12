@@ -16,6 +16,20 @@
 #include "../hsk_io/hsk_io.h"
 
 /**
+ * Initialises all IO ports as input ports without pull.
+ *
+ * @private
+ */
+void hsk_boot_io(void) {
+	/* Deactivate internal pullups. */
+	IO_PORT_IN_INIT(P0, -1, IO_PORT_PULL_DISABLE, IO_PORT_PULL_UP);
+	IO_PORT_IN_INIT(P1, -1, IO_PORT_PULL_DISABLE, IO_PORT_PULL_UP);
+	IO_PORT_IN_INIT(P3, -1, IO_PORT_PULL_DISABLE, IO_PORT_PULL_UP);
+	IO_PORT_IN_INIT(P4, -1, IO_PORT_PULL_DISABLE, IO_PORT_PULL_UP);
+	IO_PORT_IN_INIT(P5, -1, IO_PORT_PULL_DISABLE, IO_PORT_PULL_UP);
+}
+
+/**
  * MEX3 XRAM Bank Number bits.
  *
  * Used to select the memory bank where the XRAM is located.
@@ -62,9 +76,28 @@
 #define PDATA_PAGE		0xF0
 
 /**
+ * Sets up xdata and pdata memory access.
+ *
+ * Refer to the Processor Architecture and Memory Organization chapters of the
+ * XC878 User Manual.
+ *
+ * @private
+ */
+void hsk_boot_mem(void) {
+	MEX3 = XRAM_SELECTOR << BIT_MXM \
+		| ((XRAM_BANK & ((1 << CNT_MXB) - 1)) << BIT_MXB) \
+		| ((XRAM_BANK >> CNT_MXB) << BIT_MXB19);
+
+	/* Set pdata page. */
+	SFR_PAGE(_su3, noSST);
+	XADDRH = PDATA_PAGE;
+	SFR_PAGE(_su0, noSST);
+}
+
+/**
  * Turns off pullup/-down for all ports prior to global/static initialisation.
  *
- * This function is automatically linked by SDCC and called from start.a51
+ * This function is automatically linked by SDCC and called from startup.a51
  * by Keil C51.
  *
  * @return
@@ -73,30 +106,12 @@
  * @private
  */
 ubyte _sdcc_external_startup(void) {
-	IO_PORT_IN_INIT(P0, -1, IO_PORT_PULL_DISABLE, IO_PORT_PULL_UP);
-	IO_PORT_IN_INIT(P1, -1, IO_PORT_PULL_DISABLE, IO_PORT_PULL_UP);
-	IO_PORT_IN_INIT(P3, -1, IO_PORT_PULL_DISABLE, IO_PORT_PULL_UP);
-	IO_PORT_IN_INIT(P4, -1, IO_PORT_PULL_DISABLE, IO_PORT_PULL_UP);
-	IO_PORT_IN_INIT(P5, -1, IO_PORT_PULL_DISABLE, IO_PORT_PULL_UP);
+	/* Deactivate pullups. */
+	hsk_boot_io();
+	
+	/* Provide XDATA and PDATA access. */
+	hsk_boot_mem();
 	return 0;
-}
-
-/**
- * Sets up xdata memory access.
- *
- * Refer to the Processor Architecture and Memory Organization chapters of the
- * XC878 User Manual.
- */
-void hsk_boot_mem(void) {
-	MEX3 = XRAM_SELECTOR << BIT_MXM \
-		| ((XRAM_BANK & ((1 << CNT_MXB) - 1)) << BIT_MXB) \
-		| ((XRAM_BANK >> CNT_MXB) << BIT_MXB19);
-
-
-	/* Set pdata page. */
-	SFR_PAGE(_su3, noSST);
-	XADDRH = PDATA_PAGE;
-	SFR_PAGE(_su0, noSST);
 }
 
 /**

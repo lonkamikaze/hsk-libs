@@ -99,9 +99,6 @@ volatile uword pdata adc7;
 void init(void) {
 	hsk_can_msg msgBoot;
 
-	/* Activate xdata access. */
-	hsk_boot_mem();
-
 	/* Activate external clock. */
 	hsk_boot_extClock(CLK);
 
@@ -218,6 +215,13 @@ void run(void) {
 			hsk_pwm_channel_set(PWM_62, 100, adc7_copy * 5 / 1023 + 5);
 			hsk_pwm_channel_set(PWM_63, 1023, adc7_copy);
 			hsk_adc_request(7);
+			hsk_adc_request(6);
+			hsk_adc_request(5);
+			hsk_adc_request(4);
+			hsk_adc_request(3);
+			hsk_adc_request(2);
+			hsk_adc_request(1);
+			hsk_adc_request(0);
 			hsk_wdt_service();
 			/*P3_DATA =*/ hsk_pwc_channel_getValue(PWC_CC0, PWC_UNIT_FREQ_S);
 		}
