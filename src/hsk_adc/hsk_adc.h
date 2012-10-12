@@ -109,19 +109,14 @@ void hsk_adc_close(const hsk_adc_channel idata channel);
  *
  * There is a queue of up to 4 conversion jobs. One call of this function
  * only adds one job to the queue.
- */
-void hsk_adc_service(void);
-
-/**
- * Warm up the AD conversion.
  *
- * I.e. make sure all conversion targets have been initialized with a
- * conversion result. This is a blocking function only intended for single
- * use during the boot procedure.
- *
- * This function will not terminate unless interrupts are enabled.
+ * @retval 0
+ *	No conversion request had been queued, either the queue is full or
+ *	no channels have been configured
+ * @retval 1
+ *	A conversion request has been added to the queue
  */
-void hsk_adc_warmup(void);
+bool hsk_adc_service(void);
 
 /**
  * Requests an ADC for a specific channel.
@@ -134,7 +129,22 @@ void hsk_adc_warmup(void);
  *
  * @param channel
  *	The channel id
+ * @retval 0
+ *	The queue is full
+ * @retval 1
+ *	A conversion request has been added to the queue
  */
-void hsk_adc_request(const hsk_adc_channel idata channel);
+bool hsk_adc_request(const hsk_adc_channel idata channel);
+
+/**
+ * Warm up the AD conversion.
+ *
+ * I.e. make sure all conversion targets have been initialized with a
+ * conversion result. This is a blocking function only intended for single
+ * use during the boot procedure.
+ *
+ * This function will not terminate unless interrupts are enabled.
+ */
+void hsk_adc_warmup(void);
 
 #endif /* _HSK_ADC_H_ */
