@@ -131,7 +131,7 @@ typedef ubyte hsk_can_fifo;
  * @param baud
  * 	The target baud rate to use
  */
-void hsk_can_init(const ubyte idata pins, const ulong idata baud);
+void hsk_can_init(const ubyte pins, const ulong baud);
 
 /**
  * Go live on the CAN bus.
@@ -141,7 +141,7 @@ void hsk_can_init(const ubyte idata pins, const ulong idata baud);
  * @param node
  * 	The CAN node to enable
  */
-void hsk_can_enable(const hsk_can_node idata node);
+void hsk_can_enable(const hsk_can_node node);
 
 /**
  * Disable a CAN node.
@@ -152,7 +152,7 @@ void hsk_can_enable(const hsk_can_node idata node);
  * @param node
  * 	The CAN node to disable
  */
-void hsk_can_disable(const hsk_can_node idata node);
+void hsk_can_disable(const hsk_can_node node);
 
 /**
  * \defgroup CAN_STATUS CAN Node Status Fields
@@ -254,7 +254,7 @@ void hsk_can_disable(const hsk_can_node idata node);
  *	The status field state
  * @see \ref CAN_STATUS
  */
-ubyte hsk_can_status(const hsk_can_node idata node, const ubyte idata field);
+ubyte hsk_can_status(const hsk_can_node node, const ubyte field);
 
 /** \file
  * \section CAN Message Object Management
@@ -284,8 +284,8 @@ ubyte hsk_can_status(const hsk_can_node idata node, const ubyte idata field);
  * @retval [0;32[
  *	A message identifier
  */
-hsk_can_msg hsk_can_msg_create(const ulong idata id, const bool extended,
-	const ubyte idata dlc);
+hsk_can_msg hsk_can_msg_create(const ulong id, const bool extended,
+	const ubyte dlc);
 
 /**
  * Connect a message object to a CAN node.
@@ -299,7 +299,7 @@ hsk_can_msg hsk_can_msg_create(const ulong idata id, const bool extended,
  * @retval 0
  *	Success
  */
-ubyte hsk_can_msg_connect(const hsk_can_msg idata msg, const hsk_can_node idata node);
+ubyte hsk_can_msg_connect(const hsk_can_msg msg, const hsk_can_node node);
 
 /**
  * Disconnect a CAN message object from its CAN node.
@@ -314,7 +314,7 @@ ubyte hsk_can_msg_connect(const hsk_can_msg idata msg, const hsk_can_node idata 
  * @retval 0
  *	Success
  */
-ubyte hsk_can_msg_disconnect(const hsk_can_msg idata msg);
+ubyte hsk_can_msg_disconnect(const hsk_can_msg msg);
 
 /**
  * Delete a CAN message object.
@@ -326,7 +326,7 @@ ubyte hsk_can_msg_disconnect(const hsk_can_msg idata msg);
  * @retval 0
  *	Success
  */
-ubyte hsk_can_msg_delete(const hsk_can_msg idata msg);
+ubyte hsk_can_msg_delete(const hsk_can_msg msg);
 
 /**
  * Gets the current data in the CAN message.
@@ -338,8 +338,8 @@ ubyte hsk_can_msg_delete(const hsk_can_msg idata msg);
  * @param msgdata
  * 	The character array to store the message data in
  */
-void hsk_can_msg_getData(const hsk_can_msg idata msg,
-	ubyte * const idata msgdata);
+void hsk_can_msg_getData(const hsk_can_msg msg,
+	ubyte * const msgdata);
 
 /**
  * Sets the current data in the CAN message.
@@ -351,8 +351,8 @@ void hsk_can_msg_getData(const hsk_can_msg idata msg,
  * @param msgdata
  * 	The character array to get the message data from
  */
-void hsk_can_msg_setData(const hsk_can_msg idata msg,
-	const ubyte * const idata msgdata);
+void hsk_can_msg_setData(const hsk_can_msg msg,
+	const ubyte * const msgdata);
 
 /**
  * Request transmission of a message.
@@ -360,7 +360,7 @@ void hsk_can_msg_setData(const hsk_can_msg idata msg,
  * @param msg
  * 	The identifier of the message to send
  */
-void hsk_can_msg_send(const hsk_can_msg idata msg);
+void hsk_can_msg_send(const hsk_can_msg msg);
 
 
 /**
@@ -374,7 +374,7 @@ void hsk_can_msg_send(const hsk_can_msg idata msg);
  * @retval 0
  *	The message has not been sent since the last call of this function
  */
-bool hsk_can_msg_sent(const hsk_can_msg idata msg);
+bool hsk_can_msg_sent(const hsk_can_msg msg);
 
 /**
  * Return the message into RX mode after sending a message.
@@ -386,7 +386,7 @@ bool hsk_can_msg_sent(const hsk_can_msg idata msg);
  * @param msg
  * 	The identifier of the message to receive
  */
-void hsk_can_msg_receive(const hsk_can_msg idata msg);
+void hsk_can_msg_receive(const hsk_can_msg msg);
 
 /**
  * Return whether the message was updated via CAN bus between this call and
@@ -404,7 +404,7 @@ void hsk_can_msg_receive(const hsk_can_msg idata msg);
  * @retval 0
  *	The message has not been updated since the last call of this function
  */
-bool hsk_can_msg_updated(const hsk_can_msg idata msg);
+bool hsk_can_msg_updated(const hsk_can_msg msg);
 
 /** \file
  * \section fifos FIFOs
@@ -479,7 +479,7 @@ bool hsk_can_msg_updated(const hsk_can_msg idata msg);
  * @retval [0;32[
  *	The created FIFO id
  */
-hsk_can_fifo hsk_can_fifo_create(ubyte idata size);
+hsk_can_fifo hsk_can_fifo_create(ubyte size);
 
 /**
  * Set the FIFO up for receiving messages.
@@ -494,8 +494,8 @@ hsk_can_fifo hsk_can_fifo_create(ubyte idata size);
  * 	The data length code, # of bytes in the message, valid values
  * 	range from 0 to 8
  */
-void hsk_can_fifo_setupRx(hsk_can_fifo idata fifo, const ulong idata id,
-	const bool extended, const ubyte idata dlc);
+void hsk_can_fifo_setupRx(hsk_can_fifo fifo, const ulong id,
+	const bool extended, const ubyte dlc);
 
 /**
  * Changes the ID matching mask of an RX FIFO.
@@ -512,7 +512,7 @@ void hsk_can_fifo_setupRx(hsk_can_fifo idata fifo, const ulong idata id,
  * @param msk
  *	The bit mask to set for the FIFO
  */
-void hsk_can_fifo_setRxMask(const hsk_can_fifo idata fifo, ulong idata msk);
+void hsk_can_fifo_setRxMask(const hsk_can_fifo fifo, ulong msk);
 
 /**
  * Connect a FIFO to a CAN node.
@@ -526,8 +526,8 @@ void hsk_can_fifo_setRxMask(const hsk_can_fifo idata fifo, ulong idata msk);
  * @retval 0
  *	Success
  */
-ubyte hsk_can_fifo_connect(const hsk_can_fifo idata fifo,
-	const hsk_can_node idata node);
+ubyte hsk_can_fifo_connect(const hsk_can_fifo fifo,
+	const hsk_can_node node);
 
 /**
  * Disconnect a FIFO from its CAN node.
@@ -542,7 +542,7 @@ ubyte hsk_can_fifo_connect(const hsk_can_fifo idata fifo,
  * @retval 0
  *	Success
  */
-ubyte hsk_can_fifo_disconnect(const hsk_can_fifo idata fifo);
+ubyte hsk_can_fifo_disconnect(const hsk_can_fifo fifo);
 
 /**
  * Delete a FIFO.
@@ -554,7 +554,7 @@ ubyte hsk_can_fifo_disconnect(const hsk_can_fifo idata fifo);
  * @retval 0
  *	Success
  */
-ubyte hsk_can_fifo_delete(const hsk_can_fifo idata fifo);
+ubyte hsk_can_fifo_delete(const hsk_can_fifo fifo);
 
 /**
  * Select the next FIFO entry.
@@ -566,7 +566,7 @@ ubyte hsk_can_fifo_delete(const hsk_can_fifo idata fifo);
  * @param fifo
  *	The ID of the FIFO to select the next entry from
  */
-void hsk_can_fifo_next(const hsk_can_fifo idata fifo);
+void hsk_can_fifo_next(const hsk_can_fifo fifo);
 
 /**
  * Returns the CAN ID of the selected FIFO entry.
@@ -576,7 +576,7 @@ void hsk_can_fifo_next(const hsk_can_fifo idata fifo);
  * @return
  *	The ID of the currently selected message object
  */
-ulong hsk_can_fifo_getId(const hsk_can_fifo idata fifo);
+ulong hsk_can_fifo_getId(const hsk_can_fifo fifo);
 
 /**
  * Return whether the currently selected FIFO entry was updated via CAN bus
@@ -592,7 +592,7 @@ ulong hsk_can_fifo_getId(const hsk_can_fifo idata fifo);
  * @retval 0
  *	The FIFO entry has not been updated since the last call of this function
  */
-bool hsk_can_fifo_updated(const hsk_can_fifo idata fifo);
+bool hsk_can_fifo_updated(const hsk_can_fifo fifo);
 
 /**
  * Gets the data from the currently selected FIFO entry.
@@ -604,8 +604,8 @@ bool hsk_can_fifo_updated(const hsk_can_fifo idata fifo);
  * @param msgdata
  * 	The character array to store the message data in
  */
-void hsk_can_fifo_getData(const hsk_can_fifo idata fifo,
-	ubyte * const idata msgdata);
+void hsk_can_fifo_getData(const hsk_can_fifo fifo,
+	ubyte * const msgdata);
 
 /** \file
  * \section data Message Data
@@ -637,9 +637,9 @@ void hsk_can_fifo_getData(const hsk_can_fifo idata fifo,
  * @param value
  * 	The signal value to write into the data field
  */
-void hsk_can_data_setSignal(ubyte * const idata msg, const bool endian,
-	const bool sign, const ubyte idata bitPos,
-	const char idata bitCount, const ulong idata value);
+void hsk_can_data_setSignal(ubyte * const msg, const bool endian,
+	const bool sign, const ubyte bitPos,
+	const char bitCount, const ulong idata value);
 
 /**
  * Get a signal value from a data field.
@@ -657,8 +657,8 @@ void hsk_can_data_setSignal(ubyte * const idata msg, const bool endian,
  * @return
  *	The signal from the data field msg
  */
-ulong hsk_can_data_getSignal(const ubyte * const idata msg, const bool endian,
-	const bool sign, const ubyte idata bitPos,
-	const char idata bitCount);
+ulong hsk_can_data_getSignal(const ubyte * const msg, const bool endian,
+	const bool sign, const ubyte bitPos,
+	const char bitCount);
 
 #endif /* _HSK_CAN_H_ */

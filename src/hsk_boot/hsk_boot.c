@@ -242,7 +242,7 @@ struct {
 	 * See the NDIV description for value encoding.
 	 */
 	uword ndiv;
-} pdata hsk_boot;
+} xdata hsk_boot;
 
 /**
  * Loss of clock recovery ISR.
@@ -259,7 +259,7 @@ void hsk_boot_isr_nmipll(void) using 2 {
 	/*
 	 * Loop counter for active waiting.
 	 */
-	ubyte activeWait;
+	ubyte idata activeWait;
 
 	/* Go to page 1 where all the oscillator registers and the PASSWD
 	 * registers are. */
@@ -319,7 +319,7 @@ void hsk_boot_isr_nmipll(void) using 2 {
 }
 #pragma restore
 
-void hsk_boot_extClock(const ulong idata clk) {
+void hsk_boot_extClock(const ulong clk) {
 	/**
 	 * <b>WARNING - Here be dragons ...</b>
 	 *

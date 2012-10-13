@@ -53,7 +53,7 @@
  * @param window
  *	The time window in multiples of 10µs
  */
-void hsk_wdt_init(const uword idata window);
+void hsk_wdt_init(const uword window);
 
 /**
  * Activates the Watchdog Timer.

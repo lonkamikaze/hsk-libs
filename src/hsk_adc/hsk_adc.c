@@ -97,8 +97,8 @@ volatile uword * pdata hsk_adc_targets[ADC_CHANNELS] = {0};
 #pragma nooverlay
 #endif
 void hsk_adc_isr(void) using 1 {
-	hsk_adc_channel channel;
-	uword result;
+	hsk_adc_channel idata channel;
+	uword idata result;
 
 	/* Read the result. */
 	SFR_PAGE(_ad2, SST1);
@@ -178,7 +178,7 @@ void hsk_adc_isr(void) using 1 {
  */
 #define BIT_IMODE		4
 
-void hsk_adc_init(ubyte idata resolution, uword idata convTime) {
+void hsk_adc_init(ubyte resolution, uword convTime) {
 	/* The Conversion Time Control bits, any of ADC_CLK_*. */
 	ubyte ctc;
 	/* The Sample Time Control bits, values from 0 to 255. */
@@ -293,8 +293,8 @@ void hsk_adc_disable(void) {
  */
 #define BIT_EMPTY	5
 
-void hsk_adc_open(const hsk_adc_channel idata channel,
-		uword * const idata target) {
+void hsk_adc_open(const hsk_adc_channel channel,
+		uword * const target) {
 	bool eadc = EADC;
 
 	EADC = 0;
@@ -309,7 +309,7 @@ void hsk_adc_open(const hsk_adc_channel idata channel,
 	}
 }
 
-void hsk_adc_close(const hsk_adc_channel idata channel) {
+void hsk_adc_close(const hsk_adc_channel channel) {
 	bool eadc = EADC;
 	EADC = 0;
 	/* Unregister conversion target address. */
@@ -353,7 +353,7 @@ bool hsk_adc_service(void) {
 	return 0;
 }
 
-bool hsk_adc_request(const hsk_adc_channel idata channel) {
+bool hsk_adc_request(const hsk_adc_channel channel) {
 	bool eadc = EADC;
 	/* Check for a full queue. */
 	EADC = 0;
@@ -384,7 +384,7 @@ bool hsk_adc_request(const hsk_adc_channel idata channel) {
 #pragma nooverlay
 #endif
 void hsk_adc_isr_warmup(void) using 1 {
-	ubyte i;
+	ubyte idata i;
 
 	/* Let the original ISR do its thing. */
 	hsk_adc_isr();

@@ -57,9 +57,9 @@ const char code hsk_icm7228_codepage[] = {
  */
 #define ILLUMINATE_OFFSET	16
 
-void hsk_icm7228_writeString(ubyte xdata * const idata buffer,
-		const char * idata str, ubyte idata pos,
-		ubyte idata len) {
+void hsk_icm7228_writeString(ubyte xdata * const buffer,
+		const char * str, ubyte pos,
+		ubyte len) {
 	while (len > 0 && str[0]) {
 		buffer[pos] = hsk_icm7228_codepage[str[0]];
 		len--;
@@ -72,8 +72,8 @@ void hsk_icm7228_writeString(ubyte xdata * const idata buffer,
 	}
 }
 
-void hsk_icm7228_writeDec(ubyte xdata * const idata buffer, uword idata value,
-		char idata power, const ubyte idata pos, ubyte idata len) {
+void hsk_icm7228_writeDec(ubyte xdata * const buffer, uword value,
+		char power, const ubyte pos, ubyte len) {
 	ubyte point = power ? 0x7f : 0xff;
 
 	while (len > 0) {
@@ -85,8 +85,8 @@ void hsk_icm7228_writeDec(ubyte xdata * const idata buffer, uword idata value,
 	}
 }
 
-void hsk_icm7228_writeHex(ubyte xdata * const idata buffer, uword idata value,
-		char idata power, const ubyte idata pos, ubyte idata len) {
+void hsk_icm7228_writeHex(ubyte xdata * const buffer, uword value,
+		char power, const ubyte pos, ubyte len) {
 	ubyte point = power ? 0x7f : 0xff;
 
 	while (len > 0) {
@@ -98,8 +98,8 @@ void hsk_icm7228_writeHex(ubyte xdata * const idata buffer, uword idata value,
 	}
 }
 
-void hsk_icm7228_illuminate(ubyte xdata * const idata buffer,
-		ubyte idata segments, ubyte idata pos, ubyte idata len) {
+void hsk_icm7228_illuminate(ubyte xdata * const buffer,
+		ubyte segments, ubyte pos, ubyte len) {
 	ubyte illuminate;
 	while (len--) {
 		illuminate = segments > 8 ? 8 : segments;

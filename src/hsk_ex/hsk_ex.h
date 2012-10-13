@@ -136,9 +136,9 @@ typedef ubyte hsk_ex_channel;
  * @param callback
  *	The callback function for an interrupt event
  */
-void hsk_ex_channel_enable(const hsk_ex_channel idata channel,
-	const ubyte idata edge,
-	const void (code * const idata callback)(void) using(1));
+void hsk_ex_channel_enable(const hsk_ex_channel channel,
+	const ubyte edge,
+	const void (code * const callback)(void) using(1));
 
 /**
  * Disables an external interrupt channel.
@@ -146,7 +146,7 @@ void hsk_ex_channel_enable(const hsk_ex_channel idata channel,
  * @param channel
  *	The channel to disable, one of \ref EX_EXINT
  */
-void hsk_ex_channel_disable(const hsk_ex_channel idata channel);
+void hsk_ex_channel_disable(const hsk_ex_channel channel);
 
 /**
  * Typedef for externel interrupt ports.
@@ -287,7 +287,7 @@ typedef ubyte hsk_ex_port;
  * @param port
  *	The port to open, one of \ref EX_EXINT_P
  */
-void hsk_ex_port_open(const hsk_ex_port idata port);
+void hsk_ex_port_open(const hsk_ex_port port);
 
 /**
  * Disconnects an input port from an external interrupt.
@@ -295,7 +295,7 @@ void hsk_ex_port_open(const hsk_ex_port idata port);
  * @param port
  *	The port to close, one of \ref EX_EXINT_P
  */
-void hsk_ex_port_close(const hsk_ex_port idata port);
+void hsk_ex_port_close(const hsk_ex_port port);
 
 /*
  * Restore the usual meaning of \c code.
