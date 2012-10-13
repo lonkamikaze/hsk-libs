@@ -1,4 +1,6 @@
 $NOMOD51
+
+; Stack Pointer address
 SP      DATA    81H
 
                 NAME    ?C_STARTUP
@@ -15,9 +17,12 @@ SP      DATA    81H
 ?C_STARTUP:     LJMP    STARTUP1
                 RSEG    ?C_C51STARTUP
 
+; Initialise the Stack Pointer
 STARTUP1:       MOV     SP,#?STACK-1
+; Execute early startup function before global/static initialisation
 		EXTRN CODE (_sdcc_external_startup)
 		LCALL   _sdcc_external_startup
+; Execute global/static initialisation and enter main()
                 LJMP    ?C_START
 
 ; Overwrite ?C?DPSEL address for XC8xx Device
