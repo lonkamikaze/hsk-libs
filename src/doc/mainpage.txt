@@ -232,6 +232,9 @@ pointer is not added to the call tree.
 The C51 tool chain offers \ref toolchain_lx51_misc "call tree manipulations" and SDCC
 provides the \ref sdcc_interrupts "nooverlay pragma" to mitigate this.
 
+The section about \ref memory_overlay lists best practices to
+optimize code for overlaying.
+
 \section platform_pointers Pointers
 
 Due to the existence of different kinds of memory, pointers come in two
@@ -714,8 +717,119 @@ implementing ISRs and callback functions:
 
 \section requirements_mem Memory
 
-All functions expect properly set up \c xdata memory and a \c pdata memory
-page. It is paramount to call hsk_boot_mem() before any other function.
+In order to access \c pdata and \c xdata the \c hsk_boot library must be
+linked.
+
+
+\page memory Variables and Memory
+
+The Infineon/XC878.h header defines some unsigned data types:
+	- bool (1 bit)
+	- ulong (32 bits)
+	- uword (16 bits)
+	- ubyte (8 bits)
+
+Signed types should only be used when necessary, floating point arithmetic
+should be avoided if in any way possible.
+
+The correct place to store a variable depends on four factors:
+	- Size
+	- Lifetime
+	- Frequency of use during lifetime
+	- Overlay possibility
+
+Size, and frequency are the most obvious, considering \ref platform_memory.
+It is desireable to use fast memory for frequently accessed variables.
+Large data structures like buffers, arrays and structs simply use too much
+of the precious memory space to put them anywhere but \c xdata.
+
+Both the C51 and SDCC compilers use a technique called overlay to fit all
+variables into memory. A stack is only used in reentrant functions. Only
+\c data/idata variables can be stacked with \c push/pop instructions. Stacking
+\c xdata is emulated in software and thus very slow.
+
+The overlay approach is to build a call graph and thus decide which variables
+are never used at the same time. These variables are mapped to the same
+fixed memory addresses.
+
+Variables with a long lifetime are locals in the main() function, static
+variables and global variables. These variables have to keep their state
+during the entire runtime. Thus they use memory space that cannot be shared
+with other variables.
+
+ISRs and functions called by ISRs also cannot share memory, because there
+is no sensible way to make sure that a given function is not running when
+an interrupt occurs. In technical terms, each ISR is the root node of its
+own call graph.
+
+The following table lists recommended memory types:
+| Context	|  Size		| Critical	| Memory
+|---------------|---------------|---------------|--------------
+| *		| bool		| *		| bit
+| parameter	| *		| *		| data
+| const		| *		| *		| code
+| local		| byte, word	| *		| data, idata
+|		| >= long	| no		| xdata
+|		|		| ISR/blocking	| pdata, xdata
+| static/global	| *		| no		| xdata
+|		|		| ISR/blocking	| pdata, xdata
+
+\c ISR/blocking refers to memory accessed by ISRs, functions called back by
+ISRs and sections of code that block an interrupt.
+
+\section memory_overlay Implications of Overlaying
+
+First and foremost, \ref platform_memory_overlaying is only performed for
+the default memory, by SDCC. This project is built around the small memory
+model, i.e. only \c data memory is overlaid by SDCC.
+
+The \c data memory is only 128 bytes minus the used register banks large.
+With three register banks that means only 104 bytes of \c data memory are
+available. Thus non-overlayable variables should be placed in \c idata in
+order to use \c data memory for well overlayable variables.
+
+Furthermore SDCC does not build a complete call tree, so it cannot eliminate
+unused functions like C51/LX51 and only overlays leaf functions.
+I.e. only functions that call no other functions are overlaid.
+
+For both SDCC and and C51/LX51 overlaying ISRs is not possible, that is why
+locals of ISRs should in most cases be placed in idata, despite the
+performance impact.
+
+A limitation of C51/LX51 is that it ignores explicit memory assignments
+in function parameters and always places them in the default memory, if they
+cannot be passed in registers. This limitation does not appear to be
+documented, but it was reported by an ARM support employee in case #530915.
+
+SDCC does not share this limitation, it can place function parameters in
+all kinds of memory. Because such assignments are ignored by C51/LX51,
+parameter memory type should be optimised for SDCC.
+Explicit memory assignments prevent parameters from being passed in
+registers. SDCC can pass up to four bytes of parameters in registers.
+
+If a function uses more than 4 bytes of parameters, the parameters from the
+fifth byte on may be placed in idata. When counting bytes it is important to
+be aware of pointer sizes:
+| Target Memory		| Size (byte)
+|-----------------------|-------------
+| generic		| 3
+| \c code		| 2
+| \c xdata		| 2
+| <tt>idata/data</tt>	| 1
+| \c pdata		| 1
+
+Also note that bool parameters should not be counted, because they always
+are passed in bit addressable memory.
+
+If an application runs out of \c data space locals should be put into
+\c idata memory. Variables accessed by ISRs/ISR callbacks should be
+placed in \c pdata or \c idata. If that suffices the code should be checked
+for frequently accessed variables. The most frequent ones should be assigned
+to the default memory type if possible.
+
+@see Overlaying in the SDCC manual
+@see Global Registers used for Parameter Passing in the SDCC manual
+
 
 \cond DEV
 \page conventions Coding Conventions and Guidelines
@@ -923,8 +1037,6 @@ Like header files every C file starts with a JavaDoc style comment:
 	  of all things of interest, when working on the implementation
 - <tt>\<author tag></tt>
 	- A short author tag from \ref authors
-- <tt>\<iso date></tt>
-	- The ISO 8601 date (YYYY-MM-DD) of the last edit
 
 The first include in a C file is the Infineon/XC878.h header, followed
 by the own header file. The next (optional) include block contains all the
@@ -951,69 +1063,6 @@ library.
 
 The file should be included in the following manner:
 \snippet examples isr header include
-
-\section conventions_memory Variables and Memory
-
-The Infineon/XC878.h header defines some unsigned data types:
-	- bool (1 bit)
-	- ulong (32 bits)
-	- uword (16 bits)
-	- ubyte (8 bits)
-
-Signed types should only be used when necessary, floating point arithmetic
-should be avoided if in any way possible.
-
-The correct place to store a variable depends on four factors:
-	- Size
-	- Lifetime
-	- Frequency of use during lifetime
-	- Overlay possibility
-
-Size, and frequency are the most obvious, considering \ref platform_memory.
-It is desireable to use fast memory for frequently accessed variables.
-Large data structures like buffers, arrays and structs simply use too much
-of the precious memory space to put them anywhere but \c xdata.
-
-Both the C51 and SDCC compilers use a technique called overlay to fit all
-variables into memory. A stack is only used in reentrant functions. Only
-\c data/idata variables can be stacked with \c push/pop instructions. Stacking
-\c xdata is emulated in software and thus very slow.
-
-The overlay approach is to build a call graph and thus decide which variables
-are never used at the same time. These variables are mapped to the same
-fixed memory addresses.
-
-Variables with a long lifetime are locals in the main() function, static
-variables and global variables. These variables have to keep their state
-during the entire runtime. Thus they use memory space that cannot be shared
-with other variables.
-
-ISRs and functions called by ISRs also cannot share memory, because there
-is no sensible way to make sure that a given function is not running when
-an interrupt occurs. In technical terms, each ISR is the root node of its
-own call graph.
-
-The following table lists recommended memory types:
-| Context	|  Size		| Critical	| Memory
-|---------------|---------------|---------------|--------------
-| *		| bit		| *		| bool
-| parameter	| *		| *		| idata
-| const		| *		| *		| code
-| local		| byte, word	| *		| data
-|		| >= long	| no		| xdata
-|		|		| ISR/blocking	| pdata, xdata
-| static/global	| *		| no		| xdata
-|		|		| ISR/blocking	| pdata, xdata
-
-\c ISR/blocking refers to memory accessed by ISRs, functions called back by
-ISRs and sections of code that block an interrupt.
-
-\note
-C51 ignores parameter memory. However, its overlaying is performed during link
-time unlike SDCC, which overlays during compile time. I.e. C51 performs
-overlaying for the entire application, SDCC only within the scape of a \c .c
-file. Thus C51 usually requires much less memory, which more than mitigates
-this limitation.
 
 \section conventions_members Member Naming Conventions
 
