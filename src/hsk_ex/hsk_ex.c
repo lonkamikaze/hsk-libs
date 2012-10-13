@@ -74,9 +74,9 @@
  */
 #define BIT_IMODE	4
 
-void hsk_ex_channel_enable(const hsk_ex_channel idata channel,
-		const ubyte idata edge,
-		const void (code * const idata callback)(void) using(1)) {
+void hsk_ex_channel_enable(const hsk_ex_channel channel,
+		const ubyte edge,
+		const void (code * const callback)(void) using(1)) {
 
 	/**
 	 * Setting up EXINT0/1 is somewhat confusing. Refer to UM 1.1 section
@@ -156,7 +156,7 @@ void hsk_ex_channel_enable(const hsk_ex_channel idata channel,
  * @}
  */
 
-void hsk_ex_channel_disable(const hsk_ex_channel idata channel) {
+void hsk_ex_channel_disable(const hsk_ex_channel channel) {
 	switch (channel) {
 	case EX_EXINT0:
 		EXICON0 = EXICON0 & ~(((1 << CNT_EXINT) - 1) << BIT_EXINT0)
@@ -240,7 +240,7 @@ const struct {
 	/* EXINT6_P57 */ {5, 4, 7, 3}
 };
 
-void hsk_ex_port_open(const hsk_ex_port idata port) {
+void hsk_ex_port_open(const hsk_ex_port port) {
 
 	/*
 	 * Select input port.
@@ -358,7 +358,7 @@ void hsk_ex_port_open(const hsk_ex_port idata port) {
 	#undef portAltsel
 }
 
-void hsk_ex_port_close(const hsk_ex_port idata port) {
+void hsk_ex_port_close(const hsk_ex_port port) {
 	/*
 	 * Deactivate input port.
 	 */

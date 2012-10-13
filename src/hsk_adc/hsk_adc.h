@@ -70,7 +70,7 @@ typedef ubyte hsk_adc_channel;
  * @param convTime
  *	The desired conversion time in µs
  */
-void hsk_adc_init(ubyte idata resolution, uword idata convTime);
+void hsk_adc_init(ubyte resolution, uword convTime);
 
 /**
  * Turns on ADC conversion, if previously deactivated.
@@ -90,8 +90,8 @@ void hsk_adc_disable(void);
  * @param target
  *	A pointer where to store conversion results
  */
-void hsk_adc_open(const hsk_adc_channel idata channel,
-	uword * const idata target);
+void hsk_adc_open(const hsk_adc_channel channel,
+	uword * const target);
 
 /**
  * Close the given ADC channel.
@@ -101,7 +101,7 @@ void hsk_adc_open(const hsk_adc_channel idata channel,
  * @param channel
  *	The channel id
  */
-void hsk_adc_close(const hsk_adc_channel idata channel);
+void hsk_adc_close(const hsk_adc_channel channel);
 
 /**
  * A maintenance function that takes care of keeping AD conversions going.
@@ -134,7 +134,7 @@ bool hsk_adc_service(void);
  * @retval 1
  *	A conversion request has been added to the queue
  */
-bool hsk_adc_request(const hsk_adc_channel idata channel);
+bool hsk_adc_request(const hsk_adc_channel channel);
 
 /**
  * Warm up the AD conversion.

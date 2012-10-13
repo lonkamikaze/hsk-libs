@@ -169,7 +169,7 @@ typedef ubyte hsk_pwc_port;
  * @param window
  *	The time in ms to detect a pulse.
  */
-void hsk_pwc_init(ulong idata window);
+void hsk_pwc_init(ulong window);
 
 /**
  * Configures a PWC channel without an input port.
@@ -183,8 +183,8 @@ void hsk_pwc_init(ulong idata window);
  * 	The number of pulse values to average over when returning a
  * 	value or speed. The value must be between 1 and 8.
  */
-void hsk_pwc_channel_open(const hsk_pwc_channel idata channel,
-	ubyte idata averageOver);
+void hsk_pwc_channel_open(const hsk_pwc_channel channel,
+	ubyte averageOver);
 
 /**
  * Opens an input port and the connected channel.
@@ -197,8 +197,8 @@ void hsk_pwc_channel_open(const hsk_pwc_channel idata channel,
  * 	The number of pulse values to average over when returning a
  * 	value or speed. The value must be between 1 and CHAN_BUF_SIZE
  */
-void hsk_pwc_port_open(const hsk_pwc_port idata port,
-	ubyte idata averageOver);
+void hsk_pwc_port_open(const hsk_pwc_port port,
+	ubyte averageOver);
 
 /**
  * Close a PWC channel.
@@ -206,7 +206,7 @@ void hsk_pwc_port_open(const hsk_pwc_port idata port,
  * @param channel
  * 	The channel to close.
  */
-void hsk_pwc_channel_close(const hsk_pwc_channel idata channel);
+void hsk_pwc_channel_close(const hsk_pwc_channel channel);
 
 /**
  * Select the edge that is used to detect a pulse.
@@ -218,8 +218,8 @@ void hsk_pwc_channel_close(const hsk_pwc_channel idata channel);
  * @param edgeMode
  * 	The selected edge detection mode.
  */
-void hsk_pwc_channel_edgeMode(const hsk_pwc_channel idata channel,
-	const ubyte idata edgeMode);
+void hsk_pwc_channel_edgeMode(const hsk_pwc_channel channel,
+	const ubyte edgeMode);
 
 /**
  * Allows switching between external and soft trigger.
@@ -232,8 +232,8 @@ void hsk_pwc_channel_edgeMode(const hsk_pwc_channel idata channel,
  * @param captureMode
  * 	The mode to set the channel to.
  */
-void hsk_pwc_channel_captureMode(const hsk_pwc_channel idata channel,
-	const ubyte idata captureMode);
+void hsk_pwc_channel_captureMode(const hsk_pwc_channel channel,
+	const ubyte captureMode);
 
 /**
  * Triggers a channel in soft trigger mode.
@@ -241,7 +241,7 @@ void hsk_pwc_channel_captureMode(const hsk_pwc_channel idata channel,
  * @param channel
  * 	The channel to trigger.
  */
-void hsk_pwc_channel_trigger(const hsk_pwc_channel idata channel);
+void hsk_pwc_channel_trigger(const hsk_pwc_channel channel);
 
 /**
  * Enables T2CCU module if disabled.
@@ -324,8 +324,8 @@ void hsk_pwc_disable(void);
  * @retval 0
  *	Invalid channel, measurement timed out
  */
-ulong hsk_pwc_channel_getValue(const hsk_pwc_channel idata channel,
-	const ubyte idata unit);
+ulong hsk_pwc_channel_getValue(const hsk_pwc_channel channel,
+	const ubyte unit);
 
 #endif /* _HSK_PWC_H_ */
 

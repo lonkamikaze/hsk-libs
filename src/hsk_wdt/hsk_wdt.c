@@ -27,7 +27,7 @@
  */
 #define BIT_WDTIN	0
 
-void hsk_wdt_init(const uword idata window) {
+void hsk_wdt_init(const uword window) {
 	/**
  	 * The WDT runs at PCLK/2 or PCLK/128, i.e. the WDT low byte WDTL
 	 * overlow occurs either every 21.333µs or every 1365.333ms.

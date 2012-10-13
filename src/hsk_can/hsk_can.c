@@ -393,7 +393,7 @@ bool hsk_can_initialized = 0;
  */
 #define BIT_CAN_DIS		5
 
-void hsk_can_init(const ubyte idata pins, const ulong idata baud) {
+void hsk_can_init(const ubyte pins, const ulong baud) {
 	/* The node to configure. */
 	hsk_can_node node;
 	/* Select the receive signal pin. */
@@ -571,7 +571,7 @@ void hsk_can_init(const ubyte idata pins, const ulong idata baud) {
 
 }
 
-void hsk_can_enable(const hsk_can_node idata node) {
+void hsk_can_enable(const hsk_can_node node) {
 	/* Get the Node x Control Register. */
 	CAN_ADLH = NCRx + (node << OFF_NODEx);
 	CAN_AD_READ();
@@ -580,7 +580,7 @@ void hsk_can_enable(const hsk_can_node idata node) {
 	CAN_AD_WRITE(0x1);
 }
 
-void hsk_can_disable(const hsk_can_node idata node) {
+void hsk_can_disable(const hsk_can_node node) {
 	/* Get the Node x Control Register. */
 	CAN_ADLH = NCRx + (node << OFF_NODEx);
 	CAN_AD_READ();
@@ -589,7 +589,7 @@ void hsk_can_disable(const hsk_can_node idata node) {
 	CAN_AD_WRITE(0x1);
 }
 
-ubyte hsk_can_status(const hsk_can_node idata node, const ubyte idata field) {
+ubyte hsk_can_status(const hsk_can_node node, const ubyte field) {
 	ubyte status = -1;
 
 	/* Get the Node x Status Register. */
@@ -855,8 +855,8 @@ ubyte hsk_can_status(const hsk_can_node idata node, const ubyte idata field) {
  */
 #define PRI_ID			2
 
-hsk_can_msg hsk_can_msg_create(const ulong idata id, const bool extended,
-		const ubyte idata dlc) {
+hsk_can_msg hsk_can_msg_create(const ulong id, const bool extended,
+		const ubyte dlc) {
 	hsk_can_msg msg;
 
 	/*
@@ -960,7 +960,7 @@ hsk_can_msg hsk_can_msg_create(const ulong idata id, const bool extended,
  *	Move successful
  * @private
  */
-ubyte hsk_can_msg_move(const hsk_can_msg idata msg, const ubyte idata list) {
+ubyte hsk_can_msg_move(const hsk_can_msg msg, const ubyte list) {
 	/* Check whether this is a valid message ID. */
 	if (msg >= HSK_CAN_MSG_MAX) {
 		return CAN_ERROR;
@@ -978,23 +978,23 @@ ubyte hsk_can_msg_move(const hsk_can_msg idata msg, const ubyte idata list) {
 	return 0;
 }
 
-ubyte hsk_can_msg_connect(const hsk_can_msg idata msg, const hsk_can_node idata node) {
+ubyte hsk_can_msg_connect(const hsk_can_msg msg, const hsk_can_node node) {
 	/* Move message to the requested CAN node. */
 	return hsk_can_msg_move(msg, LIST_NODEx + node);
 }
 
-ubyte hsk_can_msg_disconnect(const hsk_can_msg idata msg) {
+ubyte hsk_can_msg_disconnect(const hsk_can_msg msg) {
 	/* Move the message object to the list of pending message objects. */
 	return hsk_can_msg_move(msg, LIST_PENDING);
 }
 
-ubyte hsk_can_msg_delete(const hsk_can_msg idata msg) {
+ubyte hsk_can_msg_delete(const hsk_can_msg msg) {
 	/* Move the message object into the list of unallocated objects. */
 	return hsk_can_msg_move(msg, LIST_UNALLOC);
 }
 
-void hsk_can_msg_getData(const hsk_can_msg idata msg,
-		ubyte * const idata msgdata) {
+void hsk_can_msg_getData(const hsk_can_msg msg,
+		ubyte * const msgdata) {
 	ubyte dlc, i;
 
 	/* Get the DLC. */
@@ -1022,8 +1022,8 @@ void hsk_can_msg_getData(const hsk_can_msg idata msg,
 	}
 }
 
-void hsk_can_msg_setData(const hsk_can_msg idata msg,
-		const ubyte * const idata msgdata) {
+void hsk_can_msg_setData(const hsk_can_msg msg,
+		const ubyte * const msgdata) {
 	ubyte dlc, i;
 
 	/* Get the DLC. */
@@ -1054,7 +1054,7 @@ void hsk_can_msg_setData(const hsk_can_msg idata msg,
 	}
 }
 
-void hsk_can_msg_send(const hsk_can_msg idata msg) {
+void hsk_can_msg_send(const hsk_can_msg msg) {
 	/* Request transmission. */
 	CAN_ADLH = MOCTRn + (msg << OFF_MOn);
 	SET_DATA = (1 << BIT_TXEN0) | (1 << BIT_TXEN1) | (1 << BIT_TXRQ) | (1 << BIT_DIR);
@@ -1062,7 +1062,7 @@ void hsk_can_msg_send(const hsk_can_msg idata msg) {
 	CAN_AD_WRITE(0xF);
 }
 
-bool hsk_can_msg_sent(const hsk_can_msg idata msg) {
+bool hsk_can_msg_sent(const hsk_can_msg msg) {
 
 	/* Get the message status. */
 	CAN_ADLH = MOSTATn + (msg << OFF_MOn);
@@ -1078,7 +1078,7 @@ bool hsk_can_msg_sent(const hsk_can_msg idata msg) {
 	return 1;
 }
 
-void hsk_can_msg_receive(const hsk_can_msg idata msg) {
+void hsk_can_msg_receive(const hsk_can_msg msg) {
 	/* Return to rx mode. */
 	CAN_ADLH = MOCTRn + (msg << OFF_MOn);
 	SET_DATA = (1 << BIT_RXEN);
@@ -1086,7 +1086,7 @@ void hsk_can_msg_receive(const hsk_can_msg idata msg) {
 	CAN_AD_WRITE(0xF);
 }
 
-bool hsk_can_msg_updated(const hsk_can_msg idata msg) {
+bool hsk_can_msg_updated(const hsk_can_msg msg) {
 
 	/* Get the message status. */
 	CAN_ADLH = MOSTATn + (msg << OFF_MOn);
@@ -1102,7 +1102,7 @@ bool hsk_can_msg_updated(const hsk_can_msg idata msg) {
 	return 1;
 }
 
-hsk_can_fifo hsk_can_fifo_create(ubyte idata size) {
+hsk_can_fifo hsk_can_fifo_create(ubyte size) {
 	hsk_can_fifo base;
 	hsk_can_msg top;
 
@@ -1199,8 +1199,8 @@ hsk_can_fifo hsk_can_fifo_create(ubyte idata size) {
 	return base;
 }
 
-void hsk_can_fifo_setupRx(hsk_can_fifo idata fifo, const ulong idata id,
-		const bool extended, const ubyte idata dlc) {
+void hsk_can_fifo_setupRx(hsk_can_fifo fifo, const ulong id,
+		const bool extended, const ubyte dlc) {
 	hsk_can_msg top;
 
 	/*
@@ -1252,7 +1252,7 @@ void hsk_can_fifo_setupRx(hsk_can_fifo idata fifo, const ulong idata id,
 	}
 }
 
-void hsk_can_fifo_setRxMask(const hsk_can_fifo idata fifo, ulong idata msk) {
+void hsk_can_fifo_setRxMask(const hsk_can_fifo fifo, ulong msk) {
 
 	/* Shift msk into position. */
 	CAN_ADLH = MOARn + (fifo << OFF_MOn);
@@ -1286,7 +1286,7 @@ void hsk_can_fifo_setRxMask(const hsk_can_fifo idata fifo, ulong idata msk) {
  *	Move successful
  * @private
  */
-ubyte hsk_can_fifo_move(hsk_can_fifo idata fifo, const ubyte idata list) {
+ubyte hsk_can_fifo_move(hsk_can_fifo fifo, const ubyte list) {
 	ubyte top, pre, next;
 
 	/* Check whether this is a valid ID. */
@@ -1348,23 +1348,23 @@ ubyte hsk_can_fifo_move(hsk_can_fifo idata fifo, const ubyte idata list) {
 	return 0;
 }
 
-ubyte hsk_can_fifo_connect(const hsk_can_fifo idata fifo,
-		const hsk_can_node idata node) {
+ubyte hsk_can_fifo_connect(const hsk_can_fifo fifo,
+		const hsk_can_node node) {
 	/* Move message to the requested CAN node. */
 	return hsk_can_fifo_move(fifo, LIST_NODEx + node);
 }
 
-ubyte hsk_can_fifo_disconnect(const hsk_can_fifo idata fifo) {
+ubyte hsk_can_fifo_disconnect(const hsk_can_fifo fifo) {
 	/* Move the FIFO to the list of pending message objects. */
 	return hsk_can_fifo_move(fifo, LIST_PENDING);
 }
 
-ubyte hsk_can_fifo_delete(const hsk_can_fifo idata fifo) {
+ubyte hsk_can_fifo_delete(const hsk_can_fifo fifo) {
 	/* Move the FIFO into the list of unallocated objects. */
 	return hsk_can_fifo_move(fifo, LIST_UNALLOC);
 }
 
-void hsk_can_fifo_next(const hsk_can_fifo idata fifo) {
+void hsk_can_fifo_next(const hsk_can_fifo fifo) {
 
 	/* Get the current selection. */
 	CAN_ADLH = MOFGPRn + (fifo << OFF_MOn);
@@ -1386,22 +1386,22 @@ void hsk_can_fifo_next(const hsk_can_fifo idata fifo) {
 	CAN_AD_WRITE(0x8);
 }
 
-bool hsk_can_fifo_updated(const hsk_can_fifo idata fifo) {
+bool hsk_can_fifo_updated(const hsk_can_fifo fifo) {
 	/* Get the current selection. */
 	CAN_ADLH = MOFGPRn + (fifo << OFF_MOn);
 	CAN_AD_READ();
 	return hsk_can_msg_updated(MOFGPRn_SEL);
 }
 
-void hsk_can_fifo_getData(const hsk_can_fifo idata fifo,
-		ubyte * const idata msgdata) {
+void hsk_can_fifo_getData(const hsk_can_fifo fifo,
+		ubyte * const msgdata) {
 	/* Get the current selection. */
 	CAN_ADLH = MOFGPRn + (fifo << OFF_MOn);
 	CAN_AD_READ();
 	hsk_can_msg_getData(MOFGPRn_SEL, msgdata);
 }
 
-ulong hsk_can_fifo_getId(const hsk_can_fifo idata fifo) {
+ulong hsk_can_fifo_getId(const hsk_can_fifo fifo) {
 	ulong result;
 
 	/* Get the current selection. */
@@ -1433,8 +1433,8 @@ ulong hsk_can_fifo_getId(const hsk_can_fifo idata fifo) {
  * 	The signal value to write into the data field
  * @private
  */
-void hsk_can_data_setIntelSignal(ubyte * const idata msg,
-		ubyte idata bitPos, char idata bitCount, ulong idata value) {
+void hsk_can_data_setIntelSignal(ubyte * const msg,
+		ubyte bitPos, char bitCount, ulong idata value) {
 	ubyte shift;
 	while (bitCount > 0) {
 		shift = bitPos % 8;
@@ -1492,8 +1492,8 @@ void hsk_can_data_setIntelSignal(ubyte * const idata msg,
  * 	The signal value to write into the data field
  * @private
  */
-void hsk_can_data_setMotorolaSignal(ubyte * const idata msg,
-		ubyte idata bitPos, char idata bitCount, ulong idata value) {
+void hsk_can_data_setMotorolaSignal(ubyte * const msg,
+		ubyte bitPos, char bitCount, ulong idata value) {
 	char bits;
 
 	while (bitCount > 0) {
@@ -1510,9 +1510,9 @@ void hsk_can_data_setMotorolaSignal(ubyte * const idata msg,
 	}
 }
 
-void hsk_can_data_setSignal(ubyte * const idata msg, const bool endian,
-		const bool sign, const ubyte idata bitPos,
-		const char idata bitCount, const ulong idata value) {
+void hsk_can_data_setSignal(ubyte * const msg, const bool endian,
+		const bool sign, const ubyte bitPos,
+		const char bitCount, const ulong idata value) {
 	/**
 	 * The sign parameter is not required for setting signals, it is just
 	 * there so that one signal configuration tuple suffices for
@@ -1546,8 +1546,8 @@ void hsk_can_data_setSignal(ubyte * const idata msg, const bool endian,
  *	The signal from the data field msg
  * @private
  */
-ulong hsk_can_data_getIntelSignal(const ubyte * const idata msg,
-		const bool sign, ubyte idata bitPos, char idata bitCount) {
+ulong hsk_can_data_getIntelSignal(const ubyte * const msg,
+		const bool sign, ubyte bitPos, char bitCount) {
 	ulong value = 0;
 	ubyte shift = 0;
 	while (bitCount > 0) {
@@ -1582,8 +1582,8 @@ ulong hsk_can_data_getIntelSignal(const ubyte * const idata msg,
  *	The signal from the data field msg
  * @private
  */
-ulong hsk_can_data_getMotorolaSignal(const ubyte * const idata  msg,
-		const bool sign, ubyte idata bitPos, char idata bitCount) {
+ulong hsk_can_data_getMotorolaSignal(const ubyte * const msg,
+		const bool sign, ubyte bitPos, char bitCount) {
 	ulong value = 0;
 	ubyte shift = bitCount;
 	char bits;
@@ -1605,9 +1605,9 @@ ulong hsk_can_data_getMotorolaSignal(const ubyte * const idata  msg,
 	return value;
 }
 
-ulong hsk_can_data_getSignal(const ubyte * const idata msg, const bool endian,
-		const bool sign, const ubyte idata bitPos,
-		const char idata bitCount) {
+ulong hsk_can_data_getSignal(const ubyte * const msg, const bool endian,
+		const bool sign, const ubyte bitPos,
+		const char bitCount) {
 	switch((ubyte)endian) {
 	case CAN_ENDIAN_INTEL:
 		return hsk_can_data_getIntelSignal(msg, sign, bitPos, bitCount);

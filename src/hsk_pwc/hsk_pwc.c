@@ -101,7 +101,7 @@ volatile struct {
 #ifdef SDCC
 #pragma nooverlay
 #endif
-void hsk_pwc_isr_ccn(const hsk_pwc_channel idata channel, uword idata capture) using 1 {
+void hsk_pwc_isr_ccn(const hsk_pwc_channel channel, uword capture) using 1 {
 	#define channel	hsk_pwc_channels[channel]
 	/* Get the new value and store the current capture value for next
 	 * time. */
@@ -222,7 +222,7 @@ void hsk_pwc_isr_cctOverflow(void) using 1 {
  */
 #define BIT_IMODE		4
 
-void hsk_pwc_init(ulong idata window) {
+void hsk_pwc_init(ulong window) {
 	/* The prescaler in powers of 2. */
 	hsk_pwc_prescaler = 0;
 
@@ -288,8 +288,8 @@ void hsk_pwc_init(ulong idata window) {
  */
 #define EDGE_DEFAULT_MODE	PWC_EDGE_BOTH
 
-void hsk_pwc_channel_open(const hsk_pwc_channel idata channel,
-		ubyte idata averageOver) {
+void hsk_pwc_channel_open(const hsk_pwc_channel channel,
+		ubyte averageOver) {
 	/*
 	 * Set up channel information.
 	 */
@@ -379,8 +379,8 @@ const struct {
 	/* PWC_CC3_P57 */ {7, 3, 5, 4, 3}
 };
 
-void hsk_pwc_port_open(const hsk_pwc_port idata port,
-		ubyte idata averageOver) {
+void hsk_pwc_port_open(const hsk_pwc_port port,
+		ubyte averageOver) {
 	hsk_pwc_channel channel;
 
 	/*
@@ -490,7 +490,7 @@ void hsk_pwc_port_open(const hsk_pwc_port idata port,
 	#undef inCount
 }
 
-void hsk_pwc_channel_close(const hsk_pwc_channel idata channel) {
+void hsk_pwc_channel_close(const hsk_pwc_channel channel) {
 	/*
 	 * Deactivate the channel.
 	 */
@@ -548,8 +548,8 @@ void hsk_pwc_channel_close(const hsk_pwc_channel idata channel) {
  */
 #define PWC_CC3_EXINT_BIT	4
 
-void hsk_pwc_channel_edgeMode(const hsk_pwc_channel idata channel,
-		const ubyte idata edgeMode) {
+void hsk_pwc_channel_edgeMode(const hsk_pwc_channel channel,
+		const ubyte edgeMode) {
 	/*
 	 * Configure the corresponding external interrupt to trigger with
 	 * the desired edge.
@@ -572,8 +572,8 @@ void hsk_pwc_channel_edgeMode(const hsk_pwc_channel idata channel,
 	SFR_PAGE(_t2_0, noSST);
 }
 
-void hsk_pwc_channel_captureMode(const hsk_pwc_channel idata channel,
-		const ubyte idata captureMode) {
+void hsk_pwc_channel_captureMode(const hsk_pwc_channel channel,
+		const ubyte captureMode) {
 	/*
 	 * Configure capture mode for the channel.
 	 */
@@ -582,7 +582,7 @@ void hsk_pwc_channel_captureMode(const hsk_pwc_channel idata channel,
 	SFR_PAGE(_t2_0, noSST);
 }
 
-void hsk_pwc_channel_trigger(const hsk_pwc_channel idata channel) {
+void hsk_pwc_channel_trigger(const hsk_pwc_channel channel) {
 	switch (channel) {
 	case PWC_CC0:
 		SFR_PAGE(_t2_2, noSST);
@@ -627,8 +627,8 @@ void hsk_pwc_disable(void) {
 	SFR_PAGE(_su0, noSST);
 }
 
-ulong hsk_pwc_channel_getValue(const hsk_pwc_channel idata channel, \
-		const ubyte idata unit) {
+ulong hsk_pwc_channel_getValue(const hsk_pwc_channel channel, \
+		const ubyte unit) {
 	#define channel	hsk_pwc_channels[channel]
 	bool exm = EXM;
 	bool et2 = ET2;
