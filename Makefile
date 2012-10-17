@@ -41,6 +41,7 @@ printEnv:
 	@echo export PROJECT=\"${PROJECT}\"
 	@echo export CANPROJDIR=\"${CANPROJDIR}\"
 	@echo export CANDIR=\"${CANDIR}\"
+	@echo export CPP=\"${CPP}\"
 
 html: html/user html/dev html/contrib
 
