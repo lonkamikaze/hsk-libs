@@ -26,10 +26,14 @@
 
 #include "hsk_isr.h"
 
+#ifdef __C51__
 /**
- * SYSCON0 Special Function Register Map Control bit.
+ * This is a dummy function used for putting register bank 1 using ISRs
+ * into a common call tree.
  */
-#define BIT_RMAP	0
+void hsk_isr_root1(void) using 1 {
+}
+#endif
 
 /**
  * This is a dummy function to point unused function pointers to.
@@ -52,6 +56,11 @@ void nmidummy(void) using 2 {
  * Define callback function pointers for ISR 5.
  */
 volatile struct hsk_isr5_callback pdata hsk_isr5 = {&dummy, &dummy, &dummy, &dummy, &dummy, &dummy, &dummy};
+
+/**
+ * SYSCON0 Special Function Register Map Control bit.
+ */
+#define BIT_RMAP	0
 
 /**
  * T2_T2CON Timer 2 Overflow bit.

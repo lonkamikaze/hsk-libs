@@ -12,7 +12,7 @@ echo "Getting call tree changes for overlay optimisation ..." 1>&2
 overlays="$(awk -f scripts/overlays.awk $(find src/ -name \*.c))"
 echo "$overlays" | sed -e 's/^/	/' -e 's/[[:cntrl:]]$//' 1>&2
 
-echo "Updating uVision/hsk_dev.uvproj ..." 1>&2
+echo "Updating uVision/hsk_libs.uvproj ..." 1>&2
 cp uVision/hsk_libs.uvproj uVision/hsk_libs.uvproj.bak
 awk -f scripts/xml.awk uVision/hsk_libs.uvproj.bak \
         -search:Target51/C51/VariousControls/IncludePath \
