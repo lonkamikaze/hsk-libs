@@ -56,7 +56,8 @@ function getIncludes() {
 
 BEGIN {
 	for (i = 1; i < ARGC; i++) {
-		if (ARGV[i] ~ /\/$/) {
+		if (system("test -d " ARGV[i]) == 0) {
+			sub(/\/?$/, "/", ARGV[i])
 			roots[ARGV[i]] = 1;
 		} else {
 			files[ARGV[i]] = 1;
