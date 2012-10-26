@@ -83,15 +83,33 @@ void hsk_adc_enable(void);
 void hsk_adc_disable(void);
 
 /**
- * Open the given ADC channel.
+ * Backwards compatibility hack.
+ *
+ * @deprecated
+ *	Use hsk_adc_open10() or hsk_adc_open8() as appropriate
+ */
+#define hsk_adc_open	hsk_adc_open10
+
+/**
+ * Open the given ADC channel in 10 bit mode.
  *
  * @param channel
  *	The channel id
  * @param target
  *	A pointer where to store conversion results
  */
-void hsk_adc_open(const hsk_adc_channel channel,
+void hsk_adc_open10(const hsk_adc_channel channel,
 	uword * const target);
+/**
+ * Open the given ADC channel in 8 bit mode.
+ *
+ * @param channel
+ *	The channel id
+ * @param target
+ *	A pointer where to store conversion results
+ */
+void hsk_adc_open8(const hsk_adc_channel channel,
+	ubyte * const target);
 
 /**
  * Close the given ADC channel.
@@ -137,14 +155,26 @@ bool hsk_adc_service(void);
 bool hsk_adc_request(const hsk_adc_channel channel);
 
 /**
- * Warm up the AD conversion.
+ * Backwards compatibility hack.
+ *
+ * @deprecated
+ *	Use hsk_adc_warmup10()
+ */
+#define hsk_adc_warmup	hsk_adc_warmup10
+
+/**
+ * Warm up 10 bit AD conversion.
  *
  * I.e. make sure all conversion targets have been initialized with a
  * conversion result. This is a blocking function only intended for single
  * use during the boot procedure.
  *
  * This function will not terminate unless interrupts are enabled.
+ *
+ * @note
+ *	This function only works in 10 bit mode, because in 8 bit mode
+ *	it is impossible to initialize targets with an invalid value.
  */
-void hsk_adc_warmup(void);
+void hsk_adc_warmup10(void);
 
 #endif /* _HSK_ADC_H_ */
