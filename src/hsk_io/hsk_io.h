@@ -47,26 +47,6 @@
  */
 
 /**
- * Bit mask to disable pull up/down for all selected pins.
- */
-#define IO_PORT_PULL_DISABLE	0
-
-/**
- * Bit mask to enable pull up/down for all selected pins.
- */
-#define IO_PORT_PULL_ENABLE	-1
-
-/**
- * Bit mask to select pull down for all selected pins.
- */
-#define IO_PORT_PULL_DOWN		0
-
-/**
- * Bit mask to select pull up for all selected pins.
- */
-#define IO_PORT_PULL_UP		-1
-
-/**
  * Initializes a set of port pins as inputs.
  *
  * @warning
@@ -75,19 +55,9 @@
  *	The parallel port to configure
  * @param pins
  *	A bit mask of the pins to select
- * @param pull
- *	A bit mask of pins to activate the internal pull up/down device for
- * @param dir
- *	A bit mask of pins to set the pull direction
  */
-#define IO_PORT_IN_INIT(port, pins, pull, dir)	{ \
+#define IO_PORT_IN_INIT(port, pins)	{ \
 	port##_DIR &= ~(pins); \
-	SFR_PAGE(_pp1, noSST); \
-	port##_PUDSEL &= (dir) | ~(pins); \
-	port##_PUDSEL |= (dir) & (pins); \
-	port##_PUDEN &= (pull) | ~(pins); \
-	port##_PUDEN |= (pull) & (pins); \
-	SFR_PAGE(_pp0, noSST); \
 }
 
 /**
@@ -178,7 +148,7 @@
  * @param set
  *	Initial logical values for the defined outputs
  */
-#define IO_PORT_OUT_INIT(port, pins, strength, drain, on, set)	{\
+#define IO_PORT_OUT_INIT(port, pins, strength, drain, on, set)	{ \
 	port##_DIR |= pins; \
 	SFR_PAGE(_pp3, noSST); \
 	port##_OD &= (drain) | ~(pins); \
@@ -209,6 +179,62 @@
 #define IO_PORT_OUT_SET(port, pins, on, set)	{\
 	port##_DATA &= ((set) ^ ~(on)) | ~(pins); \
 	port##_DATA |= ((set) ^ ~(on)) & (pins); \
+}
+
+/**
+ * @}
+ */
+
+/**
+ * \defgroup IO_PORT_PULL I/O Port Pull-Up/-Down Setup
+ *
+ * This group contains macros and defines to initialize the pull-up/-down
+ * devices of port pins.
+ *
+ * @{
+ */
+
+/**
+ * Bit mask to disable pull up/down for all selected pins.
+ */
+#define IO_PORT_PULL_DISABLE	0
+
+/**
+ * Bit mask to enable pull up/down for all selected pins.
+ */
+#define IO_PORT_PULL_ENABLE	-1
+
+/**
+ * Bit mask to select pull down for all selected pins.
+ */
+#define IO_PORT_PULL_DOWN	0
+
+/**
+ * Bit mask to select pull up for all selected pins.
+ */
+#define IO_PORT_PULL_UP		-1
+
+/**
+ * Sets the pull-up/-down properties of port pins.
+ *
+ * @warning
+ *	Expects port page 0 and RMAP 0, take care in ISRs
+ * @param port
+ *	The parallel port to configure
+ * @param pins
+ *	A bit mask of the pins to select
+ * @param pull
+ *	A bit mask of pins to activate the internal pull up/down device for
+ * @param dir
+ *	A bit mask of pins to set the pull direction
+ */
+#define IO_PORT_PULL_INIT(port, pins, pull, dir)	{ \
+	SFR_PAGE(_pp1, noSST); \
+	port##_PUDSEL &= (dir) | ~(pins); \
+	port##_PUDSEL |= (dir) & (pins); \
+	port##_PUDEN &= (pull) | ~(pins); \
+	port##_PUDEN |= (pull) & (pins); \
+	SFR_PAGE(_pp0, noSST); \
 }
 
 /**
