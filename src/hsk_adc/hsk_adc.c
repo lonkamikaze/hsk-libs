@@ -5,6 +5,10 @@
  *
  * To be able to use all 8 channels the ADC is kept in sequential mode.
  *
+ * In order to reduce processing time this library uses the convention that
+ * all functions terminate with ADC register page 6. Page 6 contains the
+ * ADC queue request and status registers.
+ *
  * @author kami
  */
 
@@ -52,15 +56,20 @@
  */
 hsk_adc_channel pdata hsk_adc_nextChannel = ADC_CHANNELS;
 
-/**
- * Holds the number of queue slots left.
- */
-volatile ubyte pdata hsk_adc_queue = ADC_QUEUE;
-
-/**
+/** \var hsk_adc_targets
  * An array of target addresses to write conversion results into.
  */
-volatile uword * pdata hsk_adc_targets[ADC_CHANNELS] = {0};
+volatile union {
+	/**
+	 * Pointer type used for 10 bit conversions.
+	 */
+	uword * ptr10;
+
+	/**
+	 * Pointer type used for 8 bit conversions.
+	 */
+	ubyte * ptr8;
+} pdata hsk_adc_targets[ADC_CHANNELS];
 
 /**
  * ADC_RESRxL Channel Number bits.
@@ -87,43 +96,50 @@ volatile uword * pdata hsk_adc_targets[ADC_CHANNELS] = {0};
  */
 #define BIT_DW			6
 
-/**
- * Write the conversion result to the targeted memory address.
- *
- * @private
- */
 #pragma save
 #ifdef SDCC
 #pragma nooverlay
 #endif
-void hsk_adc_isr(void) using 1 {
+/**
+ * Write the 10bit conversion result to the targeted memory address.
+ *
+ * @private
+ */
+void hsk_adc_isr10(void) using 1 {
 	hsk_adc_channel idata channel;
 	uword idata result;
 
 	/* Read the result. */
 	SFR_PAGE(_ad2, SST1);
 	channel = (ADC_RESR0L >> BIT_CHNR) & ((1 << CNT_CHNR) - 1);
-	result = ADC_RESR0LH;
+	result = (ADC_RESR0LH >> BIT_RESULT) & ((1 << CNT_RESULT) - 1);
 
-	/* Update the queue counter. */
-	hsk_adc_queue++;
-	
-	/*
-	 * Deliver the conversion result.
-	 */
-	/* Extract the channel. */
-	SFR_PAGE(_ad0, noSST);
-	if (((ADC_GLOBCTR >> BIT_DW) & 1) == ADC_RESOLUTION_10) {
-		result = (result >> BIT_RESULT) & ((1 << CNT_RESULT) - 1);
-	} else {
-		result = (result >> (BIT_RESULT + 2)) & ((1 << (CNT_RESULT - 2)) - 1);
+	/* Deliver result to the target address. */
+	if (hsk_adc_targets[channel].ptr10) {
+		/* Get the result bits and deliver them. */
+		*hsk_adc_targets[channel].ptr10 = result;
 	}
+}
+
+/**
+ * Write the 8bit conversion result to the targeted memory address.
+ *
+ * @private
+ */
+void hsk_adc_isr8(void) using 1 {
+	hsk_adc_channel idata channel;
+	ubyte idata result;
+
+	/* Read the result. */
+	SFR_PAGE(_ad2, SST1);
+	channel = (ADC_RESR0L >> BIT_CHNR) & ((1 << CNT_CHNR) - 1);
+	result = ADC_RESR0H;
 	SFR_PAGE(_ad2, RST1);
 
 	/* Deliver result to the target address. */
-	if (hsk_adc_targets[channel]) {
+	if (hsk_adc_targets[channel].ptr8) {
 		/* Get the result bits and deliver them. */
-		*hsk_adc_targets[channel] = result;
+		*hsk_adc_targets[channel].ptr8 = result;
 	}
 }
 #pragma restore
@@ -188,6 +204,7 @@ void hsk_adc_init(ubyte resolution, uword convTime) {
 	memset(hsk_adc_targets, 0, sizeof(hsk_adc_targets));
 
 	/* Set ADC resolution */
+	SFR_PAGE(_ad0, noSST);
 	ADC_GLOBCTR = ADC_GLOBCTR & ~(1 << BIT_DW) | (resolution << BIT_DW);
 	resolution = resolution == ADC_RESOLUTION_10 ? 10 : 8;
 
@@ -227,7 +244,6 @@ void hsk_adc_init(ubyte resolution, uword convTime) {
 	ADC_LCBR = 0x00;
 
 	/* Allow sequential arbitration mode only. */
-	SFR_PAGE(_ad0, noSST);
 	ADC_PRAR |= 1 << BIT_ASEN_SEQUENTIAL;
 	ADC_PRAR &= ~(1 << BIT_ASEN_PARALLEL);
 
@@ -251,12 +267,21 @@ void hsk_adc_init(ubyte resolution, uword convTime) {
 
 	/* Register interrupt handler. */
 	EADC = 0;
-	hsk_isr6.ADCSR0 = &hsk_adc_isr;
+	switch (resolution) {
+	case 10:
+		hsk_isr6.ADCSR0 = &hsk_adc_isr10;
+		break;
+	case 8:
+		hsk_isr6.ADCSR0 = &hsk_adc_isr8;
+		break;
+	}
 	/* Set IMODE, 1 so that EADC can be used to mask interrupts without
 	 * loosing them. */
 	SYSCON0 |= 1 << BIT_IMODE;
 	/* Enable interrupt. */
 	EADC = 1;
+
+	SFR_PAGE(_ad6, noSST);
 }
 
 /**
@@ -293,13 +318,47 @@ void hsk_adc_disable(void) {
  */
 #define BIT_EMPTY	5
 
-void hsk_adc_open(const hsk_adc_channel channel,
+void hsk_adc_open10(const hsk_adc_channel channel,
 		uword * const target) {
 	bool eadc = EADC;
 
+	/* This function only works in 10 bit mode. */
+	SFR_PAGE(_ad0, noSST);
+	if (((ADC_GLOBCTR >> BIT_DW) & 1) != ADC_RESOLUTION_10) {
+		/* This should never happen! */
+		SFR_PAGE(_ad6, noSST);
+		return;
+	}
+	SFR_PAGE(_ad6, noSST);
+
 	EADC = 0;
 	/* Register callback function. */
-	hsk_adc_targets[channel] = target;
+	hsk_adc_targets[channel].ptr10 = target;
+	EADC = eadc;
+
+	/* Check if there are no open channels. */
+	if (hsk_adc_nextChannel >= ADC_CHANNELS) {
+		/* Claim the spot as the first open channel. */
+		hsk_adc_nextChannel = channel;
+	}
+}
+
+void hsk_adc_open8(const hsk_adc_channel channel,
+		ubyte * const target) {
+	bool eadc = EADC;
+
+	/* This function only works in 8 bit mode. */
+	SFR_PAGE(_ad0, noSST);
+	if (((ADC_GLOBCTR >> BIT_DW) & 1) != ADC_RESOLUTION_8) {
+		/* This should never happen! */
+		SFR_PAGE(_ad6, noSST);
+		return;
+	}
+	SFR_PAGE(_ad6, noSST);
+
+	EADC = 0;
+	/* Register callback function. */
+	hsk_adc_targets[channel].ptr8 = target;
 	EADC = eadc;
 
 	/* Check if there are no open channels. */
@@ -313,16 +372,16 @@ void hsk_adc_close(const hsk_adc_channel channel) {
 	bool eadc = EADC;
 	EADC = 0;
 	/* Unregister conversion target address. */
-	hsk_adc_targets[channel] = 0;
+	hsk_adc_targets[channel].ptr10 = 0;
 	EADC = eadc;
 	/* If this channel is scheduled for the next conversion, find an
 	 * alternative. */
 	if (hsk_adc_nextChannel == channel) {
 		/* Get next channel. */
-		for (; hsk_adc_nextChannel < channel + ADC_CHANNELS && !hsk_adc_targets[hsk_adc_nextChannel]; hsk_adc_nextChannel++);
+		for (; hsk_adc_nextChannel < channel + ADC_CHANNELS && !hsk_adc_targets[hsk_adc_nextChannel].ptr10; hsk_adc_nextChannel++);
 		hsk_adc_nextChannel %= ADC_CHANNELS;
 		/* Check whether no active channel was found. */
-		if (!hsk_adc_targets[hsk_adc_nextChannel]) {
+		if (!hsk_adc_targets[hsk_adc_nextChannel].ptr10) {
 			hsk_adc_nextChannel = ADC_CHANNELS;
 		}
 	}
@@ -346,7 +405,7 @@ bool hsk_adc_service(void) {
 	/* Check for a full queue. */
 	if (hsk_adc_request(hsk_adc_nextChannel)) {
 		/* Find next conversion channel. */
-		while (!hsk_adc_targets[++hsk_adc_nextChannel % ADC_CHANNELS]);
+		while (!hsk_adc_targets[++hsk_adc_nextChannel % ADC_CHANNELS].ptr10);
 		hsk_adc_nextChannel %= ADC_CHANNELS;
 		return 1;
 	}
@@ -354,24 +413,21 @@ bool hsk_adc_service(void) {
 }
 
 bool hsk_adc_request(const hsk_adc_channel channel) {
-	bool eadc = EADC;
 	/* Check for a full queue. */
-	EADC = 0;
-	if (!hsk_adc_queue) {
-		EADC = eadc;
+	if ((ADC_QSR0 & ((((1 << CNT_FILL) - 1) << BIT_FILL) | (1 << BIT_EMPTY))) == ((ADC_QUEUE - 1) << BIT_FILL)) {
 		return 0;
 	}
-	hsk_adc_queue--;
-	EADC = eadc;
 	/* Set next channel. */
-	SFR_PAGE(_ad6, noSST);
 	ADC_QINR0 = channel << BIT_REQCHNR;
-	SFR_PAGE(_ad0, noSST);
 	return 1;
 }
 
+#pragma save
+#ifdef SDCC
+#pragma nooverlay
+#endif
 /**
- * Special ISR for warming up the conversion.
+ * Special ISR for warming up 10 bit conversions.
  *
  * This is used as the ISR by hsk_adc_warmup() after the warmup countdowns
  * have been initialized. After all warmup countdowns have returned to zero
@@ -379,50 +435,55 @@ bool hsk_adc_request(const hsk_adc_channel channel) {
  *
  * @private
  */
-#pragma save
-#ifdef SDCC
-#pragma nooverlay
-#endif
-void hsk_adc_isr_warmup(void) using 1 {
+void hsk_adc_isr_warmup10(void) using 1 {
 	ubyte idata i;
 
 	/* Let the original ISR do its thing. */
-	hsk_adc_isr();
+	hsk_adc_isr10();
 
 	/* Check whether all channels have completed warmup. */
 	for (i = 0; i < ADC_CHANNELS; i++) {
-		if (hsk_adc_targets[i] && *hsk_adc_targets[i] == -1) {
+		if (hsk_adc_targets[i].ptr10 && *hsk_adc_targets[i].ptr10 == -1) {
 			/* Bail out if a channel is not warmed up. */
 			return;
 		}
 	}
 
 	/* Hand over to the original ISR. */
-	hsk_isr6.ADCSR0 = &hsk_adc_isr;
+	hsk_isr6.ADCSR0 = &hsk_adc_isr10;
 }
 #pragma restore
 
-void hsk_adc_warmup(void) {
+void hsk_adc_warmup10(void) {
 	ubyte i;
+
+	/* This function only works in 10 bit mode. */
+	SFR_PAGE(_ad0, noSST);
+	if (((ADC_GLOBCTR >> BIT_DW) & 1) != ADC_RESOLUTION_10) {
+		/* This should never happen! */
+		SFR_PAGE(_ad6, noSST);
+		return;
+	}
+	SFR_PAGE(_ad6, noSST);
 
 	/* Set all conversion targets to an invalid value so the value that
 	 * was written can be detected. */
 	for (i = 0; i < ADC_CHANNELS; i++) {
-		if (hsk_adc_targets[i]) {
-			*hsk_adc_targets[i] = -1;
+		if (hsk_adc_targets[i].ptr10) {
+			*hsk_adc_targets[i].ptr10 = -1;
 		}
 	}
 
 	/* Hijack the ISR. */
 	EADC = 0;
-	hsk_isr6.ADCSR0 = &hsk_adc_isr_warmup;
+	hsk_isr6.ADCSR0 = &hsk_adc_isr_warmup10;
 	EADC = 1;
 
 	/*
 	 * Now just keep on performing conversion until the warumup isr
 	 * unregisters itself.
 	 */
-	while (hsk_isr6.ADCSR0 == &hsk_adc_isr_warmup) {
+	while (hsk_isr6.ADCSR0 == &hsk_adc_isr_warmup10) {
 		hsk_adc_service();
 	}
 }
