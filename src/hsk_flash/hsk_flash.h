@@ -123,23 +123,27 @@
  *	Struct member definitions
  */
 #define FLASH_STRUCT_FACTORY(members)	\
-volatile struct {\
-	/**
-	 * For data integrity/compatibilty detection.
-	 *
-	 * @private
+	/** \struct hsk_flash_struct "" ""
+	 * This struct is a template for data that can be written to the D-Flash.
+	 * It is created by invoking the \ref FLASH_STRUCT_FACTORY macro.
 	 */\
-	ubyte hsk_flash_prefix;\
-	\
-	members\
-	\
-	/**
-	 * For data integrity detection.
-	 *
-	 * @private
-	 */\
-	ubyte hsk_flash_chksum;\
-} xdata
+	volatile struct hsk_flash_struct {\
+		/**
+		 * For data integrity/compatibilty detection.
+		 *
+		 * @private
+		 */\
+		ubyte hsk_flash_prefix;\
+		\
+		members\
+		\
+		/**
+		 * For data integrity detection.
+		 *
+		 * @private
+		 */\
+		ubyte hsk_flash_chksum;\
+	} xdata
 
 /**
  * Returned by hsk_flash_init() when the µC boots for the first time.

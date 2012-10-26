@@ -45,103 +45,123 @@
  *	The bit of the regWrite register that is connected to the write pin
  */
 #define ICM7228_FACTORY(prefix, regData, regMode, bitMode, regWrite, bitWrite) \
-\
-/** Buffer for display driver at  I/O port regData.
-@see ICM7228_FACTORY */\
-ubyte xdata prefix##_buffer[8]; \
-\
-/** Set up buffer and ports for display driver at I/O port regData.
-@see ICM7228_FACTORY */\
-void prefix##_init(void) { \
-	memset(prefix##_buffer, 0, sizeof(prefix##_buffer)); \
-\
-	regMode##_DIR |= 1 << bitMode; \
-	regWrite##_DIR |= 1 << bitWrite; \
-	regData##_DIR = -1; \
-} \
-\
-/** Reflesh displays at I/O port regData with the buffered data.
-@see ICM7228_FACTORY */\
-void prefix##_refresh(void) { \
-	ubyte i; \
-\
-	/* Select write to control register. */ \
-	regMode##_DATA |= 1 << bitMode; \
-\
-	/* Write to control register. */ \
-	regData##_DATA = 0xB0; /* Control Word */ \
-	regWrite##_DATA &= ~(1 << bitWrite); \
-	regWrite##_DATA |= 1 << bitWrite; \
-\
-	/* Select write to display ram. */ \
-	regMode##_DATA &= ~(1 << bitMode); \
-\
-	for (i = 0; i < 8; i++) { \
-		regData##_DATA = prefix##_buffer[i]; \
+	\
+	/**
+	 * Buffer for display driver at  I/O port regData.
+	 *
+	 * @see ICM7228_FACTORY
+	 */\
+	ubyte xdata prefix##_buffer[8]; \
+	\
+	/**
+	 * Set up buffer and ports for display driver at I/O port regData.
+	 *
+	 * @see ICM7228_FACTORY
+	 */\
+	void prefix##_init(void) { \
+		memset(prefix##_buffer, 0, sizeof(prefix##_buffer)); \
+	\
+		regMode##_DIR |= 1 << bitMode; \
+		regWrite##_DIR |= 1 << bitWrite; \
+		regData##_DIR = -1; \
+	} \
+	\
+	/**
+	 * Reflesh displays at I/O port regData with the buffered data.
+	 *
+	 * @see ICM7228_FACTORY
+	 */\
+	void prefix##_refresh(void) { \
+		ubyte i; \
+	\
+		/* Select write to control register. */ \
+		regMode##_DATA |= 1 << bitMode; \
+	\
+		/* Write to control register. */ \
+		regData##_DATA = 0xB0; /* Control Word */ \
 		regWrite##_DATA &= ~(1 << bitWrite); \
 		regWrite##_DATA |= 1 << bitWrite; \
+	\
+		/* Select write to display ram. */ \
+		regMode##_DATA &= ~(1 << bitMode); \
+	\
+		for (i = 0; i < 8; i++) { \
+			regData##_DATA = prefix##_buffer[i]; \
+			regWrite##_DATA &= ~(1 << bitWrite); \
+			regWrite##_DATA |= 1 << bitWrite; \
+		} \
 	} \
-} \
-\
-/** Write an ASCII encoded string into \ref prefix##_buffer.
-@param str
-	The buffer to read the ASCII string from
-@param pos
-	The position in the buffer to write the encoded string to
-@param len
-	The target length of the encoded string
-@see ICM7228_FACTORY
-@see hsk_icm7228_writeString */\
-void prefix##_writeString(const char * const str, \
-		 const ubyte pos, const ubyte len) { \
-	hsk_icm7228_writeString(prefix##_buffer, str, pos, len); \
-} \
-\
-/** Write a decimal number into \ref prefix##_buffer.
-@param value
-	The number to encode
-@param power
-	The 10 base power of the number to encode
-@param pos
-	The target position in the buffer
-@param len
-	The number of digits available to encode the number
-@see ICM7228_FACTORY
-@see hsk_icm7228_writeDec */\
-void prefix##_writeDec(const uword value, const char power, \
-		const ubyte pos, const ubyte len) {\
-	hsk_icm7228_writeDec(prefix##_buffer, value, power, pos, len); \
-} \
-\
-/** Write a hexadecimal number into \ref prefix##_buffer.
-@param value
-	The number to encode
-@param power
-	The 16 base power of the number to encode
-@param pos
-	The target position in the buffer
-@param len
-	The number of digits available to encode the number
-@see ICM7228_FACTORY
-@see hsk_icm7228_writeHex */\
-void prefix##_writeHex(const uword value, const char power, \
-		const ubyte pos, const ubyte len) {\
-	hsk_icm7228_writeHex(prefix##_buffer, value, power, pos, len); \
-} \
-\
-/** Illuminate a number of segments in \ref prefix##_buffer.
-@param segments
-	The number of segments to illuminate
-@param pos
-	The target position in the buffer
-@param len
-	The number of digits available to encode the number
-@see ICM7228_FACTORY
-@see hsk_icm7228_illuminate */\
-void prefix##_illuminate(const ubyte segments, const ubyte pos, \
-		const ubyte len) {\
-	hsk_icm7228_illuminate(prefix##_buffer, segments, pos, len); \
-} \
+	\
+	/**
+	 * Write an ASCII encoded string into \ref prefix##_buffer.
+	 *
+	 * @param str
+	 *	The buffer to read the ASCII string from
+	 * @param pos
+	 *	The position in the buffer to write the encoded string to
+	 * @param len
+	 *	The target length of the encoded string
+	 * @see ICM7228_FACTORY
+	 * @see hsk_icm7228_writeString
+	 */\
+	void prefix##_writeString(const char * const str, \
+			 const ubyte pos, const ubyte len) { \
+		hsk_icm7228_writeString(prefix##_buffer, str, pos, len); \
+	} \
+	\
+	/**
+	 * Write a decimal number into \ref prefix##_buffer.
+	 *
+	 * @param value
+	 *	The number to encode
+	 * @param power
+	 *	The 10 base power of the number to encode
+	 * @param pos
+	 *	The target position in the buffer
+	 * @param len
+	 *	The number of digits available to encode the number
+	 * @see ICM7228_FACTORY
+	 * @see hsk_icm7228_writeDec
+	 */\
+	void prefix##_writeDec(const uword value, const char power, \
+			const ubyte pos, const ubyte len) {\
+		hsk_icm7228_writeDec(prefix##_buffer, value, power, pos, len); \
+	} \
+	\
+	/**
+	 * Write a hexadecimal number into \ref prefix##_buffer.
+	 *
+	 * @param value
+	 *	The number to encode
+	 * @param power
+	 *	The 16 base power of the number to encode
+	 * @param pos
+	 *	The target position in the buffer
+	 * @param len
+	 *	The number of digits available to encode the number
+	 * @see ICM7228_FACTORY
+	 * @see hsk_icm7228_writeHex
+	 */\
+	void prefix##_writeHex(const uword value, const char power, \
+			const ubyte pos, const ubyte len) {\
+		hsk_icm7228_writeHex(prefix##_buffer, value, power, pos, len); \
+	} \
+	\
+	/**
+	 * Illuminate a number of segments in \ref prefix##_buffer.
+	 * @param segments
+	 *	The number of segments to illuminate
+	 * @param pos
+	 *	The target position in the buffer
+	 * @param len
+	 *	The number of digits available to encode the number
+	 * @see ICM7228_FACTORY
+	 * @see hsk_icm7228_illuminate
+	 */\
+	void prefix##_illuminate(const ubyte segments, const ubyte pos, \
+			const ubyte len) {\
+		hsk_icm7228_illuminate(prefix##_buffer, segments, pos, len); \
+	} \
 
 /**
  * Convert an ASCII string to 7 segment encoding and store it in an xdata
