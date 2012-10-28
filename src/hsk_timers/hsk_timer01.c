@@ -132,8 +132,8 @@ void ISR_hsk_timer1(void) interrupt 3 using 1 {
  *	A function pointer to a callback function.
  * @private
  */
-void hsk_timer01_setup(const ubyte id, const uword interval,
-		const void (code * const callback)(void) using(1)) {
+void hsk_timer01_setup(const ubyte id, const uword __xdata interval,
+		const void (code * const __xdata callback)(void) using(1)) {
 
 	/* Set 16 bit mode. */
 	switch (id) {
@@ -155,7 +155,7 @@ void hsk_timer01_setup(const ubyte id, const uword interval,
 }
 
 void hsk_timer0_setup(const uword interval,
-		const void (code * const callback)(void) using(1)) {
+		const void (code * const __xdata callback)(void) using(1)) {
 	hsk_timer01_setup(0, interval, callback);
 }
 
@@ -170,7 +170,7 @@ void hsk_timer0_disable(void) {
 }
 
 void hsk_timer1_setup(const uword interval,
-		const void (code * const callback)(void) using(1)) {
+		const void (code * const __xdata callback)(void) using(1)) {
 	hsk_timer01_setup(1, interval, callback);
 }
 

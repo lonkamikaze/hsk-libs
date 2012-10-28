@@ -113,6 +113,7 @@ void hsk_adc_isr10(void) using 1 {
 	SFR_PAGE(_ad2, SST1);
 	channel = (ADC_RESR0L >> BIT_CHNR) & ((1 << CNT_CHNR) - 1);
 	result = (ADC_RESR0LH >> BIT_RESULT) & ((1 << CNT_RESULT) - 1);
+	SFR_PAGE(_ad2, RST1);
 
 	/* Deliver result to the target address. */
 	if (hsk_adc_targets[channel].ptr10) {
@@ -194,7 +195,7 @@ void hsk_adc_isr8(void) using 1 {
  */
 #define BIT_IMODE		4
 
-void hsk_adc_init(ubyte resolution, uword convTime) {
+void hsk_adc_init(ubyte resolution, uword __xdata convTime) {
 	/* The Conversion Time Control bits, any of ADC_CLK_*. */
 	ubyte ctc;
 	/* The Sample Time Control bits, values from 0 to 255. */

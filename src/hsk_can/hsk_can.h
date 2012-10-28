@@ -131,7 +131,7 @@ typedef ubyte hsk_can_fifo;
  * @param baud
  * 	The target baud rate to use
  */
-void hsk_can_init(const ubyte pins, const ulong baud);
+void hsk_can_init(const ubyte pins, const ulong __xdata baud);
 
 /**
  * Go live on the CAN bus.
@@ -299,7 +299,7 @@ hsk_can_msg hsk_can_msg_create(const ulong id, const bool extended,
  * @retval 0
  *	Success
  */
-ubyte hsk_can_msg_connect(const hsk_can_msg msg, const hsk_can_node node);
+ubyte hsk_can_msg_connect(const hsk_can_msg msg, const hsk_can_node __xdata node);
 
 /**
  * Disconnect a CAN message object from its CAN node.
@@ -527,7 +527,7 @@ void hsk_can_fifo_setRxMask(const hsk_can_fifo fifo, ulong msk);
  *	Success
  */
 ubyte hsk_can_fifo_connect(const hsk_can_fifo fifo,
-	const hsk_can_node node);
+	const hsk_can_node __xdata node);
 
 /**
  * Disconnect a FIFO from its CAN node.

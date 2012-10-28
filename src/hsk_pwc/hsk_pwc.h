@@ -184,7 +184,7 @@ void hsk_pwc_init(ulong window);
  * 	value or speed. The value must be between 1 and 8.
  */
 void hsk_pwc_channel_open(const hsk_pwc_channel channel,
-	ubyte averageOver);
+	ubyte __xdata averageOver);
 
 /**
  * Opens an input port and the connected channel.
@@ -198,7 +198,7 @@ void hsk_pwc_channel_open(const hsk_pwc_channel channel,
  * 	value or speed. The value must be between 1 and CHAN_BUF_SIZE
  */
 void hsk_pwc_port_open(const hsk_pwc_port port,
-	ubyte averageOver);
+	ubyte __xdata averageOver);
 
 /**
  * Close a PWC channel.

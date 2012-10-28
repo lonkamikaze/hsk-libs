@@ -70,7 +70,7 @@ typedef ubyte hsk_adc_channel;
  * @param convTime
  *	The desired conversion time in µs
  */
-void hsk_adc_init(ubyte resolution, uword convTime);
+void hsk_adc_init(ubyte resolution, uword __xdata convTime);
 
 /**
  * Turns on ADC conversion, if previously deactivated.

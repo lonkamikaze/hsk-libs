@@ -205,8 +205,8 @@
  * @retval FLASH_PWR_ON
  *	Data restore from the D-Flash succeeded
  */
-ubyte hsk_flash_init(void xdata * const ptr, const uword size,
-		const ubyte version);
+ubyte hsk_flash_init(void xdata * const ptr, const uword __xdata size,
+		const ubyte __xdata version);
 
 /**
  * Writes the current data to the D-Flash.

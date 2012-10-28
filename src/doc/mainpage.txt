@@ -312,13 +312,21 @@ The C51 is the C compiler configuration dialogue. The following settings
 are not obligatory for use of the HSK libraries, but recommended.
 
 - Preprocessor Symbols
-	- Define
+	- Define: \c __xdata, \c __pdata, \c __idata
 		- This input field allows passing on preprocessor definitions
 		  to the preprocessor
+		- The empty \c __xdata, \c __pdata, \c __idata defines allow
+		  C51 to ignore SDCC style memory assignments, this is
+		  useful to make such assignments where C51 does not
+		  support them
 - Code Optimization
 	- Level: 11: Reuse Common Exit Code
 		- The highest level of optimisation, allowing the compiler the
 		  largest reduction of memory use
+		- Select \c 4 or lower for debugging, all the common code
+		  eliminations prevent the debugger from mapping large chunks
+		  of C code to assembler code, making the program flow
+		  difficult to follow
 	- Emphasis: Favor speed
 		- Surprisingly this often produces smaller code than the
 		  <tt>favor size</tt> setting
@@ -780,8 +788,8 @@ ISRs and sections of code that block an interrupt.
 \section memory_overlay Implications of Overlaying
 
 First and foremost, \ref platform_memory_overlaying is only performed for
-the default memory, by SDCC. This project is built around the small memory
-model, i.e. only \c data memory is overlaid by SDCC.
+the default memory. This project is built around the small memory model,
+i.e. only \c data memory is overlaid by SDCC and C51.
 
 The \c data memory is only 128 bytes minus the used register banks large.
 With three register banks that means only 104 bytes of \c data memory are
@@ -792,9 +800,8 @@ Furthermore SDCC does not build a complete call tree, so it cannot eliminate
 unused functions like C51/LX51 and only overlays leaf functions.
 I.e. only functions that call no other functions are overlaid.
 
-For both SDCC and and C51/LX51 overlaying ISRs is not possible, that is why
-locals of ISRs should in most cases be placed in idata, despite the
-performance impact.
+For SDCC overlaying ISRs is not possible, that is why locals of ISRs should
+in most cases be placed in \c idata, despite the performance impact.
 
 A limitation of C51/LX51 is that it ignores explicit memory assignments
 in function parameters and always places them in the default memory, if they
@@ -805,27 +812,83 @@ SDCC does not share this limitation, it can place function parameters in
 all kinds of memory. Because such assignments are ignored by C51/LX51,
 parameter memory type should be optimised for SDCC.
 Explicit memory assignments prevent parameters from being passed in
-registers. SDCC can pass up to four bytes of parameters in registers.
+registers. SDCC only passes the first non-<tt>bool</tt> parameter in registers,
+so optimizations should be performed on the non-overlayable arguments
+following it.
 
-If a function uses more than 4 bytes of parameters, the parameters from the
-fifth byte on may be placed in idata. When counting bytes it is important to
-be aware of pointer sizes:
-| Target Memory		| Size (byte)
-|-----------------------|-------------
-| generic		| 3
-| \c code		| 2
-| \c xdata		| 2
-| <tt>idata/data</tt>	| 1
-| \c pdata		| 1
-
-Also note that bool parameters should not be counted, because they always
-are passed in bit addressable memory.
+For single use functions like \c init and \c enable functions, it might make
+sense to pass parameters in \c xdata. In such cases the SDCC memory assignment
+style should be used, to give the C51 preprocessor the chance to remove the
+assignments.
+\code
+void hsk_can_init(const ubyte pins, const ulong __xdata baud);
+\endcode
 
 If an application runs out of \c data space locals should be put into
 \c idata memory. Variables accessed by ISRs/ISR callbacks should be
 placed in \c pdata or \c idata. If that suffices the code should be checked
 for frequently accessed variables. The most frequent ones should be assigned
 to the default memory type if possible.
+
+Both SDCC and C51 provide detailed information about memory use. The effects
+of relocating variables are often counter-intuitive, because it may interfere
+with several compiler and linker optimizations. This it is necessary to
+make use of this information in order to make sure that changes have the
+desired effect.
+
+For SDCC check the assembler output for the \c DSEG area
+(search regex <tt>/\\\.area DSEG/</tt>):
+\code
+;--------------------------------------------------------
+; internal ram data
+;--------------------------------------------------------
+	.area DSEG    (DATA)
+_hsk_adc_init_resolution_1_71:
+	.ds 1
+_hsk_adc_init_ctc_1_72:
+	.ds 1
+_hsk_adc_init_sloc0_1_0:
+	.ds 2
+_hsk_adc_init_sloc1_1_0:
+	.ds 2
+\endcode
+
+The <tt>.map</tt> file lists the complete memory layout produced by the
+linker (search regex <tt>/^DSEG/</tt>):
+\code
+Area                     Addr        Size        Decimal Bytes (Attributes)
+-----------------        ----        ----        ------- ----- ------------
+DSEG                 00000000    00000080 =         128. bytes (REL,CON)
+
+      Value  Global                              Global Defined In Module
+      -----  --------------------------------   ------------------------
+     00000018  _hsk_pwm_init_PARM_2               hsk_pwm
+     0000001C  _hsk_pwm_channel_set_PARM_2        hsk_pwm
+     0000001E  _hsk_pwm_channel_set_PARM_3        hsk_pwm
+     00000025  _hsk_icm7228_writeDec_PARM_2       hsk_icm7228
+     00000027  _hsk_icm7228_writeDec_PARM_3       hsk_icm7228
+     00000028  _hsk_icm7228_writeDec_PARM_4       hsk_icm7228
+...
+\endcode
+
+In µVision the <tt>.map</tt> file can be accessed by double clicking the
+project in the project tree view (search string <tt>"D A T A"</tt>):
+\code
+START     STOP      LENGTH    ALIGN  RELOC    MEMORY CLASS   SEGMENT NAME
+=========================================================================
+
+* * * * * * * * * * *   D A T A   M E M O R Y   * * * * * * * * * * * * *
+000000H   000007H   000008H   ---    AT..     DATA           "REG BANK 0"
+000008H   00000FH   000008H   ---    AT..     DATA           "REG BANK 1"
+000010H   000017H   000008H   ---    AT..     DATA           "REG BANK 2"
+000018H   00001BH   000004H   BYTE   UNIT     IDATA          _IDATA_GROUP_
+00001CH.0 00001FH.7 000004H.0 ---    ---      **GAP**
+000020H.0 000020H.4 000000H.5 BIT    UNIT     BIT            _BIT_GROUP_
+000020H.5 000020H.5 000000H.1 BIT    UNIT     BIT            ?BI?HSK_CAN
+000020H.6 000020H   000000H.2 ---    ---      **GAP**
+000021H   00003FH   00001FH   BYTE   UNIT     DATA           _DATA_GROUP_
+000040H   000040H   000001H   BYTE   UNIT     IDATA          ?STACK
+\endcode
 
 @see Overlaying in the SDCC manual
 @see Global Registers used for Parameter Passing in the SDCC manual
