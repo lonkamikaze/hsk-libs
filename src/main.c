@@ -47,17 +47,17 @@ void main(void) {
  * This structure is used to persist data between resets.
  */
 FLASH_STRUCT_FACTORY(
-	/**
+	/** \var ubyte hsk_flash_struct::boot
 	 * Used for boot counting.
 	 */
 	ubyte boot;
 
-	/**
+	/** \var ubyte hsk_flash_struct::reset
 	 * Used for reset counting.
 	 */
 	ubyte reset;
 
-	/**
+	/** \var ubyte hsk_flash_struct::error
 	 * For storing errors.
 	 *
 	 * Certain errors like a WDT can only be reported after a reboot.

@@ -108,7 +108,7 @@ void hsk_pwm_init(const hsk_pwm_channel channel, const ulong freq) {
 	/* The period required to reach the frequency with the current
 	 * prescaler. The highest value below or equal 2^16 offers the
 	 * highest precision. */
-	ulong period = 480000000ul / (freq > 0 ? freq : 1ul);
+	ulong xdata period = 480000000ul / (freq > 0 ? freq : 1ul);
 
 	/* Special case, get the slowest frequency possible. */
 	if (freq == 0) {

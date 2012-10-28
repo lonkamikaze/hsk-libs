@@ -295,7 +295,7 @@
             <InterruptVectorAddress>0</InterruptVectorAddress>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define></Define>
+              <Define>__xdata, __pdata, __idata</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\CAN\src</IncludePath>
             </VariousControls>
@@ -323,12 +323,12 @@
 hsk_isr_root1 ! (ISR_hsk_isr8, ISR_hsk_isr9, ISR_hsk_timer0, ISR_hsk_timer1, ISR_hsk_isr5, ISR_hsk_isr6),
 * ~ (hsk_boot_isr_nmipll, hsk_flash_isr_nmiflash),
 * ~ (hsk_pwc_isr_cctOverflow),
-* ~ (hsk_adc_isr, hsk_adc_isr_warmup),
+* ~ (hsk_adc_isr10, hsk_adc_isr_warmup10, hsk_adc_isr8),
 * ~ (hsk_pwc_isr_cc0, hsk_pwc_isr_cc1, hsk_pwc_isr_cc2, hsk_pwc_isr_cc3),
 * ~ (tick0),
 ISR_hsk_isr14 ! (hsk_boot_isr_nmipll, hsk_flash_isr_nmiflash),
 ISR_hsk_isr5 ! (hsk_pwc_isr_cctOverflow),
-ISR_hsk_isr6 ! (hsk_adc_isr, hsk_adc_isr_warmup),
+ISR_hsk_isr6 ! (hsk_adc_isr10, hsk_adc_isr_warmup10, hsk_adc_isr8),
 ISR_hsk_isr9 ! (hsk_pwc_isr_cc0, hsk_pwc_isr_cc1, hsk_pwc_isr_cc2, hsk_pwc_isr_cc3),
 ISR_hsk_timer0 ! (tick0)</OverlayString>
             <MiscControls>REMOVEUNUSED</MiscControls>

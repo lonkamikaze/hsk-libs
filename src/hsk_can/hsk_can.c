@@ -393,7 +393,7 @@ bool hsk_can_initialized = 0;
  */
 #define BIT_CAN_DIS		5
 
-void hsk_can_init(const ubyte pins, const ulong baud) {
+void hsk_can_init(const ubyte pins, const ulong __xdata baud) {
 	/* The node to configure. */
 	hsk_can_node node;
 	/* Select the receive signal pin. */
@@ -978,7 +978,7 @@ ubyte hsk_can_msg_move(const hsk_can_msg msg, const ubyte list) {
 	return 0;
 }
 
-ubyte hsk_can_msg_connect(const hsk_can_msg msg, const hsk_can_node node) {
+ubyte hsk_can_msg_connect(const hsk_can_msg msg, const hsk_can_node __xdata node) {
 	/* Move message to the requested CAN node. */
 	return hsk_can_msg_move(msg, LIST_NODEx + node);
 }
@@ -1349,7 +1349,7 @@ ubyte hsk_can_fifo_move(hsk_can_fifo fifo, const ubyte list) {
 }
 
 ubyte hsk_can_fifo_connect(const hsk_can_fifo fifo,
-		const hsk_can_node node) {
+		const hsk_can_node __xdata node) {
 	/* Move message to the requested CAN node. */
 	return hsk_can_fifo_move(fifo, LIST_NODEx + node);
 }
