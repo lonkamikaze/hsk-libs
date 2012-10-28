@@ -428,6 +428,7 @@ prefix, i, p) {
 
 			# Name of the tag
 			sub(/[[:space:]].*/, "", tagName)
+			sub(/(\/|\?)$/, "", tagName)
 			tags[current] = tagName
 
 			# Get attributes

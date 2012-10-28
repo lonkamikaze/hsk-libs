@@ -3,7 +3,9 @@
 IFS='
 '
 
-find -s "$@" -name \*.c | xargs awk -f $(dirname "$0")/includes.awk "$@"
+scriptdir="${0%/*}"
+
+find -s "$@" -name \*.c | xargs awk -f $scriptdir/includes.awk "$@"
 
 all=
 for SRC in "$@"; do
@@ -19,6 +21,7 @@ for SRC in "$@"; do
 		all="${all:+$all$IFS}$target"
 		echo "$target: $file
 	@mkdir -p ${target%/*}
+	@env LIBPROJDIR=\${LIBPROJDIR} awk -f $scriptdir/sanity.awk $file -I\${LIBDIR} -I\${INCDIR} -I\${CANDIR}
 	\${CC} \${CFLAGS} -o $target -c $file
 	"
 	done
@@ -41,7 +44,7 @@ for file in $files; do
 	echo "$target" | grep -qFx "$all" && continue
 	all="${all:+$all$IFS}$target"
 	build="$build $target"
-	linklist="$(awk -f $(dirname "$0")/includes.awk "$@" $file | cut -d: -f1 \
+	linklist="$(awk -f $scriptdir/includes.awk "$@" $file | cut -d: -f1 \
 		| sed -ne "$filter" -e "s:\.c\$:\${OBJSUFX}:p" \
 		| rs -TC\  )"
 

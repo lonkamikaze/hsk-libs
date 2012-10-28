@@ -3,65 +3,23 @@
 # Finds call tree manipulations for µVision from C files.
 
 BEGIN {
-	RS = "\0"
 	nested = 0
 	# Get a unique temporary file
 	cmd = "sh -c 'printf $$'"
 	cmd | getline TMPFILE
 	close(cmd)
 	TMPFILE = "/tmp/overlays.awk." TMPFILE
-	ARGV[ARGC++] = TMPFILE
-}
-
-#
-# Accumulate and preprocess files so they become easier to parse
-#
-FILENAME != TMPFILE {
-	# Preprocess file, so there is no trouble with unknown symbols
-	cmd = (ENVIRON["CPP"] ? ENVIRON["CPP"] : "cpp") " -D__C51__ -DSDCC " FILENAME " 2> /dev/null"
-	$0 = ""
-	while (cmd | getline line) {
-		$0 = $0 line ";"
+	# Get cscript cmd
+	path = ENVIRON["LIBPROJDIR"]
+	sub(/.+/, "&/", path)
+	cmd = ARGV[0] " -f " path "scripts/cstrip.awk"
+	for (i = 1; i < ARGC; i++) {
+		cmd = cmd " '" ARGV[i] "' "
 	}
-	close(cmd)
-	# Remove comments
-	gsub(/\/\*[^*]*(\*[^\/]|[^*])*\*\//, "")
-	# Isolate preprocessor instructions
-	gsub("(^|\n)[[:space:]]*#[^\n]*", "&;")
-	# Remove escaped newlines
-	gsub(/\\[[:cntrl:]]+/, "")
-	# Collapse spaces
-	gsub(/[[:space:][:cntrl:]]+/, " ")
-	sub(/^ /, "")
-	# Remove obsolete spaces
-	split("()=!><|:?,*/+-%^~[].\"", ctrlchars, "")
-	for (i in ctrlchars) {
-		gsub(" \\" ctrlchars[i], ctrlchars[i])
-		gsub("\\" ctrlchars[i] " ", ctrlchars[i])
-	}
-	gsub(" \\&", "\\&")
-	gsub("\\& ", "\\&")
-	# Segregate nested code
-	gsub(/\{/, ";{;")
-	gsub(/\}/, ";};")
-	# Segregate labels
-	gsub(/:/, ":;")
-	# Trim
-	gsub(/; /, ";")
-	gsub(/ ;/, ";")
-	# Remove empty lines
-	gsub(/;+/, ";")
-	gsub(/;+/, ";")
-	# Store in TMPFILE
-	printf "#filename %s;%s", FILENAME, $0 > TMPFILE
-
-	# Switch to ; separation when processing the last file
-	if (FILENAME == ARGV[ARGC - 2]) {
-		RS = ";"
-	}
-
-	# Get next input line
-	next
+	system(cmd " -D__C51__ >" TMPFILE)
+	delete ARGV
+	ARGV[1] = TMPFILE
+	ARGC = 2
 }
 
 /\{/ {
@@ -86,14 +44,14 @@ FILENAME != TMPFILE {
 }
 
 # The hsk_isr_rootN() function is present, so an ISR call tree can be built.
-/hsk_isr_root[0-9]+\(.*\)using[( ][0-9]+\)?/ {
+/^void hsk_isr_root[0-9]+\(.*\)using [0-9]+$/ {
 	sub("^void ", "")
 	sub(/\(.*/, "")
 	roots[$0]
 }
 
 # Gather interrupts
-/void .*\(void\)interrupt[( ][0-9]+[) ]using[( ][0-9]+\)?/ {
+/^void .*\(void\)interrupt [0-9]+ using [0-9]+$/ {
 	sub(/^void /, "");
 	isr = $0
 	sub(/\(.*/, "", isr)
@@ -103,33 +61,34 @@ FILENAME != TMPFILE {
 }
 
 # Catch shared ISRs
-/^hsk_isr[0-9]+\.[[:alnum:]_]+=&[[:alnum:]_]+$/ {
+/^hsk_isr[0-9]+\.[[:alnum:]_]+=&[[:alnum:]_]+;/ {
 	sub(/^/, "ISR_")
 	sub(/\..*=&/, "!")
+	sub(/;/, "")
 	overlays[$0]
 }
 
 # Catch timer0/timer1 ISRs
-/^hsk_timer[0-9]+_setup\(.*,&[[:alnum:]_]+\)$/ {
+/^hsk_timer[0-9]+_setup\(.*,&[[:alnum:]_]+\);/ {
 	sub(/^/, "ISR_")
 	sub(/_setup\(.*,&/, "!")
-	sub(/\)$/, "")
+	sub(/\);/, "")
 	overlays[$0]
 }
 
 # Catch external interrupts
-/^hsk_ex_channel_enable\(.*,.*,&[[:alnum:]_]+\)$/ {
+/^hsk_ex_channel_enable\([[:alnum:]]+,.*,&[[:alnum:]_]+\);/ {
 	chan = $0
-	sub(/hsk_ex_channel_enable\([^0-9,]*/, "", chan)
+	sub(/hsk_ex_channel_enable\(/, "", chan)
 	sub(/,.*/, "", chan)
 	if (chan == 2) {
 		chan = 8
-	} else {
+	} else if (chan > 2) {
 		chan = 9
 	}
 	if (chan >= 2) {
 		sub(/.*,&/, "ISR_hsk_isr" chan "!")
-		sub(/\)$/, "")
+		sub(/\);/, "")
 		overlays[$0]
 	}
 }
