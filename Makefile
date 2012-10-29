@@ -105,5 +105,5 @@ clean-build:
 	@rm -rf ${BUILDDIR} || true
 
 zip: pdf
-	@hg status -A | awk '$$1 != "I" {sub(/. /, "${PROJECT}/"); print}' | (cd .. && zip ${PROJECT}.${DATE}.zip -\@ -r ${PROJECT}/pdf)
+	@hg status -A | awk '$$1 != "I" {sub(/. /, "${PROJECT}/"); print}' | (cd .. && zip ${PROJECT}-${VERSION}.zip -\@ -r ${PROJECT}/pdf)
 
