@@ -233,7 +233,7 @@ void hsk_pwc_init(ulong window) {
 	 * a new prescaler until it fits into 2^16 - 1 timer cycles.
 	 */
 	window *= 48000;
-	for (; hsk_pwc_prescaler < 12 && window >= (1ul << 16); \
+	for (; hsk_pwc_prescaler < 12 && window >= (1ul << 16);
 		hsk_pwc_prescaler++, window >>= 1);
 
 	/*
@@ -627,7 +627,7 @@ void hsk_pwc_disable(void) {
 	SFR_PAGE(_su0, noSST);
 }
 
-ulong hsk_pwc_channel_getValue(const hsk_pwc_channel channel, \
+ulong hsk_pwc_channel_getValue(const hsk_pwc_channel channel,
 		const ubyte unit) {
 	#define channel	hsk_pwc_channels[channel]
 	ulong result;
@@ -644,32 +644,17 @@ ulong hsk_pwc_channel_getValue(const hsk_pwc_channel channel, \
 	EA = ea;
 	/* Get the age of the last capture event. */
 	overflow = hsk_pwc_overflow - channel.overflow;
-	if (T2CCU_CCTLH < channel.lastCapture) {
+	/* Captures shortly before and after an overflow may have an off by
+	 * one overflow count. */
+	if (overflow && T2CCU_CCTLH < (channel.lastCapture - 0x100)) {
 		overflow--;
 	}
-	EA = 0;
-	EXM = exm;
-	ET2 = et2;
-	EA = ea;
-	SFR_PAGE(_t2_0, noSST);
 	/* Check whether the window time frame has been left. */
 	if (overflow) {
-		EA = 0;
-		EXM = 0;
-		ET2 = 0;
-		EA = ea;
 		channel.invalid = channel.averageOver + 1;
-		EA = 0;
-		EXM = exm;
-		ET2 = et2;
-		EA = ea;
-		return 0;
 	}
+	SFR_PAGE(_t2_0, noSST);
 	/* Return 0 for invalid channels. */
-	EA = 0;
-	EXM = 0;
-	ET2 = 0;
-	EA = ea;
 	if (channel.invalid) {
 		EA = 0;
 		EXM = exm;
