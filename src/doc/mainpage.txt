@@ -86,6 +86,8 @@ and like the applications still subject to a lot of change.
 	- Contains build scripts used by the \c Makefile
 - \c scripts/build.sh
 	- Generates the build.mk file
+- \c scripts/cstrip.awk
+	- Performs reformatting of C code for other scripts
 - \c scripts/filter.sugar.awk
 	- Filters inline defines from the code for the doxygen toolchain
 - \c scripts/includes.awk
@@ -93,6 +95,10 @@ and like the applications still subject to a lot of change.
 - \c scripts/overlays.awk
 	- Used by \c uVisionupdate.sh to produce a list of ISR callbacks for
 	  \ref toolchain_lx51_misc
+- \c scripts/sanity.awk
+	- Performs prototype/function matching and complains about bad style
+	  issues like multiple prototypes for 1 function, or prototypes
+	  following a function definition
 - \c scripts/xml.awk
 	- A command line XML parser/editor used by \c uVisionupdate.sh to
 	  update the µVision settings
