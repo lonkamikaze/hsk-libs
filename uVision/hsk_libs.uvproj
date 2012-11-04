@@ -358,116 +358,6 @@ ISR_hsk_timer0 ! (tick0)</OverlayString>
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>HSK_CAN</GroupName>
-          <Files>
-            <File>
-              <FileName>hsk_can.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\hsk_can\hsk_can.c</FilePath>
-            </File>
-            <File>
-              <FileName>hsk_can.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\src\hsk_can\hsk_can.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>HSK_BOOT</GroupName>
-          <Files>
-            <File>
-              <FileName>hsk_boot.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\hsk_boot\hsk_boot.c</FilePath>
-            </File>
-            <File>
-              <FileName>hsk_boot.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\src\hsk_boot\hsk_boot.h</FilePath>
-            </File>
-            <File>
-              <FileName>startup.a51</FileName>
-              <FileType>2</FileType>
-              <FilePath>..\src\hsk_boot\startup.a51</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>HSK_TIMERS</GroupName>
-          <Files>
-            <File>
-              <FileName>hsk_timer01.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\hsk_timers\hsk_timer01.c</FilePath>
-            </File>
-            <File>
-              <FileName>hsk_timer01.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\src\hsk_timers\hsk_timer01.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>HSK_ISR</GroupName>
-          <Files>
-            <File>
-              <FileName>hsk_isr.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\hsk_isr\hsk_isr.c</FilePath>
-            </File>
-            <File>
-              <FileName>hsk_isr.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\src\hsk_isr\hsk_isr.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>HSK_ADC</GroupName>
-          <Files>
-            <File>
-              <FileName>hsk_adc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\hsk_adc\hsk_adc.c</FilePath>
-            </File>
-            <File>
-              <FileName>hsk_adc.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\src\hsk_adc\hsk_adc.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>HSK_PWM</GroupName>
-          <Files>
-            <File>
-              <FileName>hsk_pwm.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\hsk_pwm\hsk_pwm.c</FilePath>
-            </File>
-            <File>
-              <FileName>hsk_pwm.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\src\hsk_pwm\hsk_pwm.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>HSK_PWC</GroupName>
-          <Files>
-            <File>
-              <FileName>hsk_pwc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\hsk_pwc\hsk_pwc.c</FilePath>
-            </File>
-            <File>
-              <FileName>hsk_pwc.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\src\hsk_pwc\hsk_pwc.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>DOC</GroupName>
           <Files>
             <File>
@@ -498,17 +388,67 @@ ISR_hsk_timer0 ! (tick0)</OverlayString>
           </Files>
         </Group>
         <Group>
-          <GroupName>HSK_ICM7228</GroupName>
+          <GroupName>HSK_ADC</GroupName>
           <Files>
             <File>
-              <FileName>hsk_icm7228.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\src\hsk_icm7228\hsk_icm7228.h</FilePath>
+              <FileName>hsk_adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\hsk_adc\hsk_adc.c</FilePath>
             </File>
             <File>
-              <FileName>hsk_icm7228.c</FileName>
+              <FileName>hsk_adc.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\src\hsk_adc\hsk_adc.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>HSK_BOOT</GroupName>
+          <Files>
+            <File>
+              <FileName>hsk_boot.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\hsk_icm7228\hsk_icm7228.c</FilePath>
+              <FilePath>..\src\hsk_boot\hsk_boot.c</FilePath>
+            </File>
+            <File>
+              <FileName>hsk_boot.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\src\hsk_boot\hsk_boot.h</FilePath>
+            </File>
+            <File>
+              <FileName>startup.a51</FileName>
+              <FileType>2</FileType>
+              <FilePath>..\src\hsk_boot\startup.a51</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>HSK_CAN</GroupName>
+          <Files>
+            <File>
+              <FileName>hsk_can.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\hsk_can\hsk_can.c</FilePath>
+            </File>
+            <File>
+              <FileName>hsk_can.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\src\hsk_can\hsk_can.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>HSK_EX</GroupName>
+          <Files>
+            <File>
+              <FileName>hsk_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\hsk_ex\hsk_ex.c</FilePath>
+            </File>
+            <File>
+              <FileName>hsk_ex.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\src\hsk_ex\hsk_ex.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -580,6 +520,91 @@ ISR_hsk_timer0 ! (tick0)</OverlayString>
           </Files>
         </Group>
         <Group>
+          <GroupName>HSK_ICM7228</GroupName>
+          <Files>
+            <File>
+              <FileName>hsk_icm7228.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\src\hsk_icm7228\hsk_icm7228.h</FilePath>
+            </File>
+            <File>
+              <FileName>hsk_icm7228.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\hsk_icm7228\hsk_icm7228.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>HSK_IO</GroupName>
+          <Files>
+            <File>
+              <FileName>hsk_io.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\src\hsk_io\hsk_io.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>HSK_ISR</GroupName>
+          <Files>
+            <File>
+              <FileName>hsk_isr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\hsk_isr\hsk_isr.c</FilePath>
+            </File>
+            <File>
+              <FileName>hsk_isr.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\src\hsk_isr\hsk_isr.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>HSK_PWC</GroupName>
+          <Files>
+            <File>
+              <FileName>hsk_pwc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\hsk_pwc\hsk_pwc.c</FilePath>
+            </File>
+            <File>
+              <FileName>hsk_pwc.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\src\hsk_pwc\hsk_pwc.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>HSK_PWM</GroupName>
+          <Files>
+            <File>
+              <FileName>hsk_pwm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\hsk_pwm\hsk_pwm.c</FilePath>
+            </File>
+            <File>
+              <FileName>hsk_pwm.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\src\hsk_pwm\hsk_pwm.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>HSK_TIMERS</GroupName>
+          <Files>
+            <File>
+              <FileName>hsk_timer01.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\hsk_timers\hsk_timer01.c</FilePath>
+            </File>
+            <File>
+              <FileName>hsk_timer01.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\src\hsk_timers\hsk_timer01.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>HSK_WDT</GroupName>
           <Files>
             <File>
@@ -591,31 +616,6 @@ ISR_hsk_timer0 ! (tick0)</OverlayString>
               <FileName>hsk_wdt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\hsk_wdt\hsk_wdt.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>HSK_EX</GroupName>
-          <Files>
-            <File>
-              <FileName>hsk_ex.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\hsk_ex\hsk_ex.c</FilePath>
-            </File>
-            <File>
-              <FileName>hsk_ex.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\src\hsk_ex\hsk_ex.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>HSK_IO</GroupName>
-          <Files>
-            <File>
-              <FileName>hsk_io.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\src\hsk_io\hsk_io.h</FilePath>
             </File>
           </Files>
         </Group>

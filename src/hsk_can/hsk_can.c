@@ -717,6 +717,16 @@ ubyte hsk_can_status(const hsk_can_node node, const ubyte field) {
 #define BIT_TXPND		1
 
 /**
+ * MOCTRn/MOSTATn Receive Updating bit.
+ */
+#define BIT_RXUPD		2
+
+/**
+ * MOCTRn/MOSTATn New Data bit.
+ */
+#define BIT_NEWDAT		3
+
+/**
  * MOCTRn/MOSTATn Message Valid bit.
  */
 #define BIT_MSGVAL		5
@@ -997,29 +1007,47 @@ void hsk_can_msg_getData(const hsk_can_msg msg,
 		ubyte * const msgdata) {
 	ubyte dlc, i;
 
-	/* Get the DLC. */
-	CAN_ADLH = MOFCRn + (msg << OFF_MOn);
-	CAN_AD_READ();
-	dlc = (CAN_DATA3 >> BIT_DLC) & ((1 << CNT_DLC) - 1);
 
-	CAN_ADLH = MODATALn + (msg << OFF_MOn);
-	for (i = 0; i < dlc; i++) {
-		switch (i % 4) {
-		case 0:
-			CAN_AD_READ() | AUAD_INC1;
-			msgdata[i] = CAN_DATA0;
-			break;
-		case 1:
-			msgdata[i] = CAN_DATA1;
-			break;
-		case 2:
-			msgdata[i] = CAN_DATA2;
-			break;
-		case 3:
-			msgdata[i] = CAN_DATA3;
-			break;
+	/* Select message status/control. */
+	CAN_ADLH = MOSTATn + (msg << OFF_MOn);
+	do {
+		/* Reset the new data bit. */
+		CAN_DATA0 = 1 << BIT_NEWDAT;
+		CAN_AD_WRITE(0x1);
+		/* Wait out a pending update. */
+		do {
+			CAN_AD_READ();
+		} while (CAN_DATA0 & (1 << BIT_RXUPD));
+		
+		/* Get the DLC. */
+		CAN_ADLH = MOFCRn + (msg << OFF_MOn);
+		CAN_AD_READ();
+		dlc = (CAN_DATA3 >> BIT_DLC) & ((1 << CNT_DLC) - 1);
+	
+		CAN_ADLH = MODATALn + (msg << OFF_MOn);
+		for (i = 0; i < dlc; i++) {
+			switch (i % 4) {
+			case 0:
+				CAN_AD_READ() | AUAD_INC1;
+				msgdata[i] = CAN_DATA0;
+				break;
+			case 1:
+				msgdata[i] = CAN_DATA1;
+				break;
+			case 2:
+				msgdata[i] = CAN_DATA2;
+				break;
+			case 3:
+				msgdata[i] = CAN_DATA3;
+				break;
+			}
 		}
-	}
+
+		/* Load message status. */
+		CAN_ADLH = MOSTATn + (msg << OFF_MOn);
+		CAN_AD_READ();
+		/* Retry if the message was updated in between. */
+	} while (CAN_DATA0 & (1 << BIT_NEWDAT));
 }
 
 void hsk_can_msg_setData(const hsk_can_msg msg,
