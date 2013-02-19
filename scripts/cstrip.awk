@@ -29,7 +29,7 @@ BEGIN {
 	}
 	close(cmd)
 	# Remove comments
-	gsub(/\/\*[^*]*(\*[^\/]|[^*])*\*\//, "")
+	gsub(/\/\*(\*[^\/]|[^\*])*\*\//, "")
 	# Isolate preprocessor comments
 	gsub("(^|\n)[[:space:]]*#[^\n]*", "&\177")
 	# Remove escaped newlines
@@ -37,10 +37,15 @@ BEGIN {
 	# Collapse spaces
 	gsub(/[[:space:]\r\n]+/, " ")
 	# Remove obsolete spaces
-	split("#{}()=!><|;:?,*/+-%^~[].\"\177", ctrlchars, "")
+	split("{}()|?*+^[].", ctrlchars, "")
 	for (i in ctrlchars) {
 		gsub(" \\" ctrlchars[i], ctrlchars[i])
 		gsub("\\" ctrlchars[i] " ", ctrlchars[i])
+	}
+	split("#=!<>;:,/-%~\"\177", ctrlchars, "")
+	for (i in ctrlchars) {
+		gsub(" " ctrlchars[i], ctrlchars[i])
+		gsub(ctrlchars[i] " ", ctrlchars[i])
 	}
 	gsub(" \\&", "\\&")
 	gsub("\\& ", "\\&")

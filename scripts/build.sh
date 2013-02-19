@@ -5,13 +5,13 @@ IFS='
 
 scriptdir="${0%/*}"
 
-find -s "$@" -name \*.c | xargs awk -f $scriptdir/includes.awk "$@"
+find "$@" -name \*.c | xargs awk -f $scriptdir/includes.awk "$@"
 
 all=
 for SRC in "$@"; do
 	SRC="${SRC%/}"
 	# Collect dependencies for the build target
-	files="$(find -s "$SRC" -name \*.c)"
+	files="$(find "$SRC" -name \*.c)"
 	
 	# Build instructions
 	for file in $files; do
@@ -46,7 +46,7 @@ for file in $files; do
 	build="$build $target"
 	linklist="$(awk -f $scriptdir/includes.awk "$@" $file | cut -d: -f1 \
 		| sed -ne "$filter" -e "s:\.c\$:\${OBJSUFX}:p" \
-		| rs -TC\  )"
+		| awk 'BEGIN{ORS=" "}1')"
 
 	echo "$target: $linklist
 	@mkdir -p ${target%/*}
