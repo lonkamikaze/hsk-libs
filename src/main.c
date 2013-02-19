@@ -9,7 +9,12 @@
 
 #include <Infineon/XC878.h>
 
-#include <dbc/Primary.h>
+/* Begin: Don't depend on non-public CAN DB. */
+/* #include <dbc/Primary.h> */
+	#define MSG_AFB_CHANNEL               0x403, 0, 3
+	#define ID_AFB_CHANNEL                0x403
+	#define SIG_AFB_CONFIG_CHAN_SELECT    CAN_ENDIAN_INTEL,   0, 0, 3
+/* End. */
 
 #include "config.h"
 
@@ -47,17 +52,17 @@ void main(void) {
  * This structure is used to persist data between resets.
  */
 FLASH_STRUCT_FACTORY(
-	/** \var ubyte hsk_flash_struct::boot
+	/**
 	 * Used for boot counting.
 	 */
 	ubyte boot;
 
-	/** \var ubyte hsk_flash_struct::reset
+	/**
 	 * Used for reset counting.
 	 */
 	ubyte reset;
 
-	/** \var ubyte hsk_flash_struct::error
+	/**
 	 * For storing errors.
 	 *
 	 * Certain errors like a WDT can only be reported after a reboot.
@@ -243,7 +248,7 @@ void run(void) {
 		if (hsk_can_fifo_updated(fifo0)) {
 			if (hsk_can_fifo_getId(fifo0) == ID_AFB_CHANNEL) {
 				hsk_can_fifo_getData(fifo0, data0);
-				//P3_DATA ^= 1 << hsk_can_data_getSignal(data0, CAN_ENDIAN_INTEL, 0, 3);
+				/*P3_DATA ^= 1 <<*/ hsk_can_data_getSignal(data0, SIG_AFB_CONFIG_CHAN_SELECT);
 			}
 			hsk_can_fifo_next(fifo0);
 		}
