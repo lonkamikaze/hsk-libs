@@ -26,14 +26,12 @@
 
 #include "hsk_isr.h"
 
-#ifdef __C51__
 /**
  * This is a dummy function used for putting register bank 1 using ISRs
- * into a common call tree.
+ * into a common call tree for C51.
  */
 void hsk_isr_root1(void) using 1 {
 }
-#endif
 
 /**
  * This is a dummy function to point unused function pointers to.

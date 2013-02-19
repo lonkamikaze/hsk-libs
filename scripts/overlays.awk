@@ -16,7 +16,7 @@ BEGIN {
 	for (i = 1; i < ARGC; i++) {
 		cmd = cmd " '" ARGV[i] "' "
 	}
-	system(cmd " -D__C51__ >" TMPFILE)
+	system(cmd ">" TMPFILE)
 	delete ARGV
 	ARGV[1] = TMPFILE
 	ARGC = 2
@@ -33,9 +33,8 @@ BEGIN {
 }
 
 # Just for debugging
-0 {
-	printf "% " (nested * 8) "s%s\n", "", $0
-	next
+ENVIRON["DEBUG"] {
+	printf "% " (nested * 8) "s%s\n", "", $0 > "/dev/stderr"
 }
 
 /^#filename/ {
@@ -44,18 +43,18 @@ BEGIN {
 }
 
 # The hsk_isr_rootN() function is present, so an ISR call tree can be built.
-/^void hsk_isr_root[0-9]+\(.*\)using [0-9]+$/ {
+/^void hsk_isr_root[0-9]+\(.*\)(__)?using [0-9]+$/ {
 	sub("^void ", "")
 	sub(/\(.*/, "")
 	roots[$0]
 }
 
 # Gather interrupts
-/^void .*\(void\)interrupt [0-9]+ using [0-9]+$/ {
+/^void .*\(void\)(__)?interrupt [0-9]+ (__)?using [0-9]+$/ {
 	sub(/^void /, "");
 	isr = $0
 	sub(/\(.*/, "", isr)
-	sub(/.*using[( ]/, "")
+	sub(/.*(__)?using[( ]/, "")
 	sub(/[^0-9].*/, "")
 	using["hsk_isr_root" $0 "!" isr]
 }
