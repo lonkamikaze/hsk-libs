@@ -123,7 +123,7 @@
  *	Struct member definitions
  */
 #define FLASH_STRUCT_FACTORY(members)	\
-	/** \struct hsk_flash_struct "" ""
+	/**
 	 * This struct is a template for data that can be written to the D-Flash.
 	 * It is created by invoking the \ref FLASH_STRUCT_FACTORY macro.
 	 */\
