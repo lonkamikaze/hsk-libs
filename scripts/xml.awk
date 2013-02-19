@@ -284,7 +284,7 @@ node, name, attributes, value, count, i, insert) {
 #
 # Select the nodes created during the last insert operation.
 #
-function cmdSelectInserted(,
+function cmdSelectInserted(dummy,
 node) {
 	for (node in selection) {
 		delete selection[node]
@@ -298,7 +298,7 @@ node) {
 # Unhooks a selected node from the tree, it's still there and can be navigated
 # out of by selecting "..".
 #
-function cmdDelete(,
+function cmdDelete(dummy,
 node, i) {
 	# Delete the selected nodes
 	for (node in selection) {
@@ -313,7 +313,7 @@ node, i) {
 #
 # Print the current selection.
 #
-function cmdPrint(,
+function cmdPrint(dummy,
 node) {
 	for (node in selection) {
 		printNode(0, node)
