@@ -20,7 +20,6 @@
 #
 
 BEGIN {
-	nested = 0
 	# Get a unique temporary file
 	cmd = "sh -c 'printf $$'"
 	cmd | getline TMPFILE

@@ -1,33 +1,87 @@
+#
+# Provides targets to build code with SDCC, generate documentation etc.
+#
+# | Target            | Function
+# |-------------------|---------------------------------------------------
+# | build (default)   | Builds a .hex file and dependencies
+# | all               | Builds a .hex file and every .c library
+# | printEnv          | Used by scripts to determine project settings
+# | uVision           | Run uVisionupdate.sh
+# | html              | Build html documentation
+# | pdf               | Build pdf documentation
+# | clean-build       | Remove build output
+# | clean-doc         | Remove doxygen output for user doc
+# | clean-doc-private | Remove doxygen output for dev doc
+# | clean             | Clean everything
+# | zip               | Create a .zip archive in the parent directory
+#
+# Override the following settings in Makefile.local if needed.
+#
+# | Assignment        | Function
+# |-------------------|---------------------------------------------------
+# | BUILDDIR          | SDCC output directory
+# | CC                | Compiler
+# | CFLAGS            | Compiler flags
+# | CPP               | C preprocesser used by several scripts
+# | CANPROJDIR        | Path to the CAN project
+# | INCDIR            | Include directory for contributed headers
+# | CANDIR            | Include directory for CAN DB headers
+# | OBJSUFX           | The file name suffix for object files
+# | HEXSUFX           | The file name suffix for intel hex files
+# | DATE              | System date, for use when hg is not available
+# | VERSION           | Version of the project
+# | USERSRC           | The list of source files to generate the user doc
+# | DEVSRC            | The list of source files from this project
+# | PROJECT           | The name of this project
+#
+
+# Build with SDCC.
 BUILDDIR=	bin.sdcc
 CC=		sdcc
 CFLAGS=		-mmcs51 --peep-file peeprules.sdcc --xram-loc 0xF000 --xram-size 3072 -I${INCDIR} -I${CANDIR}
 
+# Sane default for uVisionupdate.sh.
+CPP=		cpp
+
+# Locate related projects.
 CANPROJDIR=	../CAN
 
+# Include directories from the related projects.
 INCDIR=		inc
 CANDIR=		${CANPROJDIR}/src
 
+# File name suffixes for sdcc/XC800_Fload.
 OBJSUFX=	.rel
 HEXSUFX=	.hex
 
+# The system date format.
 DATE:=		$(shell date +%Y-%m-%d)
 DATE!=		date +%Y-%m-%d
 
+# Use hg version with date fallback.
 VERSION:=	$(shell hg tip 2> /dev/null | awk '/^changeset/ {print $$2}' || echo ${DATE})
 VERSION!=	hg tip 2> /dev/null | awk '/^changeset/ {print $$2}' || echo ${DATE}
 
+# List of public source files, for generating the user documentation.
 USERSRC:=	$(shell find src/ -name \*.h -o -name main.c -o -name \*.txt -o -name examples)
 USERSRC!=	find src/ -name \*.h -o -name main.c -o -name \*.txt -o -name examples
 
+# List of all source files for generating dependencies and documentation.
 DEVSRC:=	$(shell find src/ -name \*.\[hc] -o -name \*.txt -o -name examples)
 DEVSRC!=	find src/ -name \*.\[hc] -o -name \*.txt -o -name examples
 
+# Name of this project.
 PROJECT:=	$(shell pwd | xargs basename)
 PROJECT!=	pwd | xargs basename
+
+#
+# No more overrides.
+#
 
 _LOCAL_MK:=	$(shell test -f Makefile.local || touch Makefile.local)
 _LOCAL_MK!=	test -f Makefile.local || touch Makefile.local
 
+# Gmake style, works with FreeBSD make, too
 include Makefile.local
 
 build:
@@ -38,12 +92,15 @@ _BUILD_MK!=	sh scripts/build.sh src/ ${CANDIR}/ > build.mk
 # Gmake style, works with FreeBSD make, too
 include build.mk
 
-printEnv:
+printEnv::
 	@echo export PROJECT=\"${PROJECT}\"
 	@echo export CANPROJDIR=\"${CANPROJDIR}\"
 	@echo export CANDIR=\"${CANDIR}\"
 	@echo export INCDIR=\"${INCDIR}\"
 	@echo export CPP=\"${CPP}\"
+
+uVision::
+	@sh uVisionupdate.sh
 
 html: html/user html/dev html/contrib
 
