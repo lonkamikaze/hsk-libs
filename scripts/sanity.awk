@@ -38,10 +38,10 @@ BEGIN {
 	ARGC = 2
 }
 
-/^#filename/ {
-	filename = $2
-	delete prototypes
-	delete functions
+/^#[0-9]+".*"/ {
+	sub(/^[^"]*"/, "")
+	sub(/"[^"]*/, "")
+	filename = $0
 	next
 }
 
@@ -52,19 +52,27 @@ BEGIN {
 	sub(/.* /, "", declare)
 	sub(/;/, "")
 	if (prototypes[declare]) {
-		print filename ": duplicated prototype " declare
-		print "prototype:	" $0
+		print filename ": redeclares prototype:"
+		print "	" $0
 		if (prototypes[declare] != $0) {
-			print "mismatching:	" prototypes[declare]
+			print protofiles[declare] ": previous mismatching declaration:"
+			print "	" prototypes[declare]
 			exit 2
 		}
+		print protofiles[declare] ": previous declaration"
 		exit 1
 	}
 	prototypes[declare] = $0
+	protofiles[declare] = filename
 	if (functions[declare]) {
-		print filename ": prototype for already defined function " declare
-		print "prototype:	" $0
-		print "function:	" functions[declare]
+		print filename ": prototype for already defined function:"
+		print "	" $0
+		if (functions[declare] != $0) {
+			print funcfiles[declare] ": previous mismatching definition:"
+			print "	" functions[declare]
+			exit 3
+		}
+		print funcfiles[declare] ": previous definition"
 		exit 3
 	}
 	next
@@ -77,18 +85,26 @@ BEGIN {
 	sub(/.* /, "", definition)
 	if (prototypes[definition]) {
 		if (prototypes[definition] != $0) {
-			print filename ": function definition " definition " not matching previous prototype"
-			print "definition:	" $0
-			print "prototype:	" prototypes[definition]
+			print filename ": function definition not matching prototype:"
+			print "	" $0
+			print protofiles[definition] ": prototype:"
+			print "	" prototypes[definition]
 			exit 4
 		}
 	}
 	if (functions[definition]) {
-		print filename ": duplicated function " definition
-		print "function:	" $0
+		print filename ": duplicated function:"
+		print "	" $0
+		if (functions[definition] != $0) {
+			print funcfiles[definition] ": previous mismatching definition:"
+			print "	" functions[definition]
+			exit 5
+		}
+		print funcfiles[definition] ": previous definition"
 		exit 5
 	}
 	functions[definition] = $0
+	funcfiles[definition] = filename
 	next
 }
 

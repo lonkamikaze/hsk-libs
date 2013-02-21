@@ -37,11 +37,6 @@ ENVIRON["DEBUG"] {
 	printf "% " (nested * 8) "s%s\n", "", $0 > "/dev/stderr"
 }
 
-/^#filename/ {
-	filename = $2
-	next
-}
-
 # The hsk_isr_rootN() function is present, so an ISR call tree can be built.
 /^void hsk_isr_root[0-9]+\(.*\)(__)?using [0-9]+$/ {
 	sub("^void ", "")

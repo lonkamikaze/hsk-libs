@@ -28,38 +28,35 @@ BEGIN {
 		$0 = $0 line "\n"
 	}
 	close(cmd)
+	# Remove escaped newlines
+	gsub(/\\(\r\n|\n)/, " ")
 	# Remove comments
 	gsub(/\/\*(\*[^\/]|[^\*])*\*\//, "")
 	# Isolate preprocessor comments
 	gsub("(^|\n)[[:space:]]*#[^\n]*", "&\177")
-	# Remove escaped newlines
-	gsub(/\\[\r\n]+/, "")
 	# Collapse spaces
 	gsub(/[[:space:]\r\n]+/, " ")
 	# Remove obsolete spaces
+	sub(/^ /, "")
 	split("{}()|?*+^[].", ctrlchars, "")
 	for (i in ctrlchars) {
-		gsub(" \\" ctrlchars[i], ctrlchars[i])
-		gsub("\\" ctrlchars[i] " ", ctrlchars[i])
+		gsub(" ?\\" ctrlchars[i] " ?", ctrlchars[i])
 	}
 	split("#=!<>;:,/-%~\"\177", ctrlchars, "")
+	ctrlchars["&"] = "\\&"
 	for (i in ctrlchars) {
-		gsub(" " ctrlchars[i], ctrlchars[i])
-		gsub(ctrlchars[i] " ", ctrlchars[i])
+		gsub(" ?" ctrlchars[i] " ?", ctrlchars[i])
 	}
-	gsub(" \\&", "\\&")
-	gsub("\\& ", "\\&")
 	# Add newlines behind statements
-	gsub(/;/, "&\n")
 	gsub(/\177/, "\n")
+	gsub(/;/, "&\n")
 	# Segregate nested code
-	gsub(/\{/, "\n{\n")
-	gsub(/\}/, "\n}\n")
+	gsub(/[{}]/, "\n&\n")
 	# Segregate labels from the code following them
-	gsub(/(^|\n)[[:alnum:]_:]+:/, "&\n")
-	gsub(/(^|\n)case [^\n]+:/, "&\n")
+	gsub(/:([[:alnum:]_]+|case [^:]+):/, "&\n")
+	gsub(/(^|\n)([[:alnum:]_]+|case [^:]+):/, "&\n")
 	# Remove empty lines
 	gsub(/\n+/, "\n")
-	printf "#filename %s\n%s", FILENAME, $0
+	printf "#1\"%s\"\n%s", FILENAME, $0
 }
 
