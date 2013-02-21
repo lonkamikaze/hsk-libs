@@ -21,7 +21,7 @@ for SRC in "$@"; do
 		all="${all:+$all$IFS}$target"
 		echo "$target: $file
 	@mkdir -p ${target%/*}
-	@env LIBPROJDIR=\${LIBPROJDIR} awk -f $scriptdir/sanity.awk $file -I\${LIBDIR} -I\${INCDIR} -I\${CANDIR}
+	@env CPP=\"\${CPP}\" LIBPROJDIR=\"\${LIBPROJDIR}\" awk -f $scriptdir/sanity.awk $file -I\${LIBDIR} -I\${INCDIR} -I\${CANDIR}
 	\${CC} \${CFLAGS} -o $target -c $file
 	"
 	done
