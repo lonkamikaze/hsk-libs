@@ -99,7 +99,7 @@ printEnv::
 	@echo export INCDIR=\"${INCDIR}\"
 	@echo export CPP=\"${CPP}\"
 
-uVision::
+uVision µVision::
 	@sh uVisionupdate.sh
 
 html: html/user html/dev html/contrib
