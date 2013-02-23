@@ -3,16 +3,23 @@
 # Finds call tree manipulations for µVision from C files.
 
 BEGIN {
+	# Get environment settings
+	DEBUG = ENVIRON["DEBUG"]
+	LIBPROJDIR = ENVIRON["LIBPROJDIR"]
+	sub(/[^\/]$/, "&/", LIBPROJDIR)
+	if (DEBUG) {
+		print "overlays.awk: LIBPROJDIR = " LIBPROJDIR > "/dev/stderr"
+	}
+
 	nested = 0
 	# Get a unique temporary file
 	cmd = "sh -c 'printf $$'"
 	cmd | getline TMPFILE
 	close(cmd)
 	TMPFILE = "/tmp/overlays.awk." TMPFILE
-	# Get cscript cmd
+	# Get cstrip cmd
 	path = ENVIRON["LIBPROJDIR"]
-	sub(/.+/, "&/", path)
-	cmd = ARGV[0] " -f " path "scripts/cstrip.awk"
+	cmd = ARGV[0] " -f " LIBPROJDIR "scripts/cstrip.awk"
 	for (i = 1; i < ARGC; i++) {
 		cmd = cmd " '" ARGV[i] "' "
 	}
@@ -20,21 +27,28 @@ BEGIN {
 	delete ARGV
 	ARGV[1] = TMPFILE
 	ARGC = 2
-}
 
-/\{/ {
-	nested++
-	next
 }
 
 /\}/ {
 	nested--
-	next
 }
 
 # Just for debugging
-ENVIRON["DEBUG"] {
+DEBUG > 1 {
 	printf "% " (nested * 8) "s%s\n", "", $0 > "/dev/stderr"
+}
+
+/\{/ {
+	nested++
+}
+
+# Get filename, useful for debugging
+/^#[0-9]+".*"/ {
+	sub(/^#[0-9]+"/, "");
+	sub(/".*/, "");
+	filename = $0
+	next
 }
 
 # The hsk_isr_rootN() function is present, so an ISR call tree can be built.

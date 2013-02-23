@@ -3,17 +3,25 @@
 # Seperates C instructions into individual lines, streamlining the formatting
 
 BEGIN {
+	# Get environment settings
+	CPP = ENVIRON["CPP"] ? ENVIRON["CPP"] : "cpp"
+	DEBUG = ENVIRON["DEBUG"]
+
 	RS = "\0"
 	# Collect parameters
 	for (i = 1; i < ARGC; i++) {
 		if (ARGV[i] ~ /^-.$/) {
-			args = args " " ARGV[i] " " ARGV[i + 1] " "
+			CPP = CPP " " ARGV[i] " " ARGV[i + 1]
 			delete ARGV[i++]
 			delete ARGV[i]
 		} else if (ARGV[i] ~ /^-/) {
-			args = args " " ARGV[i] " "
+			CPP = CPP " " ARGV[i]
 			delete ARGV[i]
 		}
+	}
+
+	if (DEBUG) {
+		print "cstrip.awk: CPP = " CPP > "/dev/stderr"
 	}
 }
 
@@ -21,8 +29,11 @@ BEGIN {
 # Accumulate and preprocess files so they become easier to parse
 #
 {
+	if (DEBUG) {
+		print "cstrip.awk: processing " FILENAME > "/dev/stderr"
+	}
 	# Preprocess file, so there is no trouble with unknown symbols
-	cmd = (ENVIRON["CPP"] ? ENVIRON["CPP"] : "cpp") " " args incdirs FILENAME " 2> /dev/null"
+	cmd = CPP " " FILENAME " 2> /dev/null"
 	$0 = ""
 	while (cmd | getline line) {
 		$0 = $0 line "\n"
@@ -58,5 +69,6 @@ BEGIN {
 	# Remove empty lines
 	gsub(/\n+/, "\n")
 	printf "#1\"%s\"\n%s", FILENAME, $0
+	nextfile
 }
 
