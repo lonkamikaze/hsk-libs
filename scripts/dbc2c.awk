@@ -9,6 +9,7 @@ BEGIN {
 	rID = "[0-9]+"
 	rSEP = "[:;,]"
 	rSYM = "[[:alnum:]_]+"
+	rSYMS = "(" rSYM ",)*" rSYM
 	rSTR = "\"([^\"]|\\.)*\""
 	rSIG = "[0-9]+\\|[0-9]+@[0-9]+[-+]"
 	rVEC = "\\(" rNUM "," rNUM "\\)"
@@ -119,20 +120,29 @@ function fsm_enum(dummy,
 # 1 obj_msg[id]
 #   obj_msg_name[id] = name
 #   obj_msg_dlc[id] = dlc
+#   obj_msg_tx[id] = ecu
+#   obj_ecu_tx[ecu, i] = id
 function fsm_msg(dummy,
 	id,
 	name,
-	dlc) {
+	dlc,
+	ecu, i) {
 	id = fetch(rID)
 	name = fetch(rSYM)
 	fetch(":")
 	dlc = fetch("[0-8]")
-	fetch(rSYM)
+	ecu = fetch(rSYM)
 	fetch(rLF)
 
 	obj_msg[id]
 	obj_msg_name[id] = name
 	obj_msg_dlc[id] = dlc
+
+	if (ecu in obj_ecu) {
+		obj_msg_tx[id] = ecu
+		while (obj_ecu_tx[ecu, i++]);
+		obj_ecu_tx[ecu, --i] = id
+	}
 
 	while (fetch(rSYM) == tSIG) {
 		fsm_sig(id)
@@ -153,10 +163,13 @@ function fsm_msg(dummy,
 #   obj_sig_min[name] = (real)
 #   obj_sig_max[name] = (real)
 #   obj_sig_unit[name] = (string)
+# * obj_sig_rx[name, i] = ecu
+# * obj_ecu_rx[ecu, p] = name
 function fsm_sig(msgid,
 	name,
 	multiplexing,
-	a) {
+	a,
+	ecu, i, p) {
 
 	name = fetch(rSYM)
 	obj_sig[name]
@@ -178,7 +191,15 @@ function fsm_sig(msgid,
 	obj_sig_min[name] = a[2]
 	obj_sig_max[name] = a[3]
 	obj_sig_unit[name] = strip(fetch(rSTR))
-	fetch(rSYM)
+	split(fetch(rSYMS), a, /,/)
+	for (ecu in a) {
+		if (a[ecu] in obj_ecu) {
+			obj_sig_rx[name, i++] = a[ecu]
+			p = 0
+			while (obj_ecu_rx[a[ecu], p++]);
+			obj_ecu_rx[a[ecu], --p] = name
+		}
+	}
 	fetch(rLF)
 }
 
@@ -375,5 +396,8 @@ function fsm_start(dummy,
 	while ($0) {
 		fsm_start()
 	}
+}
+
+END {
 }
 
