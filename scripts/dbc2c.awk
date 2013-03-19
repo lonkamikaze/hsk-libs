@@ -2,18 +2,21 @@
 
 BEGIN {
 	RS=""
+	DEBUG = ENVIRON["DEBUG"]
 
 	# Regexes for different types of data
 	rLF = "\n"
-	rNUM = "-?[0-9]+(\\.[0-9]+)?"
+	rFLOAT = "-?[0-9]+(\\.[0-9]+)?"
+	rINT = "-?[0-9]+"
 	rID = "[0-9]+"
+	rDLC = "[0-8]"
 	rSEP = "[:;,]"
 	rSYM = "[[:alnum:]_]+"
 	rSYMS = "(" rSYM ",)*" rSYM
 	rSTR = "\"([^\"]|\\.)*\""
 	rSIG = "[0-9]+\\|[0-9]+@[0-9]+[-+]"
-	rVEC = "\\(" rNUM "," rNUM "\\)"
-	rBND = "\\[" rNUM "\\|" rNUM "\\]"
+	rVEC = "\\(" rFLOAT "," rFLOAT "\\)"
+	rBND = "\\[" rFLOAT "\\|" rFLOAT "\\]"
 
 	# Type strings
 	tDISCARD["NS_"]
@@ -67,6 +70,9 @@ function fetch(types,
 		gsub(/./, ".", re)
 		sub(re, "")
 	}
+	if (DEBUG > 1 && str !~ /^[[:space:]]*$/) {
+		print "dbc2c.awk: " str > "/dev/stderr"
+	}
 	return str
 }
 
@@ -79,7 +85,7 @@ function fsm_discard() {
 }
 
 function fsm_skip() {
-	while(fetch(rSYM "|" rSEP "|" rID "|" rBND "|" rSTR "|" rNUM) !~ whole(";"));
+	while(fetch(rSYM "|" rSEP "|" rID "|" rBND "|" rSTR "|" rFLOAT) !~ whole(";"));
 	fetch(rLF)
 }
 
@@ -106,12 +112,12 @@ function fsm_enum(dummy,
 	fetch(rID)
 	enum = fetch(rSYM)
 	obj_enum_[enum]
-	val = fetch(rNUM "|;")
+	val = fetch(rINT "|;")
 	while (val !~ whole(";")) {
 		key = enum "_" strip(fetch(rSTR))
 		obj_enum_table[key] = enum
 		obj_enum_entry[key] = val
-		val = fetch(rNUM "|;")
+		val = fetch(rINT "|;")
 	}
 	fetch(rLF)
 }
@@ -130,7 +136,7 @@ function fsm_msg(dummy,
 	id = fetch(rID)
 	name = fetch(rSYM)
 	fetch(":")
-	dlc = fetch("[0-8]")
+	dlc = fetch(rDLC)
 	ecu = fetch(rSYM)
 	fetch(rLF)
 
@@ -257,8 +263,8 @@ function fsm_attrrange(dummy,
 	type = fetch(rSYM)
 	obj_attr_type[name] = type
 	if (type == atINT) {
-		obj_attr_min[name] = fetch(rNUM)
-		obj_attr_max[name] = fetch(rNUM)
+		obj_attr_min[name] = fetch(rFLOAT)
+		obj_attr_max[name] = fetch(rFLOAT)
 	} else if (type == atENUM) {
 		val = strip(fetch(rSTR))
 		while (val != "") {
@@ -290,7 +296,10 @@ function fsm_attrdefault(dummy,
 		while (obj_attr_enum[name, ++i] != value);
 		obj_attr_default[name] = i
 	} else {
-		obj_attr_default[name] = fetch(rNUM)
+		obj_attr_default[name] = fetch(rFLOAT)
+	}
+	if (DEBUG) {
+		print "dbc2c.awk: obj_attr_default[" name "] = " obj_attr_default[name] > "/dev/stderr"
 	}
 	fetch(";")
 	# Poplulate objects with defaults
@@ -310,10 +319,14 @@ function fsm_attrdefault(dummy,
 }
 
 function fetch_attrval(attribute) {
-	if (obj_attr_type[attribute] == "STRING") {
+	if (obj_attr_type[attribute] == atSTR) {
 		return strip(fetch(rSTR))
+	} else if (obj_attr_type[attribute] == atENUM) {
+		return fetch(rINT)
+	} else if (obj_attr_type[attribute] == atINT) {
+		return int(fetch(rFLOAT))
 	}
-	return fetch(rNUM)
+	return fetch(rFLOAT)
 }
 
 # BA_
@@ -325,19 +338,25 @@ function fsm_attr(dummy,
 	id) {
 	name = strip(fetch(rSTR))
 	if (obj_attr_context[name] == "msg") {
-		for (i in obj_msg) {
-			obj_msg_attr[i, name] = obj_attr_default[name]
-		}
 		fetch(rSYM)
 		id = fetch(rID)
 		obj_msg_attr[id, name] = fetch_attrval(name)
+		if (DEBUG) {
+			print "dbc2c.awk: obj_msg_attr[" id "," name "] = " obj_msg_attr[id, name] > "/dev/stderr"
+		}
 	} else if (obj_attr_context[name] == "sig") {
 		fetch(rSYM)
 		fetch(rID)
 		id = fetch(rSYM)
 		obj_sig_attr[id, name] = fetch_attrval(name)
+		if (DEBUG) {
+			print "dbc2c.awk: obj_sig_attr[" id "," name "] = " obj_sig_attr[id, name] > "/dev/stderr"
+		}
 	} else if (obj_attr_context[name] == "db") {
 		obj_db_attr[FILENAME, name] = fetch_attrval(name)
+		if (DEBUG) {
+			print "dbc2c.awk: obj_db_attr[" FILENAME "," name "] = " obj_db_attr[FILENAME, name] > "/dev/stderr"
+		}
 	}
 	fetch(";")
 }
