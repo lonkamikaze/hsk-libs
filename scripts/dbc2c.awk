@@ -1,7 +1,6 @@
 #!/usr/bin/awk -f
 
 BEGIN {
-	RS=""
 	DEBUG = ENVIRON["DEBUG"]
 
 	# Regexes for different types of data
@@ -13,21 +12,23 @@ BEGIN {
 	rSEP = "[:;,]"
 	rSYM = "[[:alnum:]_]+"
 	rSYMS = "(" rSYM ",)*" rSYM
-	rSTR = "\"([^\"]|\\.)*\""
 	rSIG = "[0-9]+\\|[0-9]+@[0-9]+[-+]"
 	rVEC = "\\(" rFLOAT "," rFLOAT "\\)"
 	rBND = "\\[" rFLOAT "\\|" rFLOAT "\\]"
+	#rSTR = "\"([^\"]|\\.)*\"" # That would be right if CANdb++ supported
+	                           # escaping characters
+	rSTR = "\"[^\"]*\""
 
 	# Type strings
 	tDISCARD["NS_"]
 	tDISCARD["BS_"]
-	tSKIP["EV_"]     # Environment variables
 	tENUM["VAL_TABLE_"]
 	tENUM["VAL_"]
 	tVER = "VERSION"
 	tECU = "BU_"
 	tMSG = "BO_"
 	tSIG = "SG_"
+	tENV = "EV_"
 	tCOM = "CM_"
 	tATTRDEFAULT = "BA_DEF_DEF_"
 	tATTRRANGE = "BA_DEF_"
@@ -38,12 +39,64 @@ BEGIN {
 	atENUM = "ENUM"
 	atINT = "INT"
 
+	# Environment variable types
+	etINT = "INT"
+	etFLOAT = "FLOAT"
+	etDATA = "DATA"
+	eTYPE[0] = etINT
+	eTYPE[1] = etFLOAT
+	eTYPE[2] = etDATA
+
 	# Prominent attributes
 	aSTART = "GenSigStartValue"
 	aFCYCLE = "GenMsgCycleTimeFast"
 	aCYCLE = "GenMsgCycleTime"
 	aDELAY = "GenMsgDelayTime"
 	aSEND = "GenMsgSendType"
+}
+
+{
+	gsub(/[\r\n]*$/, "\n")
+}
+
+function buffer() {
+	sub(/^[	 ]*/, "")
+	if (!$0) {
+		getline
+		gsub(/[\r\n]*$/, "\n")
+		sub(/^[	 ]*/, "")
+	}
+}
+
+function fetchStr(dummy,
+	str,i) {
+	buffer()
+	if ($0 !~ /^"/) {
+		return ""
+	}
+	# Assume strings are no longer than 256 lines
+	while ($0 !~ "^(" rSTR ")" && i++ < 256) {
+		getline str
+		gsub(/[\r\n]*$/, "\n", str)
+		$0 = $0 str
+	}
+	return strip(fetch(rSTR))
+}
+
+function fetch(types,
+	str, re) {
+	buffer()
+	if (match($0, "^(" types ")")) {
+		str = substr($0, 0, RLENGTH)
+		# Cut str from the beginning of $0
+		re = str
+		gsub(/./, ".", re)
+		sub(re, "")
+	}
+	if (DEBUG > 1 && str !~ /^[[:space:]]*$/) {
+		print "dbc2c.awk: fetch: " str > "/dev/stderr"
+	}
+	return str
 }
 
 # Returns the expresion with ^ and $ at beginning and end to make ~ match
@@ -56,23 +109,8 @@ function whole(re) {
 function strip(str) {
 	sub(/^"/, "", str)
 	sub(/"$/, "", str)
-	gsub(/\\(.)/, "&", str) # Does that work?
-	return str
-}
-
-function fetch(types,
-	str, re) {
-	sub(/^[	 ]*/, "")
-	if (match($0, "^(" types ")")) {
-		str = substr($0, 0, RLENGTH)
-		# Cut str from the beginning of $0
-		re = str
-		gsub(/./, ".", re)
-		sub(re, "")
-	}
-	if (DEBUG > 1 && str !~ /^[[:space:]]*$/) {
-		print "dbc2c.awk: " str > "/dev/stderr"
-	}
+	# CANdb++ does not allow " in strings, so there is no need for
+	# handling escapes
 	return str
 }
 
@@ -82,11 +120,6 @@ function fsm_discard() {
 	while(fetch(rSYM "|" rLF) !~ whole(rLF)) {
 		fetch(rLF)
 	}
-}
-
-function fsm_skip() {
-	while(fetch(rSYM "|" rSEP "|" rID "|" rBND "|" rSTR "|" rFLOAT) !~ whole(";"));
-	fetch(rLF)
 }
 
 # BU_
@@ -114,12 +147,42 @@ function fsm_enum(dummy,
 	obj_enum_[enum]
 	val = fetch(rINT "|;")
 	while (val !~ whole(";")) {
-		key = enum "_" strip(fetch(rSTR))
+		key = enum "_" fetchStr()
 		obj_enum_table[key] = enum
 		obj_enum_entry[key] = val
 		val = fetch(rINT "|;")
 	}
 	fetch(rLF)
+}
+
+# EV_
+# 1 obj_env[name] = val
+#   obj_env_type[name] = ("INT"|"FLOAT"|"DATA")
+#   obj_env_min[name]
+#   obj_env_max[name]
+#   obj_env_unit[name] = (string)
+function fsm_env(dummy,
+	name, a) {
+	name = fetch(rSYM)
+	fetch(":")
+	obj_env_type[name] = eTYPE[fetch(rID)]
+	split(fetch(rBND), a, /[][|]/)
+	obj_env_min[name] = a[2]
+	obj_env_max[name] = a[3]
+	obj_env_unit[name] = fetchStr()
+	if (obj_env_type[name] == etINT) {
+		obj_env[name] = int(fetch(rFLOAT))
+	} else {
+		obj_env[name] = fetch(rFLOAT)
+	}
+	if (DEBUG) {
+		print "dbc2c.awk: obj_env[" name "] = " obj_env[name] > "/dev/stderr"
+	}
+
+	fetch(rID)  # Just a counter of environment variables
+	fetch(rSYM) # DUMMY_NODE_VECTOR0
+	fetch(rSYM) # Vector__XXX
+	fetch(";")
 }
 
 # BO_
@@ -196,7 +259,7 @@ function fsm_sig(msgid,
 	split(fetch(rBND), a, /[][|]/)
 	obj_sig_min[name] = a[2]
 	obj_sig_max[name] = a[3]
-	obj_sig_unit[name] = strip(fetch(rSTR))
+	obj_sig_unit[name] = fetchStr()
 	split(fetch(rSYMS), a, /,/)
 	for (ecu in a) {
 		if (a[ecu] in obj_ecu) {
@@ -212,25 +275,27 @@ function fsm_sig(msgid,
 # CM_
 # 1 obj_db_comment[FILENAME]
 # 1 obj_ecu_comment[name]
+# 1 obj_env_comment[name]
 # 1 obj_msg_comment[msgid]
 # 1 obj_sig_comment[name]
 function fsm_comment(dummy,
 	context, name, msgid, str) {
 	context = fetch(rSYM)
 	if (context == "") {
-		obj_db_comment[FILENAME] = strip(fetch(rSTR))
-	} else if (context in tSKIP) {
-		fsm_skip()
+		obj_db_comment[FILENAME] = fetchStr()
+	} else if (context == tENV) {
+		name = fetch(rSYM)
+		obj_env_comment[name] = fetchStr()
 	} else if (context == tECU) {
 		name = fetch(rSYM)
-		obj_ecu_comment[name] = strip(fetch(rSTR))
+		obj_ecu_comment[name] = fetchStr()
 	} else if (context == tMSG) {
 		msgid = fetch(rID)
-		obj_msg_comment[msgid] = strip(fetch(rSTR))
+		obj_msg_comment[msgid] = fetchStr()
 	} else if (context == tSIG) {
 		msgid = fetch(rID)
 		name = fetch(rSYM)
-		obj_sig_comment[name] = strip(fetch(rSTR))
+		obj_sig_comment[name] = fetchStr()
 	}
 	fetch(";")
 	fetch(rLF)
@@ -257,7 +322,7 @@ function fsm_attrrange(dummy,
 	} else {
 		context = "db"
 	}
-	name = strip(fetch(rSTR))
+	name = fetchStr()
 	obj_attr_context[name] = context
 	obj_attr[name]
 	type = fetch(rSYM)
@@ -266,14 +331,14 @@ function fsm_attrrange(dummy,
 		obj_attr_min[name] = fetch(rFLOAT)
 		obj_attr_max[name] = fetch(rFLOAT)
 	} else if (type == atENUM) {
-		val = strip(fetch(rSTR))
+		val = fetchStr()
 		while (val != "") {
 			obj_attr_enum[name, ++i] = val
 			fetch(",")
-			val = strip(fetch(rSTR))
+			val = fetchStr()
 		}
 	} else if (type == atSTR) {
-		obj_attr_str[name] = strip(fetch(rSTR))
+		obj_attr_str[name] = fetchStr()
 	}
 	#TODO float, hex
 	fetch(";")
@@ -288,11 +353,11 @@ function fsm_attrdefault(dummy,
 	name,
 	value,
 	i) {
-	name = strip(fetch(rSTR))
+	name = fetchStr()
 	if (obj_attr_type[name] == atSTR) {
-		obj_attr_default[name] = strip(fetch(rSTR))
+		obj_attr_default[name] = fetchStr()
 	} else if (obj_attr_type[name] == atENUM) {
-		value = strip(fetch(rSTR))
+		value = fetchStr()
 		while (obj_attr_enum[name, ++i] != value);
 		obj_attr_default[name] = i
 	} else {
@@ -320,7 +385,7 @@ function fsm_attrdefault(dummy,
 
 function fetch_attrval(attribute) {
 	if (obj_attr_type[attribute] == atSTR) {
-		return strip(fetch(rSTR))
+		return fetchStr()
 	} else if (obj_attr_type[attribute] == atENUM) {
 		return fetch(rINT)
 	} else if (obj_attr_type[attribute] == atINT) {
@@ -336,7 +401,7 @@ function fetch_attrval(attribute) {
 function fsm_attr(dummy,
 	name,
 	id) {
-	name = strip(fetch(rSTR))
+	name = fetchStr()
 	if (obj_attr_context[name] == "msg") {
 		fetch(rSYM)
 		id = fetch(rID)
@@ -370,15 +435,15 @@ function fsm_start(dummy,
 
 	# Discard version
 	if (sym == tVER) {
-		fetch(rSTR)
+		fetchStr()
 	}
 	# Discard not required symbols
 	else if (sym in tDISCARD) {
 		fsm_discard()
 	}
-	# Skip to semicolon
-	else if (sym in tSKIP) {
-		fsm_skip()
+	# Environment variables
+	else if (sym == tENV) {
+		fsm_env()
 	}
 	# Get ECUs
 	else if (sym == tECU) {
@@ -411,7 +476,6 @@ function fsm_start(dummy,
 }
 
 {
-	gsub(/\r/, "")
 	while ($0) {
 		fsm_start()
 	}
