@@ -1,4 +1,7 @@
 #!/usr/bin/awk -f
+#
+# Note to set LANG=C for GNU AWK or it may choke on characters in comments.
+#
 
 BEGIN {
 	DEBUG = ENVIRON["DEBUG"]
@@ -55,10 +58,17 @@ BEGIN {
 	aSEND = "GenMsgSendType"
 }
 
+#
+# Strip DOS line endings and make sure there is a new line symbol at the
+# end of the line, so multiline definitions can be parsed.
+#
 {
 	gsub(/[\r\n]*$/, "\n")
 }
 
+#
+# Makes sure $0 is not empty.
+#
 function buffer() {
 	sub(/^[	 ]*/, "")
 	if (!$0) {
@@ -68,6 +78,15 @@ function buffer() {
 	}
 }
 
+#
+# Special function to fetch a string from the buffer.
+#
+# This is a special case, because strings may span multiple lines.
+# This function supports strings with up to 256 lines.
+#
+# @return
+#	The fetched string
+#
 function fetchStr(dummy,
 	str,i) {
 	buffer()
@@ -83,6 +102,14 @@ function fetchStr(dummy,
 	return strip(fetch(rSTR))
 }
 
+#
+# Fetch the next token from the input buffer, matching a given type.
+#
+# @param types
+#	A regular expression describing the type of data to be fetched
+# @return
+#	The fetched string of data
+#
 function fetch(types,
 	str, re) {
 	buffer()
@@ -99,13 +126,19 @@ function fetch(types,
 	return str
 }
 
+#
 # Returns the expresion with ^ and $ at beginning and end to make ~ match
 # entire expressions only.
+#
 function whole(re) {
 	return "^" re "$"
 }
 
+#
 # Remove quotes and escapes from strings.
+#
+# This function is used by fetchStr().
+#
 function strip(str) {
 	sub(/^"/, "", str)
 	sub(/"$/, "", str)
@@ -114,6 +147,12 @@ function strip(str) {
 	return str
 }
 
+#
+# Discards buffered symbols until an empty line is encountered.
+#
+# This is used to skip the list of supported symbols at the beginning of a
+# dbc file.
+#
 function fsm_discard() {
 	fetch(":")
 	fetch(rLF)
@@ -122,8 +161,14 @@ function fsm_discard() {
 	}
 }
 
-# BU_
-# * obj_ecu[ecu]
+#
+# Parse an ECU definition.
+#
+# Token: BU_
+#
+# Creates:
+# 	- 1 obj_ecu[ecu]
+#
 function fsm_ecu(dummy,
 	ecu) {
 	fetch(":")
@@ -134,10 +179,16 @@ function fsm_ecu(dummy,
 	}
 }
 
-# VAL_TABLE_
-# 1 obj_enum[enum]
-# * obj_enum_entry[key] = val
-#   obj_enum_table[key] = enum
+#
+# Parse a value table.
+#
+# Token: VAL_TABLE_
+#
+# Creates:
+# 	- 1 obj_enum[enum]
+# 	- * obj_enum_entry[key] = val
+# 	- * obj_enum_table[key] = enum
+#
 function fsm_enum(dummy,
 	enum,
 	val,
@@ -155,12 +206,18 @@ function fsm_enum(dummy,
 	fetch(rLF)
 }
 
-# EV_
-# 1 obj_env[name] = val
-#   obj_env_type[name] = ("INT"|"FLOAT"|"DATA")
-#   obj_env_min[name]
-#   obj_env_max[name]
-#   obj_env_unit[name] = (string)
+#
+# Parse an environment variable.
+#
+# Token: EV_
+#
+# Creates:
+# 	- 1 obj_env[name] = val
+# 	- 1 obj_env_type[name] = ("INT"|"FLOAT"|"DATA")
+# 	- 1 obj_env_min[name] = (float)
+# 	- 1 obj_env_max[name] = (float)
+# 	- 1 obj_env_unit[name] = (string)
+#
 function fsm_env(dummy,
 	name, a) {
 	name = fetch(rSYM)
@@ -185,12 +242,18 @@ function fsm_env(dummy,
 	fetch(";")
 }
 
-# BO_
-# 1 obj_msg[id]
-#   obj_msg_name[id] = name
-#   obj_msg_dlc[id] = dlc
-#   obj_msg_tx[id] = ecu
-#   obj_ecu_tx[ecu, i] = id
+#
+# Parse a message definition.
+#
+# Token: BO_
+#
+# Creates:
+# 	- 1 obj_msg[id]
+# 	- 1 obj_msg_name[id] = name
+# 	- 1 obj_msg_dlc[id] = dlc
+# 	- 1 obj_msg_tx[id] = ecu
+# 	- 1 obj_ecu_tx[ecu, i] = id
+#
 function fsm_msg(dummy,
 	id,
 	name,
@@ -218,22 +281,28 @@ function fsm_msg(dummy,
 	}
 }
 
-# SG_
-# 1 obj_sig[name]
-#   obj_sig_msgid[name] = msgid
-#   obj_sig_multiplexor[name] = (bool)
-#   obj_sig_multiplexed[name] = (int)
-#   obj_sig_sbit[name] = (uint)
-#   obj_sig_len[name] = (uint)
-#   obj_sig_intel[name] = (bool)
-#   obj_sig_signed[name] = (bool)
-#   obj_sig_mul[name] = (real)
-#   obj_sig_off[name] = (real)
-#   obj_sig_min[name] = (real)
-#   obj_sig_max[name] = (real)
-#   obj_sig_unit[name] = (string)
-# * obj_sig_rx[name, i] = ecu
-# * obj_ecu_rx[ecu, p] = name
+#
+# Parse a signature definition.
+#
+# Token: SG_
+#
+# Creates:
+# 	- 1 obj_sig[name]
+# 	- 1 obj_sig_msgid[name] = msgid
+# 	- 1 obj_sig_multiplexor[name] = (bool)
+# 	- 1 obj_sig_multiplexed[name] = (int)
+# 	- 1 obj_sig_sbit[name] = (uint)
+# 	- 1 obj_sig_len[name] = (uint)
+# 	- 1 obj_sig_intel[name] = (bool)
+# 	- 1 obj_sig_signed[name] = (bool)
+# 	- 1 obj_sig_mul[name] = (float)
+# 	- 1 obj_sig_off[name] = (float)
+# 	- 1 obj_sig_min[name] = (float)
+# 	- 1 obj_sig_max[name] = (float)
+# 	- 1 obj_sig_unit[name] = (string)
+# 	- * obj_sig_rx[name, i] = ecu
+# 	- * obj_ecu_rx[ecu, p] = name
+#
 function fsm_sig(msgid,
 	name,
 	multiplexing,
@@ -246,7 +315,7 @@ function fsm_sig(msgid,
 	multiplexing = fetch("m[0-9]+|M")
 	obj_sig_multiplexor[name] = (multiplexing == "M")
 	gsub(/[mM]/, "", multiplexing)
-	obj_sig_miltiplexed[name] = multiplexing
+	obj_sig_multiplexed[name] = multiplexing
 	fetch(":")
 	split(fetch(rSIG), a, /[|@]/)
 	obj_sig_sbit[name] = a[1]
@@ -272,12 +341,18 @@ function fsm_sig(msgid,
 	fetch(rLF)
 }
 
-# CM_
-# 1 obj_db_comment[FILENAME]
-# 1 obj_ecu_comment[name]
-# 1 obj_env_comment[name]
-# 1 obj_msg_comment[msgid]
-# 1 obj_sig_comment[name]
+#
+# Parse comments.
+#
+# Token: CM_
+#
+# Creates one of:
+# 	- 1 obj_db_comment[FILENAME]
+# 	- 1 obj_ecu_comment[name]
+# 	- 1 obj_env_comment[name]
+# 	- 1 obj_msg_comment[msgid]
+# 	- 1 obj_sig_comment[name]
+#
 function fsm_comment(dummy,
 	context, name, msgid, str) {
 	context = fetch(rSYM)
@@ -301,13 +376,18 @@ function fsm_comment(dummy,
 	fetch(rLF)
 }
 
-# BA_DEF
-# 1 obj_attr[name]
-#   obj_attr_type[name] = (INT|ENUM|STRING)
-#   obj_attr_min[name]
-#   obj_attr_max[name]
-#   obj_attr_enum[name, i]
-#   obj_attr_str[name]
+#
+# Parse a custom attribute definition.
+#
+# Token: BA_DEF_
+#
+# Creates:
+# 	- 1 obj_attr[name]
+# 	- 1 obj_attr_type[name] = ("INT"|"ENUM"|"STRING")
+# 	- ? obj_attr_min[name] = (float)
+# 	- ? obj_attr_max[name] = (float)
+# 	- * obj_attr_enum[name, i] = (string)
+# 	- ? obj_attr_str[name] = (string)
 function fsm_attrrange(dummy,
 	context,
 	name,
@@ -344,11 +424,17 @@ function fsm_attrrange(dummy,
 	fetch(";")
 }
 
-# BA_DEF_DEF_
-# 1 obj_attr_default[name] = value
-# * obj_msg_attr[msgid, name]
-# * obj_sig_attr[signame, name]
-# * obj_db_attr[FILENAME, name]
+#
+# Parse attribute default value.
+#
+# Token: BA_DEF_DEF_
+#
+# Creates:
+# 	- 1 obj_attr_default[name] = value
+# 	- * obj_msg_attr[msgid, name]
+# 	- * obj_sig_attr[signame, name]
+# 	- * obj_db_attr[FILENAME, name]
+#
 function fsm_attrdefault(dummy,
 	name,
 	value,
@@ -383,6 +469,14 @@ function fsm_attrdefault(dummy,
 	}
 }
 
+#
+# Fetches an attribute value of a given type from the read buffer.
+#
+# @param attribute
+#	The attribute type identifier
+# @return
+#	The value of the chosen type
+#
 function fetch_attrval(attribute) {
 	if (obj_attr_type[attribute] == atSTR) {
 		return fetchStr()
@@ -394,10 +488,16 @@ function fetch_attrval(attribute) {
 	return fetch(rFLOAT)
 }
 
-# BA_
-# 1 obj_msg_attr[msgid, name]
-# 1 obj_sig_attr[signame, name]
-# 1 obj_db_attr[FILENAME, name]
+#
+# Parse an attribute value.
+#
+# Token: BA_
+#
+# Creates one of:
+# 	- 1 obj_msg_attr[msgid, name]
+# 	- 1 obj_sig_attr[signame, name]
+# 	- 1 obj_db_attr[FILENAME, name]
+#
 function fsm_attr(dummy,
 	name,
 	id) {
@@ -426,7 +526,13 @@ function fsm_attr(dummy,
 	fetch(";")
 }
 
-# 1 obj_db[FILENAME]
+#
+# Pick tokens from the input buffer and call the respective parsing
+# functions.
+#
+# Creates:
+# 	- 1 obj_db[FILENAME]
+#
 function fsm_start(dummy,
 	sym) {
 	sym = fetch(rSYM "|" rLF)
@@ -475,6 +581,9 @@ function fsm_start(dummy,
 	}
 }
 
+#
+# This starts the line wise parsing of the DBC file.
+#
 {
 	while ($0) {
 		fsm_start()
