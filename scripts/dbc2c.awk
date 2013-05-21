@@ -1,6 +1,7 @@
 #!/usr/bin/awk -f
 #
-# Note to set LANG=C for GNU AWK or it may choke on characters in comments.
+# Note, pipe the input through "iconv -f CP1252" so GNU AWK doesn't choke
+# on non-UTF-8 charachters in comments.
 #
 
 BEGIN {
@@ -40,7 +41,9 @@ BEGIN {
 	# Attribute types
 	atSTR = "STRING"
 	atENUM = "ENUM"
-	atINT = "INT"
+	atINT = "INT";     atNUM[atINT]
+	atFLOAT = "FLOAT"; atNUM[atFLOAT]
+	atHEX = "HEX";     atNUM[atHEX]
 
 	# Environment variable types
 	etINT = "INT"
@@ -48,7 +51,6 @@ BEGIN {
 	etDATA = "DATA"
 	eTYPE[0] = etINT
 	eTYPE[1] = etFLOAT
-	eTYPE[2] = etDATA
 
 	# Prominent attributes
 	aSTART = "GenSigStartValue"
@@ -229,8 +231,11 @@ function fsm_env(dummy,
 	obj_env_unit[name] = fetchStr()
 	if (obj_env_type[name] == etINT) {
 		obj_env[name] = int(fetch(rFLOAT))
-	} else {
+	} else if (obj_env_type[name] == etFLOAT) {
 		obj_env[name] = fetch(rFLOAT)
+	} else {
+		print "dbc2c.awk: Environment variable type '" obj_env_type[name] "' not implemented!" > "/dev/stderr"
+		exit 1
 	}
 	if (DEBUG) {
 		print "dbc2c.awk: obj_env[" name "] = " obj_env[name] > "/dev/stderr"
@@ -243,12 +248,19 @@ function fsm_env(dummy,
 }
 
 #
+# ENVVAR_DATA_
+# 	- 1 obj_env_type[name] = ("INT"|"FLOAT"|"DATA")
+# 	- 1 obj_env_dlc[name] = (int)
+#
+function fsm_env_data() {
+}
+
+#
 # Parse a message definition.
 #
 # Token: BO_
 #
-# Creates:
-# 	- 1 obj_msg[id]
+# Creates: # 	- 1 obj_msg[id]
 # 	- 1 obj_msg_name[id] = name
 # 	- 1 obj_msg_dlc[id] = dlc
 # 	- 1 obj_msg_tx[id] = ecu
@@ -407,7 +419,7 @@ function fsm_attrrange(dummy,
 	obj_attr[name]
 	type = fetch(rSYM)
 	obj_attr_type[name] = type
-	if (type == atINT) {
+	if (type in atNUM) {
 		obj_attr_min[name] = fetch(rFLOAT)
 		obj_attr_max[name] = fetch(rFLOAT)
 	} else if (type == atENUM) {
@@ -420,7 +432,6 @@ function fsm_attrrange(dummy,
 	} else if (type == atSTR) {
 		obj_attr_str[name] = fetchStr()
 	}
-	#TODO float, hex
 	fetch(";")
 }
 
@@ -446,8 +457,11 @@ function fsm_attrdefault(dummy,
 		value = fetchStr()
 		while (obj_attr_enum[name, ++i] != value);
 		obj_attr_default[name] = i
-	} else {
+	} else if (obj_attr_type[name] in atNUM) {
 		obj_attr_default[name] = fetch(rFLOAT)
+	} else {
+		print "dbc2c.awk: Attribute type '" obj_attr_type[name] "' not implemented!" > "/dev/stderr"
+		exit 1
 	}
 	if (DEBUG) {
 		print "dbc2c.awk: obj_attr_default[" name "] = " obj_attr_default[name] > "/dev/stderr"
