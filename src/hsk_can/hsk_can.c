@@ -1014,10 +1014,6 @@ void hsk_can_msg_getData(const hsk_can_msg msg,
 		/* Reset the new data bit. */
 		CAN_DATA0 = 1 << BIT_NEWDAT;
 		CAN_AD_WRITE(0x1);
-		/* Wait out a pending update. */
-		do {
-			CAN_AD_READ();
-		} while (CAN_DATA0 & (1 << BIT_RXUPD));
 		
 		/* Get the DLC. */
 		CAN_ADLH = MOFCRn + (msg << OFF_MOn);
@@ -1047,7 +1043,7 @@ void hsk_can_msg_getData(const hsk_can_msg msg,
 		CAN_ADLH = MOSTATn + (msg << OFF_MOn);
 		CAN_AD_READ();
 		/* Retry if the message was updated in between. */
-	} while (CAN_DATA0 & (1 << BIT_NEWDAT));
+	} while (CAN_DATA0 & ((1 << BIT_NEWDAT) | (1 << BIT_RXUPD)));
 }
 
 void hsk_can_msg_setData(const hsk_can_msg msg,
