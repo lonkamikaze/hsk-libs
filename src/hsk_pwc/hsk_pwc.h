@@ -346,8 +346,8 @@ void hsk_pwc_disable(void);
  * These defines are used for returning the duty time of the latest pulse.
  *
  * In order to use this return type, the channel buffer must hold at least
- * 3 values. I.e. the averageOver argument of hsk_pwc_port_open() must
- * be 3 or greater (there is no benefit to a value above 3).
+ * 2 values. I.e. the averageOver argument of hsk_pwc_port_open() must
+ * be 2 or greater (there is no benefit to a value above 2).
  *
  * To produce correct results the channel must also be in edge mode
  * \ref PWC_EDGE_BOTH.
