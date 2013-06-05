@@ -118,7 +118,7 @@
             <Oh166RecLen>16</Oh166RecLen>
           </OPTHX>
           <Simulator>
-            <UseSimulator>0</UseSimulator>
+            <UseSimulator>1</UseSimulator>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
             <RunToMain>0</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
@@ -129,7 +129,7 @@
             <LimitSpeedToRealTime>1</LimitSpeedToRealTime>
           </Simulator>
           <Target>
-            <UseTarget>1</UseTarget>
+            <UseTarget>0</UseTarget>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
             <RunToMain>1</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
@@ -325,12 +325,12 @@ hsk_isr_root1 ! (ISR_hsk_isr8, ISR_hsk_isr9, ISR_hsk_timer0, ISR_hsk_timer1, ISR
 * ~ (hsk_boot_isr_nmipll, hsk_flash_isr_nmiflash),
 * ~ (hsk_pwc_isr_cctOverflow),
 * ~ (hsk_adc_isr10, hsk_adc_isr_warmup10, hsk_adc_isr8),
-* ~ (hsk_pwc_isr_cc0, hsk_pwc_isr_cc1, hsk_pwc_isr_cc2, hsk_pwc_isr_cc3),
+* ~ (hsk_pwc_isr_cc1_p41, hsk_pwc_isr_cc2_p52, hsk_pwc_isr_cc3_p34, hsk_pwc_isr_cc0_p55, hsk_pwc_isr_cc1_p32, hsk_pwc_isr_cc2_p44, hsk_pwc_isr_cc0_p40, hsk_pwc_isr_cc3_p57, hsk_pwc_isr_cc1_p56, hsk_pwc_isr_cc2_p33, hsk_pwc_isr_cc3_p45, hsk_pwc_isr_cc0_p30),
 * ~ (tick0),
 ISR_hsk_isr14 ! (hsk_boot_isr_nmipll, hsk_flash_isr_nmiflash),
 ISR_hsk_isr5 ! (hsk_pwc_isr_cctOverflow),
 ISR_hsk_isr6 ! (hsk_adc_isr10, hsk_adc_isr_warmup10, hsk_adc_isr8),
-ISR_hsk_isr9 ! (hsk_pwc_isr_cc0, hsk_pwc_isr_cc1, hsk_pwc_isr_cc2, hsk_pwc_isr_cc3),
+ISR_hsk_isr9 ! (hsk_pwc_isr_cc1_p41, hsk_pwc_isr_cc2_p52, hsk_pwc_isr_cc3_p34, hsk_pwc_isr_cc0_p55, hsk_pwc_isr_cc1_p32, hsk_pwc_isr_cc2_p44, hsk_pwc_isr_cc0_p40, hsk_pwc_isr_cc3_p57, hsk_pwc_isr_cc1_p56, hsk_pwc_isr_cc2_p33, hsk_pwc_isr_cc3_p45, hsk_pwc_isr_cc0_p30),
 ISR_hsk_timer0 ! (tick0)</OverlayString>
             <MiscControls>REMOVEUNUSED</MiscControls>
             <DisableWarningNumbers></DisableWarningNumbers>
