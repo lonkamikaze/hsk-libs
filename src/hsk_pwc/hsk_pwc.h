@@ -253,6 +253,16 @@ void hsk_pwc_enable(void);
  */
 void hsk_pwc_disable(void);
 
+
+/**
+ * \defgroup PWC_UNIT Pulse Width Detection Units
+ *
+ * This group of defines is used to select return format of
+ * hsk_pwc_channel_getValue().
+ *
+ * @{
+ */
+
 /**
  * Sum of buffered pulse widths in multiples of \f$ 1/48 * 10^{-6} s \f$.
  *
@@ -261,6 +271,14 @@ void hsk_pwc_disable(void);
  * Use this if precision is of the utmost importance.
  */
 #define PWC_UNIT_SUM_RAW	0
+
+/**
+ * \defgroup PWC_UNIT_WIDTH Pulse Width Times
+ *
+ * The defines are for returning average pulse width.
+ *
+ * @{
+ */
 
 /**
  * Average of buffered pulse widths in multiples of \f$ 1/48 * 10^{-6} s \f$.
@@ -281,6 +299,18 @@ void hsk_pwc_disable(void);
  * Average of buffered pulse widths in multiples of \f$ 10^{-3} s \f$.
  */
 #define PWC_UNIT_WIDTH_MS	4
+
+/**
+ * @}
+ */
+
+/**
+ * \defgroup PWC_UNIT_FREQ Pulse Frequencies
+ *
+ * These defines are for returning average frequencies.
+ *
+ * @{
+ */
 
 /**
  * Average frequency of buffered pulses in multiples of \f$ 1/s \f$.
@@ -305,6 +335,73 @@ void hsk_pwc_disable(void);
  * achieve much better precision if the use case is known.
  */
 #define PWC_UNIT_FREQ_H		7
+
+/**
+ * @}
+ */
+
+/**
+ * \defgroup PWC_UNIT_DUTY Pulse Duty Times
+ *
+ * These defines are used for returning the duty time of the latest pulse.
+ *
+ * In order to use this return type, the channel buffer must hold at least
+ * 3 values. I.e. the averageOver argument of hsk_pwc_port_open() must
+ * be 3 or greater (there is no benefit to a value above 3).
+ *
+ * To produce correct results the channel must also be in edge mode
+ * \ref PWC_EDGE_BOTH.
+ *
+ * @{
+ */
+
+/**
+ * Latest high pulse in multiples of \f$ 1/48 * 10^{-6} s \f$.
+ */
+#define PWC_UNIT_DUTYH_RAW	8
+
+/**
+ * Latest high pulse in multiples of \f$ 1 * 10^{-9} s \f$.
+ */
+#define PWC_UNIT_DUTYH_NS	9
+
+/**
+ * Latest high pulse in multiples of \f$ 1 * 10^{-6} s \f$.
+ */
+#define PWC_UNIT_DUTYH_US	10
+
+/**
+ * Latest high pulse in multiples of \f$ 1 * 10^{-3} s \f$.
+ */
+#define PWC_UNIT_DUTYH_MS	11
+
+/**
+ * Latest low pulse in multiples of \f$ 1/48 * 10^{-6} s \f$.
+ */
+#define PWC_UNIT_DUTYL_RAW	12
+
+/**
+ * Latest low pulse in multiples of \f$ 1 * 10^{-9} s \f$.
+ */
+#define PWC_UNIT_DUTYL_NS	13
+
+/**
+ * Latest low pulse in multiples of \f$ 1 * 10^{-6} s \f$.
+ */
+#define PWC_UNIT_DUTYL_US	14
+
+/**
+ * Latest low pulse in multiples of \f$ 1 * 10^{-3} s \f$.
+ */
+#define PWC_UNIT_DUTYL_MS	15
+
+/**
+ * @}
+ */
+
+/**
+ * @}
+ */
 
 /**
  * Returns a measure of the values in a channel buffer.
