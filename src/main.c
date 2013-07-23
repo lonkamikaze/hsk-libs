@@ -145,7 +145,7 @@ void init(void) {
 //	hsk_pwm_init(468750);
 //	hsk_pwm_init(PWM_60, 1200); /* 120Hz */
 	hsk_pwm_init(PWM_63, 10); /* 1Hz */
-	hsk_pwm_init(PWM_62, 505); /* 50Hz */
+	hsk_pwm_init(PWM_62, 10000); /* 1kHz */
 	hsk_pwm_enable();
 	//hsk_pwm_port_open(PWM_OUT_60_P30);
 	//hsk_pwm_port_open(PWM_OUT_60_P31);
@@ -155,10 +155,10 @@ void init(void) {
 	hsk_pwm_port_open(PWM_OUT_62_P04);
 	hsk_pwm_channel_set(PWM_62, 100, 5);
 
-	/* Activate PWC with a 100ms window. */
-	hsk_pwc_init(100);
-	hsk_pwc_port_open(PWC_CC0_P40, 4);
-	hsk_pwc_channel_edgeMode(PWC_CC0, PWC_EDGE_RISING);
+	/* Activate PWC with a 4ms window. */
+	hsk_pwc_init(4);
+	hsk_pwc_port_open(PWC_CC0_P40, 2);
+	hsk_pwc_channel_edgeMode(PWC_CC0, PWC_EDGE_BOTH);
 	hsk_pwc_enable();
 
 	//P3_DIR |= 0x30;
@@ -217,7 +217,7 @@ void run(void) {
 			adc7_copy = adc7;
 			EADC = 1;
 
-			hsk_pwm_channel_set(PWM_62, 100, adc7_copy * 5 / 1023 + 5);
+			hsk_pwm_channel_set(PWM_62, 1023, adc7_copy);
 			hsk_pwm_channel_set(PWM_63, 1023, adc7_copy);
 			hsk_adc_request(7);
 			hsk_adc_request(6);
@@ -228,7 +228,7 @@ void run(void) {
 			hsk_adc_request(1);
 			hsk_adc_request(0);
 			hsk_wdt_service();
-			/*P3_DATA =*/ hsk_pwc_channel_getValue(PWC_CC0, PWC_UNIT_FREQ_S);
+			P3_DATA = hsk_pwc_channel_getValue(PWC_CC0, PWC_UNIT_DUTYH_US) >> 3;
 		}
 
 		if (ticks250 >= 250) {
