@@ -10,10 +10,10 @@
 #define _HSK_SSC_H_
 
 /*
- * Required for SDCC to propagate ISR prototypes.
+ * ISR prototypes for SDCC.
  */
 #ifdef SDCC
-#include "../hsk_isr/hsk_isr.isr"
+#include "hsk_ssc.isr"
 #endif /* SDCC */
 
 /**
@@ -161,6 +161,24 @@ void hsk_ssc_init(const uword baud, const ubyte config, const bool mode);
  *	Selects an \ref SSC_PORTS I/O port configuration
  */
 void hsk_ssc_ports(const ubyte ports);
+
+/**
+ * Send and receive data.
+ *
+ * The buffer with the given length should contain the data to transceive
+ * and will be filled with the received data upon completion.
+ *
+ * @param buffer
+ *	The rx/tx transmission buffer
+ * @param len
+ *	The length of the buffer
+ */
+void hsk_ssc_talk(char xdata * buffer, ubyte len);
+
+/**
+ * Returns whether the SSC is currently busy with data transmission.
+ */
+#define hsk_ssc_busy()	ESSC
 
 /**
  * Turn the SSC module on.
