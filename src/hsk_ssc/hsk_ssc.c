@@ -56,18 +56,18 @@ void ISR_hsk_ssc(void) interrupt 7 using 1 {
 	RESET_RMAP();
  	SFR_PAGE(_su0, SST0);
 
+	if ((IRCON1 >> BIT_RIR) & 1) {
+		IRCON1 &= ~(1 << BIT_RIR);
+		if (hsk_ssc_buffer.rcount) {
+			*(hsk_ssc_buffer.rptr++) = SSC_RBL;
+			hsk_ssc_buffer.rcount--;
+		}
+	}
 	if ((IRCON1 >> BIT_TIR) & 1) {
 		IRCON1 &= ~(1 << BIT_TIR);
 		if (hsk_ssc_buffer.wcount) {
 			SSC_TBL = *(hsk_ssc_buffer.wptr++);
 			hsk_ssc_buffer.wcount--;
-		}
-	}
-	if ((IRCON1 >> BIT_RIR) & 1) {
-		IRCON1 &= ~(1 << BIT_RIR);
-		if (hsk_ssc_buffer.rcount) {
-			hsk_ssc_buffer.rcount--;
-			*(hsk_ssc_buffer.rptr++) = SSC_RBL ^ 0x20;
 		}
 	}
 	if (!hsk_ssc_buffer.wcount && !hsk_ssc_buffer.rcount) {
@@ -225,11 +225,11 @@ void hsk_ssc_ports(const ubyte ports) {
 }
 
 void hsk_ssc_talk(char xdata * buffer, ubyte len) {
-	hsk_ssc_buffer.wptr = buffer;
-	hsk_ssc_buffer.rptr = buffer;
-	hsk_ssc_buffer.wcount = len;
-	hsk_ssc_buffer.rcount = len;
 	IRCON1 &= ~(1 << BIT_TIR) & ~(1 << BIT_RIR);
+	hsk_ssc_buffer.wptr = buffer + 1;
+	hsk_ssc_buffer.rptr = buffer;
+	hsk_ssc_buffer.wcount = len - 1;
+	hsk_ssc_buffer.rcount = len;
 	ESSC = 1;
 	SSC_TBL = *buffer;
 }
