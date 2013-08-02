@@ -321,7 +321,7 @@
             <WarningLevel>2</WarningLevel>
             <DataOverlaying>1</DataOverlaying>
             <OverlayString>* ! (hsk_isr_root1),
-hsk_isr_root1 ! (ISR_hsk_isr8, ISR_hsk_isr9, ISR_hsk_timer0, ISR_hsk_timer1, ISR_hsk_isr5, ISR_hsk_isr6),
+hsk_isr_root1 ! (ISR_hsk_isr8, ISR_hsk_isr9, ISR_hsk_ssc, ISR_hsk_timer0, ISR_hsk_timer1, ISR_hsk_isr5, ISR_hsk_isr6),
 * ~ (hsk_boot_isr_nmipll, hsk_flash_isr_nmiflash),
 * ~ (hsk_pwc_isr_cctOverflow),
 * ~ (hsk_adc_isr10, hsk_adc_isr_warmup10, hsk_adc_isr8),
@@ -617,6 +617,21 @@ ISR_hsk_timer0 ! (tick0)</OverlayString>
               <FileName>hsk_wdt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\hsk_wdt\hsk_wdt.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>HSK_SSC</GroupName>
+          <Files>
+            <File>
+              <FileName>hsk_ssc.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\src\hsk_ssc\hsk_ssc.h</FilePath>
+            </File>
+            <File>
+              <FileName>hsk_ssc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\hsk_ssc\hsk_ssc.c</FilePath>
             </File>
           </Files>
         </Group>
