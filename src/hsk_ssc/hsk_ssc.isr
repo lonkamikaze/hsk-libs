@@ -1,0 +1,5 @@
+#ifndef _HSK_SSC_ISR_
+#define _HSK_SSC_ISR_
+void ISR_hsk_ssc(void) interrupt 7 using 1;
+#endif /* _HSK_SSC_ISR_ */
+
