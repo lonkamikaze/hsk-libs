@@ -295,12 +295,13 @@ void hsk_boot_isr_nmipll(void) using 2 {
 	MAIN_vUnlockProtecReg();
 	OSC_CON	|= 1 << BIT_OSCSS;
 	/* Reprogram NDIV, PDIV and KDIV values is necessary. */
-	activeWait = hsk_boot.ndiv >> CNT_NDIVL;
+	activeWait = (hsk_boot.ndiv >> CNT_NDIVL) << BIT_NDIVH;
+	activeWait |= hsk_boot.pdiv << BIT_PDIV;
 	MAIN_vUnlockProtecReg();
-	PLL_CON1 = (activeWait << BIT_NDIVH) | (hsk_boot.pdiv << BIT_PDIV);
-	activeWait = hsk_boot.ndiv & ((1 << CNT_NDIVL) - 1);
+	PLL_CON1 = activeWait;
+	activeWait = (hsk_boot.ndiv & ((1 << CNT_NDIVL) - 1)) << BIT_NDIVL;
 	MAIN_vUnlockProtecReg();
-	PLL_CON = activeWait << BIT_NDIVL;
+	PLL_CON = activeWait;
 
 	/* Change to PLL normal operation mode (PLLPD=0). */
 	MAIN_vUnlockProtecReg();
@@ -382,12 +383,13 @@ void hsk_boot_extClock(const ulong clk) {
 	OSC_CON	|= 1 << BIT_OSCSS;
 	/* Program desired NDIV, PDIV and KDIV values. */
 	/* The KDIV value is not touched. */
-	activeWait = hsk_boot.ndiv >> CNT_NDIVL;
+	activeWait = (hsk_boot.ndiv >> CNT_NDIVL) << BIT_NDIVH;
+	activeWait |= hsk_boot.pdiv << BIT_PDIV;
 	MAIN_vUnlockProtecReg();
-	PLL_CON1 = (activeWait << BIT_NDIVH) | (hsk_boot.pdiv << BIT_PDIV);
-	activeWait = hsk_boot.ndiv & ((1 << CNT_NDIVL) - 1);
+	PLL_CON1 = activeWait;
+	activeWait = (hsk_boot.ndiv & ((1 << CNT_NDIVL) - 1)) << BIT_NDIVL;
 	MAIN_vUnlockProtecReg();
-	PLL_CON = activeWait << BIT_NDIVL;
+	PLL_CON = activeWait;
 
 	/* Change to PLL normal operation mode (PLLPD=0). */
 	MAIN_vUnlockProtecReg();
