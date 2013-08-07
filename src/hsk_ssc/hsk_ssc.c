@@ -3,7 +3,7 @@
  *
  * @note
  *	The SFRs SSC_CONx_O and SSC_CONx_P refer to the same register
- *	addres. The different suffixes signify the operation and
+ *	address. The different suffixes signify the operation and
  *	programming modes in which the register exposes different bits.
  * @author kami
  */
@@ -19,12 +19,27 @@
 bool hsk_ssc_master = 1;
 
 /** \var hsk_ssc_buffer
- * Keeps the 
+ * Keeps the SSC communication state.
  */
 struct {
+	/**
+	 * Pointer used for storing data read from the serial connection.
+	 */
 	char xdata * rptr;
+
+	/**
+	 * Pointer used to fetch data for writing on the serial connection. 
+	 */
 	char xdata * wptr;
+
+	/**
+	 * Bytes left to read from the connection.
+	 */
 	ubyte rcount;
+
+	/**
+	 * Bytes left to write on the connection.
+	 */
 	ubyte wcount;
 } pdata hsk_ssc_buffer;
 
@@ -146,8 +161,16 @@ void hsk_ssc_init(const uword baud, const ubyte config, const bool mode) {
  */
 #define CNT_SEL		2
 
+/**
+ * SSC_CONL Loop Back Control bit.
+ *
+ * Half-duplex mode when set.
+ */
+#define BIT_LB		7
+
 void hsk_ssc_ports(const ubyte ports) {
 	bool master = (((SSC_CONH_P >> BIT_MS) & 1) == SSC_MASTER);
+	bool halfDuplex = (SSC_CONL_P >> BIT_LB) & 1;
 
 	/* Configure master RX, slave TX. */
 	switch (ports & (((1 << CNT_SEL) - 1) << BIT_MIS)) {
@@ -156,18 +179,24 @@ void hsk_ssc_ports(const ubyte ports) {
 		SFR_PAGE(_pp2, noSST);
 		P1_ALTSEL0 |= 1 << 4;
 		P1_ALTSEL1 &= ~(1 << 4);
+		SFR_PAGE(_pp3, noSST);
+		!master && halfDuplex ? (P1_OD |= 1 << 4) : (P1_OD &= ~(1 << 4));
 		break;
 	case SSC_MRST_P05:
 		master ? (P0_DIR &= ~(1 << 5)) : (P0_DIR |= 1 << 5);
 		SFR_PAGE(_pp2, noSST);
 		P0_ALTSEL0 |= 1 << 5;
 		P0_ALTSEL1 &= ~(1 << 5);
+		SFR_PAGE(_pp3, noSST);
+		!master && halfDuplex ? (P0_OD |= 1 << 5) : (P0_OD &= ~(1 << 5));
 		break;
 	case SSC_MRST_P15:
 		master ? (P1_DIR &= ~(1 << 5)) : (P1_DIR |= 1 << 5);
 		SFR_PAGE(_pp2, noSST);
 		master ? (P1_ALTSEL0 &= ~(1 << 5)) : (P1_ALTSEL0 |= 1 << 5);
 		master ? (P1_ALTSEL1 &= ~(1 << 5)) : (P1_ALTSEL1 |= 1 << 5);
+		SFR_PAGE(_pp3, noSST);
+		!master && halfDuplex ? (P1_OD |= 1 << 5) : (P1_OD &= ~(1 << 5));
 		break;
 	}
 	SFR_PAGE(_pp0, noSST);
@@ -179,18 +208,24 @@ void hsk_ssc_ports(const ubyte ports) {
 		SFR_PAGE(_pp2, noSST);
 		P1_ALTSEL0 |= 1 << 3;
 		P1_ALTSEL1 &= ~(1 << 3);
+		SFR_PAGE(_pp3, noSST);
+		master && halfDuplex ? (P1_OD |= 1 << 3) : (P1_OD &= ~(1 << 3));
 		break;
 	case SSC_MTSR_P04:
 		master ? (P0_DIR |= 1 << 4) : (P0_DIR &= ~(1 << 4));
 		SFR_PAGE(_pp2, noSST);
 		P0_ALTSEL0 |= 1 << 4;
 		P0_ALTSEL1 &= ~(1 << 4);
+		SFR_PAGE(_pp3, noSST);
+		master && halfDuplex ? (P0_OD |= 1 << 4) : (P0_OD &= ~(1 << 4));
 		break;
 	case SSC_MTSR_P14:
 		master ? (P1_DIR |= 1 << 4) : (P1_DIR &= ~(1 << 4));
 		SFR_PAGE(_pp2, noSST);
 		master ? (P1_ALTSEL0 &= ~(1 << 4)) : (P1_ALTSEL0 &= ~(1 << 4));
 		master ? (P1_ALTSEL1 |= 1 << 4) : (P1_ALTSEL1 &= ~(1 << 4));
+		SFR_PAGE(_pp3, noSST);
+		master && halfDuplex ? (P1_OD |= 1 << 4) : (P1_OD &= ~(1 << 4));
 		break;
 	}
 	SFR_PAGE(_pp0, noSST);
@@ -202,18 +237,24 @@ void hsk_ssc_ports(const ubyte ports) {
 		SFR_PAGE(_pp2, noSST);
 		P1_ALTSEL0 |= 1 << 2;
 		P1_ALTSEL1 &= ~(1 << 2);
+		SFR_PAGE(_pp3, noSST);
+		P1_OD &= ~(1 << 2);
 		break;
 	case SSC_SCLK_P03:
 		master ? (P0_DIR |= 1 << 3) : (P0_DIR &= ~(1 << 3));
 		SFR_PAGE(_pp2, noSST);
 		P0_ALTSEL0 |= 1 << 3;
 		P0_ALTSEL1 &= ~(1 << 3);
+		SFR_PAGE(_pp3, noSST);
+		P0_OD &= ~(1 << 3);
 		break;
 	case SSC_SCLK_P13:
 		master ? (P1_DIR |= 1 << 3) : (P1_DIR &= ~(1 << 3));
 		SFR_PAGE(_pp2, noSST);
 		P1_ALTSEL0 &= ~(1 << 3);
 		P1_ALTSEL1 |= 1 << 3;
+		SFR_PAGE(_pp3, noSST);
+		P1_OD &= ~(1 << 3);
 		break;
 	}
 	SFR_PAGE(_pp0, noSST);
