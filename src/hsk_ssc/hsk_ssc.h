@@ -1,9 +1,43 @@
 /** \file
  * HSK Synchronous Serial Interface headers
  *
- * @note
- *	For half duplex operation TX and RX pins need to be connected.
+ * General purpose serial communication, setup in the following order:
+ *	- hsk_ssc_init()
+ *	- hsk_ssc_ports()
+ *	- hsk_ssc_enable()
+ *
+ * Communication is established by the hsk_ssc_talk() function.
+ * Use hsk_ssc_busy() to detect whether a buffer was completely read and
+ * written.
+ *
  * @author kami
+ *
+ * \section half_dublex Half Duplex Operation
+ *
+ * For half duplex operation TX and RX pins need to be short circuited.
+ *
+ * The TX pin is set up in open drain mode, i.e. an external pull-up
+ * resistor is required.
+ *
+ * The TX pin needs to be manually configured before calling hsk_ssc_talk()
+ * in order to speak or listen on the bus. To listen the TX pin needs to
+ * be configured as an input pin, to speak on the bus as an output pin.
+ * For efficiency reasons this is not handled by this library (it would
+ * result in lots of runtime logic for what should be a single instruction).
+ *
+ * Instead it is recommended to define macros in a central header. E.g. for
+ * the port configuration \ref SSC_MRST_P05 in slave mode the following
+ * code would work:
+ * \code
+ * #define SSC_TX()	(P0_DIR |= 1 << 5)
+ * #define SSC_RX()	(P0_DIR &= ~(1 << 5))
+ * \endcode
+ *
+ * Syntactically it can be used like a regular function:
+ * \code
+ * SSC_TX();
+ * hsk_ssc_talk(buffer, sizeof(buffer) - 1);
+ * \endcode
  */
 
 #ifndef _HSK_SSC_H_
@@ -17,7 +51,7 @@
 #endif /* SDCC */
 
 /**
- * \defgroup SSC_PORTS	SCC I/O Ports
+ * \defgroup SSC_PORTS	SSC I/O Ports
  *
  * Used to create an I/O Port configuration, by unifying one of the
  * SSC_MRST_P* with a SSC_MTSR_P* and a SSC_SCLK_P* ports.
@@ -100,7 +134,7 @@
  * hsk_ssc_init() function.
  *
  * The distance between adjustable baud rates grows exponentially.
- * Available baud rates in kHz progress like this:
+ * Available baud rates in kBit progress like this:
  *
  * \f[\{12000, 6000, 4000, 3000, 2400, 2000, ...\}\f]
  *
@@ -124,7 +158,7 @@
  * For details check the XC878 user manual section 12.3.5.1.
  *
  * @param width
- *	The data with in bits, the available range is $[2;8]$
+ *	The data with in bits, the available range is \f$[2;8]\f$
  * @param heading
  *	Use 0 for transmitting/receiving LSB first, 1 for MSB first
  * @param phase
@@ -142,7 +176,7 @@
  * The maximum baud rate in master mode is 12000000 bits/s, and 6000000
  * bits/s in slave mode.
  *
- * Calling this function turns the SCC off until hsk_ssc_enable() is called.
+ * Calling this function turns the SSC off until hsk_ssc_enable() is called.
  *
  * @param baud
  *	The timer reload value for the baud rate generator, use \ref SSC_BAUD
@@ -157,6 +191,8 @@ void hsk_ssc_init(const uword baud, const ubyte config, const bool mode);
 /**
  * Configure the I/O ports of the SSC unit.
  *
+ * @warning
+ *	Do not use when the SSC is enabled.
  * @param ports
  *	Selects an \ref SSC_PORTS I/O port configuration
  */
@@ -167,6 +203,18 @@ void hsk_ssc_ports(const ubyte ports);
  *
  * The buffer with the given length should contain the data to transceive
  * and will be filled with the received data upon completion.
+ *
+ * The provided buffer needs to reside in xdata memory, e.g. to create and
+ * use a string buffer the following should work:
+ * \code
+ * char xdata buffer[] = "20 character buffer.";
+ * …
+ * hsk_ssc_talk(buffer, sizeof(buffer) - 1);
+ * \endcode
+ *
+ * Note that char must not be const and that \f$sizeof(buffer) - 1\f$ is
+ * used to prevent sending and overwriting the terminal 0 character.
+ * There may be cases where a terminal 0 character is desired.
  *
  * @param buffer
  *	The rx/tx transmission buffer
