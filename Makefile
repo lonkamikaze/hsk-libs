@@ -23,6 +23,7 @@
 # | CC                | Compiler
 # | CFLAGS            | Compiler flags
 # | CPP               | C preprocesser used by several scripts
+# | CONFDIR           | Location for configuration files
 # | CANPROJDIR        | Path to the CAN project
 # | INCDIR            | Include directory for contributed headers
 # | CANDIR            | Include directory for CAN DB headers
@@ -38,10 +39,13 @@
 # Build with SDCC.
 BUILDDIR=	bin.sdcc
 CC=		sdcc
-CFLAGS=		-mmcs51 --peep-file peeprules.sdcc --xram-loc 0xF000 --xram-size 3072 -I${INCDIR} -I${CANDIR}
+CFLAGS=		-I${INCDIR} -I${CANDIR}
 
 # Sane default for uVisionupdate.sh.
 CPP=		cpp
+
+# Configuration files.
+CONFDIR=	conf
 
 # Locate related projects.
 CANPROJDIR=	../CAN
@@ -78,6 +82,7 @@ PROJECT!=	pwd | xargs basename
 # No more overrides.
 #
 
+# Local config
 _LOCAL_MK:=	$(shell test -f Makefile.local || touch Makefile.local)
 _LOCAL_MK!=	test -f Makefile.local || touch Makefile.local
 
@@ -86,6 +91,14 @@ include Makefile.local
 
 build:
 
+# Configure SDCC.
+_SDCC_MK:=	$(shell env CC="${CC}" sh scripts/sdcc.sh ${CONFDIR}/sdcc > sdcc.mk)
+_SDCC_MK!=	env CC="${CC}" sh scripts/sdcc.sh ${CONFDIR}/sdcc > sdcc.mk
+
+# Gmake style, works with FreeBSD make, too
+include sdcc.mk
+
+# Generate build
 _BUILD_MK:=	$(shell sh scripts/build.sh src/ ${CANDIR}/ > build.mk)
 _BUILD_MK!=	sh scripts/build.sh src/ ${CANDIR}/ > build.mk
 
@@ -119,20 +132,20 @@ html/dev: doc-private
 	@mkdir -p html
 	@cp -r doc-private/html html/dev
 
-doc: ${USERSRC} doxygen.public.conf
+doc: ${USERSRC} ${CONFDIR}/doxygen.public
 	@rm -rf doc || true
 	@mkdir -p doc
 	@echo PROJECT_NAME=\"${PROJECT}-user\" >> doc/.conf
 	@echo PROJECT_NUMBER=${VERSION} >> doc/.conf
-	@cat doxygen.public.conf doc/.conf | doxygen -
+	@cat ${CONFDIR}/doxygen.public doc/.conf | doxygen -
 
-doc-private: ${DEVSRC} doxygen.public.conf doxygen.private.conf
+doc-private: ${DEVSRC} ${CONFDIR}/doxygen.public ${CONFDIR}/doxygen.private
 	@rm -rf doc-private || true
 	@mkdir -p doc-private
 	@echo PROJECT_NAME=\"${PROJECT}-dev\" >> doc-private/.conf
 	@echo PROJECT_NUMBER=${VERSION} >> doc-private/.conf
-	@cat doxygen.public.conf doxygen.private.conf doc-private/.conf \
-		| doxygen -
+	@cat ${CONFDIR}/doxygen.public ${CONFDIR}/doxygen.private \
+	 doc-private/.conf | doxygen -
 
 pdf: pdf/${PROJECT}-user.pdf pdf/${PROJECT}-dev.pdf
 

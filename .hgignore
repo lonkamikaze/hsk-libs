@@ -2,6 +2,7 @@
 ^(.*/)?Thumbs.db$
 ^bin.*
 ^build\.mk$
+^sdcc\.mk$
 \.local$
 ^doc/
 ^doc-private/
