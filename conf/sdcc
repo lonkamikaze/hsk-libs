@@ -1,0 +1,7 @@
+CFLAGS+=	-mmcs51
+CFLAGS+=	--xram-loc 0xF000 --xram-size 3072
+
+[SDCC -lt 3.2.1]
+# Fix for SDCC bug 2045, fixed since 3.2.1.
+CFLAGS+=	--peep-file ${CONFDIR}/../hacks/mexsp.sdcc
+
