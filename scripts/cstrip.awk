@@ -44,9 +44,9 @@ BEGIN {
 	# Remove comments
 	gsub(/\/\*(\*[^\/]|[^\*])*\*\//, "")
 	# Isolate preprocessor comments
-	gsub("(^|\n)[[:space:]]*#[^\n]*", "&\177")
+	gsub(/(^|\n)[ \t]*#[^\n]*/, "&\177")
 	# Collapse spaces
-	gsub(/[[:space:]\r\n]+/, " ")
+	gsub(/[ \t\r\n]+/, " ")
 	# Remove obsolete spaces
 	sub(/^ /, "")
 	split("{}()|?*+^[].", ctrlchars, "")
@@ -64,8 +64,8 @@ BEGIN {
 	# Segregate nested code
 	gsub(/[{}]/, "\n&\n")
 	# Segregate labels from the code following them
-	gsub(/:([[:alnum:]_]+|case [^:]+):/, "&\n")
-	gsub(/(^|\n)([[:alnum:]_]+|case [^:]+):/, "&\n")
+	gsub(/:([a-zA-Z0-9_]+|case [^:]+):/, "&\n")
+	gsub(/(^|\n)([a-zA-Z0-9_]+|case [^:]+):/, "&\n")
 	# Remove empty lines
 	gsub(/\n+/, "\n")
 	printf "#1\"%s\"\n%s", FILENAME, $0

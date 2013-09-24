@@ -122,7 +122,7 @@ function fetch(types,
 		gsub(/./, ".", re)
 		sub(re, "")
 	}
-	if (DEBUG > 1 && str !~ /^[[:space:]]*$/) {
+	if (DEBUG > 1 && str !~ /^[ \t\n]*$/) {
 		print "dbc2c.awk: fetch: " str > "/dev/stderr"
 	}
 	return str

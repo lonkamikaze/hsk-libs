@@ -15,8 +15,8 @@ function getIncludes() {
 		comment[FILENAME] = 0;
 	}
 	
-	if (!comment[FILENAME] && ($0 ~ /^#include[[:space:]]+"/)) { 
-		sub("^#include[[:space:]]+\"", "");
+	if (!comment[FILENAME] && ($0 ~ /^#include[ \t]+"/)) { 
+		sub("^#include[ \t]+\"", "");
 		sub("\".*", "");
 		include = FILENAME;
 		sub("/[^/]*$", "/", include);
@@ -33,8 +33,8 @@ function getIncludes() {
 		files[include] = 1;
 	}
 
-	if (!comment[FILENAME] && ($0 ~ /^#include[[:space:]]+</)) { 
-		sub("^#include[[:space:]]+<", "");
+	if (!comment[FILENAME] && ($0 ~ /^#include[ \t]+</)) { 
+		sub("^#include[ \t]+<", "");
 		sub(">.*", "");
 		while ($0 ~ "/\\./") {
 			sub("/\\./", "/");
