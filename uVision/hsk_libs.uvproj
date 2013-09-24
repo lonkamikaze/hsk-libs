@@ -166,6 +166,7 @@
             <Capability>1</Capability>
             <DriverSelection>4100</DriverSelection>
           </Flash1>
+          <bUseTDR>0</bUseTDR>
           <Flash2>BIN\DAS2XC800.DLL</Flash2>
           <Flash3>"XC800_FLOAD.EXE" ("#H" f")</Flash3>
           <Flash4></Flash4>
