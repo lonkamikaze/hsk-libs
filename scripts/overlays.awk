@@ -60,6 +60,9 @@ DEBUG > 1 {
 
 # Gather interrupts
 /^void .*\(void\)(__)?interrupt [0-9]+ (__)?using [0-9]+$/ {
+	if (DEBUG) {
+		print "overlays.awk: ISR: " $0 > "/dev/stderr"
+	}
 	sub(/^void /, "");
 	isr = $0
 	sub(/\(.*/, "", isr)
@@ -69,7 +72,10 @@ DEBUG > 1 {
 }
 
 # Catch shared ISRs
-/^hsk_isr[0-9]+\.[[:alnum:]_]+=&[[:alnum:]_]+;/ {
+/^hsk_isr[0-9]+\.[a-zA-Z0-9_]+=&[a-zA-Z0-9_]+;/ {
+	if (DEBUG) {
+		print "overlays.awk: shared ISR: " $0 > "/dev/stderr"
+	}
 	sub(/^/, "ISR_")
 	sub(/\..*=&/, "!")
 	sub(/;/, "")
@@ -77,7 +83,10 @@ DEBUG > 1 {
 }
 
 # Catch timer0/timer1 ISRs
-/^hsk_timer[0-9]+_setup\(.*,&[[:alnum:]_]+\);/ {
+/^hsk_timer[0-9]+_setup\(.*,\&[a-zA-Z0-9_]+\);/ {
+	if (DEBUG) {
+		print "overlays.awk: timer01 ISR: " $0 > "/dev/stderr"
+	}
 	sub(/^/, "ISR_")
 	sub(/_setup\(.*,&/, "!")
 	sub(/\);/, "")
@@ -85,7 +94,10 @@ DEBUG > 1 {
 }
 
 # Catch external interrupts
-/^hsk_ex_channel_enable\([[:alnum:]]+,.*,&[[:alnum:]_]+\);/ {
+/^hsk_ex_channel_enable\([a-zA-Z0-9]+,.*,&[a-zA-Z0-9_]+\);/ {
+	if (DEBUG) {
+		print "overlays.awk: ext ISR: " $0 > "/dev/stderr"
+	}
 	chan = $0
 	sub(/hsk_ex_channel_enable\(/, "", chan)
 	sub(/,.*/, "", chan)

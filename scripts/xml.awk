@@ -12,10 +12,10 @@ BEGIN {
 	selection[ROOT] = 1
 	uVisionsugar = 1
 	for (i = 1; i < ARGC; i++) {
-		if (ARGV[i] ~ /^[[:space:]]*-/) {
+		if (ARGV[i] ~ /^[ \t\n]*-/) {
 			p = 1 * p
 			commands[p] = ARGV[i]
-			sub(/[[:space:]]*-/, "", commands[p])
+			sub(/[ \t\n]*-/, "", commands[p])
 			sub(/:.*/, "", commands[p])
 			arguments[p] = ARGV[i]
 			sub(/[^:]*(:|$)/, "", arguments[p++])
@@ -25,20 +25,31 @@ BEGIN {
 }
 
 #
+# Return whether an array is empty.
+#
+function empty(array,
+i) {
+	for (i in array) {
+		return 0
+	}
+	return 1
+}
+
+#
 # Split a string containing attributes into a string array with
 # "attribute=value" entries.
 #
 function explode(str, results,
-i, array, quoted, count) {
-	split(str, array)
+i, array, quoted, count, len) {
+	len = split(str, array)
 	str = ""
-	for (i = 1; i <= length(array); i++) {
+	for (i = 1; i <= len; i++) {
 		if (array[i] == "\"") {
 			quoted = !quoted
 			continue
 		}
 
-		if (!quoted && array[i] ~ /[[:space:]]/) {
+		if (!quoted && array[i] ~ /[ \t\n]/) {
 			if (length(str)) {
 				results[count++] = str
 				str = ""
@@ -175,7 +186,7 @@ ident, node, ns, i, attrib, attribs, value) {
 
 function cmdSearch(str,
 node, i, lastSelection, matches) {
-	while (length(selection) > 0) {
+	while (!empty(selection)) {
 		for (node in selection) {
 			lastSelection[node]
 		}
@@ -233,15 +244,15 @@ node, i, name) {
 # cmdSelect() does.
 #
 function cmdInsert(str,
-node, name, attributes, value, count, i, insert) {
+node, name, attributes, attribStr, value, count, i, insert) {
 	name = str
 	sub(/[\[=].*/, "", name)
 	sub(/^[^\[=]*/, "", str)
 	if (str ~ /^\[.*\]/) {
-		attributes = str
-		sub(/\[/, "", attributes)
-		sub(/\]($|=)/, "", attributes)
-		count = explode(attributes, attributes)
+		attribStr = str
+		sub(/\[/, "", attribStr)
+		sub(/\]($|=)/, "", attribStr)
+		count = explode(attribStr, attributes)
 		if (str ~ /\]=/) {
 			sub(/.*\]=/, "=", str)
 		} else {
@@ -399,7 +410,7 @@ prefix, i, p) {
 	while (/<.*>/) {
 		# Get the current content
 		content = $0
-		sub(/[[:space:]]*<.*/, "", content)
+		sub(/[ \t\n]*<.*/, "", content)
 		
 		# Get the next tag
 		sub(/[^<]*</, "")
@@ -410,8 +421,8 @@ prefix, i, p) {
 		# This is a closing tag
 		if (tag ~ /^\//) {
 			depth--
-			sub(/^[[:space:]]*/, "", content)
-			sub(/[[:space:]]*$/, "", content)
+			sub(/^[ \t\n]*/, "", content)
+			sub(/[ \t\n]*$/, "", content)
 			contents[depth, count[depth] - 1] = content
 		}
 
@@ -427,13 +438,13 @@ prefix, i, p) {
 			tagName = tag
 
 			# Name of the tag
-			sub(/[[:space:]].*/, "", tagName)
+			sub(/[ \t\n].*/, "", tagName)
 			sub(/(\/|\?)$/, "", tagName)
 			tags[current] = tagName
 
 			# Get attributes
 			tagAttributes = tag
-			sub(/[^[:space:]]*[[:space:]]*/, "", tagAttributes)
+			sub(/[^ \t\n]*[ \t\n]*/, "", tagAttributes)
 			sub(/(\/|\?)$/, "", tagAttributes)
 			countAttributes = explode(tagAttributes, tagAttributesArray)
 			for (i = 0; i < countAttributes; i++) {
