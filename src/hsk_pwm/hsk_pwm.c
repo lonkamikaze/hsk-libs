@@ -169,7 +169,7 @@ void hsk_pwm_init(const hsk_pwm_channel channel, const ulong freq) {
 		CCU6_CC62SRLH = 0;
 
 		/* Request shadow transfer for T12 duty cycles. */
-		CCU6_TCTR4L |= 1 << BIT_TnSTR;
+		CCU6_TCTR4L = 1 << BIT_TnSTR;
 		break;
 	case PWM_63:
 		/* Set the timer T13 prescaler. */
@@ -197,7 +197,7 @@ void hsk_pwm_init(const hsk_pwm_channel channel, const ulong freq) {
 		CCU6_CC63SRLH = 0;
 
 		/* Request shadow transfer for the T13 duty cycle. */
-		CCU6_TCTR4H |= 1 << BIT_TnSTR;
+		CCU6_TCTR4H = 1 << BIT_TnSTR;
 		break;
 	}
 }
@@ -364,7 +364,7 @@ void hsk_pwm_channel_set(const hsk_pwm_channel channel,
 		/* Write the duty cycle. */
 		SFR_PAGE(_cc0, noSST);
 		CCU6_CC60SRLH = duty;
-		CCU6_TCTR4L |= 1 << BIT_TnSTR;
+		CCU6_TCTR4L = 1 << BIT_TnSTR;
 		break;
 	case PWM_61:
 		/* Calculate the duty cycle. */
@@ -372,7 +372,7 @@ void hsk_pwm_channel_set(const hsk_pwm_channel channel,
 		/* Write the duty cycle. */
 		SFR_PAGE(_cc0, noSST);
 		CCU6_CC61SRLH = duty;
-		CCU6_TCTR4L |= 1 << BIT_TnSTR;
+		CCU6_TCTR4L = 1 << BIT_TnSTR;
 		break;
 	case PWM_62:
 		/* Calculate the duty cycle. */
@@ -380,7 +380,7 @@ void hsk_pwm_channel_set(const hsk_pwm_channel channel,
 		/* Write the duty cycle. */
 		SFR_PAGE(_cc0, noSST);
 		CCU6_CC62SRLH = duty;
-		CCU6_TCTR4L |= 1 << BIT_TnSTR;
+		CCU6_TCTR4L = 1 << BIT_TnSTR;
 		break;
 	case PWM_63:
 		/* Calculate the duty cycle. */
@@ -388,7 +388,7 @@ void hsk_pwm_channel_set(const hsk_pwm_channel channel,
 		/* Write the duty cycle. */
 		SFR_PAGE(_cc0, noSST);
 		CCU6_CC63SRLH = duty;
-		CCU6_TCTR4H |= 1 << BIT_TnSTR;
+		CCU6_TCTR4H = 1 << BIT_TnSTR;
 		break;
 	}
 }
@@ -428,15 +428,15 @@ void hsk_pwm_enable(void) {
 	SFR_PAGE(_su0, noSST);
 
 	/* Set T12 and T13 Timer Run bits. */
-	CCU6_TCTR4L |= 1 << BIT_TnRS;
-	CCU6_TCTR4H |= 1 << BIT_TnRS;
+	CCU6_TCTR4L = 1 << BIT_TnRS;
+	CCU6_TCTR4H = 1 << BIT_TnRS;
 
 }
 
 void hsk_pwm_disable(void) {
 	/* Reset T12 and T13 Timer Run bits. */
-	CCU6_TCTR4L |= 1 << BIT_TnRR;
-	CCU6_TCTR4H |= 1 << BIT_TnRR;
+	CCU6_TCTR4L = 1 << BIT_TnRR;
+	CCU6_TCTR4H = 1 << BIT_TnRR;
 
 	/* Stop clock in module. */
 	SFR_PAGE(_su1, noSST);
