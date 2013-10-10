@@ -11,7 +11,9 @@ BEGIN {
 
 	# Template directory
 	if (!TEMPLATES) {
-		TEMPLATES = "templates"
+		path = ENVIRON["LIBPROJDIR"]
+		sub(/.+/, "&/", path)
+		TEMPLATES = path "scripts/templates.dbc2c"
 	}
 	sub(/\/?$/, "/", TEMPLATES)
 
@@ -20,6 +22,8 @@ BEGIN {
 		"date" | getline DATE
 		close("date")
 	}
+
+	FILENAME = "/dev/stdin"
 
 	# Regexes for different types of data
 	rLF = "\n"
@@ -172,6 +176,13 @@ function fetch(types,
 	if (DEBUG > 1 && str !~ /^[ \t\n]*$/) {
 		print "dbc2c.awk: fetch: " str > "/dev/stderr"
 	}
+	if (str) {
+		fetch_loop_detect = 0
+	} else if (fetch_loop_detect++ >= 100) {
+		print "dbc2c.awk: ERROR infinite loop detected!" > "/dev/stderr"
+		errno = 11
+		exit
+	}
 	return str
 }
 
@@ -284,7 +295,7 @@ function fsm_ecu(dummy,
 #
 # Parse a value table.
 #
-# Token: VAL_TABLE_
+# Token: VAL_, VAL_TABLE_
 #
 # Creates:
 # - 1 obj_enum[enum]
