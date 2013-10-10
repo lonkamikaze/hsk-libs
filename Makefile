@@ -5,6 +5,7 @@
 # |-------------------|---------------------------------------------------
 # | build (default)   | Builds a .hex file and dependencies
 # | all               | Builds a .hex file and every .c library
+# | dbc               | Builds C headers from Vector dbc files
 # | printEnv          | Used by scripts to determine project settings
 # | uVision           | Run uVisionupdate.sh
 # | html              | Build html documentation
@@ -25,6 +26,8 @@
 # | CPP               | C preprocesser used by several scripts
 # | CONFDIR           | Location for configuration files
 # | CANPROJDIR        | Path to the CAN project
+# | DBCDIR            | Location for generated DBC headers
+# | GENDIR            | Location for generated headers
 # | INCDIR            | Include directory for contributed headers
 # | CANDIR            | Include directory for CAN DB headers
 # | OBJSUFX           | The file name suffix for object files
@@ -39,7 +42,7 @@
 # Build with SDCC.
 BUILDDIR=	bin.sdcc
 CC=		sdcc
-CFLAGS=		-I${INCDIR} -I${CANDIR}
+CFLAGS=		-I${INCDIR} -I${GENDIR}
 
 # Sane default for uVisionupdate.sh.
 CPP=		cpp
@@ -47,12 +50,16 @@ CPP=		cpp
 # Configuration files.
 CONFDIR=	conf
 
+# Generateded headers.
+GENDIR=		gen
+DBCDIR=		${GENDIR}/dbc
+
 # Locate related projects.
 CANPROJDIR=	../CAN
 
 # Include directories from the related projects.
 INCDIR=		inc
-CANDIR=		${CANPROJDIR}/src
+CANDIR=		${CANPROJDIR}
 
 # File name suffixes for sdcc/XC800_Fload.
 OBJSUFX=	.rel
@@ -98,9 +105,20 @@ _SDCC_MK!=	env CC="${CC}" sh scripts/sdcc.sh ${CONFDIR}/sdcc > sdcc.mk
 # Gmake style, works with FreeBSD make, too
 include sdcc.mk
 
+# Generate dbc
+_DBC_MK:=	$(shell sh scripts/dbc.sh ${CANDIR}/ > dbc.mk)
+_DBC_MK!=	sh scripts/dbc.sh ${CANDIR}/ > dbc.mk
+
+# Gmake style, works with FreeBSD make, too
+include dbc.mk
+
+# Make sure DBCs are generated before the build scripts are created
+_DBC_MK:=	$(shell ${MAKE} DBCDIR=${DBCDIR} -f dbc.mk dbc 1>&2)
+_DBC_MK!=	${MAKE} DBCDIR=${DBCDIR} -f dbc.mk dbc 1>&2
+
 # Generate build
-_BUILD_MK:=	$(shell sh scripts/build.sh src/ ${CANDIR}/ > build.mk)
-_BUILD_MK!=	sh scripts/build.sh src/ ${CANDIR}/ > build.mk
+_BUILD_MK:=	$(shell sh scripts/build.sh src/ ${INCDIR}/ ${GENDIR}/ > build.mk)
+_BUILD_MK!=	sh scripts/build.sh src/ ${INCDIR}/ ${GENDIR}/ > build.mk
 
 # Gmake style, works with FreeBSD make, too
 include build.mk
@@ -172,7 +190,7 @@ clean-doc-private:
 	@rm -rf doc-private || true
 
 clean-build:
-	@rm -rf ${BUILDDIR} || true
+	@rm -rf ${BUILDDIR} ${GENDIR} || true
 
 zip: pdf
 	@hg status -A | awk '$$1 != "I" {sub(/. /, "${PROJECT}/"); print}' | (cd .. && zip ${PROJECT}-${VERSION}.zip -\@ -r ${PROJECT}/pdf)

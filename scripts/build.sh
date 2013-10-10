@@ -11,7 +11,7 @@ all=
 for SRC in "$@"; do
 	SRC="${SRC%/}"
 	# Collect dependencies for the build target
-	files="$(find "$SRC" -name \*.c)"
+	files="$(find "$SRC/" -name \*.c)"
 	
 	# Build instructions
 	for file in $files; do
