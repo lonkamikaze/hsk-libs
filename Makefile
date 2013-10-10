@@ -13,6 +13,7 @@
 # | clean-build       | Remove build output
 # | clean-doc         | Remove doxygen output for user doc
 # | clean-doc-private | Remove doxygen output for dev doc
+# | clean-doc-dbc     | Remove doxygen output for dbc doc
 # | clean             | Clean everything
 # | zip               | Create a .zip archive in the parent directory
 #
@@ -29,7 +30,6 @@
 # | DBCDIR            | Location for generated DBC headers
 # | GENDIR            | Location for generated headers
 # | INCDIR            | Include directory for contributed headers
-# | CANDIR            | Include directory for CAN DB headers
 # | OBJSUFX           | The file name suffix for object files
 # | HEXSUFX           | The file name suffix for intel hex files
 # | DATE              | System date, for use when hg is not available
@@ -59,7 +59,6 @@ CANPROJDIR=	../CAN
 
 # Include directories from the related projects.
 INCDIR=		inc
-CANDIR=		${CANPROJDIR}
 
 # File name suffixes for sdcc/XC800_Fload.
 OBJSUFX=	.rel
@@ -98,42 +97,46 @@ include Makefile.local
 
 build:
 
+# Create the generated content directory
+_GEN:=		$(shell mkdir -p ${GENDIR})
+_GEN!=		mkdir -p ${GENDIR}
+
 # Configure SDCC.
-_SDCC_MK:=	$(shell env CC="${CC}" sh scripts/sdcc.sh ${CONFDIR}/sdcc > sdcc.mk)
-_SDCC_MK!=	env CC="${CC}" sh scripts/sdcc.sh ${CONFDIR}/sdcc > sdcc.mk
+_SDCC_MK:=	$(shell env CC="${CC}" sh scripts/sdcc.sh ${CONFDIR}/sdcc > ${GENDIR}/sdcc.mk)
+_SDCC_MK!=	env CC="${CC}" sh scripts/sdcc.sh ${CONFDIR}/sdcc > ${GENDIR}/sdcc.mk
 
 # Gmake style, works with FreeBSD make, too
-include sdcc.mk
+include ${GENDIR}/sdcc.mk
 
 # Generate dbc
-_DBC_MK:=	$(shell sh scripts/dbc.sh ${CANDIR}/ > dbc.mk)
-_DBC_MK!=	sh scripts/dbc.sh ${CANDIR}/ > dbc.mk
+_DBC_MK:=	$(shell sh scripts/dbc.sh ${CANPROJDIR}/ > ${GENDIR}/dbc.mk)
+_DBC_MK!=	sh scripts/dbc.sh ${CANPROJDIR}/ > ${GENDIR}/dbc.mk
 
 # Gmake style, works with FreeBSD make, too
-include dbc.mk
+include ${GENDIR}/dbc.mk
 
 # Make sure DBCs are generated before the build scripts are created
-_DBC_MK:=	$(shell ${MAKE} DBCDIR=${DBCDIR} -f dbc.mk dbc 1>&2)
-_DBC_MK!=	${MAKE} DBCDIR=${DBCDIR} -f dbc.mk dbc 1>&2
+_DBC_MK:=	$(shell ${MAKE} DBCDIR=${DBCDIR} -f ${GENDIR}/dbc.mk dbc 1>&2)
+_DBC_MK!=	${MAKE} DBCDIR=${DBCDIR} -f ${GENDIR}/dbc.mk dbc 1>&2
 
 # Generate build
-_BUILD_MK:=	$(shell sh scripts/build.sh src/ ${INCDIR}/ ${GENDIR}/ > build.mk)
-_BUILD_MK!=	sh scripts/build.sh src/ ${INCDIR}/ ${GENDIR}/ > build.mk
+_BUILD_MK:=	$(shell sh scripts/build.sh src/ ${INCDIR}/ ${GENDIR}/ > ${GENDIR}/build.mk)
+_BUILD_MK!=	sh scripts/build.sh src/ ${INCDIR}/ ${GENDIR}/ > ${GENDIR}/build.mk
 
 # Gmake style, works with FreeBSD make, too
-include build.mk
+include ${GENDIR}/build.mk
 
 printEnv::
 	@echo export PROJECT=\"${PROJECT}\"
 	@echo export CANPROJDIR=\"${CANPROJDIR}\"
-	@echo export CANDIR=\"${CANDIR}\"
+	@echo export GENDIR=\"${GENDIR}\"
 	@echo export INCDIR=\"${INCDIR}\"
 	@echo export CPP=\"${CPP}\"
 
 uVision µVision::
 	@sh uVisionupdate.sh
 
-html: html/user html/dev html/contrib
+html: html/user html/dev html/dbc html/contrib
 
 html/contrib: contrib
 	@rm -rf html/contrib || true
@@ -150,6 +153,11 @@ html/dev: doc-private
 	@mkdir -p html
 	@cp -r doc-private/html html/dev
 
+html/dbc: doc-dbc
+	@rm -rf html/dbc || true
+	@mkdir -p html
+	@cp -r doc-dbc/html html/dbc
+
 doc: ${USERSRC} ${CONFDIR}/doxygen.public
 	@rm -rf doc || true
 	@mkdir -p doc
@@ -165,7 +173,16 @@ doc-private: ${DEVSRC} ${CONFDIR}/doxygen.public ${CONFDIR}/doxygen.private
 	@cat ${CONFDIR}/doxygen.public ${CONFDIR}/doxygen.private \
 	 doc-private/.conf | doxygen -
 
-pdf: pdf/${PROJECT}-user.pdf pdf/${PROJECT}-dev.pdf
+doc-dbc: ${DBCDIR} ${CONFDIR}/doxygen.dbc
+	@rm -rf doc-dbc || true
+	@mkdir -p doc-dbc
+	@echo PROJECT_NAME=\"${PROJECT}-dbc\" >> doc-dbc/.conf
+	@echo PROJECT_NUMBER=${VERSION} >> doc-dbc/.conf
+	@echo INPUT=${DBCDIR} >> doc-dbc/.conf
+	@echo STRIP_FROM_PATH=${GENDIR} >> doc-dbc/.conf
+	@cat ${CONFDIR}/doxygen.dbc doc-dbc/.conf | doxygen -
+
+pdf: pdf/${PROJECT}-user.pdf pdf/${PROJECT}-dev.pdf pdf/${PROJECT}-dbc.pdf
 
 pdf/${PROJECT}-user.pdf: doc/latex/refman.pdf
 	@mkdir -p pdf
@@ -175,19 +192,29 @@ pdf/${PROJECT}-dev.pdf: doc-private/latex/refman.pdf
 	@mkdir -p pdf
 	@cp doc-private/latex/refman.pdf "pdf/${PROJECT}-dev.pdf"
 
+pdf/${PROJECT}-dbc.pdf: doc-dbc/latex/refman.pdf
+	@mkdir -p pdf
+	@cp doc-dbc/latex/refman.pdf "pdf/${PROJECT}-dbc.pdf"
+
 doc/latex/refman.pdf: doc
 	@cd doc/latex/ && ${MAKE}
 
 doc-private/latex/refman.pdf: doc-private
 	@cd doc-private/latex/ && ${MAKE}
 
-clean: clean-doc clean-doc-private clean-build
+doc-dbc/latex/refman.pdf: doc-dbc
+	@cd doc-dbc/latex/ && ${MAKE}
+
+clean: clean-doc clean-doc-private clean-doc-dbc clean-build
 
 clean-doc:
 	@rm -rf doc || true
 
 clean-doc-private:
 	@rm -rf doc-private || true
+
+clean-doc-dbc:
+	@rm -rf doc-dbc || true
 
 clean-build:
 	@rm -rf ${BUILDDIR} ${GENDIR} || true

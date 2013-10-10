@@ -2,12 +2,10 @@
 ^(.*/)?Thumbs.db$
 ^bin.*
 ^gen/
-^build\.mk$
-^dbc\.mk$
-^sdcc\.mk$
 \.local$
 ^doc/
 ^doc-private/
+^doc-dbc/
 ^html/
 ^pdf/
 ^uVision/
