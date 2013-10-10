@@ -299,7 +299,7 @@
               <MiscControls></MiscControls>
               <Define>__xdata, __pdata, __idata</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\CAN\src</IncludePath>
+              <IncludePath>..\gen</IncludePath>
             </VariousControls>
           </C51>
           <Ax51>

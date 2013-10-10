@@ -6,17 +6,17 @@ IFS='
 eval "$(make printEnv)"
 
 echo "Preparing header include directories ..." 1>&2
-_CANDIR="$(echo "$CANDIR" | tr '/' '\\')"
+_GENDIR="$(echo "$GENDIR" | tr '/' '\\')"
 
 echo "Getting call tree changes for overlay optimisation ..." 1>&2
-overlays="$(awk -f scripts/overlays.awk $(find src/ -name \*.c) -I$INCDIR -I$CANDIR)"
+overlays="$(awk -f scripts/overlays.awk $(find src/ -name \*.c) -I$INCDIR -I$GENDIR)"
 echo "$overlays" | sed -e 's/^/	/' -e 's/[[:cntrl:]]$//' 1>&2
 
 echo "Updating uVision/hsk_libs.uvproj ..." 1>&2
 cp uVision/hsk_libs.uvproj uVision/hsk_libs.uvproj.bak
 awk -f scripts/xml.awk uVision/hsk_libs.uvproj.bak \
         -search:Target51/C51/VariousControls/IncludePath \
-        -set:"..\\$_CANDIR" \
+        -set:"..\\$_GENDIR" \
         -select:/ \
 	-search:OverlayString \
 	-set:"$overlays" \
