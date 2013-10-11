@@ -25,5 +25,9 @@ $target: $encoded
 	done
 done
 
+echo "\${DBCDIR}:
+	@mkdir -p \${DBCDIR}
+"
+
 echo "dbc: $all"
 
