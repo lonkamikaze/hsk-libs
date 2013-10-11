@@ -4,6 +4,9 @@ IFS='
 '
 
 scriptdir="${0%/*}"
+LIBPROJDIR="${scriptdir##*/}"
+LIBPROJDIR="${scriptdir%$LIBPROJDIR}"
+LIBPROJDIR="${LIBPROJDIR%/}"
 
 all=
 for SRC in "$@"; do
@@ -17,7 +20,7 @@ for SRC in "$@"; do
 	iconv -f CP1252 -t UTF-8 $dbc > $encoded
 
 $target: $encoded
-	awk -f $scriptdir/dbc2c.awk $encoded > $target
+	${LIBPROJDIR:+env LIBPROJDIR=$LIBPROJDIR} awk -f $scriptdir/dbc2c.awk $encoded > $target
 "
 	done
 done

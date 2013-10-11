@@ -14,6 +14,7 @@
 # | clean-doc         | Remove doxygen output for user doc
 # | clean-doc-private | Remove doxygen output for dev doc
 # | clean-doc-dbc     | Remove doxygen output for dbc doc
+# | clean-stale       | Clean no longer required files, not managed by HG
 # | clean             | Clean everything
 # | zip               | Create a .zip archive in the parent directory
 #
@@ -28,7 +29,7 @@
 # | CONFDIR           | Location for configuration files
 # | CANPROJDIR        | Path to the CAN project
 # | DBCDIR            | Location for generated DBC headers
-# | GENDIR            | Location for generated headers
+# | GENDIR            | Location for generated code
 # | INCDIR            | Include directory for contributed headers
 # | OBJSUFX           | The file name suffix for object files
 # | HEXSUFX           | The file name suffix for intel hex files
@@ -205,7 +206,7 @@ doc-private/latex/refman.pdf: doc-private
 doc-dbc/latex/refman.pdf: doc-dbc
 	@cd doc-dbc/latex/ && ${MAKE}
 
-clean: clean-doc clean-doc-private clean-doc-dbc clean-build
+clean: clean-doc clean-doc-private clean-doc-dbc clean-build clean-stale
 
 clean-doc:
 	@rm -rf doc || true
@@ -218,6 +219,9 @@ clean-doc-dbc:
 
 clean-build:
 	@rm -rf ${BUILDDIR} ${GENDIR} || true
+
+clean-stale:
+	@rm -f build.mk sdcc.mk dbc.mk || true
 
 zip: pdf
 	@hg status -A | awk '$$1 != "I" {sub(/. /, "${PROJECT}/"); print}' | (cd .. && zip ${PROJECT}-${VERSION}.zip -\@ -r ${PROJECT}/pdf)
