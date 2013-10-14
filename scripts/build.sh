@@ -5,7 +5,10 @@ IFS='
 
 scriptdir="${0%/*}"
 
-find "$@" -name \*.c | xargs awk -f $scriptdir/includes.awk "$@"
+# AWK interpreter
+: ${AWK:=awk}
+
+find "$@" -name \*.c | xargs $AWK -f $scriptdir/includes.awk "$@"
 
 all=
 for SRC in "$@"; do
@@ -21,7 +24,7 @@ for SRC in "$@"; do
 		all="${all:+$all$IFS}$target"
 		echo "$target: $file
 	@mkdir -p ${target%/*}
-	@env CPP=\"\${CPP}\" LIBPROJDIR=\"\${LIBPROJDIR}\" awk -f $scriptdir/sanity.awk $file -I\${LIBDIR} -I\${INCDIR} -I\${CANDIR}
+	@env CPP=\"\${CPP}\" LIBPROJDIR=\"\${LIBPROJDIR}\" $AWK -f $scriptdir/sanity.awk $file -I\${LIBDIR} -I\${INCDIR} -I\${CANDIR}
 	\${CC} \${CFLAGS} -o $target -c $file
 	"
 	done
@@ -44,9 +47,9 @@ for file in $files; do
 	echo "$target" | grep -qFx "$all" && continue
 	all="${all:+$all$IFS}$target"
 	build="$build $target"
-	linklist="$(awk -f $scriptdir/includes.awk "$@" $file | cut -d: -f1 \
+	linklist="$($AWK -f $scriptdir/includes.awk "$@" $file | cut -d: -f1 \
 		| sed -ne "$filter" -e "s:\.c\$:\${OBJSUFX}:p" \
-		| awk 'BEGIN{ORS=" "}1')"
+		| $AWK 'BEGIN{ORS=" "}1')"
 
 	echo "$target: $linklist
 	@mkdir -p ${target%/*}
