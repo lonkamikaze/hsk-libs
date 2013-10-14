@@ -22,6 +22,7 @@
 #
 # | Assignment        | Function
 # |-------------------|---------------------------------------------------
+# | AWK               | The awk interpreter
 # | BUILDDIR          | SDCC output directory
 # | CC                | Compiler
 # | CFLAGS            | Compiler flags
