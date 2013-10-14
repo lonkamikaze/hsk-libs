@@ -28,7 +28,7 @@ BEGIN {
 #
 # Accumulate and preprocess files so they become easier to parse
 #
-{
+!visited[FILENAME]++ {
 	if (DEBUG) {
 		print "cstrip.awk: processing " FILENAME > "/dev/stderr"
 	}
