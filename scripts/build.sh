@@ -5,6 +5,11 @@ IFS='
 
 scriptdir="${0%/*}"
 
+incdirs=
+for dir in ${*#$1}; do
+	incdirs="$incdirs${incdirs:+ }-I$dir"
+done
+
 # AWK interpreter
 : ${AWK:=awk}
 
@@ -24,7 +29,7 @@ for SRC in "$@"; do
 		all="${all:+$all$IFS}$target"
 		echo "$target: $file
 	@mkdir -p ${target%/*}
-	@env CPP=\"\${CPP}\" LIBPROJDIR=\"\${LIBPROJDIR}\" $AWK -f $scriptdir/sanity.awk $file -I\${LIBDIR} -I\${INCDIR} -I\${CANDIR}
+	@env CPP=\"\${CPP}\" LIBPROJDIR=\"\${LIBPROJDIR}\" $AWK -f $scriptdir/sanity.awk $file $incdirs
 	\${CC} \${CFLAGS} -o $target -c $file
 	"
 	done

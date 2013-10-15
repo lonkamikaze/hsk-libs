@@ -46,7 +46,7 @@ BEGIN {
 }
 
 # Get prototypes
-!/^(return|else|__sfr|__sfr16|__sbit) / && /[[:alnum:]_* ]+ [[:alnum:]_]+\(.*\)[[:alnum:]_* ]*;/ {
+!/^(return|else|__sfr|__sfr16|__sbit) / && /[a-zA-Z0-9_* ]+ [a-zA-Z0-9_]+\(.*\)[a-zA-Z0-9_* ]*;/ {
 	declare = $0
 	sub(/\(.*/, "", declare)
 	sub(/.* /, "", declare)
@@ -79,7 +79,7 @@ BEGIN {
 }
 
 # Get definitions
-!/^(else) / && /[[:alnum:]_* ]+ [[:alnum:]_]+\(.*\)[[:alnum:]_* ]*$/ {
+!/^(else) / && /[a-zA-Z0-9_* ]+ [a-zA-Z0-9_]+\(.*\)[a-zA-Z0-9_* ]*$/ {
 	definition = $0
 	sub(/\(.*/, "", definition)
 	sub(/.* /, "", definition)
