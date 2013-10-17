@@ -47,7 +47,7 @@ CC=		sdcc
 CFLAGS=		-I${INCDIR} -I${GENDIR}
 
 # Sane default for uVisionupdate.sh.
-CPP?=		cpp
+CPP=		cpp
 
 # AWK interpreter.
 AWK?=		awk

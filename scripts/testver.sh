@@ -22,7 +22,7 @@ while [ -n "$a$b" ]; do
 	# When equal always defer to the next subversion
 	if [ "$va" != "$vb" ]; then
 		test $va "$operator" $vb
-		return
+		exit
 	fi
 
 	# Remove the most significant digit
@@ -34,5 +34,5 @@ done
 
 # All digits were equal, so just feed the operator with two equal values
 test 0 "$operator" 0
-return
+exit
 

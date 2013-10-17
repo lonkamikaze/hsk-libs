@@ -13,7 +13,7 @@ done
 # AWK interpreter
 : ${AWK:=awk}
 
-find "$@" -name \*.c | xargs $AWK -f $scriptdir/includes.awk "$@"
+find "$@" -name \*.c -exec $AWK -f $scriptdir/includes.awk "$@" \{} +
 
 all=
 for SRC in "$@"; do
