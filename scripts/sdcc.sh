@@ -7,11 +7,11 @@
 #
 
 scriptdir="${0%/*}"
-compiler=$(eval $CC -v)
+compiler=$(eval $CC -v 2>/dev/null)
 
 # Only configure SDCC
 if ! echo "$compiler" | grep -qiF sdcc; then
-	return 0
+	exit 0
 fi
 
 version=$(echo "$compiler" | cut -d\  -f4)
@@ -48,5 +48,5 @@ while [ -n "${firstrun:-$1}" ]; do
 	firstrun=
 done
 
-return 0
+exit 0
 
