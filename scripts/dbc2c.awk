@@ -1,10 +1,20 @@
 #!/usr/bin/awk -f
 #
-# Note, pipe the input through "iconv -f CP1252" so GNU AWK doesn't choke
-# on non-UTF-8 characters in comments.
+# This script parses Vector CAN DBs (.dbc files), such as can be created
+# using Vector CANdb++.
+#
+# A subset of the parsed information is output using a set of templates.
+#
+# @note
+#	Note, pipe the input through "iconv -f CP1252" so GNU AWK doesn't choke
+#	on non-UTF-8 characters in comments.
 #
 
+#
+# Initialises globals.
+#
 BEGIN {
+	# Environment variables
 	DEBUG = ENVIRON["DEBUG"]
 	TEMPLATES = ENVIRON["TEMPLATES"]
 	DATE = ENVIRON["DATE"]
@@ -1223,7 +1233,7 @@ function template(data, name,
 }
 
 #
-# Print the DBC file to stdout.
+# Print the DBC files to stdout.
 #
 END {
 	# Do not produce output on error

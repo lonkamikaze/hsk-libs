@@ -1,5 +1,35 @@
 #!/usr/bin/awk -f
+#
+# This script provides a small command line XML editor.
+#
+# It parses the subset of XML used by ARM Keil µVision configuration files
+# and provides arguments to navigate, search, edit and print the parsed
+# XML tree.
+#
+# Every command applies to the current selection. The current selection
+# may refer to several nodes in the tree.
+#
+# The command syntax is:
+#	"-" command [ ":" argument ]
+#
+# The following command arguments are supported:
+# - select:         Selects a path using a filter argument, see cmdSelect()
+# - search:         Selects all the subtrees matching the given filter
+#                   argument, see cmdSearch()
+# - set:            Sets the data of a node, see cmdSet()
+# - attrib:         Sets a named attribute, see cmdAttrib()
+# - insert:         Inserts a new child node into the selected nodes, see
+#                   cmdInsert()
+# - selectInserted: Select all nodes created during the last insert operation,
+#                   see cmdSelectInserted()
+# - delete:         Removes the selected nodes from the tree, see cmdDelete()
+# - print:          Print the children and data of the selected nodes, see
+#                   cmdPrint()
+#
 
+#
+# Parse arguments and initialise globals.
+#
 BEGIN {
 	FS = ""
 	RS = ""
@@ -27,6 +57,13 @@ BEGIN {
 #
 # Return whether an array is empty.
 #
+# @param array
+#	The array to check
+# @retval 1
+#	The array is empty
+# @retval 0
+#	The array contains at least one element
+#
 function empty(array,
 i) {
 	for (i in array) {
@@ -38,6 +75,13 @@ i) {
 #
 # Split a string containing attributes into a string array with
 # "attribute=value" entries.
+#
+# @param str
+#	The string to split into attributes
+# @param results
+#	The array to store the results in
+# @return
+#	The count of attributes
 #
 function explode(str, results,
 i, array, quoted, count, len) {
@@ -69,6 +113,14 @@ i, array, quoted, count, len) {
 	return count
 }
 
+#
+# Escapes quotation marks and backslashes with backslashes.
+#
+# @param str
+#	The string to escape
+# @return
+#	The escaped string
+#
 function escape(str) {
 	gsub(/\\/, "\\\\", str)
 	gsub(/"/, "\\\"", str)
@@ -76,7 +128,29 @@ function escape(str) {
 }
 
 #
-# This function lets you define a selection filter.
+# This function lets you define a selection.
+#
+# A selection filter is a series of node defintions divided by /. Identifiers
+# may contain glob patterns.
+#
+# A / at the beginning of the filter selects the root node, which contains
+# the root nodes of all XML trees parsed. Other wise the filter is relative
+# to the current selections.
+#
+# The node ./ refers to the current node and ../ to the parent node.
+# This can be used to move through the tree relative to the current selection
+# or to select the parent of a node that matches a filtering condition.
+#
+# A node selection has the following syntax:
+#	node = tag [ "[" attributes "]" ] [ "=" value ]
+#
+# Attributes have the following syntax:
+#	attributes = attribute "=" ( value | '"' value '"' ) [ " " attributes ]
+#
+# Values are strings or glob patterns.
+#
+# @param str
+#	The selection filter
 #
 function cmdSelect(str,
 ident, node, ns, i, attrib, attribs, value) {
@@ -89,9 +163,7 @@ ident, node, ns, i, attrib, attribs, value) {
 
 		# Select /
 		if (ident == "/") {
-			for (node in selection) {
-				delete selection[node]
-			}
+			delete selection
 			selection[ROOT] = 1
 		}
 		# Select ./
@@ -100,13 +172,11 @@ ident, node, ns, i, attrib, attribs, value) {
 		}
 		# Select ../
 		else if (ident ~ /^\.\.\/?$/) {
-			for (node in ns) {
-				delete ns[node]
-			}
+			delete ns
 			for (node in selection) {
-				delete selection[node]
 				ns[parent[node]]
 			}
+			delete selection
 			for (node in ns) {
 				selection[node] = 1
 			}
@@ -120,17 +190,15 @@ ident, node, ns, i, attrib, attribs, value) {
 
 			attrib = ident
 			sub(/[\[=].*/, "", ident)
-			for (node in ns) {
-				delete ns[node]
-			}
+			delete ns
 			for (node in selection) {
-				delete selection[node]
 				for (i = 0; children[node, i]; i++) {
 					if (tags[children[node, i]] ~ "^" ident "$") {
 						ns[children[node, i]]
 					}
 				}
 			}
+			delete selection
 			for (node in ns) {
 				selection[node] = 1
 			}
@@ -184,6 +252,15 @@ ident, node, ns, i, attrib, attribs, value) {
 	
 }
 
+#
+# This function selects any subtree of the current selection that matches
+# the given selection filter.
+#
+# The filter syntax is identical with that of cmdSelect().
+#
+# @param str
+#	The selection filter
+#
 function cmdSearch(str,
 node, i, lastSelection, matches) {
 	while (!empty(selection)) {
@@ -195,15 +272,15 @@ node, i, lastSelection, matches) {
 
 		for (node in selection) {
 			matches[node]
-			delete selection[node]
 		}
+		delete selection
 
 		for (node in lastSelection) {
 			for (i = 0; children[node, i]; i++) {
 				selection[children[node, i]] = 1
 			}
-			delete lastSelection[node]
 		}
+		delete lastSelection
 	}
 	for (node in matches) {
 		selection[node] = 1
@@ -212,6 +289,11 @@ node, i, lastSelection, matches) {
 
 #
 # Changes the content of a node.
+#
+# This does not affect subnodes.
+#
+# @param value
+#	The value to set the node content to
 #
 function cmdSet(value,
 node) {
@@ -222,6 +304,12 @@ node) {
 
 #
 # Changes an attribute of a node.
+#
+# It accepts a singe string in the shape:
+#	attribute "=" value
+#
+# @param str
+#	A single attribute definition
 #
 function cmdAttrib(str,
 node, i, name) {
@@ -243,6 +331,9 @@ node, i, name) {
 # Inserts new nodes into all selected nodes, uses the same syntax as
 # cmdSelect() does.
 #
+# @param str
+#	A node definition like the ones used for selection filters
+#
 function cmdInsert(str,
 node, name, attributes, attribStr, value, count, i, insert) {
 	name = str
@@ -263,9 +354,7 @@ node, name, attributes, attribStr, value, count, i, insert) {
 	sub(/^=/, "", value)
 
 	# Free the list of recently inserted nodes
-	for (node in inserted) {
-		delete inserted[node]
-	}
+	delete inserted
 
 	# The new nodes simply are numbered instead of having structured
 	# IDs. Because the node can only have one parent it needs to be
@@ -297,9 +386,7 @@ node, name, attributes, attribStr, value, count, i, insert) {
 #
 function cmdSelectInserted(dummy,
 node) {
-	for (node in selection) {
-		delete selection[node]
-	}
+	delete selection
 	for (node in inserted) {
 		selection[node]
 	}
@@ -333,6 +420,11 @@ node) {
 
 #
 # Prints children and contents of the given node
+#
+# @param indent
+#	The indention depth of the current node
+# @param node
+#	The node to print
 #
 function printNode(indent, node,
 prefix, i, p) {
@@ -393,19 +485,21 @@ prefix, i, p) {
 	}
 }
 
+#
 # Parse the XML tree
 #
 # Abbreviations:
-# d = depth
-# c = count
+# - d = depth
+# - c = count
 #
 # Properties:
-# tags [d, c]
-# contents [d, c]
-# attributeNames [d, c, i]
-# attributeValues [d, c, i]
-# children [d, c, i]
-# parent [d, c]
+# - tags [d, c]
+# - contents [d, c]
+# - attributeNames [d, c, i]
+# - attributeValues [d, c, i]
+# - children [d, c, i]
+# - parent [d, c]
+#
 {
 	while (/<.*>/) {
 		# Get the current content
@@ -467,6 +561,9 @@ prefix, i, p) {
 	}
 }
 
+#
+# Execute the specified commands.
+#
 END {
 	for (i = 0; commands[i]; i++) {
 		if (commands[i] == "select") {
