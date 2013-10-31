@@ -20,16 +20,16 @@
  * Generate an ICM7228 driver instance.
  *
  * This creates functions to use a connect ICM7228 IC.
- *	- void \<prefix\>_init(void)
- *		- Initialize the buffer and I/O register bits
- *	- void \<prefix\>_refresh(void)
- *		- Commit buffered data to the 7 segment displays
- *	- void \<prefix\>_writeString(char * str, ubyte pos, ubyte len)
- *		- Wrapper around hsk_icm7228_writeString()
- *	- void \<prefix\>_writeDec(uword value, char power, ubyte pos, ubyte len)
- *		- Wrapper around hsk_icm7228_writeDec()
- *	- void \<prefix\>_writeHex(uword value, char power, ubyte pos, ubyte len)
- *		- Wrapper around hsk_icm7228_writeHex()
+ * - void \<prefix\>_init(void)
+ *	- Initialize the buffer and I/O register bits
+ * - void \<prefix\>_refresh(void)
+ *	- Commit buffered data to the 7 segment displays
+ * - void \<prefix\>_writeString(char * str, ubyte pos, ubyte len)
+ *	- Wrapper around hsk_icm7228_writeString()
+ * - void \<prefix\>_writeDec(uword value, char power, ubyte pos, ubyte len)
+ *	- Wrapper around hsk_icm7228_writeDec()
+ * - void \<prefix\>_writeHex(uword value, char power, ubyte pos, ubyte len)
+ *	- Wrapper around hsk_icm7228_writeHex()
  *
  * @param prefix
  *	A prefix for the names of generated functions
@@ -105,7 +105,7 @@
 	 * @see hsk_icm7228_writeString
 	 */\
 	void prefix##_writeString(const char * const str, \
-			 const ubyte pos, const ubyte len) { \
+	                          const ubyte pos, const ubyte len) { \
 		hsk_icm7228_writeString(prefix##_buffer, str, pos, len); \
 	} \
 	\
@@ -124,7 +124,7 @@
 	 * @see hsk_icm7228_writeDec
 	 */\
 	void prefix##_writeDec(const uword value, const char power, \
-			const ubyte pos, const ubyte len) {\
+	                       const ubyte pos, const ubyte len) {\
 		hsk_icm7228_writeDec(prefix##_buffer, value, power, pos, len); \
 	} \
 	\
@@ -143,7 +143,7 @@
 	 * @see hsk_icm7228_writeHex
 	 */\
 	void prefix##_writeHex(const uword value, const char power, \
-			const ubyte pos, const ubyte len) {\
+	                       const ubyte pos, const ubyte len) {\
 		hsk_icm7228_writeHex(prefix##_buffer, value, power, pos, len); \
 	} \
 	\
@@ -159,7 +159,7 @@
 	 * @see hsk_icm7228_illuminate
 	 */\
 	void prefix##_illuminate(const ubyte segments, const ubyte pos, \
-			const ubyte len) {\
+	                         const ubyte len) {\
 		hsk_icm7228_illuminate(prefix##_buffer, segments, pos, len); \
 	} \
 
@@ -188,7 +188,7 @@
  *	The target length of the encoded string
  */
 void hsk_icm7228_writeString(ubyte xdata * const buffer, \
-	const char * str, ubyte pos, ubyte len);
+                             const char * str, ubyte pos, ubyte len);
 
 /**
  * Write a 7 segment encoded, right aligned decimal number into an xdata
@@ -213,7 +213,7 @@ void hsk_icm7228_writeString(ubyte xdata * const buffer, \
  *	The number of digits available to encode the number
  */
 void hsk_icm7228_writeDec(ubyte xdata * const buffer, uword value,
-	char power, const ubyte pos, ubyte len);
+                          char power, const ubyte pos, ubyte len);
 
 /**
  * Write a 7 segment encoded, right aligned hexadecimal number into an xdata
@@ -238,7 +238,7 @@ void hsk_icm7228_writeDec(ubyte xdata * const buffer, uword value,
  *	The number of digits available to encode the number
  */
 void hsk_icm7228_writeHex(ubyte xdata * const buffer, uword value,
-	char power, const ubyte pos, ubyte len);
+                          char power, const ubyte pos, ubyte len);
 
 /**
  * Illumante the given number of segments.
@@ -253,7 +253,7 @@ void hsk_icm7228_writeHex(ubyte xdata * const buffer, uword value,
  *	The number of digits available to encode the number
  */
 void hsk_icm7228_illuminate(ubyte xdata * const buffer,
-	ubyte segments, ubyte pos, ubyte len);
+                            ubyte segments, ubyte pos, ubyte len);
 
 #endif /* _HSK_ICM7228_H_ */
 

@@ -35,29 +35,29 @@ void hsk_boot_io(void) {
  * Used to select the memory bank where the XRAM is located.
  * This 4 bit field is divided, the highest bit goes into the BIT_MXB19 bit.
  */
-#define BIT_MXB			0
+#define BIT_MXB          0
 
 /**
  * MEX3 XRAM Bank Number bit count.
  */
-#define CNT_MXB			3
+#define CNT_MXB          3
 
 /**
  * MEX3 XRAM Bank Number highest bit.
  *
  * The final MXB bit.
  */
-#define BIT_MXB19		4
+#define BIT_MXB19        4
 
 /**
  * The selected XRAM bank number.
  */
-#define XRAM_BANK		0xF
+#define XRAM_BANK        0xF
 
 /**
  * MEX3 XRAM Bank Selector bit.
  */
-#define BIT_MXM			3
+#define BIT_MXM          3
 
 /**
  * Set BIT_MXM to access the data memroy bank with MOVX instructions.
@@ -66,14 +66,14 @@ void hsk_boot_io(void) {
  * MOVX is used to access external memory. The data memory bank is selected
  * with the MXB bits.
  */
-#define XRAM_SELECTOR		1
+#define XRAM_SELECTOR    1
 
 /**
  * The page to locate pdata at.
  *
  * Use the first XRAM page, because that is where the compilers expect it.
  */
-#define PDATA_PAGE		0xF0
+#define PDATA_PAGE       0xF0
 
 /**
  * Sets up xdata and pdata memory access.
@@ -120,7 +120,7 @@ ubyte _sdcc_external_startup(void) {
  * External Oscillator Run Status Bit, used to determine
  * whether the external oscilator is available.
  */
-#define BIT_EXTOSCR		0
+#define BIT_EXTOSCR      0
 
 /**
  * OSC_CON bit.
@@ -128,7 +128,7 @@ ubyte _sdcc_external_startup(void) {
  * External Oscillator Watchdog Reset, used when switching
  * to an external clock.
  */
-#define BIT_EORDRES		1
+#define BIT_EORDRES      1
 
 /**
  * OSC_CON bit.
@@ -136,7 +136,7 @@ ubyte _sdcc_external_startup(void) {
  * Oscillator Source Select, used to turn the external
  * oscillator on(1)/off(0).
  */
-#define BIT_OSCSS		2
+#define BIT_OSCSS        2
 
 /**
  * OSC_CON bit.
@@ -144,7 +144,7 @@ ubyte _sdcc_external_startup(void) {
  * XTAL Power Down Control, used when switching to an
  * external clock.
  */
-#define BIT_XPD			3
+#define BIT_XPD          3
 
 /**
  * OSC_CON bit.
@@ -152,7 +152,7 @@ ubyte _sdcc_external_startup(void) {
  * PLL Power Down Control, used when switching to an
  * external clock.
  */
-#define BIT_PLLPD		5
+#define BIT_PLLPD        5
 
 /**
  * OSC_CON bit.
@@ -160,7 +160,7 @@ ubyte _sdcc_external_startup(void) {
  * PLL Output Bypass Control, used when switching to an
  * external clock.
  */
-#define BIT_PLLBYP		6
+#define BIT_PLLBYP       6
 
 /**
  * OSC_CON bit.
@@ -168,7 +168,7 @@ ubyte _sdcc_external_startup(void) {
  * PLL Watchdog Reset, used when switching to an
  * external clock.
  */
-#define BIT_PLLRDRES	7
+#define BIT_PLLRDRES     7
 
 /**
  * PLL_CON bit.
@@ -176,7 +176,7 @@ ubyte _sdcc_external_startup(void) {
  * PLL Lock Status Flag, used when switching to an
  * external clock.
  */
-#define BIT_PLL_LOCK	0
+#define BIT_PLL_LOCK     0
 
 /**
  * PLL_CON bit.
@@ -184,44 +184,44 @@ ubyte _sdcc_external_startup(void) {
  * PLL Run Status Flag, used when switching to an
  * external clock.
  */
-#define BIT_PLLR		1
+#define BIT_PLLR         1
 
 /**
  * PLL_CON1 bit.
  *
  * Something to do with the CPU clock.
  */
-#define BIT_PDIV		0
+#define BIT_PDIV         0
 
 /**
  * PDIV bit count.
  */
-#define CNT_PDIV		5
+#define CNT_PDIV         5
 
 /**
  * PLL_CON low PLL NF-Divider bits.
  */
-#define BIT_NDIVL		2
+#define BIT_NDIVL        2
 
 /**
  * NDIVL bit count.
  */
-#define CNT_NDIVL		6
+#define CNT_NDIVL        6
 
 /**
  * PLL_CON1 high PLL NF-Divider bits.
  */
-#define BIT_NDIVH		5
+#define BIT_NDIVH        5
 
 /**
  * NDIVH bit count.
  */
-#define CNT_NDIVH		3
+#define CNT_NDIVH        3
 
 /**
  * NMICON PLL Loss of Clock NMI Enable bit.
  */
-#define BIT_NMIPLL 		1
+#define BIT_NMIPLL       1
 
 /** \var hsk_boot
  * Boot parameter storage for the loss of clock ISR callback.
@@ -314,7 +314,7 @@ void hsk_boot_isr_nmipll(void) using 2 {
 	MAIN_vUnlockProtecReg();
 	OSC_CON &= ~(1 << BIT_PLLBYP);
 
-	/*  Restore original page. */
+	/* Restore original page. */
 	SFR_PAGE(_su1, RST3);
 
 }

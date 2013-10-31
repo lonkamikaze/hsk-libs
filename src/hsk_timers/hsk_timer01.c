@@ -30,32 +30,32 @@
 /**
  * IEN0 Timer 0 Overflow Interrupt Enable bit.
  */
-#define BIT_ET0		1
+#define BIT_ET0     1
 
 /**
  * IEN0 Timer 1 Overflow Interrupt Enable bit.
  */
-#define BIT_ET1		3
+#define BIT_ET1     3
 
 /**
  * TMOD Timer 0 Mode select bits.
  */
-#define BIT_T0M		0
+#define BIT_T0M     0
 
 /**
  * T0M bit count.
  */
-#define CNT_T0M		2
+#define CNT_T0M     2
 
 /**
  * TMOD Timer 0 Mode select bits.
  */
-#define BIT_T1M		4
+#define BIT_T1M     4
 
 /**
  * T1M bit count.
  */
-#define CNT_T1M		2
+#define CNT_T1M     2
 
 /** \var hsk_timers
  * Struct representing runtime information for a timer.
@@ -75,7 +75,7 @@ struct {
 /**
  * SYSCON0 Special Function Register Map Control bit.
  */
-#define BIT_RMAP	0
+#define BIT_RMAP    0
 
 /**
  * The ISR for timer 0.
@@ -133,7 +133,8 @@ void ISR_hsk_timer1(void) interrupt 3 using 1 {
  * @private
  */
 void hsk_timer01_setup(const ubyte id, const uword __xdata interval,
-		const void (code * const __xdata callback)(void) using(1)) {
+                       const void (code * const __xdata callback)
+                                  (void) using(1)) {
 
 	/* Set 16 bit mode. */
 	switch (id) {
@@ -155,7 +156,8 @@ void hsk_timer01_setup(const ubyte id, const uword __xdata interval,
 }
 
 void hsk_timer0_setup(const uword interval,
-		const void (code * const __xdata callback)(void) using(1)) {
+                      const void (code * const __xdata callback)
+                                 (void) using(1)) {
 	hsk_timer01_setup(0, interval, callback);
 }
 
@@ -170,7 +172,8 @@ void hsk_timer0_disable(void) {
 }
 
 void hsk_timer1_setup(const uword interval,
-		const void (code * const __xdata callback)(void) using(1)) {
+                      const void (code * const __xdata callback)
+                                 (void) using(1)) {
 	hsk_timer01_setup(1, interval, callback);
 }
 

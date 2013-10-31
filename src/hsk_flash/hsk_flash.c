@@ -40,61 +40,61 @@
 /**
  * MOVC @(DPTR++),A instruction.
  */
-#define MOVCI	.db	0xA5
+#define MOVCI                       .db 0xA5
 
 /**
  * DPTR low byte.
  *
  * @see \ref flash_dptr
  */
-#define DPL	dpl
+#define DPL                         dpl
 
 /**
  * DPTR high byte.
  *
  * @see \ref flash_dptr
  */
-#define DPH	dph
+#define DPH                         dph
 
 /**
  * Create variable at a certain address, SDCC version.
  */
-#define VAR_AT(type, name, addr)	type __at(addr) name
+#define VAR_AT(type, name, addr)    type __at(addr) name
 
 /**
  * Insert global variable address into inline assembler SDCC style.
  */
-#define VAR_ASM(name)			_##name
+#define VAR_ASM(name)               _##name
 
 #elif defined __C51__
 /**
  * MOVC @(DPTR++),A instruction.
  */
-#define MOVCI	db	0xA5
+#define MOVCI                       db 0xA5
 
 /**
  * DPTR low byte.
  *
  * @see \ref flash_dptr
  */
-#define DPL	dph
+#define DPL                         dph
 
 /**
  * DPTR high byte.
  *
  * @see \ref flash_dptr
  */
-#define DPH	dpl
+#define DPH                         dpl
 
 /**
  * Create variable at a certain address, C51 version.
  */
-#define VAR_AT(type, name, addr)	type name _at_ addr
+#define VAR_AT(type, name, addr)    type name _at_ addr
 
 /**
  * Insert global variable address into inline assembler C51 style.
  */
-#define VAR_ASM(name)			name
+#define VAR_ASM(name)               name
 
 #else
 #error Assembly code for the current compiler missing
@@ -108,72 +108,72 @@
 /**
  * XC878-16FF code page that has the Boot ROM and XRAM mapped into it.
  */
-#define PAGE_RAM		2
+#define PAGE_RAM                    2
 
 /**
  * XC878-16FF code page that has the flash.
  */
-#define PAGE_FLASH		0
+#define PAGE_FLASH                  0
 
 /**
  * XC878-16FF start address of the P-Flash.
  */
-#define ADDR_PFLASH		0x0000
+#define ADDR_PFLASH                 0x0000
 
 /**
  * XC878-16FF length of the P-Flash.
  */
-#define LEN_PFLASH		(60u << 10)
+#define LEN_PFLASH                  (60u << 10)
 
 /**
  * XC878-16FF the number of bytes in a P-Flash page.
  */
-#define BYTES_PAGE_PFLASH	(1 << 9)
+#define BYTES_PAGE_PFLASH           (1 << 9)
 
 /**
  * XC878-16FF the number of bytes in a P-Flash wordline.
  */
-#define BYTES_WORDLINE_PFLASH	(1 << 6)
+#define BYTES_WORDLINE_PFLASH       (1 << 6)
 
 /**
  * XC878-16FF start address of the D-Flash.
  */
-#define ADDR_DFLASH		0xF000
+#define ADDR_DFLASH                 0xF000
 
 /**
  * XC878-16FF length of the D-Flash.
  */
-#define LEN_DFLASH		(4u << 10)
+#define LEN_DFLASH                  (4u << 10)
 
 /**
  * XC878-16FF the number of bytes in a D-Flash page.
  */
-#define BYTES_PAGE_DFLASH	(1 << 6)
+#define BYTES_PAGE_DFLASH           (1 << 6)
 
 /**
  * XC878-16FF ld() of the number of bytes in a D-Flash wordline.
  */
-#define BYTES_WORDLINE_DFLASH	(1 << 5)
+#define BYTES_WORDLINE_DFLASH       (1 << 5)
 
 /**
  * XC878-16FF start address of the Boot ROM.
  */
-#define ADDR_ROM		0xC000
+#define ADDR_ROM                    0xC000
 
 /**
  * XC878-16FF length of the Boot ROM.
  */
-#define LEN_ROM			(8u << 10)
+#define LEN_ROM                     (8u << 10)
 
 /**
  * XC878-16FF start address of the XRAM.
  */
-#define ADDR_XRAM		0xF000
+#define ADDR_XRAM                   0xF000
 
 /**
  * XC878-16FF length of the XRAM.
  */
-#define LEN_XRAM		(3u << 10)
+#define LEN_XRAM                    (3u << 10)
 
 /*
  * XC878-13FF code/flash layout.
@@ -183,72 +183,72 @@
 /**
  * XC878-13FF code page that has the Boot ROM and XRAM mapped into it.
  */
-#define PAGE_RAM		0
+#define PAGE_RAM                    0
 
 /**
  * XC878-13FF code page that has the flash.
  */
-#define PAGE_FLASH		0
+#define PAGE_FLASH                  0
 
 /**
  * XC878-13FF start address of the P-Flash.
  */
-#define ADDR_PFLASH		0x0000
+#define ADDR_PFLASH                 0x0000
 
 /**
  * XC878-13FF length of the P-Flash.
  */
-#define LEN_PFLASH		(48u << 10)
+#define LEN_PFLASH                  (48u << 10)
 
 /**
  * XC878-13FF the number of bytes in a P-Flash page.
  */
-#define BYTES_PAGE_PFLASH	(1 << 9)
+#define BYTES_PAGE_PFLASH           (1 << 9)
 
 /**
  * XC878-13FF the number of bytes in a P-Flash wordline.
  */
-#define BYTES_WORDLINE_PFLASH	(1 << 6)
+#define BYTES_WORDLINE_PFLASH       (1 << 6)
 
 /**
  * XC878-13FF start address of the D-Flash.
  */
-#define ADDR_DFLASH		((ubyte code *)0xE000)
+#define ADDR_DFLASH                 ((ubyte code *)0xE000)
 
 /**
  * XC878-13FF length of the D-Flash.
  */
-#define LEN_DFLASH		(4u << 10)
+#define LEN_DFLASH                  (4u << 10)
 
 /**
  * XC878-13FF the number of bytes in a D-Flash page.
  */
-#define BYTES_PAGE_DFLASH	(1 << 6)
+#define BYTES_PAGE_DFLASH           (1 << 6)
 
 /**
  * XC878-13FF the number of bytes in a D-Flash wordline.
  */
-#define BYTES_WORDLINE_DFLASH	(1 << 5)
+#define BYTES_WORDLINE_DFLASH       (1 << 5)
 
 /**
  * XC878-13FF start address of the Boot ROM.
  */
-#define ADDR_ROM		0xC000
+#define ADDR_ROM                    0xC000
 
 /**
  * XC878-13FF length of the Boot ROM.
  */
-#define LEN_ROM			(8u << 10)
+#define LEN_ROM                     (8u << 10)
 
 /**
  * XC878-13FF start address of the XRAM.
  */
-#define ADDR_XRAM		0xF000
+#define ADDR_XRAM                   0xF000
 
 /**
  * XC878-13FF length of the XRAM.
  */
-#define LEN_XRAM		(3u << 10)
+#define LEN_XRAM                    (3u << 10)
 
 /*
  * Missing code/flash layout.
@@ -265,155 +265,155 @@ VAR_AT(const ubyte code, hsk_flash_dflash[LEN_DFLASH], ADDR_DFLASH);
 /**
  * P-Flash Control Register.
  */
-SFR(FCON,	0xD1);
+SFR(FCON,    0xD1);
 
 /**
  * D-Flash Control Register
  */
-SFR(EECON,	0xD2);
+SFR(EECON,   0xD2);
 
 /**
  * Flash Control and Status Register.
  */
-SFR(FCS,	0xD3);
+SFR(FCS,     0xD3);
 
 /**
  * Flash Error Address Register Low.
  */
-SFR(FEAL,	0xD4);
+SFR(FEAL,    0xD4);
 
 /**
  * Flash Error Address Register High.
  */
-SFR(FEAH,	0xD5);
+SFR(FEAH,    0xD5);
 
 /**
  * Flash Error Address Register Low and High (16 bits).
  */
-SFR16(FEALH,	0xD4);
+SFR16(FEALH, 0xD4);
 
 /**
  * Flash Timer Value Register.
  */
-SFR(FTVAL,	0xD6);
+SFR(FTVAL,   0xD6);
 
 /**
  * Flash Control and Status Register 1.
  */
-SFR(FCS1,	0xDD);
+SFR(FCS1,    0xDD);
 
 /**
  * FCON/EECON Program Bit.
  */
-#define BIT_PROG	0
+#define BIT_PROG                    0
 
 /**
  * FCON/EECON Erase Bit.
  */
-#define BIT_ERASE	1
+#define BIT_ERASE                   1
 
 /**
  * FCON/EECON Mass Erase Bit.
  */
-#define BIT_MAS1	2
+#define BIT_MAS1                    2
 
 /**
  * FCON/EECON Non-Volatile Store Bit.
  */
-#define BIT_NVSTR	3
+#define BIT_NVSTR                   3
 
 /**
  * FCON/EECON Y-Address Enable Bit.
  */
-#define BIT_YE		5
+#define BIT_YE                      5
 
 /**
  * EECON D-Flash Busy Bit.
  */
-#define BIT_EEBSY	6
+#define BIT_EEBSY                   6
 
 /**
  * FCS Flash Timer Enable Bit.
  */
-#define BIT_FTEN	5
+#define BIT_FTEN                    5
 
 /**
  * FCS1 D-Flash Program/Erase Abort bit.
  */
-#define BIT_EEABORT	0
+#define BIT_EEABORT                 0
 
 /**
  * FTVAL Overflow Value bits.
  */
-#define BIT_OFVAL 	0
+#define BIT_OFVAL                   0
 
 /**
  * OFVAL bit count.
  */
-#define CNT_OFVAL	7
+#define CNT_OFVAL                   7
 
 /**
  * FTVAL MODE bit.
  *
  * Controls the flash timer speed.
  *
- * Mode		| Value	| Effect
- * -------------|-------|---------------------------------------------
- * Program	| 0	| 1 count per \f$ CCLK \f$ (24MHz) clock cycle
- * Erase	| 1	| 1 count per \f$ CCLK/2^{12} \f$ clock cycles
+ * | Mode    | Value | Effect
+ * |---------|-------|---------------------------------------------
+ * | Program | 0     | 1 count per \f$ CCLK \f$ (24MHz) clock cycle
+ * | Erase   | 1     | 1 count per \f$ CCLK/2^{12} \f$ clock cycles
  */
-#define BIT_MODE	7
+#define BIT_MODE                    7
 
 /**
  * NMICON Flash Timer NMI Enable bit.
  */
-#define BIT_NMIFLASH	2
+#define BIT_NMIFLASH                2
 
 /**
  * The state to use when nothing is to be done.
  */
-#define STATE_IDLE	0
+#define STATE_IDLE                  0
 
 /**
  * The state to use to kick off a write.
  */
-#define STATE_REQUEST	1
+#define STATE_REQUEST               1
 
 /**
  * The state that decides whether a delete or idle is appropriate.
  */
-#define STATE_DETECT	10
+#define STATE_DETECT                10
 
 /**
  * The state to use when starting to write to the D-Flash.
  */
-#define STATE_WRITE	20
+#define STATE_WRITE                 20
 
 /**
  * The state to use when erasing D-Flash pages.
  */
-#define STATE_DELETE	40
+#define STATE_DELETE                40
 
 /**
  * The state to use when mass erasing the D-Flash.
  */
-#define STATE_RESET	60
+#define STATE_RESET                 60
 
 /**
  * The block indicated \ref hsk_flash.latest is available for writing.
  */
-#define FREE_LATEST	0
+#define FREE_LATEST                 0
 
 /**
  * The block behind the block indicated by \ref hsk_flash.latest is available
  * for writing.
  */
-#define FREE_BEHIND	1
+#define FREE_BEHIND                 1
 
 /**
  * There is no block available for writing.
  */
-#define FREE_NONE	2
+#define FREE_NONE                   2
 
 /** \var hsk_flash
  * Holds the persistence configuration.
@@ -448,9 +448,9 @@ volatile struct {
 	 * This byte indicates where free space can be found in the D-Flash.
 	 *
 	 * Available values are:
-	 *	- \ref FREE_LATEST
-	 *	- \ref FREE_BEHIND
-	 *	- \ref FREE_NONE
+	 * - \ref FREE_LATEST
+	 * - \ref FREE_BEHIND
+	 * - \ref FREE_NONE
 	 */
 	ubyte free;
 
@@ -492,8 +492,8 @@ volatile ubyte xdata * xdata hsk_flash_xdataDptr;
  * task.
  *
  * @see
- * 	Section 4.4 <i>Flash Memory</i> - <i>Operating Modes</i> from the
- * 	XC8787 reference manual:
+ *	Section 4.4 <i>Flash Memory</i> - <i>Operating Modes</i> from the
+ *	XC8787 reference manual:
  *	<a href="../contrib/XC878_um_v1_1.pdf">XC878_um_v1_1.pdf</a>
  * @private
  */
@@ -622,23 +622,23 @@ __asm
 #pragma asm
 #endif
 		; Backup used registers
-		push	psw
-		push	acc
-		push	ar0
+		push    psw
+		push    acc
+		push    ar0
 		; Load hsk_flash_flashDptr into r0, a
-		mov	dptr,#VAR_ASM(hsk_flash_flashDptr)
-		movx	a,@dptr
-		mov	r0,a
-		inc	dptr
-		movx	a,@dptr
+		mov     dptr,#VAR_ASM(hsk_flash_flashDptr)
+		movx    a,@dptr
+		mov     r0,a
+		inc     dptr
+		movx    a,@dptr
 		; Follow hsk_flash_flashDptr
-		mov	DPL,r0
-		mov	DPH,a
+		mov     DPL,r0
+		mov     DPH,a
 		MOVCI
 		; Restore used registers
-		pop	ar0
-		pop	acc
-		pop	psw
+		pop     ar0
+		pop     acc
+		pop     psw
 #ifdef SDCC
 __endasm;
 #elif defined __C51__
@@ -684,38 +684,38 @@ __asm
 #pragma asm
 #endif
 		; Backup used registers
-		push	psw
-		push	acc
-		push	ar2
-		push	ar1
-		push	ar0
+		push    psw
+		push    acc
+		push    ar2
+		push    ar1
+		push    ar0
 		; Load hsk_flash_flashDptr into r0, r1
-		mov	dptr,#VAR_ASM(hsk_flash_flashDptr)
-		movx	a,@dptr
-		mov	r0,a
-		inc	dptr
-		movx	a,@dptr
-		mov	r1,a
+		mov     dptr,#VAR_ASM(hsk_flash_flashDptr)
+		movx    a,@dptr
+		mov     r0,a
+		inc     dptr
+		movx    a,@dptr
+		mov     r1,a
 		; Load hsk_flash_xdataDptr into r2, a
-		mov	dptr,#VAR_ASM(hsk_flash_xdataDptr)
-		movx	a,@dptr
-		mov	r2,a
-		inc	dptr
-		movx	a,@dptr
+		mov     dptr,#VAR_ASM(hsk_flash_xdataDptr)
+		movx    a,@dptr
+		mov     r2,a
+		inc     dptr
+		movx    a,@dptr
 		; Follow hsk_flash_xdataDptr
-		mov	DPL,r2
-		mov	DPH,a
-		movx	a,@dptr
+		mov     DPL,r2
+		mov     DPH,a
+		movx    a,@dptr
 		; Follow hsk_flash_flashDptr
-		mov	DPL,r0
-		mov	DPH,r1
+		mov     DPL,r0
+		mov     DPH,r1
 		MOVCI
 		; Restore used registers
-		pop	ar0
-		pop	ar1
-		pop	ar2
-		pop	acc
-		pop	psw
+		pop     ar0
+		pop     ar1
+		pop     ar2
+		pop     acc
+		pop     psw
 #ifdef SDCC
 __endasm;
 #elif defined __C51__
@@ -802,23 +802,23 @@ __asm
 #pragma asm
 #endif
 		; Backup used registers
-		push	psw
-		push	acc
-		push	ar0
+		push    psw
+		push    acc
+		push    ar0
 		; Load hsk_flash_flashDptr into r0, a
-		mov	dptr,#VAR_ASM(hsk_flash_flashDptr)
-		movx	a,@dptr
-		mov	r0,a
-		inc	dptr
-		movx	a,@dptr
+		mov     dptr,#VAR_ASM(hsk_flash_flashDptr)
+		movx    a,@dptr
+		mov     r0,a
+		inc     dptr
+		movx    a,@dptr
 		; Follow hsk_flash_flashDptr
-		mov	DPL,r0
-		mov	DPH,a
+		mov     DPL,r0
+		mov     DPH,a
 		MOVCI
 		; Restore used registers
-		pop	ar0
-		pop	acc
-		pop	psw
+		pop     ar0
+		pop     acc
+		pop     psw
 #ifdef SDCC
 __endasm;
 #elif defined __C51__
@@ -900,12 +900,12 @@ __asm
 #pragma asm
 #endif
 		; Backup used registers
-		push	psw
+		push    psw
 		; Make a dummy write to the dflash
-		mov	dptr,#VAR_ASM(hsk_flash_dflash)
+		mov     dptr,#VAR_ASM(hsk_flash_dflash)
 		MOVCI
 		; Restore used registers
-		pop	psw
+		pop     psw
 #ifdef SDCC
 __endasm;
 #elif defined __C51__
@@ -993,14 +993,14 @@ ubyte hsk_flash_init(void xdata * const ptr, const uword __xdata size,
 	/* Set up the NMIFLASH ISR. */
 	hsk_isr14.NMIFLASH = &hsk_flash_isr_nmiflash;
 
-	#define ptr		hsk_flash.ptr
-	#define size		hsk_flash.size
-	#define oldest		hsk_flash.oldest
-	#define wrap		hsk_flash.wrap
-	#define latest		hsk_flash.latest
-	#define free		hsk_flash.free
-	#define state		hsk_flash.state
-	#define ident		hsk_flash.ident
+	#define ptr       hsk_flash.ptr
+	#define size      hsk_flash.size
+	#define oldest    hsk_flash.oldest
+	#define wrap      hsk_flash.wrap
+	#define latest    hsk_flash.latest
+	#define free      hsk_flash.free
+	#define state     hsk_flash.state
+	#define ident     hsk_flash.ident
 	/* Find an unused block. */
 	free = FREE_NONE;
 	for (oldest = 0; oldest < wrap; oldest++) {

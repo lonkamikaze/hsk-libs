@@ -32,51 +32,51 @@
 /**
  * EXICON0/1 External Interrupt Trigger Select bit count.
  */
-#define CNT_EXINT	2
+#define CNT_EXINT          2
 
 /**
  * EXICON0 External Interrupt 0 Trigger Select bits.
  */
-#define BIT_EXINT0	0
+#define BIT_EXINT0         0
 
 /**
  * EXICON0 External Interrupt 1 Trigger Select bits.
  */
-#define BIT_EXINT1	2
+#define BIT_EXINT1         2
 
 /**
  * EXICON0 External Interrupt 2 Trigger Select bits.
  */
-#define BIT_EXINT2	4
+#define BIT_EXINT2         4
 
 /**
  * EXICON0 External Interrupt 3 Trigger Select bits.
  */
-#define BIT_EXINT3	6
+#define BIT_EXINT3         6
 
 /**
  * EXICON1 External Interrupt 4 Trigger Select bits.
  */
-#define BIT_EXINT4	0
+#define BIT_EXINT4         0
 
 /**
  * EXICON1 External Interrupt 5 Trigger Select bits.
  */
-#define BIT_EXINT5	2
+#define BIT_EXINT5         2
 
 /**
  * EXICON1 External Interrupt 6 Trigger Select bits.
  */
-#define BIT_EXINT6	4
+#define BIT_EXINT6         4
 
 /**
  * SYSCON0 Interrupt Structure 2 Mode Select bit.
  */
-#define BIT_IMODE	4
+#define BIT_IMODE          4
 
 void hsk_ex_channel_enable(const hsk_ex_channel channel,
-		const ubyte edge,
-		const void (code * const callback)(void) using(1)) {
+                           const ubyte edge,
+                           const void (code * const callback)(void) using(1)) {
 
 	/**
 	 * Setting up EXINT0/1 is somewhat confusing. Refer to UM 1.1 section
@@ -150,7 +150,7 @@ void hsk_ex_channel_enable(const hsk_ex_channel channel,
 /**
  * Deactivate external interrupt.
  */
-#define EX_EDGE_DISABLE		3
+#define EX_EDGE_DISABLE    3
 
 /**
  * @}
@@ -245,8 +245,8 @@ void hsk_ex_port_open(const hsk_ex_port port) {
 	/*
 	 * Select input port.
 	 */
-	#define modpiselBit	hsk_ex_ports[port].modpiselBit
-	#define modpiselSel	hsk_ex_ports[port].modpiselSel
+	#define modpiselBit    hsk_ex_ports[port].modpiselBit
+	#define modpiselSel    hsk_ex_ports[port].modpiselSel
 	switch (port) {
 	case EX_EXINT0_P05:
 	case EX_EXINT0_P14:
@@ -291,8 +291,8 @@ void hsk_ex_port_open(const hsk_ex_port port) {
 	/*
 	 * Activate input port.
 	 */
-	#define portBit		hsk_ex_ports[port].portBit
-	#define portAltsel	hsk_ex_ports[port].portAltsel
+	#define portBit        hsk_ex_ports[port].portBit
+	#define portAltsel     hsk_ex_ports[port].portAltsel
 	switch (port) {
 	case EX_EXINT0_P05:
 		P0_DIR &= ~(1 << portBit);
@@ -362,7 +362,7 @@ void hsk_ex_port_close(const hsk_ex_port port) {
 	/*
 	 * Deactivate input port.
 	 */
-	#define portBit		hsk_ex_ports[port].portBit
+	#define portBit        hsk_ex_ports[port].portBit
 	switch (port) {
 	case EX_EXINT0_P05:
 		P0_DIR &= ~(1 << portBit);

@@ -46,22 +46,22 @@ struct {
 /**
  * SYSCON0 Special Function Register Map Control bit.
  */
-#define BIT_RMAP	0
+#define BIT_RMAP       0
 
 /**
  * IRCON1 Error Interrupt Flag for SSC bit.
  */
-#define BIT_EIR		0
+#define BIT_EIR        0
 
 /**
  * IRCON1 Transmit Interrupt Flag for SSC bit.
  */
-#define BIT_TIR		1
+#define BIT_TIR        1
 
 /**
  * IRCON1 Receive Interrupt Flag for SSC bit.
  */
-#define BIT_RIR		2
+#define BIT_RIR        2
 
 /**
  * Transmit and receive interrupt.
@@ -96,27 +96,27 @@ void ISR_hsk_ssc(void) interrupt 7 using 1 {
 /**
  * PMCON1 Disable Request bit.
  */
-#define BIT_SSC_DIS	1
+#define BIT_SSC_DIS    1
 
 /**
  * SSC_CONH_P Master Select bit.
  */
-#define BIT_MS		6
+#define BIT_MS         6
 
 /**
  * MODIEN Error Interrupt Enable Bit for SSC.
  */
-#define BIT_EIREN	0
+#define BIT_EIREN      0
 
 /**
  * MODIEN Transmit Interrupt Enable Bit for SSC.
  */
-#define BIT_TIREN	1
+#define BIT_TIREN      1
 
 /**
  * MODIEN Receive Interrupt Enable Bit for SSC.
  */
-#define BIT_RIREN	2
+#define BIT_RIREN      2
 
 void hsk_ssc_init(const uword baud, const ubyte config, const bool mode) {
 	/* Power the SSC module. */
@@ -144,29 +144,29 @@ void hsk_ssc_init(const uword baud, const ubyte config, const bool mode) {
 /**
  * MODPISEL3 Master Mode Input Select bits.
  */
-#define BIT_MIS		0
+#define BIT_MIS        0
 
 /**
  * MODPISEL3 Slave Mode Input Select bits.
  */
-#define BIT_SIS		2
+#define BIT_SIS        2
 
 /**
  * MODPISEL3 Slave Mode Clock Input Select bits.
  */
-#define BIT_CIS		4
+#define BIT_CIS        4
 
 /**
  * Input Select bit count.
  */
-#define CNT_SEL		2
+#define CNT_SEL        2
 
 /**
  * SSC_CONL Loop Back Control bit.
  *
  * Half-duplex mode when set.
  */
-#define BIT_LB		7
+#define BIT_LB         7
 
 void hsk_ssc_ports(const ubyte ports) {
 	bool master = (((SSC_CONH_P >> BIT_MS) & 1) == SSC_MASTER);
@@ -278,7 +278,7 @@ void hsk_ssc_talk(char xdata * buffer, ubyte len) {
 /**
  * SSC_CONH_O Enable Bit.
  */
-#define BIT_EN		7
+#define BIT_EN         7
 
 void hsk_ssc_enable() {
 	/* Turn the power on. */

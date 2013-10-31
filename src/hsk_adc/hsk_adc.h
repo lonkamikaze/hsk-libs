@@ -38,12 +38,12 @@
 /**
  * 10 bit ADC resolution.
  */
-#define ADC_RESOLUTION_10	0
+#define ADC_RESOLUTION_10    0
 
 /**
  * 8 bit ADC resultion.
  */
-#define ADC_RESOLUTION_8	1
+#define ADC_RESOLUTION_8     1
 
 /**
  * Typedef for ADC channel ids.
@@ -88,7 +88,7 @@ void hsk_adc_disable(void);
  * @deprecated
  *	Use hsk_adc_open10() or hsk_adc_open8() as appropriate
  */
-#define hsk_adc_open	hsk_adc_open10
+#define hsk_adc_open         hsk_adc_open10
 
 /**
  * Open the given ADC channel in 10 bit mode.
@@ -160,7 +160,7 @@ bool hsk_adc_request(const hsk_adc_channel channel);
  * @deprecated
  *	Use hsk_adc_warmup10()
  */
-#define hsk_adc_warmup	hsk_adc_warmup10
+#define hsk_adc_warmup       hsk_adc_warmup10
 
 /**
  * Warm up 10 bit AD conversion.

@@ -44,49 +44,49 @@ typedef ubyte hsk_ex_channel;
  *
  * Mask with EA, disable with EX0.
  */
-#define EX_EXINT0	0
+#define EX_EXINT0          0
 
 /**
  * External interrupt channel EXINT1.
  *
  * Mask with EA, disable with EX1.
  */
-#define EX_EXINT1	1
+#define EX_EXINT1          1
 
 /**
  * External interrupt channel EXINT2.
  *
  * Mask with EX2.
  */
-#define EX_EXINT2	2
+#define EX_EXINT2          2
 
 /**
  * External interrupt channel EXINT3.
  *
  * Mask with EXM.
  */
-#define EX_EXINT3	3
+#define EX_EXINT3          3
 
 /**
  * External interrupt channel EXINT4.
  *
  * Mask with EXM.
  */
-#define EX_EXINT4	4
+#define EX_EXINT4          4
 
 /**
  * External interrupt channel EXINT5.
  *
  * Mask with EXM.
  */
-#define EX_EXINT5	5
+#define EX_EXINT5          5
 
 /**
  * External interrupt channel EXINT6.
  *
  * Mask with EXM.
  */
-#define EX_EXINT6	6
+#define EX_EXINT6          6
 
 /**
  * @}
@@ -103,17 +103,17 @@ typedef ubyte hsk_ex_channel;
 /**
  * Trigger interrupt on rising edge.
  */
-#define EX_EDGE_RISING	0
+#define EX_EDGE_RISING     0
 
 /**
  * Trigger interrupt on falling edge.
  */
-#define EX_EDGE_FALLING	1
+#define EX_EDGE_FALLING    1
 
 /**
  * Trigger interrupt on both edges.
  */
-#define EX_EDGE_BOTH	2
+#define EX_EDGE_BOTH       2
 
 /**
  * @}
@@ -137,8 +137,8 @@ typedef ubyte hsk_ex_channel;
  *	The callback function for an interrupt event
  */
 void hsk_ex_channel_enable(const hsk_ex_channel channel,
-	const ubyte edge,
-	const void (code * const callback)(void) using(1));
+                           const ubyte edge,
+                           const void (code * const callback)(void) using(1));
 
 /**
  * Disables an external interrupt channel.
@@ -165,117 +165,117 @@ typedef ubyte hsk_ex_port;
 /**
  * External interrupt EXINT0 input port P0.5.
  */
-#define EX_EXINT0_P05	0
+#define EX_EXINT0_P05      0
 
 /**
  * External interrupt EXINT3 input port P1.1.
  */
-#define EX_EXINT3_P11	1
+#define EX_EXINT3_P11      1
 
 /**
  * External interrupt EXINT0 input port P1.4.
  */
-#define EX_EXINT0_P14	2
+#define EX_EXINT0_P14      2
 
 /**
  * External interrupt EXINT5 input port P1.5.
  */
-#define EX_EXINT5_P15	3
+#define EX_EXINT5_P15      3
 
 /**
  * External interrupt EXINT6 input port P1.6.
  */
-#define EX_EXINT6_P16	4
+#define EX_EXINT6_P16      4
 
 /**
  * External interrupt EXINT3 input port P3.0.
  */
-#define EX_EXINT3_P30	5
+#define EX_EXINT3_P30      5
 
 /**
  * External interrupt EXINT4 input port P3.2.
  */
-#define EX_EXINT4_P32	6
+#define EX_EXINT4_P32      6
 
 /**
  * External interrupt EXINT5 input port P3.3.
  */
-#define EX_EXINT5_P33	7
+#define EX_EXINT5_P33      7
 
 /**
  * External interrupt EXINT6 input port P3.4.
  */
-#define EX_EXINT6_P34	8
+#define EX_EXINT6_P34      8
 
 /**
  * External interrupt EXINT4 input port P3.7.
  */
-#define EX_EXINT4_P37	9
+#define EX_EXINT4_P37      9
 
 /**
  * External interrupt EXINT3 input port P4.0.
  */
-#define EX_EXINT3_P40	10
+#define EX_EXINT3_P40      10
 
 /**
  * External interrupt EXINT4 input port P4.1.
  */
-#define EX_EXINT4_P41	11
+#define EX_EXINT4_P41      11
 
 /**
  * External interrupt EXINT6 input port P4.2.
  */
-#define EX_EXINT6_P42	12
+#define EX_EXINT6_P42      12
 
 /**
  * External interrupt EXINT5 input port P4.4.
  */
-#define EX_EXINT5_P44	13
+#define EX_EXINT5_P44      13
 
 /**
  * External interrupt EXINT6 input port P4.5.
  */
-#define EX_EXINT6_P45	14
+#define EX_EXINT6_P45      14
 
 /**
  * External interrupt EXINT1 input port P5.0.
  */
-#define EX_EXINT1_P50	15
+#define EX_EXINT1_P50      15
 
 /**
  * External interrupt EXINT2 input port P5.1.
  */
-#define EX_EXINT2_P51	16
+#define EX_EXINT2_P51      16
 
 /**
  * External interrupt EXINT5 input port P5.2.
  */
-#define EX_EXINT5_P52	17
+#define EX_EXINT5_P52      17
 
 /**
  * External interrupt EXINT1 input port P5.3.
  */
-#define EX_EXINT1_P53	18
+#define EX_EXINT1_P53      18
 
 /**
  * External interrupt EXINT2 input port P5.4.
  */
-#define EX_EXINT2_P54	19
+#define EX_EXINT2_P54      19
 
 /**
  * External interrupt EXINT3 input port P5.5.
  */
-#define EX_EXINT3_P55	20
+#define EX_EXINT3_P55      20
 
 /**
  * External interrupt EXINT4 input port P5.6.
  */
-#define EX_EXINT4_P56	21
+#define EX_EXINT4_P56      21
 
 /**
  * External interrupt EXINT6 input port P5.7.
  */
-#define EX_EXINT6_P57	22
+#define EX_EXINT6_P57      22
 
 /**
  * @}

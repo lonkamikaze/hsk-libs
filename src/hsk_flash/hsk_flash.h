@@ -18,16 +18,16 @@
  * Complete coverage of the D-Flash counts as a single D-Flash cycle. Thus the
  * formula for the expected number of write calls is:
  * \f[
- * 	writes = \lfloor 4096 / sizeof(struct) \rfloor * expectedcycles
+ *	writes = \lfloor 4096 / sizeof(struct) \rfloor * expectedcycles
  * \f]
  *
  * - \c expectedcycles
- * 	- The expected number of possible write cycles
- * 	  depending on the usage scenario in table 20
+ *	- The expected number of possible write cycles
+ *	  depending on the usage scenario in table 20
  * - \c sizeof(struct)
- * 	- The number of bytes the struct covers
+ *	- The number of bytes the struct covers
  * - \c floor()
- * 	- Round down to the next smaller integer
+ *	- Round down to the next smaller integer
  *
  * E.g. to store 20 bytes of configuration data, the struct factory adds 2
  * bytes overhead to be able to check the consistency of written data, so
@@ -122,7 +122,7 @@
  * @param members
  *	Struct member definitions
  */
-#define FLASH_STRUCT_FACTORY(members)	\
+#define FLASH_STRUCT_FACTORY(members) \
 	/**
 	 * This struct is a template for data that can be written to the D-Flash.
 	 * It is created by invoking the \ref FLASH_STRUCT_FACTORY macro.
@@ -156,7 +156,7 @@
  * - The latest flash data is corrupted, may happen in case of power
  *   down during write
  */
-#define FLASH_PWR_FIRST		0
+#define FLASH_PWR_FIRST    0
 
 /**
  * Returned by hsk_flash_init() after booting from a reset without power
@@ -169,7 +169,7 @@
  * that there can be no protection against data corruption, such as might
  * be caused by a software bug like an overflow.
  */
-#define FLASH_PWR_RESET		1
+#define FLASH_PWR_RESET    1
 
 /**
  * Returned by hsk_flash_init() during power on, if valid data was recovered
@@ -179,7 +179,7 @@
  * - Data could not be recovered from \c xdata memory
  * - Valid data was recovered from the D-Flash
  */
-#define FLASH_PWR_ON		2
+#define FLASH_PWR_ON       2
 
 /**
  * Recovers a struct from a previous session and sets everything up for

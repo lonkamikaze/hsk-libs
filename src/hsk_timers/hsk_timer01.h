@@ -48,7 +48,8 @@
  *	A function pointer to a callback function.
  */
 void hsk_timer0_setup(const uword interval,
-	const void (code * const __xdata callback)(void) using(1));
+                      const void (code * const __xdata callback)
+                                 (void) using(1));
 
 /**
  * Enables the timer 0 and its interrupt.
@@ -75,7 +76,8 @@ void hsk_timer0_disable(void);
  *	A function pointer to a callback function.
  */
 void hsk_timer1_setup(const uword interval,
-	const void (code * const __xdata callback)(void) using(1));
+                      const void (code * const __xdata callback)
+                                 (void) using(1));
 
 /**
  * Enables the timer 1 and its interrupt.

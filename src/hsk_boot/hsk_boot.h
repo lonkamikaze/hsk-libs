@@ -4,15 +4,15 @@
  * This file contains the prototypes to put the µC into working condition.
  *
  * Currently implemented:
- *	- hsk_boot_extClock()
- *	  Activates external clock input and sets up the PLL, this
- *	  is important when communicating with other devices, the
- *	  internal clock is not sufficiently precise
+ * - hsk_boot_extClock()
+ *   Activates external clock input and sets up the PLL, this
+ *   is important when communicating with other devices, the
+ *   internal clock is not sufficiently precise
  *
  * Linking this library also automatically causes the following boot actions:
- *	- Deactivate all internal pullup devices
- *	- Activate XDATA access
- *	- Set the PDATA page to the first XDATA block
+ * - Deactivate all internal pullup devices
+ * - Activate XDATA access
+ * - Set the PDATA page to the first XDATA block
  *
  * @author kami
  */
@@ -33,7 +33,7 @@
  * This function requires xdata access.
  *
  * The implemented process is named:
- * 	"Select the External Oscillator as PLL input source"
+ *	"Select the External Oscillator as PLL input source"
  *
  * The following is described in more detail in chapter 7.3 of the XC878
  * User Manual.

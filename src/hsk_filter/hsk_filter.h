@@ -20,10 +20,10 @@
  * Generates a filter.
  *
  * The filter can be accessed with:
- *	- void \<prefix\>_init(void)
- *		- Initializes the filter with 0
- *	- \<valueType\> \<prefix\>_update(const \<valueType\> value)
- *		- Update the filter and return the current average
+ * - void \<prefix\>_init(void)
+ *	- Initializes the filter with 0
+ * - \<valueType\> \<prefix\>_update(const \<valueType\> value)
+ *	- Update the filter and return the current average
  *
  * @param prefix
  *	A prefix for the generated internals and functions
@@ -72,10 +72,10 @@ valueType prefix##_update(const valueType value) { \
  * Generates a group of filters.
  *
  * The filters can be accessed with:
- *	- void \<prefix\>_init(void)
- *		- Initializes all filters with 0
- *	- \<valueType\> \<prefix\>_update(const ubyte filter, const \<valueType\> value)
- *		- Update the given filter and return the current average
+ * - void \<prefix\>_init(void)
+ *	- Initializes all filters with 0
+ * - \<valueType\> \<prefix\>_update(const ubyte filter, const \<valueType\> value)
+ *	- Update the given filter and return the current average
  *
  * @param prefix
  *	A prefix for the generated internals and functions

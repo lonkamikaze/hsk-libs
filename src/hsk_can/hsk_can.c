@@ -11,29 +11,29 @@
  *
  * The MultiCAN module is accessible through 3 registers:
  *
- * | Register	| Function				| Width
- * |------------|---------------------------------------|--------:
- * | CAN_ADCON	| CAN Address/Data Control Register	|  8 bits
- * | CAN_AD	| CAN Address Register			| 16 bits
- * | CAN_DATA	| CAN Data Register			| 32 bits
+ * | Register  | Function                          | Width
+ * |-----------|-----------------------------------|--------:
+ * | CAN_ADCON | CAN Address/Data Control Register |  8 bits
+ * | CAN_AD    | CAN Address Register              | 16 bits
+ * | CAN_DATA  | CAN Data Register                 | 32 bits
  *
  * These registers give access to a bus. CAN_ADCON is used to control
  * bus (e.g. write or read), everything else is done by writing
  * the desired MultiCAN address into the CAN_AD register. The desired
  * MultiCAN register is then accessible through the CAN_DATA register.
  *
- * | Register	| Representation	| Bits	| Starting
- * |------------|-----------------------|------:|---------:
- * | CAN_ADCON	| CAN_ADCON		|  8	|  0
- * | CAN_AD	| CAN_ADL		|  8	|  0
- * | 		| CAN_ADH		|  8	|  8
- * | 		| CAN_ADLH		| 16	|  0
- * | CAN_DATA	| CAN_DATA0		|  8	|  0
- * | 		| CAN_DATA1		|  8	|  8
- * | 		| CAN_DATA2		|  8	| 16
- * | 		| CAN_DATA3		|  8	| 24
- * | 		| CAN_DATA01		| 16	|  0
- * | 		| CAN_DATA23		| 16	| 16
+ * | Register  | Representation | Bits | Starting
+ * |-----------|----------------|-----:|---------:
+ * | CAN_ADCON | CAN_ADCON      |  8   |  0
+ * | CAN_AD    | CAN_ADL        |  8   |  0
+ * |           | CAN_ADH        |  8   |  8
+ * |           | CAN_ADLH       | 16   |  0
+ * | CAN_DATA  | CAN_DATA0      |  8   |  0
+ * |           | CAN_DATA1      |  8   |  8
+ * |           | CAN_DATA2      |  8   | 16
+ * |           | CAN_DATA3      |  8   | 24
+ * |           | CAN_DATA01     | 16   |  0
+ * |           | CAN_DATA23     | 16   | 16
  *
  * Internally the MultiCAN module has register groups, i.e. a structured set
  * of registers that are repeated for each item having the registers.
@@ -41,12 +41,12 @@
  * and each item a fixed offset.
  * Each register for an item is thus addressed by setting:
  * \code
- * 	CAN_ADLH = REGISTER + ITEM_OFFSET
+ * CAN_ADLH = REGISTER + ITEM_OFFSET
  * \endcode
  *
  * The following example points CAN_DATA to the Node 1 Status register:
  * \code
- * 	CAN_ADLH = NSRx + (1 << OFF_NODEx)
+ * CAN_ADLH = NSRx + (1 << OFF_NODEx)
  * \endcode
  */
 
@@ -61,63 +61,63 @@
  *
  * Write is 1.
  */
-#define BIT_RWEN		0
+#define BIT_RWEN               0
 
 /**
  * CAN_ADCON Data Transmission Busy bit.
  */
-#define BIT_BSY			1
+#define BIT_BSY                1
 
 /**
  * CAN_ADCON Auto Increment/Decrement the Address bits.
  */
-#define BIT_AUAD		2
+#define BIT_AUAD               2
 
 /**
  * AUAD auto increment off setting.
  */
-#define AUAD_OFF		(0 << BIT_AUAD)
+#define AUAD_OFF               (0 << BIT_AUAD)
 
 /**
  * AUAD auto increment setting.
  */
-#define AUAD_INC1		(1 << BIT_AUAD)
+#define AUAD_INC1              (1 << BIT_AUAD)
 
 /**
  * AUAD auto decrement setting.
  */
-#define AUAD_DEC1		(2 << BIT_AUAD)
+#define AUAD_DEC1              (2 << BIT_AUAD)
 
 /**
  * AUAD auto increment setting.
  */
-#define AUAD_INC8		(3 << BIT_AUAD)
+#define AUAD_INC8              (3 << BIT_AUAD)
 
 /**
  * CAN_ADCON CAN Data Valid	bits.
  */
-#define	BIT_DATA		4
+#define BIT_DATA               4
 
 /**
  * DATA bit count.
  */
-#define CNT_DATA		4
+#define CNT_DATA               4
 
 /**
  * Sets up the CAN_AD bus for writing.
  *
  * @param msk
- * 	A bit mask representing the data bytes that should be written.
- * 	E.g. 0xC would only write CAN_DATA2 and CAN_DATA3.
+ *	A bit mask representing the data bytes that should be written.
+ *	E.g. 0xC would only write CAN_DATA2 and CAN_DATA3.
  */
-#define CAN_AD_WRITE(msk)	CAN_ADCON = (1 << BIT_RWEN) | ((msk) << BIT_DATA)
+#define CAN_AD_WRITE(msk)      CAN_ADCON = (1 << BIT_RWEN) | ((msk) << BIT_DATA)
 
 /**
  * Sets up the CAN_AD bus for reading.
  *
  * The controller always reads all 4 data bytes.
  */
-#define CAN_AD_READ()		CAN_ADCON = 0
+#define CAN_AD_READ()          CAN_ADCON = 0
 
 /**
  * Make sure the last read/write has completed.
@@ -126,146 +126,146 @@
  * CAN_ADCON, but tests show that the busy flag is never set if the
  * module runs at 2 times PCLK, which is what this library does.
  */
-#define CAN_AD_READY()		while (CAN_ADCON & (1 << BIT_BSY))
+#define CAN_AD_READY()         while (CAN_ADCON & (1 << BIT_BSY))
 
 /**
  * CMCON MultiCAN Clock Configuration bit.
  *
  * Used to select PCLK * 2 (1) or PCKL (0) to drive the MultiCAN module.
  */
-#define	BIT_FCCFG		4
+#define BIT_FCCFG              4
 
 /**
  * The ld() of the List Register (LISTm) m offset factor.
  */
-#define OFF_LISTm		0
+#define OFF_LISTm              0
 
 /**
  * The ld() of the Message Index Register k offset factor.
  */
-#define OFF_MSIDk		0
+#define OFF_MSIDk              0
 
 /**
  * The ld() of the Message Pending Register k offset factor.
  */
-#define OFF_MSPNDk		0
+#define OFF_MSPNDk             0
 
 /**
  * The ld() of the Node Register x offset factor.
  */
-#define OFF_NODEx		6
+#define OFF_NODEx              6
 
 /**
  * The ld() of the Message Object n offset factor.
  */
-#define OFF_MOn			3
+#define OFF_MOn                3
 
 /**
  * Node x Control Register base address.
  */
-#define NCRx			0x0080
+#define NCRx                   0x0080
 
 /**
  * Node x Status Register base address.
  */
-#define NSRx			0x0081
+#define NSRx                   0x0081
 
 /**
  * Node x Interrupt Pointer Register base address.
  */
-#define NIPRx			0x0082
+#define NIPRx                  0x0082
 
 /**
  * Node x Port Control Register	base address.
  */
-#define NPCRx			0x0083
+#define NPCRx                  0x0083
 
 /**
  * Node x Bit Timing Register base address.
  */
-#define NBTRx			0x0084
+#define NBTRx                  0x0084
 
 /**
  * Node x Error Counter Register base address.
  */
-#define NECNTx			0x0085
+#define NECNTx                 0x0085
 
 /**
  * Node x Frame Counter Register base address.
  */
-#define NFCRx			0x0086
+#define NFCRx                  0x0086
 
 /**
  * CAN NCRx Node Initialization bit.
  */
-#define BIT_INIT		0
+#define BIT_INIT               0
 
 /**
  * CAN NCRx Transfer Interrupt Enable bit.
  */
-#define BIT_TRIE		1
+#define BIT_TRIE               1
 
 /**
  * CAN NCRx LEC Indicated Error Interrupt Enable bit.
  */
-#define BIT_LECIE		2
+#define BIT_LECIE              2
 
 /**
  * CAN NCRx Alert Interrupt Enable bit.
  */
-#define BIT_ALIE		3
+#define BIT_ALIE               3
 
 /**
  * CAN NCRx CAN Disable
  *
  * Can be used for a complete shutdown of a CAN node.
  */
-#define BIT_CANDIS		4
+#define BIT_CANDIS             4
 
 /**
  * CAN NCRx Configuration Change Enable bit.
  */
-#define BIT_CCE			6
+#define BIT_CCE                6
 
 /**
  * CAN NCRx CAN Analyze Mode bit.
  */
-#define BIT_CALM		7
+#define BIT_CALM               7
 
 /**
  * NBTRx Baud Rate Prescaler bits.
  */
-#define BIT_BRP			0
+#define BIT_BRP                0
 
 /**
  * NBTRx (Re) Synchronization Jump Width bits.
  */
-#define BIT_SJW			6
+#define BIT_SJW                6
 
 /**
  * NBTRx Time Segment Before Sample Point bits.
  */
-#define BIT_TSEG1		8
+#define BIT_TSEG1              8
 
 /**
  * NBTRx Time Segment After Sample Point bits.
  */
-#define BIT_TSEG2		12
+#define BIT_TSEG2              12
 
 /**
  * NBTRx Divide Prescaler Clock by 8 bit.
  */
-#define BIT_DIV8		15
+#define BIT_DIV8               15
 
 /**
  * NPCRx Receive Select bit.
  */
-#define BIT_RXSEL		0
+#define BIT_RXSEL              0
 
 /**
  * RXSEL bit count.
  */
-#define CNT_RXSEL		3
+#define CNT_RXSEL              3
 
 /**
  * Stores whether common initialization has been performed.
@@ -277,51 +277,52 @@ bool hsk_can_initialized = 0;
  *
  * All list manipulations are performed here.
  */
-#define PANCTR			0x0071
+#define PANCTR                 0x0071
 
 /**
  * PANCTR Command Register.
  */
-#define PANCMD			CAN_DATA0
+#define PANCMD                 CAN_DATA0
 
 /**
  * PANCTR Status Register.
  */
-#define	PANSTATUS		CAN_DATA1
+#define PANSTATUS              CAN_DATA1
 
 /**
  * PANCTR PANSTATUS Panel Busy Flag bit.
  */
-#define	BIT_BUSY		0
+#define BIT_BUSY               0
 
 /**
  * PANCTR PANSTATUS Result Busy Flag bit.
  */
-#define BIT_RBUSY		1
+#define BIT_RBUSY              1
 
 /**
  * PANCTR Argument 1 Register.
  */
-#define PANAR1			CAN_DATA2
+#define PANAR1                 CAN_DATA2
 
 /**
  * PANCTR Argument 2 Register.
  */
-#define PANAR2			CAN_DATA3
+#define PANAR2                 CAN_DATA3
 
 /**
  * PANCTR PANAR2 Error bit.
  */
-#define BIT_ERR			7
+#define BIT_ERR                7
 
 /**
  * Wait for list operations to complete.
  *
  * Only execute this if CAN_ADLH points to PANCTR.
  */
-#define PANCTR_READY()		do { \
-					CAN_AD_READ(); \
-				} while (PANSTATUS & ((1 << BIT_BUSY) | (1 << BIT_RBUSY)))
+#define PANCTR_READY() \
+	do { \
+		CAN_AD_READ(); \
+	} while (PANSTATUS & ((1 << BIT_BUSY) | (1 << BIT_RBUSY)))
 
 /*
  * Check the MultiCAN Global Module Registers subsection for details
@@ -331,67 +332,67 @@ bool hsk_can_initialized = 0;
 /**
  * List panel No Operation command.
  */
-#define PAN_CMD_NOP		0x00
+#define PAN_CMD_NOP            0x00
 
 /**
  * List panel Initialize Lists command.
  */
-#define PAN_CMD_INIT		0x01
+#define PAN_CMD_INIT           0x01
 
 /**
  * List panel Static Allocate command.
  */
-#define PAN_CMD_MOVE		0x02
+#define PAN_CMD_MOVE           0x02
 
 /**
  * List panel Dynamic Allocate command.
  */
-#define PAN_CMD_ALLOC		0x03
+#define PAN_CMD_ALLOC          0x03
 
 /**
  * List panel Static Insert Before command.
  */
-#define PAN_CMD_MOVEBEFORE	0x04
+#define PAN_CMD_MOVEBEFORE     0x04
 
 /**
  * List panel Dynamic Insert Before command.
  */
-#define PAN_CMD_ALLOCBEFORE	0x05
+#define PAN_CMD_ALLOCBEFORE    0x05
 
 /**
  * List panel Static Insert Behind command.
  */
-#define PAN_CMD_MOVEBEHIND	0x06
+#define PAN_CMD_MOVEBEHIND     0x06
 
 /**
  * List panel Dynamic Insert Behind command.
  */
-#define PAN_CMD_ALLOCBEHIND	0x07
+#define PAN_CMD_ALLOCBEHIND    0x07
 
 /**
  * The maximum number of message objects.
  */
-#define HSK_CAN_MSG_MAX		32
+#define HSK_CAN_MSG_MAX        32
 
 /**
  * This list holds unallocated message objects.
  */
-#define LIST_UNALLOC		0
+#define LIST_UNALLOC           0
 
 /**
  * These lists hold message objects connected to a CAN node.
  */
-#define LIST_NODEx		1
+#define LIST_NODEx             1
 
 /**
  * This list holds message objects pending assignment to a can node.
  */
-#define LIST_PENDING		3
+#define LIST_PENDING           3
 
 /**
  * PMCON1 CAN Disable Request bit.
  */
-#define BIT_CAN_DIS		5
+#define BIT_CAN_DIS            5
 
 void hsk_can_init(const ubyte pins, const ulong __xdata baud) {
 	/* The node to configure. */
@@ -452,7 +453,7 @@ void hsk_can_init(const ubyte pins, const ulong __xdata baud) {
 	 * <b>Configure the Bit Timing Unit</b>
 	 *
 	 * \note
-	 * 	Careful study of section 16.1.3 "CAN Node Control" of the
+	 *	Careful study of section 16.1.3 "CAN Node Control" of the
 	 *	<a href="../contrib/XC878_um_v1_1.pdf">XC878 Reference Manual</a>
 	 *	is advised before changing the following code.
 	 *
@@ -484,7 +485,7 @@ void hsk_can_init(const ubyte pins, const ulong __xdata baud) {
 	 *
 	 * This means one bit requires 12 cycles. The BRP bits can be
 	 * used to achieve the desired baud rate:
-	 * 	\f[ baud = 48000000 / 12 / BRP \f]
+	 *	\f[ baud = 48000000 / 12 / BRP \f]
 	 *	\f[ BRP = 48000000 / 12 / baud \f]
 	 *
 	 * The encoding of BRT is also VALUE+1.
@@ -501,7 +502,7 @@ void hsk_can_init(const ubyte pins, const ulong __xdata baud) {
 	 * to node 0 and three to node 1.
 	 *
 	 * @see
-	 * 	Section 16.1.11 "MultiCAN Port Control" of the
+	 *	Section 16.1.11 "MultiCAN Port Control" of the
 	 *	<a href="../contrib/XC878_um_v1_1.pdf">XC878 Reference Manual</a>
 	 */
 
@@ -647,36 +648,36 @@ ubyte hsk_can_status(const hsk_can_node node, const ubyte field) {
 /**
  * Message Object n Function Control Register base address.
  */
-#define MOFCRn		0x0400
+#define MOFCRn                 0x0400
 
 /**
  * Message Object n FIFO/Gateway Pointer Register base address.
  */
-#define MOFGPRn		0x0401
+#define MOFGPRn                0x0401
 
 /**
  * Message Object n Acceptance Mask Register base address.
  */
-#define MOAMRn		0x0403
+#define MOAMRn                 0x0403
 /**
  * Message Object n Data Register Low base address.
  */
-#define MODATALn	0x0404
+#define MODATALn               0x0404
 
 /**
  * Message Object n Data Register High base address.
  */
-#define	MODATAHn	0x0405
+#define MODATAHn               0x0405
 
 /**
  * Message Object n Arbitration Register base address.
  */
-#define MOARn		0x0406
+#define MOARn                  0x0406
 
 /**
  * Message Object n Control Register base address.
  */
-#define MOCTRn		0x0407
+#define MOCTRn                 0x0407
 
 /**
  * Message Object n Status Register base address.
@@ -684,186 +685,186 @@ ubyte hsk_can_status(const hsk_can_node node, const ubyte field) {
  * The status register is at the same address as the control register.
  * It is accessed by reading from the address instead of writing.
  */
-#define MOSTATn		MOCTRn
+#define MOSTATn                MOCTRn
 
 /**
  * The register to write Control Register resets into.
  */
-#define RESET_DATA	CAN_DATA01
+#define RESET_DATA             CAN_DATA01
 
 /**
  * The register to write Control Register settings into.
  */
-#define SET_DATA	CAN_DATA23
+#define SET_DATA               CAN_DATA23
 
 /**
  * Bit mask for writing resets.
  */
-#define RESET			0x3
+#define RESET                  0x3
 
 /**
  * Bit mask for writing settings.
  */
-#define SET			0xC
+#define SET                    0xC
 
 /**
  * MOCTRn/MOSTATn Receive Pending bit.
  */
-#define BIT_RXPND		0
+#define BIT_RXPND              0
 
 /**
  * MOCTRn/MOSTATn Transmit Pending bit.
  */
-#define BIT_TXPND		1
+#define BIT_TXPND              1
 
 /**
  * MOCTRn/MOSTATn Receive Updating bit.
  */
-#define BIT_RXUPD		2
+#define BIT_RXUPD              2
 
 /**
  * MOCTRn/MOSTATn New Data bit.
  */
-#define BIT_NEWDAT		3
+#define BIT_NEWDAT             3
 
 /**
  * MOCTRn/MOSTATn Message Valid bit.
  */
-#define BIT_MSGVAL		5
+#define BIT_MSGVAL             5
 
 /**
  * MOCTRn/MOSTATn Receive Signal Enable bit.
  */
-#define	BIT_RXEN		7
+#define BIT_RXEN               7
 
 /**
  * MOCTRn/MOSTATn Transmit Signal Request bit.
  */
-#define BIT_TXRQ		8
+#define BIT_TXRQ               8
 
 /**
  * MOCTRn/MOSTATn Transmit Signal Enable bit.
  */
-#define BIT_TXEN0		9
+#define BIT_TXEN0              9
 
 /**
  * MOCTRn/MOSTATn Transmit Signal Enable Select bit.
  */
-#define BIT_TXEN1		10
+#define BIT_TXEN1              10
 
 /**
  * MOCTRn Direction bit.
  *
  * Set this to 1 for TX, this was figured out by trial and error.
  */
-#define BIT_DIR			11
+#define BIT_DIR                11
 
 /**
  * MOAMRn Acceptance Mask for Message Identifier bits.
  */
-#define BIT_AM			0
+#define BIT_AM                 0
 
 /**
  * AM bit count.
  */
-#define CNT_AM			29
+#define CNT_AM                 29
 
 /**
  * MOAMRn Acceptance Mask Bit for Message IDE Bit.
  */
-#define BIT_MIDE		29
+#define BIT_MIDE               29
 
 /**
  * MOFCRn Data Length Code bits in byte 3.
  *
  * Valid DLC values range from 0 to 8.
  */
-#define BIT_DLC			0
+#define BIT_DLC                0
 
 /**
  * DLC bit count.
  */
-#define CNT_DLC			4
+#define CNT_DLC                4
 
 /**
  * MOFCRn Message Mode Control bits in byte 0.
  */
-#define BIT_MMC			0
+#define BIT_MMC                0
 
 /**
  * MMC bit count.
  */
-#define CNT_MMC			4
+#define CNT_MMC                4
 
 /**
  * Regular message mode.
  */
-#define MMC_DEFAULT		0
+#define MMC_DEFAULT            0
 
 /**
  * Message is the base of an RX FIFO.
  */
-#define MMC_RXBASEFIFO		1
+#define MMC_RXBASEFIFO         1
 
 /**
  * Message is the base of a TX FIFO.
  */
-#define MMC_TXBASEFIFO		2
+#define MMC_TXBASEFIFO         2
 
 /**
  * Message is a TX FIFO slave.
  */
-#define MMC_TXSLAVEFIFO		3
+#define MMC_TXSLAVEFIFO        3
 
 /**
  * Message is a source object for a gateway.
  */
-#define MMC_GATEWAYSRC		4
+#define MMC_GATEWAYSRC         4
 
 /**
  * MOARn Extended CAN Identifier of Message Object n bits.
  */
-#define BIT_IDEXT		0
+#define BIT_IDEXT              0
 
 /**
  * ID bit count.
  */
-#define CNT_IDEXT		29
+#define CNT_IDEXT              29
 
 /**
  * MOARn Standard CAN Identifier of Message Object n bits.
  */
-#define BIT_IDSTD		18
+#define BIT_IDSTD              18
 
 /**
  * ID bit count.
  */
-#define CNT_IDSTD		11
+#define CNT_IDSTD              11
 
 /**
  * MOARn Identifier Extension Bit of Message Object n.
  */
-#define BIT_IDE			29
+#define BIT_IDE                29
 
 /**
  * MOARn Priority Class bits.
  */
-#define BIT_PRI			30
+#define BIT_PRI                30
 
 /**
  * PRI bit count.
  */
-#define CNT_PRI			2
+#define CNT_PRI                2
 
 /**
  * List order based transmit priority.
  */
-#define PRI_LIST		1
+#define PRI_LIST               1
 
 /**
  * CAN ID based transmit priority.
  */
-#define PRI_ID			2
+#define PRI_ID                 2
 
 hsk_can_msg hsk_can_msg_create(const ulong id, const bool extended,
 		const ubyte dlc) {
@@ -925,45 +926,45 @@ hsk_can_msg hsk_can_msg_create(const ulong id, const bool extended,
 /**
  * MOSTATn List Allocation bits in byte 1.
  */
-#define BIT_LIST		4
+#define BIT_LIST               4
 
 /**
  * LIST bit count.
  */
-#define CNT_LIST		4
+#define CNT_LIST               4
 
 /**
  * MOSTATn Pointer to Next Message Object byte.
  */
-#define MOSTATn_PNEXT		CAN_DATA3
+#define MOSTATn_PNEXT          CAN_DATA3
 
 /**
  * MOFGPRn bottom pointer byte.
  */
-#define MOFGPRn_BOT		CAN_DATA0
+#define MOFGPRn_BOT            CAN_DATA0
 
 /**
  * MOFGPRn top pointer byte.
  */
-#define MOFGPRn_TOP		CAN_DATA1
+#define MOFGPRn_TOP            CAN_DATA1
 
 /**
  * MOFGPRn current pointer byte.
  */
-#define MOFGPRn_CUR		CAN_DATA2
+#define MOFGPRn_CUR            CAN_DATA2
 
 /**
  * MOFGPRn select pointer byte.
  */
-#define MOFGPRn_SEL		CAN_DATA3
+#define MOFGPRn_SEL            CAN_DATA3
 
 /**
  * Move the selected message and its slaves to a different list.
  *
  * @param msg
- * 	The identifier of the message object
+ *	The identifier of the message object
  * @param list
- * 	The list to move the message object to
+ *	The list to move the message object to
  * @retval CAN_ERROR
  *	The given message object id is not valid
  * @retval 0
@@ -1301,9 +1302,9 @@ void hsk_can_fifo_setRxMask(const hsk_can_fifo fifo, ulong msk) {
  * Move the selected FIFO to a different list.
  *
  * @param fifo
- * 	The identifier of the FIFO
+ *	The identifier of the FIFO
  * @param list
- * 	The list to move the FIFO to
+ *	The list to move the FIFO to
  * @retval CAN_ERROR
  *	The given FIFO id is not valid
  * @retval 0
@@ -1448,13 +1449,13 @@ ulong hsk_can_fifo_getId(const hsk_can_fifo fifo) {
  * Sets a signal value in a data field.
  *
  * @param msg
- * 	The message data field to write into
+ *	The message data field to write into
  * @param bitPos
- * 	The bit position of the signal
+ *	The bit position of the signal
  * @param bitCount
- * 	The length of the signal
+ *	The length of the signal
  * @param value
- * 	The signal value to write into the data field
+ *	The signal value to write into the data field
  * @private
  */
 void hsk_can_data_setIntelSignal(ubyte * const msg,
@@ -1484,7 +1485,7 @@ void hsk_can_data_setIntelSignal(ubyte * const msg,
  * significant bit of a signal. Consider a 10 bit message, the bits are
  * indexed:
  * \code
- * 	 9  8  7  6  5  4  3  2  1  0
+ * 9  8  7  6  5  4  3  2  1  0
  * \endcode
  *
  * In that example bit 9 is the most significant bit, bit 0 the least
@@ -1493,8 +1494,8 @@ void hsk_can_data_setIntelSignal(ubyte * const msg,
  * the start bit is 2, the message would be stored in the following
  * bits:
  * \code
- *	Signal	 9  8  7  6  5  4  3  2  1  0
- * 	Message	 2  1  0 15 14 13 12 11 10  9
+ * Signal  9  8  7  6  5  4  3  2  1  0
+ * Message 2  1  0 15 14 13 12 11 10  9
  * \endcode
  *
  * Note that the signal spreads to the most significant bits of the next
@@ -1502,18 +1503,18 @@ void hsk_can_data_setIntelSignal(ubyte * const msg,
  * signals. A 10 bit little endian signal with start bit 2 would cover the
  * following message bits:
  * \code
- *	Signal	 9  8  7  6  5  4  3  2  1  0
- *	Message 11 10  9  8  7  6  5  4  3  2
+ * Signal   9  8  7  6  5  4  3  2  1  0
+ * Message 11 10  9  8  7  6  5  4  3  2
  * \endcode
  *
  * @param msg
- * 	The message data field to write into
+ *	The message data field to write into
  * @param bitPos
- * 	The bit position of the signal
+ *	The bit position of the signal
  * @param bitCount
- * 	The length of the signal
+ *	The length of the signal
  * @param value
- * 	The signal value to write into the data field
+ *	The signal value to write into the data field
  * @private
  */
 void hsk_can_data_setMotorolaSignal(ubyte * const msg,
@@ -1524,7 +1525,7 @@ void hsk_can_data_setMotorolaSignal(ubyte * const msg,
 		/* Get the number of bits to work on. */
 		bits = bitPos % 8 + 1;
 		bits = bits < bitCount ? bits : bitCount;
-		/*  Clear the bits to write. */
+		/* Clear the bits to write. */
 		msg[bitPos / 8] &= ~(((1 << bits) - 1) << (bitPos % 8 + 1 - bits));
 		/* Set the bits to write. */
 		msg[bitPos / 8] |= (((1 << bitCount) - 1) & value) >> (bitCount - bits) << (bitPos % 8 + 1 - bits);
@@ -1559,13 +1560,13 @@ void hsk_can_data_setSignal(ubyte * const msg, const bool endian,
  * Get a little endian signal value from a data field.
  *
  * @param msg
- * 	The message data field to read from
+ *	The message data field to read from
  * @param sign
  *	Indicates whether the value has a signed type
  * @param bitPos
- * 	The bit position of the signal
+ *	The bit position of the signal
  * @param bitCount
- * 	The length of the signal
+ *	The length of the signal
  * @return
  *	The signal from the data field msg
  * @private
@@ -1595,13 +1596,13 @@ ulong hsk_can_data_getIntelSignal(const ubyte * const msg,
  * @see hsk_can_data_setMotorolaSignal()
  *	For details on the difference between big and little endian
  * @param msg
- * 	The message data field to read from
+ *	The message data field to read from
  * @param sign
  *	Indicates whether the value has a signed type
  * @param bitPos
- * 	The bit position of the signal
+ *	The bit position of the signal
  * @param bitCount
- * 	The length of the signal
+ *	The length of the signal
  * @return
  *	The signal from the data field msg
  * @private

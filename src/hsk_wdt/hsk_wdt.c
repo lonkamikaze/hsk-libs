@@ -25,11 +25,11 @@
  *
  * Used to select PCLK/128 instead of PCLK/2.
  */
-#define BIT_WDTIN	0
+#define BIT_WDTIN    0
 
 void hsk_wdt_init(const uword window) {
 	/**
- 	 * The WDT runs at PCLK/2 or PCLK/128, i.e. the WDT low byte WDTL
+	 * The WDT runs at PCLK/2 or PCLK/128, i.e. the WDT low byte WDTL
 	 * overlow occurs either every 21.333µs or every 1365.333ms.
 	 *
 	 * One time unit (10µs) equals 120 PCLK/2 clock ticks. One PCLK/128
@@ -62,7 +62,7 @@ void hsk_wdt_init(const uword window) {
  *
  * This bit is protected.
  */
-#define	BIT_WDTEN	2
+#define	BIT_WDTEN    2
 
 void hsk_wdt_enable(void) {
 	bool ea = EA;
@@ -93,7 +93,7 @@ void hsk_wdt_disable(void) {
 /**
  * WDTCON WDT Refresh Start bit.
  */
-#define	BIT_WDTRS	1
+#define	BIT_WDTRS    1
 
 void hsk_wdt_service(void) {
 	SET_RMAP();

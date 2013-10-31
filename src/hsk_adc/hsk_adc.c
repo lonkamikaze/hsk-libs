@@ -23,33 +23,33 @@
 /**
  * Conversion clock prescaler setting for 12MHz.
  */
-#define ADC_CLK_12MHz		0
+#define ADC_CLK_12MHz          0
 
 /**
  * Conversion clock prescaler setting for 8MHz.
  */
-#define ADC_CLK_8MHz		1
+#define ADC_CLK_8MHz           1
 
 /**
  * Conversion clock prescaler setting for 6MHz.
  */
-#define ADC_CLK_6MHz		2
+#define ADC_CLK_6MHz           2
 
 /**
  * Conversion clock prescaler setting for 750kHz.
  */
-#define ADC_CLK_750kHz		3
+#define ADC_CLK_750kHz         3
 
 
 /**
  * Number of availbale ADC channels.
  */
-#define ADC_CHANNELS		8
+#define ADC_CHANNELS           8
 
 /**
  * Number of queue slots.
  */
-#define ADC_QUEUE		4
+#define ADC_QUEUE              4
 
 /**
  * Holds the channel of the next conversion that will be requested.
@@ -74,27 +74,27 @@ volatile union {
 /**
  * ADC_RESRxL Channel Number bits.
  */
-#define BIT_CHNR		0
+#define BIT_CHNR               0
 
 /**
  * CHNR bit count.
  */
-#define CNT_CHNR		3
+#define CNT_CHNR               3
 
 /**
  * ADC_RESRxLH Conversion Result bits.
  */
-#define BIT_RESULT		6
+#define BIT_RESULT             6
 
 /**
  * RESULT bit count.
  */
-#define CNT_RESULT		10
+#define CNT_RESULT             10
 
 /**
  * ADC_GLOBCTR Data Width bit.
  */
-#define BIT_DW			6
+#define BIT_DW                 6
 
 #pragma save
 #ifdef SDCC
@@ -148,52 +148,52 @@ void hsk_adc_isr8(void) using 1 {
 /**
  * ADC_GLOBCTR Conversion Time Control bits.
  */
-#define BIT_CTC			4
+#define BIT_CTC                4
 
 /**
  * CTC bit count.
  */
-#define CNT_CTC			2
+#define CNT_CTC                2
 
 /**
  * ADC_PRAR Arbitration Slot Sequential Enable bit.
  */
-#define BIT_ASEN_SEQUENTIAL	6
+#define BIT_ASEN_SEQUENTIAL    6
 
 /**
  * ADC_PRAR Arbitration Slot Parallel Enable bit.
  */
-#define BIT_ASEN_PARALLEL	7
+#define BIT_ASEN_PARALLEL      7
 
 /**
  * RCRx Interrupt Enable bit.
  */
-#define BIT_IEN			4
+#define BIT_IEN                4
 
 /**
  * RCRx Wait-for-Read Mode.
  */
-#define BIT_WFR			6
+#define BIT_WFR                6
 
 /**
  * RCRx Valid Flag Control bit.
  */
-#define BIT_VFCTR		7
+#define BIT_VFCTR              7
 
 /**
  * QMR0 Enable Gate bit.
  */
-#define BIT_ENGT		0
+#define BIT_ENGT               0
 
 /**
  * ADC_GLOBCTR Analog Part Switched On bit.
  */
-#define BIT_ANON		7
+#define BIT_ANON               7
 
 /**
  * SYSCON0 Interrupt Structure 2 Mode Select bit.
  */
-#define BIT_IMODE		4
+#define BIT_IMODE              4
 
 void hsk_adc_init(ubyte resolution, uword __xdata convTime) {
 	/* The Conversion Time Control bits, any of ADC_CLK_*. */
@@ -288,7 +288,7 @@ void hsk_adc_init(ubyte resolution, uword __xdata convTime) {
 /**
  * PMCON1 ADC Disable Request bit.
  */
-#define BIT_ADC_DIS		0
+#define BIT_ADC_DIS            0
 
 void hsk_adc_enable(void) {
 	/* Enable clock. */
@@ -307,17 +307,17 @@ void hsk_adc_disable(void) {
 /**
  * QSR0 bits Filling Level.
  */
-#define BIT_FILL	0
+#define BIT_FILL               0
 
 /**
  * Filling Level bit count.
  */
-#define CNT_FILL	2
+#define CNT_FILL               2
 
 /**
  * QSR0 bit Queue Empty.
  */
-#define BIT_EMPTY	5
+#define BIT_EMPTY              5
 
 void hsk_adc_open10(const hsk_adc_channel channel,
 		uword * const target) {
@@ -391,12 +391,12 @@ void hsk_adc_close(const hsk_adc_channel channel) {
 /**
  * ADC_QINR0 Request Channel Number bits.
  */
-#define BIT_REQCHNR		0
+#define BIT_REQCHNR            0
 
 /**
  * REQCHNR bit count.
  */
-#define CNT_REQCHNR		3
+#define CNT_REQCHNR            3
 
 bool hsk_adc_service(void) {
 	/* Check for available channels. */
