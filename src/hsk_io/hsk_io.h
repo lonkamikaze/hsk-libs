@@ -13,9 +13,9 @@
  * <tt>true</tt>/<tt>on</tt>.
  *
  * The macros are grouped as:
- *	- \ref IO_PORT_IN
- *	- \ref IO_PORT_OUT
- *	- \ref IO_VAR
+ * - \ref IO_PORT_IN
+ * - \ref IO_PORT_OUT
+ * - \ref IO_VAR
  *
  * @author kami
  *
@@ -25,13 +25,13 @@
  * The following table lists the pins that come up with activated internal
  * pull up:
  *
- * | Port\\Bit	| 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
- * |------------|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:
- * | P0 	| 1 | 1 | x | x | x | 1 | x | x
- * | P1		| 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1
- * | P3		| x | 1 | x | x | x | x | x | x
- * | P4		| x | x | x | x | x | 1 | x | x
- * | P5		| 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1
+ * | Port\\Bit | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
+ * |-----------|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:
+ * | P0        | 1 | 1 | x | x | x | 1 | x | x
+ * | P1        | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1
+ * | P3        | x | 1 | x | x | x | x | x | x
+ * | P4        | x | x | x | x | x | 1 | x | x
+ * | P5        | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1
  */
 
 #ifndef _HSK_IO_H_
@@ -66,7 +66,7 @@
  * @note
  *	Can also be used for \ref IO_PORT_OUT
  */
-#define IO_PORT_ON_GND		0
+#define IO_PORT_ON_GND             0
 
 /**
  * Bit mask to set the logical 1 to high level for all selected pins.
@@ -74,7 +74,7 @@
  * @note
  *	Can also be used for \ref IO_PORT_OUT
  */
-#define IO_PORT_ON_HIGH		-1
+#define IO_PORT_ON_HIGH            -1
 
 
 /**
@@ -111,22 +111,22 @@
 /**
  * Bit mask to set weak drive strength for all selected pins.
  */
-#define IO_PORT_STRENGTH_WEAK	0
+#define IO_PORT_STRENGTH_WEAK      0
 
 /**
  * Bit mask to set strong drive strength for all selected pins.
  */
-#define IO_PORT_STRENGTH_STRONG	-1
+#define IO_PORT_STRENGTH_STRONG    -1
 
 /**
  * Bit mask to disable drain mode for all selected pins.
  */
-#define IO_PORT_DRAIN_DISABLE	0
+#define IO_PORT_DRAIN_DISABLE      0
 
 /**
  * Bit mask to enable drain mode for all selected pins.
  */
-#define IO_PORT_DRAIN_ENABLE	-1
+#define IO_PORT_DRAIN_ENABLE       -1
 
 /**
  * Initializes a set of port pins as outputs.
@@ -148,7 +148,7 @@
  * @param set
  *	Initial logical values for the defined outputs
  */
-#define IO_PORT_OUT_INIT(port, pins, strength, drain, on, set)	{ \
+#define IO_PORT_OUT_INIT(port, pins, strength, drain, on, set) { \
 	port##_DIR |= pins; \
 	SFR_PAGE(_pp3, noSST); \
 	port##_OD &= (drain) | ~(pins); \
@@ -176,7 +176,7 @@
  * @param set
  *	Set logical values for the defined outputs
  */
-#define IO_PORT_OUT_SET(port, pins, on, set)	{\
+#define IO_PORT_OUT_SET(port, pins, on, set) {\
 	port##_DATA &= ((set) ^ ~(on)) | ~(pins); \
 	port##_DATA |= ((set) ^ ~(on)) & (pins); \
 }
@@ -197,22 +197,22 @@
 /**
  * Bit mask to disable pull up/down for all selected pins.
  */
-#define IO_PORT_PULL_DISABLE	0
+#define IO_PORT_PULL_DISABLE       0
 
 /**
  * Bit mask to enable pull up/down for all selected pins.
  */
-#define IO_PORT_PULL_ENABLE	-1
+#define IO_PORT_PULL_ENABLE        -1
 
 /**
  * Bit mask to select pull down for all selected pins.
  */
-#define IO_PORT_PULL_DOWN	0
+#define IO_PORT_PULL_DOWN          0
 
 /**
  * Bit mask to select pull up for all selected pins.
  */
-#define IO_PORT_PULL_UP		-1
+#define IO_PORT_PULL_UP            -1
 
 /**
  * Sets the pull-up/-down properties of port pins.
@@ -228,7 +228,7 @@
  * @param dir
  *	A bit mask of pins to set the pull direction
  */
-#define IO_PORT_PULL_INIT(port, pins, pull, dir)	{ \
+#define IO_PORT_PULL_INIT(port, pins, pull, dir) { \
 	SFR_PAGE(_pp1, noSST); \
 	port##_PUDSEL &= (dir) | ~(pins); \
 	port##_PUDSEL |= (dir) & (pins); \
@@ -263,7 +263,7 @@
  * @param set
  *	Set logical values for the defined bits
  */
-#define IO_VAR_SET(var, bits, on, set)	{\
+#define IO_VAR_SET(var, bits, on, set) {\
 	(var) &= ((set) ^ ~(on)) | ~(bits); \
 	(var) |= ((set) ^ ~(on)) & (bits); \
 }

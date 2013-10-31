@@ -95,9 +95,9 @@ void isr_callback(void) {
  * <description>
  *
  * @param <parameter>
- * 	<parameter description>
+ *	<parameter description>
  * @return
- * 	<return value description>
+ *	<return value description>
  */
 //! [function doc]
 
@@ -192,4 +192,27 @@ void isr_callback(void) {
 #endif /* SDCC */
 //! [isr header include]
 
+
+
+//! [conventions spaces]
+^/**
+^ * Foobar struct.
+^ */
+^struct {
+^<tab>/**
+^<tab> * Lame text.
+^<tab> *
+^<tab> * Lame example:
+^<tab> * \code
+^<tab> * void foo() {
+^<tab> * <tab>doSomething();
+^<tab> * }
+^<tab> * \endcode
+^<tab> *
+^<tab> * @see
+^<tab> *<tab>Something else
+^<tab> */
+^<tab>ubyte member;
+^} foobar;
+//! [conventions spaces]
 

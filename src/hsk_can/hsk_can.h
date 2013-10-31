@@ -13,22 +13,22 @@
  *
  * These tupples should follow the following pattern:
  * \code
- * #define MSG_<MSGNAME>	<id>, <extended>, <dlc>
- * #define SIG_<SIGNAME>	<endian>, <bitPos>, <bitCount>
+ * #define MSG_<MSGNAME>    <id>, <extended>, <dlc>
+ * #define SIG_<SIGNAME>    <endian>, <bitPos>, <bitCount>
  * \endcode
  *
  * The symbols have the following meaning:
- * 	- MSGNAME: The name of the message in capitals, e.g. AFB_CHANNELS
- *	- id: The CAN id of the message, e.g. 0x403
- *	- extended: Whether the CAN ID is extended or not, e.g. 0 for a
- *	  regular ID
- *	- dlc: The data length count of the message, e.g. 3
- *	- SIGNAME: The name of the signal in capitals, e.g.
- *	  AFB_CHANNEL0_CURRENT
- *	- endian: Whether the signal is in little or big endian format,
- *	  e.g. CAN_ENDIAN_INTEL
- *	- bitPos: The starting bit of the signal, e.g. 0
- *	- bitCount: The length of the signal in bits, e.g. 10
+ * - MSGNAME: The name of the message in capitals, e.g. AFB_CHANNELS
+ * - id: The CAN id of the message, e.g. 0x403
+ * - extended: Whether the CAN ID is extended or not, e.g. 0 for a
+ *   regular ID
+ * - dlc: The data length count of the message, e.g. 3
+ * - SIGNAME: The name of the signal in capitals, e.g.
+ *   AFB_CHANNEL0_CURRENT
+ * - endian: Whether the signal is in little or big endian format,
+ *   e.g. CAN_ENDIAN_INTEL
+ * - bitPos: The starting bit of the signal, e.g. 0
+ * - bitCount: The length of the signal in bits, e.g. 10
  *
  * Tuples using the specified format can directly be used as parameters
  * for several functions in the library.
@@ -40,62 +40,62 @@
 /**
  * Value returned by functions in case of an error.
  */
-#define	CAN_ERROR		0xff
+#define CAN_ERROR              0xff
 
 /**
  * CAN node 0.
  */
-#define CAN0			0
+#define CAN0                   0
 
 /**
  * CAN node 1.
  */
-#define CAN1			1
+#define CAN1                   1
 
 /**
  * CAN node 0 IO RX on P1.0, TX on P1.1.
  */
-#define CAN0_IO_P10_P11		0
+#define CAN0_IO_P10_P11        0
 
 /**
  * CAN node 0 IO RX on P1.6, TX on P1.7.
  */
-#define CAN0_IO_P16_P17		1
+#define CAN0_IO_P16_P17        1
 
 /**
  * CAN node 0 IO RX on P3.4, TX on P3.5.
  */
-#define CAN0_IO_P34_P35		2
+#define CAN0_IO_P34_P35        2
 
 /**
  * CAN node 0 IO RX on P4.0, TX on P4.1.
  */
-#define CAN0_IO_P40_P41		3
+#define CAN0_IO_P40_P41        3
 
 /**
  * CAN node 1 IO RX on P0.1, TX on P0.2.
  */
-#define CAN1_IO_P01_P02		4
+#define CAN1_IO_P01_P02        4
 
 /**
  * CAN node 1 IO RX on P1.4, TX on P1.3.
  */
-#define CAN1_IO_P14_P13		5
+#define CAN1_IO_P14_P13        5
 
 /**
  * CAN node 1 IO RX on P3.2, TX on P3.3.
  */
-#define CAN1_IO_P32_P33		6
+#define CAN1_IO_P32_P33        6
 
 /**
  * Little endian signal encoding.
  */
-#define CAN_ENDIAN_INTEL	0
+#define CAN_ENDIAN_INTEL       0
 
 /**
  * Big endian signal encoding.
  */
-#define CAN_ENDIAN_MOTOROLA	1
+#define CAN_ENDIAN_MOTOROLA    1
 
 /**
  * CAN node identifiers.
@@ -127,9 +127,9 @@ typedef ubyte hsk_can_fifo;
  * The bus still needs to be enabled after being setup.
  *
  * @param pins
- * 	Choose one of 7 CANn_IO_* configurations
+ *	Choose one of 7 CANn_IO_* configurations
  * @param baud
- * 	The target baud rate to use
+ *	The target baud rate to use
  */
 void hsk_can_init(const ubyte pins, const ulong __xdata baud);
 
@@ -139,7 +139,7 @@ void hsk_can_init(const ubyte pins, const ulong __xdata baud);
  * To be called when everything is set up.
  *
  * @param node
- * 	The CAN node to enable
+ *	The CAN node to enable
  */
 void hsk_can_enable(const hsk_can_node node);
 
@@ -150,7 +150,7 @@ void hsk_can_enable(const hsk_can_node node);
  * internal clock, to reduce energy consumption.
  *
  * @param node
- * 	The CAN node to disable
+ *	The CAN node to disable
  */
 void hsk_can_disable(const hsk_can_node node);
 
@@ -186,7 +186,7 @@ void hsk_can_disable(const hsk_can_node node);
  * @retval 6
  *	CRC Error, wrong checksum for a received message
  */
-#define CAN_STATUS_LEC		0
+#define CAN_STATUS_LEC         0
 
 /**
  * Message Transmitted Successfully.
@@ -196,7 +196,7 @@ void hsk_can_disable(const hsk_can_node node);
  * @retval 1
  *	A message was transmitted and acknowledged successfully
  */
-#define CAN_STATUS_TXOK		1
+#define CAN_STATUS_TXOK        1
 
 /**
  * Message Received Successfully.
@@ -206,7 +206,7 @@ void hsk_can_disable(const hsk_can_node node);
  * @retval 1
  *	A message was received successfully
  */
-#define CAN_STATUS_RXOK		2
+#define CAN_STATUS_RXOK        2
 
 /**
  * Alert Warning.
@@ -217,7 +217,7 @@ void hsk_can_disable(const hsk_can_node node);
  *	One of the following error conditions applies: \ref CAN_STATUS_EWRN;
  *	\ref CAN_STATUS_BOFF
  */
-#define CAN_STATUS_ALERT	3
+#define CAN_STATUS_ALERT       3
 
 /**
  * Error Warning Status.
@@ -227,7 +227,7 @@ void hsk_can_disable(const hsk_can_node node);
  * @retval 1
  *	An error counter has exceeded the warning level of 96
  */
-#define CAN_STATUS_EWRN		4
+#define CAN_STATUS_EWRN        4
 
 /**
  * Bus-off Status
@@ -237,7 +237,7 @@ void hsk_can_disable(const hsk_can_node node);
  * @retval 1
  *	The bus is turned off due to an error counter exceeding 256
  */
-#define CAN_STATUS_BOFF		5
+#define CAN_STATUS_BOFF        5
 
 /**
  * @}
@@ -247,7 +247,7 @@ void hsk_can_disable(const hsk_can_node node);
  * Returns a status field of a CAN node.
  *
  * @param node
- * 	The CAN node to return the status of
+ *	The CAN node to return the status of
  * @param field
  *	The status field to select
  * @return
@@ -273,33 +273,34 @@ ubyte hsk_can_status(const hsk_can_node node, const ubyte field);
  * Extended messages have 29 bit IDs and non-extended 11 bit IDs.
  *
  * @param id
- * 	The message ID.
+ *	The message ID.
  * @param extended
- * 	Set this to 1 for an extended CAN message.
+ *	Set this to 1 for an extended CAN message.
  * @param dlc
- * 	The data length code, # of bytes in the message, valid values
- * 	range from 0 to 8.
+ *	The data length code, # of bytes in the message, valid values
+ *	range from 0 to 8.
  * @retval CAN_ERROR
  *	Creating the message failed
  * @retval [0;32[
  *	A message identifier
  */
 hsk_can_msg hsk_can_msg_create(const ulong id, const bool extended,
-	const ubyte dlc);
+                               const ubyte dlc);
 
 /**
  * Connect a message object to a CAN node.
  *
  * @param msg
- * 	The identifier of the message object
+ *	The identifier of the message object
  * @param node
- * 	The CAN node to connect to
+ *	The CAN node to connect to
  * @retval CAN_ERROR
  *	The given message is not valid
  * @retval 0
  *	Success
  */
-ubyte hsk_can_msg_connect(const hsk_can_msg msg, const hsk_can_node __xdata node);
+ubyte hsk_can_msg_connect(const hsk_can_msg msg,
+                          const hsk_can_node __xdata node);
 
 /**
  * Disconnect a CAN message object from its CAN node.
@@ -308,7 +309,7 @@ ubyte hsk_can_msg_connect(const hsk_can_msg msg, const hsk_can_node __xdata node
  * it.
  *
  * @param msg
- * 	The identifier of the message object
+ *	The identifier of the message object
  * @retval CAN_ERROR
  *	The given message is not valid
  * @retval 0
@@ -334,12 +335,12 @@ ubyte hsk_can_msg_delete(const hsk_can_msg msg);
  * This writes DLC bytes from the CAN message object into msgdata.
  *
  * @param msg
- * 	The identifier of the message object
+ *	The identifier of the message object
  * @param msgdata
- * 	The character array to store the message data in
+ *	The character array to store the message data in
  */
 void hsk_can_msg_getData(const hsk_can_msg msg,
-	ubyte * const msgdata);
+                         ubyte * const msgdata);
 
 /**
  * Sets the current data in the CAN message.
@@ -347,18 +348,18 @@ void hsk_can_msg_getData(const hsk_can_msg msg,
  * This writes DLC bytes from msgdata to the CAN message object.
  *
  * @param msg
- * 	The identifier of the message object
+ *	The identifier of the message object
  * @param msgdata
- * 	The character array to get the message data from
+ *	The character array to get the message data from
  */
 void hsk_can_msg_setData(const hsk_can_msg msg,
-	const ubyte * const msgdata);
+                         const ubyte * const msgdata);
 
 /**
  * Request transmission of a message.
  *
  * @param msg
- * 	The identifier of the message to send
+ *	The identifier of the message to send
  */
 void hsk_can_msg_send(const hsk_can_msg msg);
 
@@ -368,7 +369,7 @@ void hsk_can_msg_send(const hsk_can_msg msg);
  * previous call of this method.
  *
  * @param msg
- * 	The identifier of the message to check
+ *	The identifier of the message to check
  * @retval 1
  *	The message was sent since the last call of this function
  * @retval 0
@@ -384,7 +385,7 @@ bool hsk_can_msg_sent(const hsk_can_msg msg);
  * messages.
  *
  * @param msg
- * 	The identifier of the message to receive
+ *	The identifier of the message to receive
  */
 void hsk_can_msg_receive(const hsk_can_msg msg);
 
@@ -398,7 +399,7 @@ void hsk_can_msg_receive(const hsk_can_msg msg);
  * This is useful for cyclic message occurance checks.
  *
  * @param msg
- * 	The identifier of the message to check
+ *	The identifier of the message to check
  * @retval 1
  *	The message was updated since the last call of this function
  * @retval 0
@@ -485,17 +486,17 @@ hsk_can_fifo hsk_can_fifo_create(ubyte size);
  * Set the FIFO up for receiving messages.
  *
  * @param fifo
- * 	The FIFO to setup
+ *	The FIFO to setup
  * @param id
- * 	The message ID.
+ *	The message ID.
  * @param extended
- * 	Set this to 1 for an extended CAN message
+ *	Set this to 1 for an extended CAN message
  * @param dlc
- * 	The data length code, # of bytes in the message, valid values
- * 	range from 0 to 8
+ *	The data length code, # of bytes in the message, valid values
+ *	range from 0 to 8
  */
 void hsk_can_fifo_setupRx(hsk_can_fifo fifo, const ulong id,
-	const bool extended, const ubyte dlc);
+                          const bool extended, const ubyte dlc);
 
 /**
  * Changes the ID matching mask of an RX FIFO.
@@ -508,7 +509,7 @@ void hsk_can_fifo_setupRx(hsk_can_fifo fifo, const ulong id,
  *
  * @pre hsk_can_fifo_setupRx()
  * @param fifo
- * 	The FIFO to change the RX mask for
+ *	The FIFO to change the RX mask for
  * @param msk
  *	The bit mask to set for the FIFO
  */
@@ -518,16 +519,16 @@ void hsk_can_fifo_setRxMask(const hsk_can_fifo fifo, ulong msk);
  * Connect a FIFO to a CAN node.
  *
  * @param fifo
- * 	The identifier of the FIFO
+ *	The identifier of the FIFO
  * @param node
- * 	The CAN node to connect to
+ *	The CAN node to connect to
  * @retval CAN_ERROR
  *	The given FIFO is not valid
  * @retval 0
  *	Success
  */
 ubyte hsk_can_fifo_connect(const hsk_can_fifo fifo,
-	const hsk_can_node __xdata node);
+                           const hsk_can_node __xdata node);
 
 /**
  * Disconnect a FIFO from its CAN node.
@@ -536,7 +537,7 @@ ubyte hsk_can_fifo_connect(const hsk_can_fifo fifo,
  * it.
  *
  * @param fifo
- * 	The identifier of the FIFO
+ *	The identifier of the FIFO
  * @retval CAN_ERROR
  *	The given FIFO is not valid
  * @retval 0
@@ -586,7 +587,7 @@ ulong hsk_can_fifo_getId(const hsk_can_fifo fifo);
  * hsk_can_fifo_next().
  *
  * @param fifo
- * 	The identifier of the FIFO to check
+ *	The identifier of the FIFO to check
  * @retval 1
  *	The FIFO entry was updated since the last call of this function
  * @retval 0
@@ -600,12 +601,12 @@ bool hsk_can_fifo_updated(const hsk_can_fifo fifo);
  * This writes DLC bytes from the FIFO entry into msgdata.
  *
  * @param fifo
- * 	The identifier of the FIFO
+ *	The identifier of the FIFO
  * @param msgdata
- * 	The character array to store the message data in
+ *	The character array to store the message data in
  */
 void hsk_can_fifo_getData(const hsk_can_fifo fifo,
-	ubyte * const msgdata);
+                          ubyte * const msgdata);
 
 /** \file
  * \section data Message Data
@@ -625,40 +626,40 @@ void hsk_can_fifo_getData(const hsk_can_fifo fifo,
  * Sets a signal value in a data field.
  *
  * @param msg
- * 	The message data field to write into
+ *	The message data field to write into
  * @param endian
  *	Little or big endian encoding
  * @param sign
  *	Indicates whether the value has a signed type
  * @param bitPos
- * 	The bit position of the signal
+ *	The bit position of the signal
  * @param bitCount
- * 	The length of the signal
+ *	The length of the signal
  * @param value
- * 	The signal value to write into the data field
+ *	The signal value to write into the data field
  */
 void hsk_can_data_setSignal(ubyte * const msg, const bool endian,
-	const bool sign, const ubyte bitPos,
-	const char bitCount, const ulong idata value);
+                            const bool sign, const ubyte bitPos,
+                            const char bitCount, const ulong idata value);
 
 /**
  * Get a signal value from a data field.
  *
  * @param msg
- * 	The message data field to read from
+ *	The message data field to read from
  * @param endian
  *	Little or big endian encoding
  * @param sign
  *	Indicates whether the value has a signed type
  * @param bitPos
- * 	The bit position of the signal
+ *	The bit position of the signal
  * @param bitCount
- * 	The length of the signal
+ *	The length of the signal
  * @return
  *	The signal from the data field msg
  */
 ulong hsk_can_data_getSignal(const ubyte * const msg, const bool endian,
-	const bool sign, const ubyte bitPos,
-	const char bitCount);
+                             const bool sign, const ubyte bitPos,
+                             const char bitCount);
 
 #endif /* _HSK_CAN_H_ */

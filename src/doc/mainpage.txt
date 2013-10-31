@@ -146,9 +146,9 @@ specialized modules that, once set up, perform many tasks without intense
 interaction.
 
 Critical for this project are the following kinds of modules:
-	- 10-Bit AD conversion channels
-	- Timers that can be triggered by external signals or perform PWM
-	- CAN controller
+- 10-Bit AD conversion channels
+- Timers that can be triggered by external signals or perform PWM
+- CAN controller
 
 \see XC878 Reference Manual: <a href="../contrib/XC878_um_v1_1.pdf">XC878_um_v1_1.pdf</a>
 \see ARM Keil Infineon XC878-16FF page: <a href="http://www.keil.com/dd/chip/4480.htm">http://www.keil.com/dd/chip/4480.htm</a>
@@ -529,17 +529,17 @@ Whereas µVision as an IDE covers flashing, SDCC users need a separate tool
 to do so. One such tool is Infineon's XC800_FLOAD. FLOAD also requires DAS.
 
 The use of FLOAD is very straightforward, make the following settings:
-	- Protocol: JTAG/SPD
-	- Physical Interface: UDAS/JTAG over USB
-	- Target Device: XC87x-16FF
+- Protocol: JTAG/SPD
+- Physical Interface: UDAS/JTAG over USB
+- Target Device: XC87x-16FF
 
 \image html img/XC800_FLOAD.png "XC800_FLOAD Flash Programming Tool"
 \image latex img/XC800_FLOAD.png "XC800_FLOAD Flash Programming Tool" width=8cm
 
 The important functions of FLOAD are:
-	- Open: Open a HEX file for programming
-	- Download: Download the program to the µC flash
-	- Flash Erase: Clear the µC flash memory
+- Open: Open a HEX file for programming
+- Download: Download the program to the µC flash
+- Flash Erase: Clear the µC flash memory
 
 \see FLOAD download: <a href="http://www.infineon.com/cms/en/product/microcontrollers/development-tools,-software-and-kits/xc800-development-tools,-software-and-kits/software-downloads/channel.html?channel=db3a304319c6f18c011a0b54923431e5">http://www.infineon.com/cms/en/product/microcontrollers/development-tools,-software-and-kits/xc800-development-tools,-software-and-kits/software-downloads/channel.html?channel=db3a304319c6f18c011a0b54923431e5</a>
 \see Infineon DAS Tool Interface website: <a href="http://www.infineon.com/das/">http://www.infineon.com/das/</a>
@@ -662,9 +662,9 @@ building applications with them.
 
 In order to build the documentation the following tools need to be installed
 on the system:
-	- Doxygen
-	- GraphViz (for creating dependency graphs)
-	- teTeX (for pdflatex)
+- Doxygen
+- GraphViz (for creating dependency graphs)
+- teTeX (for pdflatex)
 
 \section make_build Building
 
@@ -694,9 +694,9 @@ are built, independent of whether they are linked into a .hex file.
 \section make_details Implementation Details
 
 The Makefile consits of three parts:
-	- Building
-	- Documentation building
-	- Cleaning
+- Building
+- Documentation building
+- Cleaning
 
 \subsection make_details_building Building
 
@@ -749,8 +749,8 @@ All public functions also expect RMAP 0.
 
 The \ref hsk_isr.h documentation lists the rules that need to be obeyed when
 implementing ISRs and callback functions:
-	- \ref isr_pages
-	- \ref isr_banks
+- \ref isr_pages
+- \ref isr_banks
 
 \section requirements_mem Memory
 
@@ -761,19 +761,19 @@ linked.
 \page memory Variables and Memory
 
 The Infineon/XC878.h header defines some unsigned data types:
-	- bool (1 bit)
-	- ulong (32 bits)
-	- uword (16 bits)
-	- ubyte (8 bits)
+- bool (1 bit)
+- ulong (32 bits)
+- uword (16 bits)
+- ubyte (8 bits)
 
 Signed types should only be used when necessary, floating point arithmetic
 should be avoided if in any way possible.
 
 The correct place to store a variable depends on four factors:
-	- Size
-	- Lifetime
-	- Frequency of use during lifetime
-	- Overlay possibility
+- Size
+- Lifetime
+- Frequency of use during lifetime
+- Overlay possibility
 
 Size, and frequency are the most obvious, considering \ref platform_memory.
 It is desireable to use fast memory for frequently accessed variables.
@@ -931,12 +931,31 @@ This section describes the coding style used in these libraries.
 The term \a member in this section applies to functions, globals, structs,
 unions, typedefs and defines of the current library.
 
-\section conventions_indent Code/Comment Indention
+\section conventions_indent Code/Comment Indention and Formatting
 
-Use 8 spaces wide real tabs when working with the code or documentation.
-This is my (\ref authors "kami") personal preference, and thus has found its way into
-more than 10000 lines of HSK code. It won't be changed just because you
-prefer 4 spaces wide tabs or tabs converted to spaces (you sicko!).
+Use 8 spaces wide real tabs for indention. Don't put spaces before a
+tab, even in comments, unless it is in a code or verbatim section.
+
+In the following example tabs are symbolised by <tt>\<tab\></tt> and the
+beginning of a line by <tt>^</tt>:
+\snippet examples conventions spaces
+
+Formatting on the other hand should be done using spaces. This way, no
+matter the displayed tab width, formatted code and comments will always
+look as intended.
+
+The values assigned to preprocessor defines should be aligned. The
+recommended indention is 4 spaces behind the longest identifier in the
+file. All other defines should be aligned to the same column.
+
+In the next example \c FOOBAR is the longest identifier and thus
+dictates the formatting of all values:
+\code
+#define FOO       1
+#define BAR       2
+#define FOOBAR    3
+#define ZOOM      4
+\endcode
 
 \image html img/keil_configuration_Editor.png "Keil µVision Editor tab of the configuration dialogue"
 \image latex img/keil_configuration_Editor.png "Keil µVision Editor tab of the configuration dialogue" width=10cm
@@ -956,46 +975,47 @@ Every member is to be documented in one of the following manners:
 Descriptions may contain syntactical sugar such as lists:
 \verbatim
 This is a list:
- 	- List entry 0
- 	- List entry 1 is wider than 80 characters, including the tabular
-	  indention and thus needs to cover multiple lines
-		- List entry 1.0
-	- List entry 2
+- List entry 0
+- List entry 1 is a little wider than 80 characters and thus needs to cover
+  multiple lines
+	- List entry 1.0
+- List entry 2
 \endverbatim
 
-Every list entry is indented by 1 tab per level. In multiple line entries the
-successive lines are indented 2 spaces to align them with the first line.
+List entries are started with a dash. Every sublevel is indented by
+1 tab per level. In multiple line entries the successive lines are indented
+2 additional spaces to align them with the previous line.
 
 Unless it is a keyword the first word of a list entry needs to be a capital
-letter. Entries do not end with a full stop.
+letter. List entries do not end with a full stop.
 
 \subsection conventions_comments_tables Tables
 
 The syntax for tables is:
 \verbatim
-| Heading 0	| Heading 1
-|---------------|--------------
-| Row 0, col 0	| Row 0, col 1
-| Row 1, col 0	| Row 1, col 1
+| Heading 0    | Heading 1
+|--------------|--------------
+| Row 0, col 0 | Row 0, col 1
+| Row 1, col 0 | Row 1, col 1
 \endverbatim
 
 The resulting table looks like this:
-| Heading 0	| Heading 1
-|---------------|--------------
-| Row 0, col 0	| Row 0, col 1
-| Row 1, col 0	| Row 1, col 1
+| Heading 0    | Heading 1
+|--------------|--------------
+| Row 0, col 0 | Row 0, col 1
+| Row 1, col 0 | Row 1, col 1
 
 
 Use a colons in the seperator row to align columns:
 \verbatim
-| Heading Left	| Heading Centre	| Heading Right
-|:--------------|:---------------------:|--------------:
-| Left		| Centre		| Right
+| Heading Left | Heading Centre | Heading Right
+|:-------------|:--------------:|--------------:
+| Left         | Centre         | Right
 \endverbatim
 
-| Heading Left	| Heading Centre	| Heading Right
-|:--------------|:---------------------:|--------------:
-| Left		| Centre		| Right
+| Heading Left | Heading Centre | Heading Right
+|:-------------|:--------------:|--------------:
+| Left         | Centre         | Right
 
 \note
 Take care to obey the \ref conventions_indent guidelines, using the wrong

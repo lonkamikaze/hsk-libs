@@ -17,12 +17,12 @@
  *
  * The following table lists the store and restore selectors by context and
  * must be obeyed to avoid memory corruption:
- * | Save	| Restore	| Context
+ * | Save       | Restore       | Context
  * |------------|---------------|------------------------
- * | SST0	| RST0		| ISRs
- * | SST1	| RST1		| ISR callback functions
- * | SST2	| RST2		| NMI ISR
- * | SST3	| RST3		| NMI callback functions
+ * | SST0       | RST0          | ISRs
+ * | SST1       | RST1          | ISR callback functions
+ * | SST2       | RST2          | NMI ISR
+ * | SST3       | RST3          | NMI callback functions
  *
  * Every callback function is called with RMAP = 0. If the callback function
  * changes RMAP it does not have to take care of restoring it. RMAP is always
@@ -42,14 +42,14 @@
  * To minimize this cost all interrupts must have the same priority.
  *
  * The following table is used:
- * | Priority	| Context		| Bank
+ * | Priority   | Context               | Bank
  * |-----------:|-----------------------|------
- * | -		| Regular code		| 0
- * | 0		| ISR, callback		| 1
- * | 1		| ISR, callback		| -
- * | 2		| ISR, callback		| -
- * | 3		| ISR, callback		| -
- * | NMI	| NMI ISR, callback	| 2
+ * | -          | Regular code          | 0
+ * | 0          | ISR, callback         | 1
+ * | 1          | ISR, callback         | -
+ * | 2          | ISR, callback         | -
+ * | 3          | ISR, callback         | -
+ * | NMI        | NMI ISR, callback     | 2
  *
  * Assigning higher priority to an ISR will affect (as in break) the operation
  * of all lower priority ISRs.
@@ -85,13 +85,13 @@
  * Shared interrupt 5 routine. Activate the interrupt by setting ET2 = 1.
  *
  * This interrupt has the following sources:
- * 	- Timer 2 Overflow (TF2)
- * 	- Timer 2 External Event (EXF2)
- * 	- T2CCU CCT Overflow (CCTOVF)
- * 	- Normal Divider Overflow (NDOV)
- *	- End of Syn Byte (EOFSYN)
- *	- Syn Byte Error (ERRSYN)
- *	- CAN Interrupt 0 (CANSRC0)
+ * - Timer 2 Overflow (TF2)
+ * - Timer 2 External Event (EXF2)
+ * - T2CCU CCT Overflow (CCTOVF)
+ * - Normal Divider Overflow (NDOV)
+ * - End of Syn Byte (EOFSYN)
+ * - Syn Byte Error (ERRSYN)
+ * - CAN Interrupt 0 (CANSRC0)
  */
 struct hsk_isr5_callback {
 	/**
@@ -146,10 +146,10 @@ extern volatile struct hsk_isr5_callback pdata hsk_isr5;
  * Shared interrupt 6 routine. Activate the interrupt by setting EADC = 1.
  *
  * This interrupt has the following sources:
- * 	- CANSRC1
- * 	- CANSRC2
- * 	- ADCSR0
- * 	- ADCSR1
+ * - CANSRC1
+ * - CANSRC2
+ * - ADCSR0
+ * - ADCSR1
  */
 struct hsk_isr6_callback {
 	/**
@@ -186,15 +186,15 @@ extern volatile struct hsk_isr6_callback pdata hsk_isr6;
  * Shared interrupt 8 routine. Activate the interrupt by setting EX2 = 1.
  *
  * This interrupt has the following sources:
- *	- External Interrupt 2 (EXINT2)
- *	- UART1 (RI)
- *	- UART1 (TI)
- *	- Timer 21 Overflow (TF2)
- *	- T21EX (EXF2)
- *	- UART1 Fractional Divider (Normal Divider Overflow) (NDOV)
- *	- CORDIC (EOC)
- *	- MDU Result Ready (IRDY)
- *	- MDU Error (IERR)
+ * - External Interrupt 2 (EXINT2)
+ * - UART1 (RI)
+ * - UART1 (TI)
+ * - Timer 21 Overflow (TF2)
+ * - T21EX (EXF2)
+ * - UART1 Fractional Divider (Normal Divider Overflow) (NDOV)
+ * - CORDIC (EOC)
+ * - MDU Result Ready (IRDY)
+ * - MDU Error (IERR)
  */
 struct hsk_isr8_callback {
 	/**
@@ -261,11 +261,11 @@ extern volatile struct hsk_isr8_callback pdata hsk_isr8;
  * Shared interrupt 9 routine. Activate the interrupt by setting EXM = 1.
  *
  * This interrupt has the following sources:
- * 	- EXINT3/T2CC0
- * 	- EXINT4/T2CC1
- * 	- EXINT5/T2CC2
- * 	- EXINT6/T2CC3
- * 	- CANSRC2
+ * - EXINT3/T2CC0
+ * - EXINT4/T2CC1
+ * - EXINT5/T2CC2
+ * - EXINT6/T2CC3
+ * - CANSRC2
  */
 struct hsk_isr9_callback {
 	/**
@@ -308,11 +308,11 @@ extern volatile struct hsk_isr9_callback pdata hsk_isr9;
  * Shared non-maskable interrupt routine.
  *
  * This interrupt has the following sources:
- *	- Watchdog Timer NMI (NMIWDT)
- *	- PLL NMI (NMIPLL)
- *	- Flash Timer NMI (NMIFLASH)
- *	- VDDP Prewarning NMI (NMIVDDP)
- *	- Flash ECC NMI (NMIECC)
+ * - Watchdog Timer NMI (NMIWDT)
+ * - PLL NMI (NMIPLL)
+ * - Flash Timer NMI (NMIFLASH)
+ * - VDDP Prewarning NMI (NMIVDDP)
+ * - Flash ECC NMI (NMIECC)
  */
 struct hsk_isr14_callback {
 	/**

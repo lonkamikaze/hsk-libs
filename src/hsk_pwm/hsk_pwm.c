@@ -18,64 +18,64 @@
 /**
  * CR_MISC CCU6 Clock Configuration bit.
  */
-#define BIT_CCUCCFG	5
+#define BIT_CCUCCFG    5
 
 /**
  * CCU6_TCTR0L/CCU6_TCTR0H Timer T12/T13 Input Clock Select and Prescaler bits.
  */
-#define BIT_TnCLK	0
+#define BIT_TnCLK      0
 
 /**
  * TnCLK bit count.
  */
-#define CNT_TnCLK	4
+#define CNT_TnCLK      4
 
 /**
  * PSLR Compare Outputs Passive State Level bits.
  */
-#define BIT_PSL		0
+#define BIT_PSL        0
 
 /**
  * PSL bit count.
  */
-#define CNT_PSL		6
+#define CNT_PSL        6
 
 /**
  * PSLR Passive State Level of Output COUT63 bit.
  */
-#define BIT_PSL63	7
+#define BIT_PSL63      7
 
 /**
  * CCU6_MODCTRL/CCU6_MODCTRH T12/T13 Modulation Enable bits.
  */
-#define BIT_TnMODEN	0
+#define BIT_TnMODEN    0
 
 /**
  * TnMODEN bit count.
  */
-#define CNT_TnMODEN	6
+#define CNT_TnMODEN    6
 
 /**
  * CCU6_MODCTRH Enable Compare Timer T13 Output bits.
  */
-#define BIT_ECT13O	7
+#define BIT_ECT13O     7
 
 /**
  * T12MSELL/H Capture/Compare Mode Selection width.
  */
-#define CNT_MSEL6n	4
+#define CNT_MSEL6n     4
 
 /**
  * T12MSELL/H Capture/Compare Mode Selection mode.
  *
  * This mode means CC6n and COUT6n are in output mode.
  */
-#define MOD_MSEL6n	0x3
+#define MOD_MSEL6n     0x3
 
 /**
  * CCU6_TCTR4L/CCU6_TCTR4H Timer T12/T13 Shadow Transfer Request bit.
  */
-#define BIT_TnSTR	6
+#define BIT_TnSTR      6
 
 void hsk_pwm_init(const hsk_pwm_channel channel, const ulong freq) {
 	/**
@@ -352,7 +352,7 @@ void hsk_pwm_port_close(const hsk_pwm_port port) {
 }
 
 void hsk_pwm_channel_set(const hsk_pwm_channel channel,
-		const uword max, const uword value) {
+                         const uword max, const uword value) {
 	ulong duty;
 
 	/* Set the new cycle and request shadow transfer. */
@@ -394,7 +394,7 @@ void hsk_pwm_channel_set(const hsk_pwm_channel channel,
 }
 
 void hsk_pwm_outChannel_dir(hsk_pwm_outChannel channel,
-		const bool up) {
+                            const bool up) {
 	/* The configuration bit for COUT63 is misplaced. */
 	if (channel == PWM_COUT63) {
 		channel = BIT_PSL63;
@@ -409,17 +409,17 @@ void hsk_pwm_outChannel_dir(hsk_pwm_outChannel channel,
 /**
  * PMCON1 Capture Compare Unit Disable bit.
  */
-#define BIT_CCU_DIS	2
+#define BIT_CCU_DIS    2
 
 /**
  * CCU6_TCTR4L/CCU6_TCTR4H Timer T12/T13 Run Reset bit.
  */
-#define BIT_TnRR	0
+#define BIT_TnRR       0
 
 /**
  * CCU6_TCTR4L/CCU6_TCTR4H Timer T12/T13 Run Set bit.
  */
-#define BIT_TnRS	1
+#define BIT_TnRS       1
 
 void hsk_pwm_enable(void) {
 	/* Enable clock. */

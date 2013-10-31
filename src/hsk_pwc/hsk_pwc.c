@@ -18,7 +18,7 @@
 /**
  * The number of available PWC channels.
  */
-#define PWC_CHANNELS		4
+#define PWC_CHANNELS         4
 
 /**
  * The size of a PWC ring buffer.
@@ -29,7 +29,7 @@
  * The value 8 should be a sensible compromise between an interest to get
  * averages from a sufficient number of values and memory use.
  */
-#define CHAN_BUF_SIZE		8
+#define CHAN_BUF_SIZE        8
 
 /**
  * The prescaling factor.
@@ -110,7 +110,7 @@ volatile struct {
  * @private
  */
 void hsk_pwc_isr_ccn(const hsk_pwc_channel channel, uword capture) using 1 {
-	#define channel hsk_pwc_channels[channel]
+	#define channel    hsk_pwc_channels[channel]
 	/* Get the new value and store the current capture value for next
 	 * time. */
 	capture -= channel.lastCapture;
@@ -323,7 +323,7 @@ void hsk_pwc_isr_cctOverflow(void) using 1 {
  * @private
  */
 void hsk_pwc_ccn(const hsk_pwc_channel channel, uword capture) {
-	#define channel hsk_pwc_channels[channel]
+	#define channel    hsk_pwc_channels[channel]
 	/* Get the new value and store the current capture value for next
 	 * time. */
 	capture -= channel.lastCapture;
@@ -346,42 +346,42 @@ void hsk_pwc_ccn(const hsk_pwc_channel channel, uword capture) {
 /**
  * CR_MISC Timer 2 Capture/Compare Unit Clock Configuration bit.
  */
-#define BIT_T2CCFG		4
+#define BIT_T2CCFG           4
 
 /**
  * T2CCU_CCTCON Capture/Compare Timer Start/Stop Control bit.
  */
-#define BIT_CCTST		0
+#define BIT_CCTST            0
 
 /**
  * T2CCU_CCTCON Enable synchronized Timer Starts.
  */
-#define BIT_TIMSYN		1
+#define BIT_TIMSYN           1
 
 /**
  * T2CCU_CCTCON Capture/Compare Timer Overflow Interrupt Enable bit.
  */
-#define BIT_CCTOVEN		2
+#define BIT_CCTOVEN          2
 
 /**
  * T2CCU_CCTCON Capture/Compare Timer Overflow Flag bit.
  */
-#define BIT_CCTOVF		3
+#define BIT_CCTOVF           3
 
 /**
  * T2CCU_CCTCON T2CCU Capture/Compare Timer Control Register bits.
  */
-#define BIT_CCTPRE		4
+#define BIT_CCTPRE           4
 
 /**
  * T2CCU_CCTBSEL Channel x Time Base Select bit.
  */
-#define BIT_CCTBx		0
+#define BIT_CCTBx            0
 
 /**
  * SYSCON0 Interrupt Structure 2 Mode Select bit.
  */
-#define BIT_IMODE		4
+#define BIT_IMODE            4
 
 void hsk_pwc_init(ulong window) {
 	/* The prescaler in powers of 2. */
@@ -437,20 +437,20 @@ void hsk_pwc_init(ulong window) {
 /**
  * T2CCU_CCEN Capture/Compare Enable bits start.
  */
-#define BIT_CCM0		0
+#define BIT_CCM0             0
 
 /**
  * CCMx bit count.
  */
-#define CNT_CCMx		2
+#define CNT_CCMx             2
 
 /**
  * Default to using both edges for pulse detection.
  */
-#define EDGE_DEFAULT_MODE	PWC_EDGE_BOTH
+#define EDGE_DEFAULT_MODE    PWC_EDGE_BOTH
 
 void hsk_pwc_channel_open(const hsk_pwc_channel channel,
-		ubyte __xdata averageOver) {
+                          ubyte __xdata averageOver) {
 	/*
 	 * Set up channel information.
 	 */
@@ -537,7 +537,7 @@ const struct {
 };
 
 void hsk_pwc_port_open(const hsk_pwc_port port,
-		ubyte __xdata averageOver) {
+                       ubyte __xdata averageOver) {
 	hsk_pwc_channel channel;
 
 	/*
@@ -603,8 +603,8 @@ void hsk_pwc_port_open(const hsk_pwc_port port,
 	/* Set up the channel for external interrupt input. */
 	hsk_pwc_channel_captureMode(channel, PWC_MODE_EXT);
 
-	#define portBit	hsk_pwc_ports[port].portBit
-	#define portSel	hsk_pwc_ports[port].portSel
+	#define portBit    hsk_pwc_ports[port].portBit
+	#define portSel    hsk_pwc_ports[port].portSel
 
 	/*
 	 * Configure input pins.
@@ -643,9 +643,9 @@ void hsk_pwc_port_open(const hsk_pwc_port port,
 	#undef portBit
 	#undef portSel
 
-	#define inBit	hsk_pwc_ports[port].inBit
-	#define inSel	hsk_pwc_ports[port].inSel
-	#define inCount	hsk_pwc_ports[port].inCount
+	#define inBit      hsk_pwc_ports[port].inBit
+	#define inSel      hsk_pwc_ports[port].inSel
+	#define inCount    hsk_pwc_ports[port].inCount
 
 	/*
 	 * Configure Peripheral Input Selection for external interrupts.
@@ -688,54 +688,54 @@ void hsk_pwc_channel_close(const hsk_pwc_channel channel) {
 /**
  * EXICONn EXINTx mode bit count.
  */
-#define CNT_EXINTx		2
+#define CNT_EXINTx           2
 
 /**
  * External Interrupt Control Register for setting the PWC_CC0 edge detection
  * mode.
  */
-#define PWC_CC0_EXINT_REG	EXICON0
+#define PWC_CC0_EXINT_REG    EXICON0
 
 /**
  * The edge detection mode bit position for PWC_CC0.
  */
-#define PWC_CC0_EXINT_BIT	6
+#define PWC_CC0_EXINT_BIT    6
 
 /**
  * External Interrupt Control Register for setting the PWC_CC1 edge detection
  * mode.
  */
-#define PWC_CC1_EXINT_REG	EXICON1
+#define PWC_CC1_EXINT_REG    EXICON1
 
 /**
  * The edge detection mode bit position for PWC_CC1.
  */
-#define PWC_CC1_EXINT_BIT	0
+#define PWC_CC1_EXINT_BIT    0
 
 /**
  * External Interrupt Control Register for setting the PWC_CC2 edge detection
  * mode.
  */
-#define PWC_CC2_EXINT_REG	EXICON1
+#define PWC_CC2_EXINT_REG    EXICON1
 
 /**
  * The edge detection mode bit position for PWC_CC2.
  */
-#define PWC_CC2_EXINT_BIT	2
+#define PWC_CC2_EXINT_BIT    2
 
 /**
  * External Interrupt Control Register for setting the PWC_CC3 edge detection
  * mode.
  */
-#define PWC_CC3_EXINT_REG	EXICON1
+#define PWC_CC3_EXINT_REG    EXICON1
 
 /**
  * The edge detection mode bit position for PWC_CC3.
  */
-#define PWC_CC3_EXINT_BIT	4
+#define PWC_CC3_EXINT_BIT    4
 
 void hsk_pwc_channel_edgeMode(const hsk_pwc_channel channel,
-		const ubyte edgeMode) {
+                              const ubyte edgeMode) {
 	/*
 	 * Configure the corresponding external interrupt to trigger with
 	 * the desired edge.
@@ -759,7 +759,7 @@ void hsk_pwc_channel_edgeMode(const hsk_pwc_channel channel,
 }
 
 void hsk_pwc_channel_captureMode(const hsk_pwc_channel channel,
-		const ubyte captureMode) {
+                                 const ubyte captureMode) {
 	/*
 	 * Configure capture mode for the channel.
 	 */
@@ -797,7 +797,7 @@ void hsk_pwc_channel_trigger(const hsk_pwc_channel channel) {
 /**
  * PMCON1 T2CCU Disable Request bit.
  */
-#define BIT_T2CCU_DIS		3
+#define BIT_T2CCU_DIS        3
 
 void hsk_pwc_enable(void) {
 	/* Enable clock. */
@@ -814,8 +814,8 @@ void hsk_pwc_disable(void) {
 }
 
 ulong hsk_pwc_channel_getValue(const hsk_pwc_channel channel,
-		const ubyte unit) {
-	#define channel	hsk_pwc_channels[channel]
+                               const ubyte unit) {
+	#define channel    hsk_pwc_channels[channel]
 	ulong result;
 	bool ea = EA;
 	bool exm = EXM;

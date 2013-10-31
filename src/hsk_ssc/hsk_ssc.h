@@ -2,9 +2,9 @@
  * HSK Synchronous Serial Interface headers
  *
  * General purpose serial communication, setup in the following order:
- *	- hsk_ssc_init()
- *	- hsk_ssc_ports()
- *	- hsk_ssc_enable()
+ * - hsk_ssc_init()
+ * - hsk_ssc_ports()
+ * - hsk_ssc_enable()
  *
  * Communication is established by the hsk_ssc_talk() function.
  * Use hsk_ssc_busy() to detect whether a buffer was completely read and
@@ -29,8 +29,8 @@
  * the port configuration \ref SSC_MRST_P05 in slave mode the following
  * code would work:
  * \code
- * #define SSC_TX()	(P0_DIR |= 1 << 5)
- * #define SSC_RX()	(P0_DIR &= ~(1 << 5))
+ * #define SSC_TX()    (P0_DIR |= 1 << 5)
+ * #define SSC_RX()    (P0_DIR &= ~(1 << 5))
  * \endcode
  *
  * Syntactically it can be used like a regular function:
@@ -73,47 +73,47 @@
 /**
  * Master mode RX, slave mode TX port P0.5.
  */
-#define SSC_MRST_P05	1
+#define SSC_MRST_P05      1
 
 /**
  * Master mode RX, slave mode TX port P1.4.
  */
-#define SSC_MRST_P14	0
+#define SSC_MRST_P14      0
 
 /**
  * Master mode RX, slave mode TX port P1.5.
  */
-#define SSC_MRST_P15	2
+#define SSC_MRST_P15      2
 
 /**
  * Master mode TX, slave mode RX port P0.4.
  */
-#define SSC_MTSR_P04	(1 << 2)
+#define SSC_MTSR_P04      (1 << 2)
 
 /**
  * Master mode TX, slave mode RX port P1.3.
  */
-#define SSC_MTSR_P13	(0 << 2)
+#define SSC_MTSR_P13      (0 << 2)
 
 /**
  * Master mode TX, slave mode RX port P1.4.
  */
-#define SSC_MTSR_P14	(2 << 2)
+#define SSC_MTSR_P14      (2 << 2)
 
 /**
  * Synchronous clock port P0.3.
  */
-#define SSC_SCLK_P03	(1 << 4)
+#define SSC_SCLK_P03      (1 << 4)
 
 /**
  * Synchronous clock port P1.2.
  */
-#define SSC_SCLK_P12	(0 << 4)
+#define SSC_SCLK_P12      (0 << 4)
 
 /**
  * Synchronous clock port P1.3.
  */
-#define SSC_SCLK_P13	(2 << 4)
+#define SSC_SCLK_P13      (2 << 4)
 
 /**
  * @}
@@ -122,12 +122,12 @@
 /**
  * Master mode, output shift clock on SCLK.
  */
-#define SSC_MASTER	1
+#define SSC_MASTER        1
 
 /**
  * Slave mode, receive shift clock on SCLK.
  */
-#define SSC_SLAVE	0
+#define SSC_SLAVE         0
 
 /**
  * Converts a baud rate value in bits/s into a baud rate value for the
@@ -140,7 +140,7 @@
  *
  * Use the following formula to determine the baud rate that results from
  * a desired value:
- * 	\f[{realBps}(bps) = \frac{12000000}{\lfloor\frac{12000000}{bps}\rfloor}\f]
+ *	\f[{realBps}(bps) = \frac{12000000}{\lfloor\frac{12000000}{bps}\rfloor}\f]
  *
  * @note
  *	The maximum speed is 12 Mbit/s in master mode and 6 Mbit/s in slave
@@ -150,7 +150,7 @@
  * @return
  *	A timer reload value
  */
-#define SSC_BAUD(bps)		(uword)(12000000ul / (bps) - 1)
+#define SSC_BAUD(bps)     (uword)(12000000ul / (bps) - 1)
 
 /**
  * Generates an SSC configuration byte.
@@ -226,7 +226,7 @@ void hsk_ssc_talk(char xdata * buffer, ubyte len);
 /**
  * Returns whether the SSC is currently busy with data transmission.
  */
-#define hsk_ssc_busy()	ESSC
+#define hsk_ssc_busy()    ESSC
 
 /**
  * Turn the SSC module on.
