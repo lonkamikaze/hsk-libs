@@ -37,35 +37,50 @@
  *	The length of the buffer
  */
 #define FILTER_FACTORY(prefix, valueType, sumType, sizeType, size) \
-\
-/** Holds the buffer and its current state. */ \
-struct { \
-	/** The value buffer. */ \
-	valueType values[size]; \
-	/** The sum of the buffered values. */ \
-	sumType sum; \
-	/** The index of the oldest buffered value. */ \
-	sizeType current; \
-} xdata prefix; \
-\
-/** Initializes the buffer with 0. */ \
-void prefix##_init(void) { \
-	memset(&prefix, 0, sizeof(prefix)); \
-} \
-\
-/** Updates the filter and returns the current sliding average of
-buffered values.
-@param value
-	The value to add to the buffer
-@return
-	The average of the buffed values */ \
-valueType prefix##_update(const valueType value) { \
-	prefix.sum -= prefix.values[prefix.current]; \
-	prefix.values[prefix.current++] = value; \
-	prefix.sum += value; \
-	prefix.current %= size; \
-	return prefix.sum / size; \
-} \
+	\
+	/**
+	 * Holds the buffer and its current state.
+	 */ \
+	struct { \
+		/**
+		 * The value buffer.
+		 */ \
+		valueType values[size]; \
+	\
+		/**
+		 * The sum of the buffered values.
+		 */ \
+		sumType sum; \
+	\
+		/**
+		 * The index of the oldest buffered value.
+		 */ \
+		sizeType current; \
+	} xdata prefix; \
+	\
+	/**
+	 * Initializes the buffer with 0.
+	 */ \
+	void prefix##_init(void) { \
+		memset(&prefix, 0, sizeof(prefix)); \
+	} \
+	\
+	/**
+	 * Updates the filter and returns the current sliding average of
+	 * buffered values.
+	 *
+	 * @param value
+	 *	The value to add to the buffer
+	 * @return
+	 *	The average of the buffed values
+	 */ \
+	valueType prefix##_update(const valueType value) { \
+		prefix.sum -= prefix.values[prefix.current]; \
+		prefix.values[prefix.current++] = value; \
+		prefix.sum += value; \
+		prefix.current %= size; \
+		return prefix.sum / size; \
+	} \
 
 
 /**
@@ -91,37 +106,52 @@ valueType prefix##_update(const valueType value) { \
  *	The length of the buffer
  */
 #define FILTER_GROUP_FACTORY(prefix, filters, valueType, sumType, sizeType, size) \
-\
-/** Holds the buffers and their current states. */ \
-struct { \
-	/** The value buffer. */ \
-	valueType values[size]; \
-	/** The sum of the buffered values. */ \
-	sumType sum; \
-	/** The index of the oldest buffered value. */ \
-	sizeType current; \
-} xdata prefix[filters]; \
-\
-/** Initializes all buffers with 0. */ \
-void prefix##_init(void) { \
-	memset(&prefix, 0, sizeof(prefix)); \
-} \
-\
-/** Updates the given filter and returns the current sliding average of
-buffered values.
-@param filter
-	The filter to update
-@param value
-	The value to add to the buffer
-@return
-	The average of the buffed values */ \
-valueType prefix##_update(const ubyte filter, const valueType value) { \
-	prefix[filter].sum -= prefix[filter].values[prefix[filter].current]; \
-	prefix[filter].values[prefix[filter].current++] = value; \
-	prefix[filter].sum += value; \
-	prefix[filter].current %= size; \
-	return prefix[filter].sum / size; \
-} \
+	\
+	/**
+	 * Holds the buffers and their current states.
+	 */ \
+	struct { \
+		/**
+		 * The value buffer.
+		 */ \
+		valueType values[size]; \
+	\
+		/**
+		 * The sum of the buffered values.
+		 */ \
+		sumType sum; \
+	\
+		/**
+		 * The index of the oldest buffered value.
+		 */ \
+		sizeType current; \
+	} xdata prefix[filters]; \
+	\
+	/**
+	 * Initializes all buffers with 0.
+	 */ \
+	void prefix##_init(void) { \
+		memset(&prefix, 0, sizeof(prefix)); \
+	} \
+	\
+	/**
+	 * Updates the given filter and returns the current sliding average of
+	 * buffered values.
+	 *
+	 * @param filter
+	 *	The filter to update
+	 * @param value
+	 *	The value to add to the buffer
+	 * @return
+	 *	The average of the buffed values
+	 */ \
+	valueType prefix##_update(const ubyte filter, const valueType value) { \
+		prefix[filter].sum -= prefix[filter].values[prefix[filter].current]; \
+		prefix[filter].values[prefix[filter].current++] = value; \
+		prefix[filter].sum += value; \
+		prefix[filter].current %= size; \
+		return prefix[filter].sum / size; \
+	} \
 
 
 #endif /* _HSK_FILTER_H_ */

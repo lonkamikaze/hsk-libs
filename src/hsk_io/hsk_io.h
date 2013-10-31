@@ -56,7 +56,7 @@
  * @param pins
  *	A bit mask of the pins to select
  */
-#define IO_PORT_IN_INIT(port, pins)	{ \
+#define IO_PORT_IN_INIT(port, pins) { \
 	port##_DIR &= ~(pins); \
 }
 
