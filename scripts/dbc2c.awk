@@ -1182,54 +1182,62 @@ function rational(val, precision,
 }
 
 #
-# Populates a template line in $0 with data.
+# Populates a template line with data.
 #
 # Multiline data in a template needs to be in its own line.
 #
 # Lines with empty data fields are removed.
 #
-# @param data
-#	The array containing field data.
+# Identifiers in templates have the following shape:
+#	"<:" name ":>"
 #
-function tpl_line(data,
+# @param data
+#	The array containing field data
+# @param line
+#	The line to perform substitutions in
+# @return
+#	The line(s) with performed substitutions
+#
+function tpl_line(data, line,
 	name, pre, post, count, array, i) {
-	while(match($0, /<:[a-zA-Z0-9]+:>/)) {
-		name = substr($0, RSTART + 2, RLENGTH - 4)
-		pre = substr($0, 1, RSTART - 1)
-		post = substr($0, RSTART + RLENGTH)
+	while(match(line, /<:[a-zA-Z0-9]+:>/)) {
+		name = substr(line, RSTART + 2, RLENGTH - 4)
+		pre = substr(line, 1, RSTART - 1)
+		post = substr(line, RSTART + RLENGTH)
 		count = split(data[name], array, RS)
 		if (!count) {
-			$0 = ""
+			line = ""
 			return
 		}
-		$0 = pre array[1] post
+		line = pre array[1] post
 		for (i = 2; i <= count; i++) {
-			$0 = $0 ORS pre array[i] post
+			line = line ORS pre array[i] post
 		}
 	}
-	$0 = $0 ORS
+	return line ORS
 }
 
 #
 # Reads a template, substitutes place holders with data from a given
-# array and prints it.
+# array and returns it.
 #
 # @param data
 #	The array to take data from
 # @param name
 #	The name of the template file
+# @return
+#	The filled up template
 #
 function template(data, name,
-	buf) {
+	buf, line) {
 	# Read template
 	name = TEMPLATES name
 	buf = ""
-	while (getline < name) {
-		tpl_line(data)
-		buf = buf $0
+	while (getline line < name) {
+		buf = buf tpl_line(data, line)
 	}
-	printf("%s", buf)
 	close(name)
+	return buf
 }
 
 #
@@ -1249,7 +1257,7 @@ END {
 		dbs[db]
 	}
 	tpl["db"] = joinIndex(RS, dbs)
-	template(tpl, "header.tpl")
+	printf("%s", template(tpl, "header.tpl"))
 
 	# Introduce the DB files
 	for (file in obj_db) {
@@ -1265,7 +1273,7 @@ END {
 			ecus[obj_db_ecu[file, p++]]
 		}
 		tpl["ecu"] = joinIndex(RS, ecus)
-		template(tpl, "file.tpl")
+		printf("%s", template(tpl, "file.tpl"))
 	}
 
 	# Introduce the ECUs
@@ -1292,7 +1300,7 @@ END {
 		}
 		tpl["rx"] = joinIndex(RS, rx)
 		# Load template
-		template(tpl, "ecu.tpl")
+		printf("%s", template(tpl, "ecu.tpl"))
 	}
 
 	# Introduce signal groups
@@ -1312,7 +1320,7 @@ END {
 		}
 		tpl["sig"] = joinIndex(RS, sigs)
 		# Load template
-		template(tpl, "siggrp.tpl")
+		printf("%s", template(tpl, "siggrp.tpl"))
 	}
 
 	# Introduce the Messages
@@ -1334,7 +1342,7 @@ END {
 		}
 		tpl["sig"] = joinIndex(RS, sigs)
 		# Load template
-		template(tpl, "msg.tpl")
+		printf("%s", template(tpl, "msg.tpl"))
 	}
 
 	# Introduce the Signals
@@ -1380,7 +1388,7 @@ END {
 		tpl["max"] = sprintf("%.0f", (obj_sig_max[sig] - obj_sig_off[sig]) / obj_sig_fac[sig])
 		tpl["off"] = sprintf("%.0f", obj_sig_off[sig] / obj_sig_fac[sig])
 		# Load template
-		template(tpl, "sig.tpl")
+		printf("%s", template(tpl, "sig.tpl"))
 	}
 
 	# Introduce timeouts
@@ -1397,7 +1405,88 @@ END {
 		tpl["sig"] = ids[2]
 		tpl["value"] = obj_rel_attr[rel]
 		# Load template
-		template(tpl, "timeout.tpl")
+		printf("%s", template(tpl, "timeout.tpl"))
 	}
+
+	# Introduce bit maps
+	for (msg in obj_msg) {
+		# Get signal list
+		msgname = obj_msg_name[msg]
+		dlc = obj_msg_dlc[msg]
+		delete sigsi
+		delete lensi
+		delete sigsm
+		delete lensm
+		i = 0
+		while (obj_msg_sig[msg, i]) {
+			sig = obj_msg_sig[msg, i++]
+
+			delete tpl
+			tpl["name"] = sig
+			tpl["lname"] = tolower(sig)
+			sub(tolower(msgname) "_?", "", tpl["lname"])
+			sbit = obj_sig_sbit[sig]
+			len = obj_sig_len[sig]
+			tpl["len"] = len
+
+			if (len > 16) {
+				tpl["type"] = "ulong"
+			} else if (len > 8) {
+				tpl["type"] = "uword"
+			} else {
+				tpl["type"] = "ubyte"
+			}
+
+			if (obj_sig_intel[sig]) {
+				sigsi[sbit] = template(tpl, "bitmap_member.tpl")
+				lensi[sbit] = len
+			} else {
+				sbit = ((dlc - 1) - int(sbit / 8)) * 8 + (sbit % 8) - len + 1;
+				sigsm[sbit] = template(tpl, "bitmap_member.tpl")
+				lensm[sbit] = len
+			}
+		}
+
+		# Order the signals and fill gaps
+		sigbufi = ""
+		sigposi = 0
+		sigbufm = ""
+		sigposm = 0
+		for (sbit = 0; sbit < 64; sbit++) {
+			if (sigsi[sbit]) {
+				if (sigposi < sbit) {
+					delete res
+					res["len"] = sbit - sigposi
+					sigbufi = sigbufi template(res, "bitmap_reserved.tpl")
+				}
+				sigbufi = sigbufi sigsi[sbit]
+				sigposi = sbit + lensi[sbit]
+			}
+			if (sigsm[sbit]) {
+				if (sigposm < sbit) {
+					delete res
+					res["len"] = sbit - sigposm
+					sigbufm = sigbufm template(res, "bitmap_reserved.tpl")
+				}
+				sigbufm = sigbufm sigsm[sbit]
+				sigposm = sbit + lensm[sbit]
+			}
+		}
+		delete tpl
+		tpl["id"] = sprintf("%x", msg)
+		tpl["name"] = msgname
+		tpl["lname"] = tolower(obj_msg_name[msg])
+
+		# Load Intel template
+		sub(ORS "$", "", sigbufi)
+		tpl["sigs"] = sigbufi
+		printf("%s", template(tpl, "bitmap_intel.tpl"))
+
+		# Load Motorola template
+		sub(ORS "$", "", sigbufm)
+		tpl["sigs"] = sigbufm
+		printf("%s", template(tpl, "bitmap_motorola.tpl"))
+	}
+
 }
 
