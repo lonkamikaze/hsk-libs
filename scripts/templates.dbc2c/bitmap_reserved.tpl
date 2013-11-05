@@ -1,0 +1,5 @@
+/**
+ * Reserved bits.
+ */
+ubyte: <:len:>;
+
