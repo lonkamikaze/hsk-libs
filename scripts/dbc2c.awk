@@ -1387,6 +1387,58 @@ END {
 		tpl["min"] = sprintf("%.0f", (obj_sig_min[sig] - obj_sig_off[sig]) / obj_sig_fac[sig])
 		tpl["max"] = sprintf("%.0f", (obj_sig_max[sig] - obj_sig_off[sig]) / obj_sig_fac[sig])
 		tpl["off"] = sprintf("%.0f", obj_sig_off[sig] / obj_sig_fac[sig])
+		# Getter and setter
+		bits = obj_sig_len[sig]
+		bpos = obj_sig_sbit[sig]
+		if (obj_sig_intel[sig]) {
+			# Intel style signals
+			pos = 0
+			tpl["getbuf"] = ""
+			tpl["setbuf"] = ""
+			while (bits > 0) {
+				delete sbits
+				sbits["byte"] = int(bpos / 8)
+				sbits["align"] = bpos % 8
+				shift = 8 - sbits["align"]
+				if (shift > bits) {
+					shift = bits
+				}
+				sbits["mask"] = sprintf("%#04x", 2^shift - 1)
+				sbits["pos"] = pos
+				tpl["getbuf"] = tpl["getbuf"] \
+				                template(sbits, "sig_getbuf.tpl")
+				sub(ORS "$", "", tpl["getbuf"])
+				tpl["setbuf"] = tpl["setbuf"] \
+				                template(sbits, "sig_setbuf.tpl")
+				sub(ORS "$", "", tpl["setbuf"])
+				pos += shift
+				bpos += shift
+				bits -= shift
+			}
+		} else {
+			# Motorola signals
+			tpl["getbuf"] = ""
+			tpl["setbuf"] = ""
+			while (bits > 0) {
+				delete sbits
+				sbits["byte"] = int(bpos / 8)
+				slice = bpos % 8 + 1
+				if (slice > bits) {
+					slice = bits
+				}
+				sbits["align"] = bpos % 8 + 1 - slice
+				sbits["mask"] = sprintf("%#04x", 2^slice - 1)
+				sbits["pos"] = bits - slice
+				tpl["getbuf"] = tpl["getbuf"] \
+				                template(sbits, "sig_getbuf.tpl")
+				sub(ORS "$", "", tpl["getbuf"])
+				tpl["setbuf"] = tpl["setbuf"] \
+				                template(sbits, "sig_setbuf.tpl")
+				sub(ORS "$", "", tpl["setbuf"])
+				bpos = (sbits["byte"] + 1) * 8 + 7
+				bits -= slice
+			}
+		}
 		# Load template
 		printf("%s", template(tpl, "sig.tpl"))
 	}
@@ -1406,86 +1458,6 @@ END {
 		tpl["value"] = obj_rel_attr[rel]
 		# Load template
 		printf("%s", template(tpl, "timeout.tpl"))
-	}
-
-	# Introduce bit maps
-	for (msg in obj_msg) {
-		# Get signal list
-		msgname = obj_msg_name[msg]
-		dlc = obj_msg_dlc[msg]
-		delete sigsi
-		delete lensi
-		delete sigsm
-		delete lensm
-		i = 0
-		while (obj_msg_sig[msg, i]) {
-			sig = obj_msg_sig[msg, i++]
-
-			delete tpl
-			tpl["name"] = sig
-			tpl["lname"] = tolower(sig)
-			sub(tolower(msgname) "_?", "", tpl["lname"])
-			sbit = obj_sig_sbit[sig]
-			len = obj_sig_len[sig]
-			tpl["len"] = len
-
-			if (len > 16) {
-				tpl["type"] = "ulong"
-			} else if (len > 8) {
-				tpl["type"] = "uword"
-			} else {
-				tpl["type"] = "ubyte"
-			}
-
-			if (obj_sig_intel[sig]) {
-				sigsi[sbit] = template(tpl, "bitmap_member.tpl")
-				lensi[sbit] = len
-			} else {
-				sbit = ((dlc - 1) - int(sbit / 8)) * 8 + (sbit % 8) - len + 1;
-				sigsm[sbit] = template(tpl, "bitmap_member.tpl")
-				lensm[sbit] = len
-			}
-		}
-
-		# Order the signals and fill gaps
-		sigbufi = ""
-		sigposi = 0
-		sigbufm = ""
-		sigposm = 0
-		for (sbit = 0; sbit < 64; sbit++) {
-			if (sigsi[sbit]) {
-				if (sigposi < sbit) {
-					delete res
-					res["len"] = sbit - sigposi
-					sigbufi = sigbufi template(res, "bitmap_reserved.tpl")
-				}
-				sigbufi = sigbufi sigsi[sbit]
-				sigposi = sbit + lensi[sbit]
-			}
-			if (sigsm[sbit]) {
-				if (sigposm < sbit) {
-					delete res
-					res["len"] = sbit - sigposm
-					sigbufm = sigbufm template(res, "bitmap_reserved.tpl")
-				}
-				sigbufm = sigbufm sigsm[sbit]
-				sigposm = sbit + lensm[sbit]
-			}
-		}
-		delete tpl
-		tpl["id"] = sprintf("%x", msg)
-		tpl["name"] = msgname
-		tpl["lname"] = tolower(obj_msg_name[msg])
-
-		# Load Intel template
-		sub(ORS "$", "", sigbufi)
-		tpl["sigs"] = sigbufi
-		printf("%s", template(tpl, "bitmap_intel.tpl"))
-
-		# Load Motorola template
-		sub(ORS "$", "", sigbufm)
-		tpl["sigs"] = sigbufm
-		printf("%s", template(tpl, "bitmap_motorola.tpl"))
 	}
 
 }
