@@ -32,5 +32,6 @@ echo "\${DBCDIR}:
 	@mkdir -p \${DBCDIR}
 "
 
+echo ".PHONY: dbc"
 echo "dbc: $all"
 

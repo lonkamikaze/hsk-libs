@@ -131,7 +131,9 @@ _BUILD_MK!=	sh scripts/build.sh src/ ${INCDIR}/ ${GENDIR}/ > ${GENDIR}/build.mk 
 # Gmake style, works with FreeBSD make, too
 include ${GENDIR}/build.mk
 
-printEnv::
+.PHONY: printEnv uVision µVision
+
+printEnv:
 	@echo export PROJECT=\"${PROJECT}\"
 	@echo export CANPROJDIR=\"${CANPROJDIR}\"
 	@echo export GENDIR=\"${GENDIR}\"
@@ -139,7 +141,7 @@ printEnv::
 	@echo export CPP=\"${CPP}\"
 	@echo export AWK=\"${AWK}\"
 
-uVision µVision::
+uVision µVision:
 	@sh uVisionupdate.sh
 
 html: html/user html/dev html/dbc html/contrib
@@ -211,6 +213,9 @@ doc-private/latex/refman.pdf: doc-private
 doc-dbc/latex/refman.pdf: doc-dbc
 	@cd doc-dbc/latex/ && ${MAKE}
 
+.PHONY: clean clean-doc clean-doc-private clean-doc-dbc \
+        clean-build clean-stale
+
 clean: clean-doc clean-doc-private clean-doc-dbc clean-build clean-stale
 
 clean-doc:
@@ -227,6 +232,8 @@ clean-build:
 
 clean-stale:
 	@rm -f build.mk sdcc.mk dbc.mk || true
+
+.PHONY: zip
 
 zip: pdf
 	@hg status -A | ${AWK} '$$1 != "I" {sub(/. /, "${PROJECT}/"); print}' | (cd .. && zip ${PROJECT}-${VERSION}.zip -\@ -r ${PROJECT}/pdf)
