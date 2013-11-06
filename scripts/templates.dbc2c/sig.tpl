@@ -17,14 +17,36 @@
  */
 
 /**
- * Siganal <:name:> configuration tuple.
+ * Signal <:name:> configuration tuple.
  */
-#define SIG_<:name:>             CAN_ENDIAN_<:endian:>, <:signed:>, <:sbit:>, <:len:>
+#define SIG_<:name:>              CAN_ENDIAN_<:endian:>, <:signed:>, <:sbit:>, <:len:>
 
 /**
  * Signal <:name:> setup tuple.
  */
-#define SETUP_<:name:>           CAN_ENDIAN_<:endian:>, <:signed:>, <:sbit:>, <:len:>, <:start:>
+#define SETUP_<:name:>            CAN_ENDIAN_<:endian:>, <:signed:>, <:sbit:>, <:len:>, <:start:>
+
+/**
+ * Get signal <:name:> from buffer.
+ *
+ * @warning
+ *	Signed bits need to be checked manually
+ * @param buf
+ *	The can message buffer containing the signal
+ * @return
+ *	The raw signal
+ */
+#define GET_<:name:>(buf)         (<:getbuf:>0)
+
+/**
+ * Set signal <:name:> in buffer.
+ *
+ * @param buf
+ *	The can message buffer to add the signal to
+ * @param val
+ *	The raw value to set the signal to
+ */
+#define SET_<:name:>(buf, val)    {<:setbuf:>}
 
 /**
  * Signal <:name:> value conversion with 16 bit factor and offset.
@@ -37,27 +59,27 @@
  * @return
  *	The signal value as a human readable number
  */
-#define CALC_<:name:>(x, fmt)    (<:calc16:>)
+#define CALC_<:name:>(x, fmt)     (<:calc16:>)
 
 /**
  * Signal <:name:> raw initial value.
  */
-#define START_<:name:>           <:start:>
+#define START_<:name:>            <:start:>
 
 /**
  * Signal <:name:> raw minimum value.
  */
-#define MIN_<:name:>             <:min:>
+#define MIN_<:name:>              <:min:>
 
 /**
  * Signal <:name:> raw maximum value.
  */
-#define MAX_<:name:>             <:max:>
+#define MAX_<:name:>              <:max:>
 
 /**
  * Signal <:name:> raw offset value.
  */
-#define OFF_<:name:>             <:off:>
+#define OFF_<:name:>              <:off:>
 
 /**
  * @}
