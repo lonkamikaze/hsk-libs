@@ -62,6 +62,7 @@ for file in $files; do
 "
 done
 
+echo ".PHONY: all build"
 printf "all:"
 for target in $all; do
 	printf " $target"
