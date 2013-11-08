@@ -925,7 +925,7 @@ function fsm_start(dummy,
 		fsm_symbols()
 	}
 	# Discard version
-	else if (sym == tVER) {
+	else if (sym == t["VER"]) {
 		fetchStr()
 	}
 	# Discard not required symbols
@@ -1211,7 +1211,9 @@ function tpl_line(data, line,
 		}
 		line = pre array[1] post
 		for (i = 2; i <= count; i++) {
-			line = line ORS pre array[i] post
+			if (array[i]) {
+				line = line ORS pre array[i] post
+			}
 		}
 	}
 	return line ORS
@@ -1367,7 +1369,7 @@ END {
 		}
 		tpl["ecu"] = joinIndex(RS, ecus)
 		# Tuple
-		tpl["endian"] = obj_sig_intel[sig] ? "INTEL" : "MOTOROLA"
+		tpl["motorola"] = !obj_sig_intel[sig]
 		tpl["signed"] = obj_sig_signed[sig]
 		tpl["sbit"] = obj_sig_sbit[sig]
 		tpl["len"] = obj_sig_len[sig]
@@ -1395,8 +1397,18 @@ END {
 			pos = 0
 			tpl["getbuf"] = ""
 			tpl["setbuf"] = ""
+			if (obj_sig_signed[sig]) {
+				delete sbits
+				sbits["sign"] = "-"
+				sbits["byte"] = int((bpos + bits - 1) / 8)
+				sbits["align"] = (bpos + bits - 1) % 8
+				sbits["mask"] = "0x01"
+				sbits["pos"] = bits
+				tpl["getbuf"] = template(sbits, "sig_getbuf.tpl")
+			}
 			while (bits > 0) {
 				delete sbits
+				sbits["sign"] = "+"
 				sbits["byte"] = int(bpos / 8)
 				sbits["align"] = bpos % 8
 				shift = 8 - sbits["align"]
@@ -1407,10 +1419,8 @@ END {
 				sbits["pos"] = pos
 				tpl["getbuf"] = tpl["getbuf"] \
 				                template(sbits, "sig_getbuf.tpl")
-				sub(ORS "$", "", tpl["getbuf"])
 				tpl["setbuf"] = tpl["setbuf"] \
 				                template(sbits, "sig_setbuf.tpl")
-				sub(ORS "$", "", tpl["setbuf"])
 				pos += shift
 				bpos += shift
 				bits -= shift
@@ -1419,8 +1429,18 @@ END {
 			# Motorola signals
 			tpl["getbuf"] = ""
 			tpl["setbuf"] = ""
+			if (obj_sig_signed[sig]) {
+				delete sbits
+				sbits["sign"] = "-"
+				sbits["byte"] = int(bpos / 8)
+				sbits["align"] = bpos % 8
+				sbits["mask"] = "0x01"
+				sbits["pos"] = bits
+				tpl["getbuf"] = template(sbits, "sig_getbuf.tpl")
+			}
 			while (bits > 0) {
 				delete sbits
+				sbits["sign"] = "+"
 				sbits["byte"] = int(bpos / 8)
 				slice = bpos % 8 + 1
 				if (slice > bits) {
@@ -1431,10 +1451,8 @@ END {
 				sbits["pos"] = bits - slice
 				tpl["getbuf"] = tpl["getbuf"] \
 				                template(sbits, "sig_getbuf.tpl")
-				sub(ORS "$", "", tpl["getbuf"])
 				tpl["setbuf"] = tpl["setbuf"] \
 				                template(sbits, "sig_setbuf.tpl")
-				sub(ORS "$", "", tpl["setbuf"])
 				bpos = (sbits["byte"] + 1) * 8 + 7
 				bits -= slice
 			}

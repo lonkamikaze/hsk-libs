@@ -1,1 +1,2 @@
-buf[<:byte:>] &= ~(<:mask:> << <:align:>); buf[<:byte:>] |= (((val) >> <:pos:>) & <:mask:>) << <:align:>; 
+buf[<:byte:>] &= ~(<:mask:> << <:align:>);
+buf[<:byte:>] |= (((val) >> <:pos:>) & <:mask:>) << <:align:>;
