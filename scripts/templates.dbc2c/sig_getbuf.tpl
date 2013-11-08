@@ -1,1 +1,1 @@
-(((buf[<:byte:>] >> <:align:>) & <:mask:>) << <:pos:>) | 
+| ((<:sign:>((buf[<:byte:>] >> <:align:>) & <:mask:>)) << <:pos:>)

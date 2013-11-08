@@ -19,24 +19,24 @@
 /**
  * Signal <:name:> configuration tuple.
  */
-#define SIG_<:name:>              CAN_ENDIAN_<:endian:>, <:signed:>, <:sbit:>, <:len:>
+#define SIG_<:name:>              <:motorola:>, <:signed:>, <:sbit:>, <:len:>
 
 /**
  * Signal <:name:> setup tuple.
  */
-#define SETUP_<:name:>            CAN_ENDIAN_<:endian:>, <:signed:>, <:sbit:>, <:len:>, <:start:>
+#define SETUP_<:name:>            <:motorola:>, <:signed:>, <:sbit:>, <:len:>, <:start:>
 
 /**
  * Get signal <:name:> from buffer.
  *
- * @warning
- *	Signed bits need to be checked manually
  * @param buf
  *	The can message buffer containing the signal
  * @return
  *	The raw signal
  */
-#define GET_<:name:>(buf)         (<:getbuf:>0)
+#define GET_<:name:>(buf) (0 \
+	<:getbuf:> \
+)
 
 /**
  * Set signal <:name:> in buffer.
@@ -46,7 +46,9 @@
  * @param val
  *	The raw value to set the signal to
  */
-#define SET_<:name:>(buf, val)    {<:setbuf:>}
+#define SET_<:name:>(buf, val) { \
+	<:setbuf:> \
+}
 
 /**
  * Signal <:name:> value conversion with 16 bit factor and offset.
