@@ -5,6 +5,9 @@ IFS='
 
 eval "$(make printEnv)"
 
+echo "Generating C-headers from DBCs ..." 1>&2
+make dbc
+
 echo "Preparing header include directories ..." 1>&2
 _GENDIR="$(echo "$GENDIR" | tr '/' '\\')"
 

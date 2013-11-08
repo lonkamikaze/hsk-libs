@@ -102,34 +102,38 @@ include Makefile.local
 
 build:
 
+.PHONY: ${GENDIR}/sdcc.mk ${GENDIR}/dbc.mk ${GENDIR}/build.mk
+
 # Create the generated content directory
-_GEN:=		$(shell mkdir -p ${GENDIR})
-_GEN!=		mkdir -p ${GENDIR} ; echo
+${GENDIR}:
+	@mkdir -p ${GENDIR}
 
-# Configure SDCC.
-_SDCC_MK:=	$(shell env CC="${CC}" sh scripts/sdcc.sh ${CONFDIR}/sdcc > ${GENDIR}/sdcc.mk)
-_SDCC_MK!=	env CC="${CC}" sh scripts/sdcc.sh ${CONFDIR}/sdcc > ${GENDIR}/sdcc.mk ; echo
-
-# Gmake style, works with FreeBSD make, too
-include ${GENDIR}/sdcc.mk
+# Configure SDCC
+${GENDIR}/sdcc.mk: ${GENDIR}
+	@env CC="${CC}" sh scripts/sdcc.sh ${CONFDIR}/sdcc > $@
 
 # Generate dbc
-_DBC_MK:=	$(shell sh scripts/dbc.sh ${CANPROJDIR}/ > ${GENDIR}/dbc.mk)
-_DBC_MK!=	sh scripts/dbc.sh ${CANPROJDIR}/ > ${GENDIR}/dbc.mk ; echo
-
-# Gmake style, works with FreeBSD make, too
-include ${GENDIR}/dbc.mk
-
-# Make sure DBCs are generated before the build scripts are created
-_DBC_MK:=	$(shell ${MAKE} DBCDIR=${DBCDIR} -f ${GENDIR}/dbc.mk dbc 1>&2)
-_DBC_MK!=	${MAKE} DBCDIR=${DBCDIR} -f ${GENDIR}/dbc.mk dbc 1>&2 ; echo
+${GENDIR}/dbc.mk: ${GENDIR}
+	@sh scripts/dbc.sh ${CANPROJDIR}/ > $@
 
 # Generate build
-_BUILD_MK:=	$(shell sh scripts/build.sh src/ ${INCDIR}/ ${GENDIR}/ > ${GENDIR}/build.mk)
-_BUILD_MK!=	sh scripts/build.sh src/ ${INCDIR}/ ${GENDIR}/ > ${GENDIR}/build.mk ; echo
+${GENDIR}/build.mk: dbc ${GENDIR}
+	@env AWK="${AWK}" sh scripts/build.sh src/ ${INCDIR}/ ${GENDIR}/ > $@
 
-# Gmake style, works with FreeBSD make, too
-include ${GENDIR}/build.mk
+.PHONY: build all dbc
+
+# Generate headers from CANdbs
+dbc: ${GENDIR}/dbc.mk
+	@${MAKE} DBCDIR=${DBCDIR} -f ${GENDIR}/dbc.mk $@
+
+${DBCDIR}: dbc
+
+# Perform build stage
+build all: ${GENDIR}/sdcc.mk ${GENDIR}/build.mk dbc
+	@env BUILDDIR="${BUILDDIR}" \
+	     OBJSUFX="${OBJSUFX}" HEXSUFX="${HEXSUFX}" \
+	     CPP="${CPP}" CC="${CC}" CFLAGS="${CFLAGS}" \
+	     ${MAKE} -r -f ${GENDIR}/sdcc.mk -f ${GENDIR}/build.mk $@
 
 .PHONY: printEnv uVision µVision
 
