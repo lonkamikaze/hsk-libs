@@ -14,7 +14,7 @@
  * These tupples should follow the following pattern:
  * \code
  * #define MSG_<MSGNAME>    <id>, <extended>, <dlc>
- * #define SIG_<SIGNAME>    <endian>, <bitPos>, <bitCount>
+ * #define SIG_<SIGNAME>    <motorola>, <signed>, <bitPos>, <bitCount>
  * \endcode
  *
  * The symbols have the following meaning:
@@ -25,8 +25,8 @@
  * - dlc: The data length count of the message, e.g. 3
  * - SIGNAME: The name of the signal in capitals, e.g.
  *   AFB_CHANNEL0_CURRENT
- * - endian: Whether the signal is in little or big endian format,
- *   e.g. CAN_ENDIAN_INTEL
+ * - motorola: Whether the signal is in big endian (Motorola) format
+ * - signed: Whether the signal is signed
  * - bitPos: The starting bit of the signal, e.g. 0
  * - bitCount: The length of the signal in bits, e.g. 10
  *
@@ -89,11 +89,21 @@
 
 /**
  * Little endian signal encoding.
+ *
+ * @deprecated
+ *	In favour of shorter and cleaner code the hsk_can_data_getSignal()
+ *	and hsk_can_data_setSignal() functions were switched to using
+ *	boolean (motorola positive) logic
  */
 #define CAN_ENDIAN_INTEL       0
 
 /**
  * Big endian signal encoding.
+ *
+ * @deprecated
+ *	In favour of shorter and cleaner code the hsk_can_data_getSignal()
+ *	and hsk_can_data_setSignal() functions were switched to using
+ *	boolean (motorola positive) logic
  */
 #define CAN_ENDIAN_MOTOROLA    1
 
@@ -627,8 +637,8 @@ void hsk_can_fifo_getData(const hsk_can_fifo fifo,
  *
  * @param msg
  *	The message data field to write into
- * @param endian
- *	Little or big endian encoding
+ * @param motorola
+ *	Indicates big endian (Motorola) encoding
  * @param sign
  *	Indicates whether the value has a signed type
  * @param bitPos
@@ -638,7 +648,7 @@ void hsk_can_fifo_getData(const hsk_can_fifo fifo,
  * @param value
  *	The signal value to write into the data field
  */
-void hsk_can_data_setSignal(ubyte * const msg, const bool endian,
+void hsk_can_data_setSignal(ubyte * const msg, const bool motorola,
                             const bool sign, const ubyte bitPos,
                             const char bitCount, const ulong idata value);
 
@@ -647,8 +657,8 @@ void hsk_can_data_setSignal(ubyte * const msg, const bool endian,
  *
  * @param msg
  *	The message data field to read from
- * @param endian
- *	Little or big endian encoding
+ * @param motorola
+ *	Indicates big endian (Motorola) encoding
  * @param sign
  *	Indicates whether the value has a signed type
  * @param bitPos
@@ -658,7 +668,7 @@ void hsk_can_data_setSignal(ubyte * const msg, const bool endian,
  * @return
  *	The signal from the data field msg
  */
-ulong hsk_can_data_getSignal(const ubyte * const msg, const bool endian,
+ulong hsk_can_data_getSignal(const ubyte * const msg, const bool motorola,
                              const bool sign, const ubyte bitPos,
                              const char bitCount);
 
