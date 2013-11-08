@@ -1535,7 +1535,7 @@ void hsk_can_data_setMotorolaSignal(ubyte * const msg,
 	}
 }
 
-void hsk_can_data_setSignal(ubyte * const msg, const bool endian,
+void hsk_can_data_setSignal(ubyte * const msg, const bool motorola,
 		const bool sign, const ubyte bitPos,
 		const char bitCount, const ulong idata value) {
 	/**
@@ -1546,13 +1546,10 @@ void hsk_can_data_setSignal(ubyte * const msg, const bool endian,
 	/* Shut up the compiler about unused parameters. */
 	if (sign);
 
-	switch((ubyte)endian) {
-	case CAN_ENDIAN_INTEL:
-		hsk_can_data_setIntelSignal(msg, bitPos, bitCount, value);
-		break;
-	case CAN_ENDIAN_MOTOROLA:
+	if (motorola) {
 		hsk_can_data_setMotorolaSignal(msg, bitPos, bitCount, value);
-		break;
+	} else {
+		hsk_can_data_setIntelSignal(msg, bitPos, bitCount, value);
 	}
 }
 
@@ -1630,17 +1627,12 @@ ulong hsk_can_data_getMotorolaSignal(const ubyte * const msg,
 	return value;
 }
 
-ulong hsk_can_data_getSignal(const ubyte * const msg, const bool endian,
+ulong hsk_can_data_getSignal(const ubyte * const msg, const bool motorola,
 		const bool sign, const ubyte bitPos,
 		const char bitCount) {
-	switch((ubyte)endian) {
-	case CAN_ENDIAN_INTEL:
-		return hsk_can_data_getIntelSignal(msg, sign, bitPos, bitCount);
-	case CAN_ENDIAN_MOTOROLA:
+	if (motorola) {
 		return hsk_can_data_getMotorolaSignal(msg, sign, bitPos, bitCount);
-	default:
-		/* This cannot actually happen. */
-		return CAN_ERROR;
 	}
+	return hsk_can_data_getIntelSignal(msg, sign, bitPos, bitCount);
 }
 
