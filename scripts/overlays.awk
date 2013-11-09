@@ -18,7 +18,6 @@ BEGIN {
 	close(cmd)
 	TMPFILE = "/tmp/overlays.awk." TMPFILE
 	# Get cstrip cmd
-	path = ENVIRON["LIBPROJDIR"]
 	cmd = ARGV[0] " -f " LIBPROJDIR "scripts/cstrip.awk"
 	for (i = 1; i < ARGC; i++) {
 		cmd = cmd " '" ARGV[i] "' "
