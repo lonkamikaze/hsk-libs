@@ -6,8 +6,154 @@
 # A subset of the parsed information is output using a set of templates.
 #
 # @note
-#	Note, pipe the input through "iconv -f CP1252" so GNU AWK doesn't choke
+#	Pipe the input through "iconv -f CP1252" so GNU AWK doesn't choke
 #	on non-UTF-8 characters in comments.
+#
+# \section env Environment
+#
+# The script uses certain environment variables.
+#
+# \subsection env_DEBUG \c DEBUG
+#
+# | Value               | Effect
+# |---------------------|-----------------------------------------
+# | 0, ""               | Debugging output is deactivated
+# | 1, any string != "" | Debugging output to stderr is activated
+# | > 1                 | Additionally any string read is output
+#
+# \subsection env_TEMPLTES \c TEMPLATES
+#
+# This variable can be used to pass the template directory to the script.
+#
+# If the \c LIBPROJDIR environment variable is set it defaults to
+# <tt>${LIBPROJDIR}/scripts/templates.dbc2c</tt>, otherwise it defaults
+# to the relative path <tt>scripts/templates.dbc2c</tt>.
+#
+# \subsection env_DATE \c DATE
+#
+# This can be used to define the date string provided to <tt>header.tpl</tt>.
+#
+# It defaults to the output of the \c date command.
+#
+# \section templates Templates
+#
+# This section describes the templates that are used by the script
+# and the arguments passed to them. Templates are listed in the
+# chronological order of use.
+#
+# Some of the arguments provided depend on custom attributes:
+# | Template    | Argument | Attribute           | Object
+# |-------------|----------|---------------------|--------------------------
+# | sig.tpl     | start    | GenSigStartValue    | Signal
+# | msg.tpl     | fast     | GenMsgCycleTimeFast | Message
+# | msg.tpl     | cycle    | GenMsgCycleTime     | Message
+# | msg.tpl     | delay    | GenMsgDelayTime     | Message
+# | msg.tpl     | send     | GenMsgSendType      | Message
+# | timeout.tpl | -        | GenSigTimeoutTime   | Relation (ECU to Signal)
+#
+# These and more attributes are specified by the
+# <b>Vector Interaction Layer</b>.
+#
+# \subsection templates_header <tt>header.tpl</tt>
+#
+# Used once with the following arguments:
+# - \c date: The current date
+# - \c db: A list of identifiers for the parsed DBCs
+#
+# \subsection templates_file <tt>file.tpl</tt>
+#
+# Used for each input file with the following arguments:
+# - \c db: An identifier for this input file
+# - \c file: The file name
+# - \c comment: The comment text for this CANdb
+# - \c ecu: A list of ECUs provided with this file
+#
+# \subsection templates_ecu <tt>ecu.tpl</tt>
+#
+# Used for each ECU with the following arguments:
+# - \c ecu: An identifier for the ECU
+# - \c comment: The comment text for this ECU
+# - \c db: The input file identifier for the file this ECU was parsed from
+# - \c tx: A list of message IDs (hex) belonging to messages sent by this ECU
+# - \c rx: A list of signals received by this ECU
+#
+# \subsection templates_siggrp <tt>siggrp.tpl</tt>
+#
+# Used for each signal group with the following arguments:
+# - \c id: The ID of the signal group
+# - \c name: The name of the signal group
+# - \c db: The ID for the file that contained this signal group
+# - \c sig: A list of signals belonging to this signal group
+#
+# \subsection templates_msg <tt>msg.tpl</tt>
+#
+# Used for each message with the following arguments:
+# - \c id: The message ID (hex)
+# - \c name: The message name
+# - \c comment: The comment text for this message
+# - \c ecu: The ECU sending this message
+# - \c ext: Message ID is extended (bool)
+# - \c dlc: The data length count
+# - \c cycle: The cycle time of this message
+# - \c fast: The fast cycle time of this message
+# - \c delay: The minimum delay time between two sendings
+# - \c send: The send type (cyclic, spontaneous etc.)
+#
+# \subsection templates_sig <tt>sig.tpl</tt>
+#
+# Used for each signal with the following arguments:
+# - \c name: The signal name
+# - \c comment: The comment text for this signal
+# - \c msgid: The ID of the message sending this signal (hex)
+# - \c sgid: The IDs of the signal groups containing this signal
+# - \c ecu: A list of the ECUs receiving this signal
+# - \c intel: Intel (little endian) style signal (bool)
+# - \c motorola: Motorola (big endian) style signal (bool)
+# - \c signed: The signal is signed (bool)
+# - \c sbit: The start bit (meaning depends on endianess)
+# - \c len: The signal length
+# - \c start: The initial (default) signal value
+# - \c calc16: A rational conversion function for the raw signal value \c x
+#              and formatting factor \c fmt into a real value as defined
+#              by the linear factor and offset in the DBC, this function
+#              uses up to 16bit integers
+# - \c min: The raw minimum value
+# - \c max: The raw maximum value
+# - \c off: The raw offset value
+# - \c getbuf: The output of <tt>sig_getbuf.tpl</tt>
+# - \c setbuf: The output of <tt>sig_setbuf.tpl</tt>
+#
+# \subsection templates_sig_buf <tt>sig_getbuf.tpl</tt>, <tt>sig_setbuf.tpl</tt>
+#
+# These templates can be used to construct static byte wise signal getters
+# and setters.
+#
+# For signed signals <tt>sig_getbuf.tpl</tt> is first called with the
+# following arguments:
+# - \c sign: "-"
+# - \c byte: The byte containing the most significant bit
+# - \c align: The position of the most significant bit in the byte
+# - \c mask: "0x01"
+# - \c pos: The position in front of the entire read signal
+#
+# These arguments can be used to duplicate the signed bit and shift it
+# in front.
+#
+# Both templates are used for each touched signal byte with the following
+# arguments:
+# - \c sign: "+"
+# - \c byte: The signal byte
+# - \c align: The least significant bit within the byte belonging to the
+#             signal
+# - \c mask: A bit mask (hex) to mask the aligned signal bits
+# - \c pos: The position to shift the resulting bits to
+#
+# \subsection templates_timeout <tt>timeout.tpl</tt>
+#
+# Used for each timeout with the following arguments:
+# - \c ecu: The ECU that times out
+# - \c sig: The signal that is expected by the ECU
+# - \c value: The timeout time
 #
 
 #
@@ -130,6 +276,34 @@ BEGIN {
 }
 
 #
+# Prints an error message on stderr and exits.
+#
+# @param no
+#	The number to set errno to
+# @param msg
+#	The error message
+#
+function error(no, msg) {
+	errno = no
+	print "dbc2c.awk: ERROR: " FILENAME "(" NR "): " msg > "/dev/stderr"
+	exit
+}
+
+#
+# Prints a debugging message on stderr.
+#
+# The debugging message is only printed if DEBUG is set.
+#
+# @param msg
+#	The message to print
+#
+function debug(msg) {
+	if (DEBUG) {
+		print "dbc2c.awk: " msg > "/dev/stderr"
+	}
+}
+
+#
 # Makes sure $0 is not empty.
 #
 function buffer() {
@@ -184,14 +358,12 @@ function fetch(types,
 		sub(re, "")
 	}
 	if (DEBUG > 1 && str !~ /^[ \t\n]*$/) {
-		print "dbc2c.awk: fetch: " str > "/dev/stderr"
+		debug("fetch: " str)
 	}
 	if (str) {
 		fetch_loop_detect = 0
 	} else if (fetch_loop_detect++ >= 100) {
-		print "dbc2c.awk: ERROR infinite loop detected!" > "/dev/stderr"
-		errno = 11
-		exit
+		error(11, "infinite loop detected!")
 	}
 	return str
 }
@@ -259,9 +431,7 @@ function getContext(str) {
 	if (str == "") {
 		return "db"
 	}
-	print "dbc2c.awk: ERROR unknown context " str " encountered" > "/dev/stderr"
-	errno = 2
-	exit
+	error(2, "unknown context " str " encountered")
 }
 
 #
@@ -344,9 +514,7 @@ function fsm_enum(dummy,
 function fsm_env(dummy,
 	name, a) {
 	name = fetch(rSYM)
-	if (DEBUG) {
-		print "dbc2c.awk: obj_env[" name "]" > "/dev/stderr"
-	}
+	debug("obj_env[" name "]")
 	fetch(":")
 	obj_env_type[name] = eTYPE[fetch(rID)]
 	split(fetch(rBND), a, /[][|]/)
@@ -358,9 +526,7 @@ function fsm_env(dummy,
 	} else if (obj_env_type[name] == etFLOAT) {
 		obj_env[name] = fetch(rFLOAT)
 	} else {
-		print "dbc2c.awk: Environment variable type '" obj_env_type[name] "' not implemented!" > "/dev/stderr"
-		errno = 3
-		exit
+		error(3, "environment variable type '" obj_env_type[name] "' not implemented!")
 	}
 
 	fetch(rID)  # Just a counter of environment variables
@@ -380,9 +546,7 @@ function fsm_env(dummy,
 function fsm_env_data(dummy,
 name) {
 	name = fetch(rSYM)
-	if (DEBUG) {
-		print "dbc2c.awk: obj_env_dlc[" name "]" > "/dev/stderr"
-	}
+	debug("obj_env_dlc[" name "]")
 	fetch(":")
 	obj_env_dlc[name] = fetch(rID)
 	fetch(";")
@@ -412,9 +576,7 @@ function fsm_msg(dummy,
 	if (ext) {
 		id -= (2^31)
 	}
-	if (DEBUG) {
-		print "dbc2c.awk: obj_msg[" (ext ? "X." : "") id "(" sprintf("%#x", id) ")]" > "/dev/stderr"
-	}
+	debug("obj_msg[" (ext ? "X." : "") id "(" sprintf("%#x", id) ")]")
 	obj_msg_ext[id] = ext
 	name = fetch(rSYM)
 	fetch(":")
@@ -466,9 +628,7 @@ function fsm_sig(msgid,
 	a,
 	ecu, i, p) {
 	name = fetch(rSYM)
-	if (DEBUG) {
-		print "dbc2c.awk: obj_sig[" name "]" > "/dev/stderr"
-	}
+	debug("obj_sig[" name "]")
 	obj_sig[name]
 	obj_sig_msgid[name] = msgid
 	while (obj_msg_sig[msgid, p++]);
@@ -533,9 +693,7 @@ function fsm_comment(dummy,
 		name = fetch(rSYM)
 		obj_sig_comment[name] = fetchStr()
 	} else {
-		print "dbc2c.awk: Comment for '" context "' not implemented!" > "/dev/stderr"
-		errno = 10
-		exit
+		error(10, "comment for '" context "' not implemented!")
 	}
 	fetch(";")
 	fetch(rLF)
@@ -659,13 +817,9 @@ function fsm_attrdefault(dummy,
 	} else if (obj_attr_type[name] in atNUM) {
 		obj_attr_default[name] = fetch(rFLOAT)
 	} else {
-		print "dbc2c.awk: Attribute type '" obj_attr_type[name] "' not implemented!" > "/dev/stderr"
-		errno = 4
-		exit
+		error(4, "attribute type '" obj_attr_type[name] "' not implemented!")
 	}
-	if (DEBUG) {
-		print "dbc2c.awk: obj_attr_default[" name "] = " obj_attr_default[name] > "/dev/stderr"
-	}
+	debug("obj_attr_default[" name "] = " obj_attr_default[name])
 	fetch(";")
 	# Poplulate objects with defaults
 	if (obj_attr_context[name] == "msg") {
@@ -722,17 +876,13 @@ function fsm_attr(dummy,
 		fetch(rID) # Fetch message ID
 		id = fetch(rSYM)
 		obj_sig_attr[id, name] = fetch_attrval(name)
-		if (DEBUG) {
-			print "dbc2c.awk: obj_sig_attr[" id ", " name "] = " obj_sig_attr[id, name] > "/dev/stderr"
-		}
+		debug("obj_sig_attr[" id ", " name "] = " obj_sig_attr[id, name])
 	}
 	else if (obj_attr_context[name] == "msg") {
 		fetch(t["MSG"])
 		id = fetch(rID)
 		obj_msg_attr[id, name] = fetch_attrval(name)
-		if (DEBUG) {
-			print "dbc2c.awk: obj_msg_attr[" id "," name "] = " obj_msg_attr[id, name] > "/dev/stderr"
-		}
+		debug("obj_msg_attr[" id "," name "] = " obj_msg_attr[id, name])
 	}
 	else if (obj_attr_context[name] == "ecu") {
 		fetch(t["ECU"])
@@ -741,14 +891,10 @@ function fsm_attr(dummy,
 	}
 	else if (obj_attr_context[name] == "db") {
 		obj_db_attr[FILENAME, name] = fetch_attrval(name)
-		if (DEBUG) {
-			print "dbc2c.awk: obj_db_attr[" FILENAME "," name "] = " obj_db_attr[FILENAME, name] > "/dev/stderr"
-		}
+		debug("obj_db_attr[" FILENAME "," name "] = " obj_db_attr[FILENAME, name])
 	}
 	else {
-		print "dbc2c.awk: ERROR attributes for " obj_attr_context[name] " not implemented!" > "/dev/stderr"
-		errno = 6
-		exit
+		error(6, "attributes for " obj_attr_context[name] " not implemented!")
 	}
 	fetch(";")
 }
@@ -784,9 +930,7 @@ function fsm_relattr(dummy,
 		from = FILENAME
 	}
 	else {
-		print "dbc2c.awk: ERROR relation attributes for " obj_attr_from[name] " not implemented!" > "/dev/stderr"
-		errno = 7
-		exit
+		error(7, "relation attributes for " obj_attr_from[name] " not implemented!")
 	}
 	fetch(rSYM) # Fetch the type of the related object
 	if (obj_attr_to[name] == "sig") {
@@ -803,14 +947,10 @@ function fsm_relattr(dummy,
 		to = FILENAME
 	}
 	else {
-		print "dbc2c.awk: ERROR relation attributes for " obj_attr_to[name] " not implemented!" > "/dev/stderr"
-		errno = 8
-		exit
+		error(8, "relation attributes for " obj_attr_to[name] " not implemented!")
 	}
 	obj_rel_attr[from, to, name] = fetch_attrval(name)
-	if (DEBUG) {
-		print "dbc2c.awk: obj_rel_attr[" from ", " to ", " name "] = " obj_rel_attr[from, to, name] > "/dev/stderr"
-	}
+	debug("obj_rel_attr[" from ", " to ", " name "] = " obj_rel_attr[from, to, name])
 	fetch(";")
 }
 
@@ -832,9 +972,7 @@ function fsm_symbols(dummy,
 			}
 		}
 		if (t[i] != sym) {
-			print "dbc2c.awk: ERROR unknown symbol " sym " encountered" > "/dev/stderr"
-			errno = 5
-			exit
+			error(5, "unknown symbol " sym " encountered")
 		}
 	}
 }
@@ -885,9 +1023,7 @@ function fsm_siggrp(dummy,
 	sig, p) {
 	id = fetch(rID)
 	obj_siggrp[id] = fetch(rSYM)
-	if (DEBUG) {
-		print "dbc2c.awk: obj_siggrp[" id "] = " obj_siggrp[id] > "/dev/stderr"
-	}
+	debug("obj_siggrp[" id "] = " obj_siggrp[id])
 	obj_siggrp_db[id] = FILENAME
 	fetch(rID) # Meaning unknown!
 	fetch(":")
@@ -916,9 +1052,7 @@ function fsm_start(dummy,
 
 	# Check whether symbol is known but not supported
 	if (t[sym]) {
-		print "dbc2c.awk: ERROR unsupported symbol " sym " encountered" > "/dev/stderr"
-		errno = 9
-		exit
+		error(9, "unsupported symbol " sym " encountered")
 	}
 	# Check known symbols
 	if (sym == t["SYMBOLS"]) {
@@ -1336,6 +1470,8 @@ END {
 		tpl["dlc"] = obj_msg_dlc[msg]
 		tpl["cycle"] = obj_msg_attr[msg, aCYCLE]
 		tpl["fast"] = obj_msg_attr[msg, aFCYCLE]
+		tpl["delay"] = obj_msg_attr[msg, aDELAY]
+		tpl["send"] = obj_msg_attr[msg, aSEND]
 		# Get signal list
 		i = 0
 		delete sigs
@@ -1369,6 +1505,7 @@ END {
 		}
 		tpl["ecu"] = joinIndex(RS, ecus)
 		# Tuple
+		tpl["intel"] = obj_sig_intel[sig]
 		tpl["motorola"] = !obj_sig_intel[sig]
 		tpl["signed"] = obj_sig_signed[sig]
 		tpl["sbit"] = obj_sig_sbit[sig]
