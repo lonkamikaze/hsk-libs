@@ -4,6 +4,9 @@ IFS='
 '
 
 scriptdir="${0%/*}"
+LIBPROJDIR="${scriptdir##*/}"
+LIBPROJDIR="${scriptdir%$LIBPROJDIR}"
+LIBPROJDIR="${LIBPROJDIR%/}"
 
 incdirs=
 for dir in ${*#$1}; do
@@ -12,8 +15,6 @@ done
 
 # AWK interpreter
 : ${AWK:=awk}
-
-find "$@" -name \*.c -exec $AWK -f $scriptdir/includes.awk "$@" \{} +
 
 all=
 for SRC in "$@"; do
@@ -27,9 +28,12 @@ for SRC in "$@"; do
 		target="${target%.c}\${OBJSUFX}"
 		echo "$target" | grep -qFx "$all" && continue
 		all="${all:+$all$IFS}$target"
-		echo "$target: $file
+		sources="$(env LIBPROJDIR="$LIBPROJDIR" \
+		               $AWK -f $scriptdir/depends.awk -vORS=\  \
+		                    $file -DSDCC $incdirs)"
+		echo "$target: $sources
 	@mkdir -p ${target%/*}
-	@env CPP=\"\${CPP}\" LIBPROJDIR=\"\${LIBPROJDIR}\" $AWK -f $scriptdir/sanity.awk $file $incdirs
+	@env CPP=\"\${CPP}\" LIBPROJDIR=\"\${LIBPROJDIR}\" $AWK -f $scriptdir/sanity.awk $file -DSDCC $incdirs
 	\${CC} \${CFLAGS} -o $target -c $file
 	"
 	done
@@ -53,8 +57,8 @@ for file in $files; do
 	all="${all:+$all$IFS}$target"
 	build="$build $target"
 	linklist="$($AWK -f $scriptdir/includes.awk "$@" $file | cut -d: -f1 \
-		| sed -ne "$filter" -e "s:\.c\$:\${OBJSUFX}:p" \
-		| $AWK 'BEGIN{ORS=" "}1')"
+		| sed -ne "$filter" -e 's:\.c$:${OBJSUFX}:p' \
+		| $AWK -vORS=\  1)"
 
 	echo "$target: $linklist
 	@mkdir -p ${target%/*}

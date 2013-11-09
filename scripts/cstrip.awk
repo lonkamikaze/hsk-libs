@@ -4,7 +4,7 @@
 
 BEGIN {
 	# Get environment settings
-	CPP = ENVIRON["CPP"] ? ENVIRON["CPP"] : "cpp"
+	CPP = (ENVIRON["CPP"] ? ENVIRON["CPP"] : "cpp") " -nostdinc"
 	DEBUG = ENVIRON["DEBUG"]
 
 	RS = "\0"
