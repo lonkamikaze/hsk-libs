@@ -13,7 +13,7 @@
 #
 # The script uses certain environment variables.
 #
-# \subsection env_DEBUG \c DEBUG
+# \subsection env_DEBUG DEBUG
 #
 # | Value               | Effect
 # |---------------------|-----------------------------------------
@@ -21,7 +21,7 @@
 # | 1, any string != "" | Debugging output to stderr is activated
 # | > 1                 | Additionally any string read is output
 #
-# \subsection env_TEMPLTES \c TEMPLATES
+# \subsection env_TEMPLTES TEMPLATES
 #
 # This variable can be used to pass the template directory to the script.
 #
@@ -29,7 +29,7 @@
 # <tt>${LIBPROJDIR}/scripts/templates.dbc2c</tt>, otherwise it defaults
 # to the relative path <tt>scripts/templates.dbc2c</tt>.
 #
-# \subsection env_DATE \c DATE
+# \subsection env_DATE DATE
 #
 # This can be used to define the date string provided to <tt>header.tpl</tt>.
 #
@@ -54,13 +54,13 @@
 # These and more attributes are specified by the
 # <b>Vector Interaction Layer</b>.
 #
-# \subsection templates_header <tt>header.tpl</tt>
+# \subsection templates_header header.tpl
 #
 # Used once with the following arguments:
 # - \c date: The current date
 # - \c db: A list of identifiers for the parsed DBCs
 #
-# \subsection templates_file <tt>file.tpl</tt>
+# \subsection templates_file file.tpl
 #
 # Used for each input file with the following arguments:
 # - \c db: An identifier for this input file
@@ -68,7 +68,7 @@
 # - \c comment: The comment text for this CANdb
 # - \c ecu: A list of ECUs provided with this file
 #
-# \subsection templates_ecu <tt>ecu.tpl</tt>
+# \subsection templates_ecu ecu.tpl
 #
 # Used for each ECU with the following arguments:
 # - \c ecu: An identifier for the ECU
@@ -77,7 +77,7 @@
 # - \c tx: A list of message IDs (hex) belonging to messages sent by this ECU
 # - \c rx: A list of signals received by this ECU
 #
-# \subsection templates_siggrp <tt>siggrp.tpl</tt>
+# \subsection templates_siggrp siggrp.tpl
 #
 # Used for each signal group with the following arguments:
 # - \c id: The ID of the signal group
@@ -85,7 +85,7 @@
 # - \c db: The ID for the file that contained this signal group
 # - \c sig: A list of signals belonging to this signal group
 #
-# \subsection templates_msg <tt>msg.tpl</tt>
+# \subsection templates_msg msg.tpl
 #
 # Used for each message with the following arguments:
 # - \c id: The message ID (hex)
@@ -99,7 +99,7 @@
 # - \c delay: The minimum delay time between two sendings
 # - \c send: The send type (cyclic, spontaneous etc.)
 #
-# \subsection templates_sig <tt>sig.tpl</tt>
+# \subsection templates_sig sig.tpl
 #
 # Used for each signal with the following arguments:
 # - \c name: The signal name
@@ -123,7 +123,7 @@
 # - \c getbuf: The output of <tt>sig_getbuf.tpl</tt>
 # - \c setbuf: The output of <tt>sig_setbuf.tpl</tt>
 #
-# \subsection templates_sig_buf <tt>sig_getbuf.tpl</tt>, <tt>sig_setbuf.tpl</tt>
+# \subsection templates_sig_buf sig_getbuf.tpl, sig_setbuf.tpl
 #
 # These templates can be used to construct static byte wise signal getters
 # and setters.
@@ -148,7 +148,7 @@
 # - \c mask: A bit mask (hex) to mask the aligned signal bits
 # - \c pos: The position to shift the resulting bits to
 #
-# \subsection templates_timeout <tt>timeout.tpl</tt>
+# \subsection templates_timeout timeout.tpl
 #
 # Used for each timeout with the following arguments:
 # - \c ecu: The ECU that times out
@@ -156,7 +156,7 @@
 # - \c value: The timeout time
 #
 
-#
+##
 # Initialises globals.
 #
 BEGIN {
@@ -267,7 +267,7 @@ BEGIN {
 	errno = 0
 }
 
-#
+##
 # Strip DOS line endings and make sure there is a new line symbol at the
 # end of the line, so multiline definitions can be parsed.
 #
@@ -275,7 +275,7 @@ BEGIN {
 	gsub(/[\r\n]*$/, "\n")
 }
 
-#
+##
 # Prints an error message on stderr and exits.
 #
 # @param no
@@ -289,7 +289,7 @@ function error(no, msg) {
 	exit
 }
 
-#
+##
 # Prints a debugging message on stderr.
 #
 # The debugging message is only printed if DEBUG is set.
@@ -303,7 +303,7 @@ function debug(msg) {
 	}
 }
 
-#
+##
 # Makes sure $0 is not empty.
 #
 function buffer() {
@@ -315,7 +315,7 @@ function buffer() {
 	}
 }
 
-#
+##
 # Special function to fetch a string from the buffer.
 #
 # This is a special case, because strings may span multiple lines.
@@ -339,7 +339,7 @@ function fetchStr(dummy,
 	return strip(fetch(rSTR))
 }
 
-#
+##
 # Fetch the next token from the input buffer, matching a given type.
 #
 # @param types
@@ -368,7 +368,7 @@ function fetch(types,
 	return str
 }
 
-#
+##
 # Returns the expresion with ^ and $ at beginning and end to make ~ match
 # entire strings only.
 #
@@ -381,7 +381,7 @@ function whole(re) {
 	return "^(" re ")$"
 }
 
-#
+##
 # Remove quotes and escapes from strings.
 #
 # This function is used by fetchStr().
@@ -399,7 +399,7 @@ function strip(str) {
 	return str
 }
 
-#
+##
 # Returns the context type for a string.
 #
 # @param str
@@ -434,7 +434,7 @@ function getContext(str) {
 	error(2, "unknown context " str " encountered")
 }
 
-#
+##
 # Discards buffered symbols until an empty line is encountered.
 #
 # This is used to skip the list of supported symbols at the beginning of a
@@ -448,7 +448,7 @@ function fsm_discard() {
 	}
 }
 
-#
+##
 # Parse an ECU definition.
 #
 # Token: BU_
@@ -472,7 +472,7 @@ function fsm_ecu(dummy,
 	}
 }
 
-#
+##
 # Parse a value table.
 #
 # Token: VAL_, VAL_TABLE_
@@ -499,7 +499,7 @@ function fsm_enum(dummy,
 	fetch(rLF)
 }
 
-#
+##
 # Parse an environment variable.
 #
 # Token: EV_
@@ -535,7 +535,7 @@ function fsm_env(dummy,
 	fetch(";")
 }
 
-#
+##
 # Parse the data length count of DATA type environment variables.
 #
 # Token: ENVVAR_DATA_
@@ -552,7 +552,7 @@ name) {
 	fetch(";")
 }
 
-#
+##
 # Parse a message definition.
 #
 # Token: BO_
@@ -599,7 +599,7 @@ function fsm_msg(dummy,
 	}
 }
 
-#
+##
 # Parse a signature definition.
 #
 # Token: SG_
@@ -662,7 +662,7 @@ function fsm_sig(msgid,
 	fetch(rLF)
 }
 
-#
+##
 # Parse comments.
 #
 # Token: CM_
@@ -699,7 +699,7 @@ function fsm_comment(dummy,
 	fetch(rLF)
 }
 
-#
+##
 # Parse a custom attribute definition.
 #
 # Token: BA_DEF_
@@ -741,7 +741,7 @@ function fsm_attrrange(dummy,
 	fetch(";")
 }
 
-#
+##
 # Parse a custom relation attribute definition.
 #
 # Token: BA_DEF_REL_
@@ -792,7 +792,7 @@ function fsm_relattrrange(dummy,
 	fetch(";")
 }
 
-#
+##
 # Parse attribute default value.
 #
 # Token: BA_DEF_DEF_
@@ -837,7 +837,7 @@ function fsm_attrdefault(dummy,
 	}
 }
 
-#
+##
 # Fetches an attribute value of a given type from the read buffer.
 #
 # @param attribute
@@ -856,7 +856,7 @@ function fetch_attrval(attribute) {
 	return fetch(rFLOAT)
 }
 
-#
+##
 # Parse an attribute value.
 #
 # Token: BA_
@@ -899,7 +899,7 @@ function fsm_attr(dummy,
 	fetch(";")
 }
 
-#
+##
 # Parse a relation attribute value.
 #
 # Token: BA_REL_
@@ -954,7 +954,7 @@ function fsm_relattr(dummy,
 	fetch(";")
 }
 
-#
+##
 # Parse the symbol table at the beginning of a .dbc file, bail if
 # unsupported symbols are encountered.
 #
@@ -977,7 +977,7 @@ function fsm_symbols(dummy,
 	}
 }
 
-#
+##
 # Gets a list of ECUs that transmit a certain message.
 #
 # This may appear when several device options are available.
@@ -1007,7 +1007,7 @@ function fsm_tx(dummy,
 	fetch(";")
 }
 
-#
+##
 # Gets a signal group.
 #
 # Token: SIG_GROUP_
@@ -1037,7 +1037,7 @@ function fsm_siggrp(dummy,
 	}
 }
 
-#
+##
 # Pick tokens from the input buffer and call the respective parsing
 # functions.
 #
@@ -1124,7 +1124,7 @@ function fsm_start(dummy,
 	}
 }
 
-#
+##
 # This starts the line wise parsing of the DBC file.
 #
 {
@@ -1137,7 +1137,7 @@ function fsm_start(dummy,
 # End of the parser section, the following code deals with output.
 #
 
-#
+##
 # Returns a string contining all elements of an array connected by a
 # seperator.
 #
@@ -1154,7 +1154,7 @@ function join(sep, array,
 	return result
 }
 
-#
+##
 # Returns a string contining all indexes of an array connected by a
 # seperator.
 #
@@ -1171,7 +1171,7 @@ function joinIndex(sep, array,
 	return result
 }
 
-#
+##
 # Returns the greatest common divider (GCD).
 #
 # @param a
@@ -1189,7 +1189,7 @@ function euclid(a, b,
 	return a
 }
 
-#
+##
 # Returns a compact string representation of a rational number.
 #
 # @param n
@@ -1230,7 +1230,7 @@ function rationalFmt(n, d) {
 	return sprintf("* (%d) / (%d)", n, d)
 }
 
-#
+##
 # Returns a rational string representation of a real value.
 #
 # This function builds the value around the numerator.
@@ -1259,7 +1259,7 @@ function rationalN(val, base, precision,
 	return rationalFmt(int(val), int(div))
 }
 
-#
+##
 # Returns a rational string representation of a real value.
 #
 # This function builds the value around the denominator.
@@ -1292,7 +1292,7 @@ function rationalD(val, base, precision,
 	return rationalFmt(int(val), int(div))
 }
 
-#
+##
 # Returns a rational string representation of a real value.
 #
 # This uses the different rational*() functions to find a minimal
@@ -1315,7 +1315,7 @@ function rational(val, precision,
 	return a
 }
 
-#
+##
 # Populates a template line with data.
 #
 # Multiline data in a template needs to be in its own line.
@@ -1353,7 +1353,7 @@ function tpl_line(data, line,
 	return line ORS
 }
 
-#
+##
 # Reads a template, substitutes place holders with data from a given
 # array and returns it.
 #
@@ -1376,7 +1376,7 @@ function template(data, name,
 	return buf
 }
 
-#
+##
 # Print the DBC files to stdout.
 #
 END {
