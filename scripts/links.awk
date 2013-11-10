@@ -1,6 +1,6 @@
 #!/usr/bin/awk -f
 
-# Finds all includes of a C file
+# Finds all C files whose objects need to be linked
 
 BEGIN {
 	# Get environment settings
@@ -48,7 +48,10 @@ BEGIN {
 		if ($0 ~ /#[0-9]+"/) {
 			# Remove ../
 			while(sub(/[^\/]+\/\.\.\//, "", $2));
-			if (!a[$2]++ && $2 ~ pass) {
+			# Only objects created from .c files need
+			# to be linked
+			sub(/\.[^.]*$/, ".c", $2)
+			if (!a[$2]++ && $2 ~ pass && !system("test -f " $2)) {
 				print($2)
 			}
 		}

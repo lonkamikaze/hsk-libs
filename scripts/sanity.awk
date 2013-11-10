@@ -32,7 +32,7 @@ BEGIN {
 	for (i = 1; i < ARGC; i++) {
 		cmd = cmd " '" ARGV[i] "' "
 	}
-	system(cmd "-DSDCC >" TMPFILE)
+	system(cmd ">" TMPFILE)
 	delete ARGV
 	ARGV[1] = TMPFILE
 	ARGC = 2
