@@ -35,7 +35,7 @@ for SRC in "$@"; do
 		                    $file -DSDCC $incdirs)"
 		echo "$target: $sources
 	@mkdir -p ${target%/*}
-	@env CPP=\"$CPP\" ${LIBPROJDIR:+LIBPROJDIR=\"$LIBPROJDIR\"} $AWK -f $scriptdir/sanity.awk $file -DSDCC $incdirs
+	@env CPP=\"\${CC} -E\" ${LIBPROJDIR:+LIBPROJDIR=\"$LIBPROJDIR\"} $AWK -f $scriptdir/sanity.awk $file $incdirs
 	\${CC} \${CFLAGS} -o $target -c $file
 	"
 	done
@@ -58,9 +58,11 @@ for file in $files; do
 	echo "$target" | grep -qFx "$all" && continue
 	all="${all:+$all$IFS}$target"
 	build="$build $target"
-	linklist="$($AWK -f $scriptdir/includes.awk "$@" $file | cut -d: -f1 \
-		| sed -ne "$filter" -e 's:\.c$:${OBJSUFX}:p' \
-		| $AWK -vORS=\  1)"
+	linklist="$(IFS=' '
+	            env LIBPROJDIR="$LIBPROJDIR" \
+	                $AWK -f $scriptdir/links.awk $file -DSDCC $incdirs \
+	            | sed -e "$filter" -e 's:\.c$:${OBJSUFX}:' \
+	            | $AWK -vORS=\  1)"
 
 	echo "$target: $linklist
 	@mkdir -p ${target%/*}
