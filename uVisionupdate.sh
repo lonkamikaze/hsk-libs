@@ -1,8 +1,11 @@
-#!/bin/sh -f
+#!/bin/sh
+set -f
 
 IFS='
 '
 
+# Must not be set or GNU make produces problematic output on stdout
+unset MAKELEVEL
 eval "$(make printEnv)"
 
 echo "Generating C-headers from DBCs ..." 1>&2
@@ -12,7 +15,7 @@ echo "Preparing header include directories ..." 1>&2
 _GENDIR="$(echo "$GENDIR" | tr '/' '\\')"
 
 echo "Getting call tree changes for overlay optimisation ..." 1>&2
-overlays="$($AWK -f scripts/overlays.awk $(find src/ -name \*.c) -I$INCDIR -I$GENDIR)"
+overlays="$($AWK -f scripts/overlays.awk $(find src/ -name *.c) -I$INCDIR -I$GENDIR)"
 echo "$overlays" | sed -e 's/^/	/' -e 's/[[:cntrl:]]$//' 1>&2
 
 echo "Updating uVision/hsk_libs.uvproj ..." 1>&2

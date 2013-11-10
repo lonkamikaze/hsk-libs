@@ -13,17 +13,44 @@ BEGIN {
 
 	# Get cstrip cmd
 	cmd = ARGV[0] " -f " LIBPROJDIR "scripts/cstrip.awk"
+	pass = "("
 	for (i = 1; i < ARGC; i++) {
+		if (ARGV[i] == "-I") {
+			delete ARGV[i++]
+			ARGV[i] = "-I" ARGV[i]
+		}
+		path = ""
+		if (ARGV[i] ~ /^-I.+/) {
+			path = ARGV[i]
+			sub(/^-I/, "", path)
+			sub(/\/?$/, "/", path)
+		} else if (ARGV[i] !~ /^-/) {
+			path = ARGV[i]
+			sub(/\/[^\/]*$/, "/", path)
+		}
+		if (path) {
+			# Remove ../
+			while(sub(/[^\/]+\/\.\.\//, "", path));
+			pass = pass "^" path "|"
+		}
 		cmd = cmd " '" ARGV[i] "' "
 	}
+	sub(/\|$/, ")", pass)
 	delete ARGV
+	if (DEBUG) {
+		print "depends.awk: pass = " pass > "/dev/stderr"
+	}
 
 	# Handle cstrip output
 	FS = "\""
 	while (cmd | getline) {
 		# Get file references, filter duplicates and skip builtins
-		if ($0 ~ /#[0-9]+"/ && !a[$2]++ && $2 !~ /^<.*>$/) {
-			print($2)
+		if ($0 ~ /#[0-9]+"/) {
+			# Remove ../
+			while(sub(/[^\/]+\/\.\.\//, "", $2));
+			if (!a[$2]++ && $2 ~ pass) {
+				print($2)
+			}
 		}
 	}
 	close(cmd)
