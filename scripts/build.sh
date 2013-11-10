@@ -1,4 +1,5 @@
-#!/bin/sh -f
+#!/bin/sh
+set -f
 
 IFS='
 '
@@ -20,7 +21,7 @@ all=
 for SRC in "$@"; do
 	SRC="${SRC%/}"
 	# Collect dependencies for the build target
-	files="$(find "$SRC/" -name \*.c)"
+	files="$(find "$SRC/" -name *.c)"
 	
 	# Build instructions
 	for file in $files; do
@@ -28,12 +29,13 @@ for SRC in "$@"; do
 		target="${target%.c}\${OBJSUFX}"
 		echo "$target" | grep -qFx "$all" && continue
 		all="${all:+$all$IFS}$target"
-		sources="$(env LIBPROJDIR="$LIBPROJDIR" \
-		               $AWK -f $scriptdir/depends.awk -vORS=\  \
+		sources="$(IFS=' '
+		           env LIBPROJDIR="$LIBPROJDIR" \
+		               $AWK -vORS=\  -f $scriptdir/depends.awk \
 		                    $file -DSDCC $incdirs)"
 		echo "$target: $sources
 	@mkdir -p ${target%/*}
-	@env CPP=\"\${CPP}\" LIBPROJDIR=\"\${LIBPROJDIR}\" $AWK -f $scriptdir/sanity.awk $file -DSDCC $incdirs
+	@env CPP=\"$CPP\" ${LIBPROJDIR:+LIBPROJDIR=\"$LIBPROJDIR\"} $AWK -f $scriptdir/sanity.awk $file -DSDCC $incdirs
 	\${CC} \${CFLAGS} -o $target -c $file
 	"
 	done

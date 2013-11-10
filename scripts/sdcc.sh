@@ -1,4 +1,5 @@
-#!/bin/sh -f
+#!/bin/sh
+set -f
 
 #
 # Parses an sdcc config file.
