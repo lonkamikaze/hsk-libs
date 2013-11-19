@@ -105,10 +105,16 @@ and like the applications still subject to a lot of change.
 	- Generates the \c gen/dbc.mk file
 - \c scripts/dbc2c.awk
 	- Generates C headers from Vector DBC files
+- \c scripts/depends.awk
+	- Prints all dependencies of the given C files, used by
+	  \c scripts/build.sh
 - \c scripts/filter.sugar.awk
 	- Filters inline defines from the code for the doxygen toolchain
 - \c scripts/includes.awk
-	- Used by \c scripts/build.sh to get the includes of a source file
+	- Prints the includes of a source file as a make dependency graph
+- \c scripts/links.awk
+	- Prints all C files whose object files should be linked with the
+	  object files of the given C files, used by \c scripts/build.sh
 - \c scripts/overlays.awk
 	- Used by \c uVisionupdate.sh to produce a list of ISR callbacks for
 	  \ref toolchain_lx51_misc
@@ -614,7 +620,7 @@ protected from memory overlay. This is done with a compiler instruction:
 \code
 #pragma save
 #pragma nooverlay
-void isr_callback(void) {
+void isr_callback(void) using 1 {
 	[...]
 }
 #pragma restore
@@ -702,18 +708,19 @@ The Makefile consits of three parts:
 
 The Makefile declares the target \c build first to make it the default target.
 None of the build targets are manually defined. Instead with every invocation
-of \c make the script scripts/build.sh is invoked to regenerate the file
+of \c make the script \c scripts/build.sh is invoked to regenerate the file
 build.mk.
 
-The build.sh script searches the source directory for .c files and runs
-scripts/includes.awk to generate a dependency tree.
+The \c build.sh script searches the source directory for <tt>.c</tt> files and
+runs \c scripts/depends.awk to generate a dependency tree.
 
-In the next stage build.sh generates the build instructions for each .c file.
+In the next stage \c build.sh generates the build instructions for each
+<tt>.c</tt> file.
 
 The last step is to create the linking instructions. For that the script
-searches for .c files that appear to contain a main() function. The
-inlcudes.awk script is used to determine all the libraries that have to be
-linked with each of the matching .c files.
+searches for <tt>.c</tt> files that appear to contain a main() function. The
+\c scripts/links.awk script is used to determine all the libraries that have
+to be linked with each of the matching <tt>.c</tt> files.
 
 \subsection make_details_doxygen Documentation
 
@@ -732,6 +739,32 @@ the directory \c BUILDDIR, which defaults to bin.sdcc/.
 
 The meta-target \c clean invokes all these targets.
 \endcond
+
+\section make_cygwin Cygwin
+
+Using a combination of native Binaries and Cygwin, the complete set of
+build and generator facilities can be used from Microsoft Windows.
+
+The followin downloads are required:
+- Mercurial: http://mercurial.selenic.com/downloads/
+- SDCC: https://sourceforge.net/projects/sdcc/files/
+- Cygwin installer: http://cygwin.com/install.html
+
+Additionally to the defaults the following Cygwin packages have to be
+installed:
+- Devel: gcc-core
+- Devel: libiconv
+- Devel: make
+
+After the installation the PATH variable should reference SDCC and Cygwin:
+\image html img/cygwin_PATH.png "Cygwin and SDCC PATH environment"
+\image latex img/cygwin_PATH.png "Cygwin and SDCC PATH environment" height=10cm
+
+The libraries provide simple batch files to execute \c uVisionupdate.sh
+and call \c make. For ease of use the table of \c make targets is
+displayed:
+\image html img/cygwin_cygwin-make.png "Make and available targets in Cygwin"
+\image latex img/cygwin_cygwin-make.png "Make and available targets in Cygwin" height=10cm
 
 \page requirements Code Requirements
 

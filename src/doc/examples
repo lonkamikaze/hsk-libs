@@ -39,7 +39,7 @@
 #ifdef SDCC
 #pragma nooverlay
 #endif
-void isr_callback(void) {
+void isr_callback(void) using 1 {
 	[...]
 }
 #pragma restore
