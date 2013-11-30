@@ -202,10 +202,10 @@ void hsk_pwm_init(const hsk_pwm_channel channel, const ulong freq) {
 	}
 }
 
-/** \var hsk_pwm_ports
+/** \var ports
  * Data structure to hold output port configurations.
  */
-const struct {
+static const struct {
 	/**
 	 * The Pn_ALTSEL[01] bit position to make the port configuration in.
 	 */
@@ -215,7 +215,7 @@ const struct {
 	 * Select a 2 bits Pn_ALTSEL[01] configuration.
 	 */
 	ubyte sel;
-} code hsk_pwm_ports[] = {
+} code ports[] = {
 	/* PWM_OUT_60_P30 */ {0, 1},
 	/* PWM_OUT_60_P31 */ {1, 1},
 	/* PWM_OUT_60_P40 */ {0, 1},
@@ -244,8 +244,8 @@ void hsk_pwm_port_open(const hsk_pwm_port port) {
 	 * Check the "CCU6 I/O Control Selection" table.
 	 */
 
-	#define portBit hsk_pwm_ports[port].pos
-	#define portSel hsk_pwm_ports[port].sel
+	#define portBit ports[port].pos
+	#define portSel ports[port].sel
 
 	/* Activate CC6n/COUT6n output ports. */
 	SFR_PAGE(_pp2, noSST);
@@ -304,8 +304,8 @@ void hsk_pwm_port_close(const hsk_pwm_port port) {
 	 * the same output channel.
 	 */
 
-	#define portBit hsk_pwm_ports[port].pos
-	#define portSel hsk_pwm_ports[port].sel
+	#define portBit ports[port].pos
+	#define portSel ports[port].sel
 
 	/* Deactivate CC6n/COUT6n output ports. */
 	SFR_PAGE(_pp2, noSST);

@@ -223,10 +223,10 @@ ubyte _sdcc_external_startup(void) {
  */
 #define BIT_NMIPLL       1
 
-/** \var hsk_boot
+/** \var boot
  * Boot parameter storage for the loss of clock ISR callback.
  */
-struct {
+static struct {
 	/**
 	 * The PDIV value for the configured clock speed.
 	 *
@@ -242,7 +242,7 @@ struct {
 	 * See the NDIV description for value encoding.
 	 */
 	uword ndiv;
-} xdata hsk_boot;
+} xdata boot;
 
 /**
  * Loss of clock recovery ISR.
@@ -295,11 +295,11 @@ void hsk_boot_isr_nmipll(void) using 2 {
 	MAIN_vUnlockProtecReg();
 	OSC_CON	|= 1 << BIT_OSCSS;
 	/* Reprogram NDIV, PDIV and KDIV values is necessary. */
-	activeWait = (hsk_boot.ndiv >> CNT_NDIVL) << BIT_NDIVH;
-	activeWait |= hsk_boot.pdiv << BIT_PDIV;
+	activeWait = (boot.ndiv >> CNT_NDIVL) << BIT_NDIVH;
+	activeWait |= boot.pdiv << BIT_PDIV;
 	MAIN_vUnlockProtecReg();
 	PLL_CON1 = activeWait;
-	activeWait = (hsk_boot.ndiv & ((1 << CNT_NDIVL) - 1)) << BIT_NDIVL;
+	activeWait = (boot.ndiv & ((1 << CNT_NDIVL) - 1)) << BIT_NDIVL;
 	MAIN_vUnlockProtecReg();
 	PLL_CON = activeWait;
 
@@ -347,8 +347,8 @@ void hsk_boot_extClock(const ulong clk) {
 	 * See table 7-5 in the data sheet for desired NDIV and PDIV values.
 	 * See the NDIV and PDIV descriptions for value encoding.
 	 */
-	hsk_boot.ndiv = 144 - 2;
-	hsk_boot.pdiv = clk / 1000000UL - 2;
+	boot.ndiv = 144 - 2;
+	boot.pdiv = clk / 1000000UL - 2;
 
 	/* Go to page1 where all the oscillator registers are. */
 	SFR_PAGE(_su1, noSST);
@@ -383,11 +383,11 @@ void hsk_boot_extClock(const ulong clk) {
 	OSC_CON	|= 1 << BIT_OSCSS;
 	/* Program desired NDIV, PDIV and KDIV values. */
 	/* The KDIV value is not touched. */
-	activeWait = (hsk_boot.ndiv >> CNT_NDIVL) << BIT_NDIVH;
-	activeWait |= hsk_boot.pdiv << BIT_PDIV;
+	activeWait = (boot.ndiv >> CNT_NDIVL) << BIT_NDIVH;
+	activeWait |= boot.pdiv << BIT_PDIV;
 	MAIN_vUnlockProtecReg();
 	PLL_CON1 = activeWait;
-	activeWait = (hsk_boot.ndiv & ((1 << CNT_NDIVL) - 1)) << BIT_NDIVL;
+	activeWait = (boot.ndiv & ((1 << CNT_NDIVL) - 1)) << BIT_NDIVL;
 	MAIN_vUnlockProtecReg();
 	PLL_CON = activeWait;
 
