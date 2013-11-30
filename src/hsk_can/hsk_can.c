@@ -268,9 +268,9 @@
 #define CNT_RXSEL              3
 
 /**
- * Stores whether common initialization has been performed.
+ * Stores whether common initialisation has been performed.
  */
-bool hsk_can_initialized = 0;
+static bool initialised = 0;
 
 /**
  * The Panel Control Register.
@@ -401,10 +401,10 @@ void hsk_can_init(const ubyte pins, const ulong __xdata baud) {
 	ubyte rxsel;
 
 	/*
-	 * Perform initialization tasks common to all nodes.
+	 * Perform initialisation tasks common to all nodes.
 	 */
-	if (!hsk_can_initialized) {
-		hsk_can_initialized = 1;
+	if (!initialised) {
+		initialised = 1;
 
 		/* Enable clock. */
 		SFR_PAGE(_su1, noSST);
@@ -418,7 +418,7 @@ void hsk_can_init(const ubyte pins, const ulong __xdata baud) {
 		SFR_PAGE(_su0, noSST);
 
 		/*
-		 * Make sure the CAN message lists are initialized.
+		 * Make sure the CAN message lists are initialised.
 		 */
 		CAN_ADLH = PANCTR;
 		PANCTR_READY();

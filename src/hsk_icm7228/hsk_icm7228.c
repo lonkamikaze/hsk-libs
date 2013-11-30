@@ -17,7 +17,7 @@
  * 7 segment display patterns.
  *
  * The ASCII character can be used to receive the desired 7 segment code.
- * E.g. hsk_icm7228_codepage['A'] retrieves the letter 'A' from the table.
+ * E.g. codepage['A'] retrieves the letter 'A' from the table.
  *
  * Some letters like 'X' are badly recognisable, others cannot be well
  * represented at all. E.g. the letters 'M' and 'W' are identical to the
@@ -33,7 +33,7 @@
  * The first 16 characters from index 0 return the characters
  * "0123456789ABCDEF" as well.
  */
-const char code hsk_icm7228_codepage[] = {
+static const char code codepage[] = {
 	0xFB, 0xB0, 0xED, 0xF5, 0xB6, 0xD7, 0xDF, 0xF0,
 	0xFF, 0xF7, 0xFE, 0x9F, 0xCB, 0xBD, 0xCF, 0xCE,
 	0x80, 0xC0, 0xE0, 0xF0, 0xF1, 0xF9, 0xFB, 0xFF,
@@ -61,7 +61,7 @@ void hsk_icm7228_writeString(ubyte xdata * const buffer,
 		const char * str, ubyte pos,
 		ubyte len) {
 	while (len > 0 && str[0]) {
-		buffer[pos] = hsk_icm7228_codepage[str[0]];
+		buffer[pos] = codepage[str[0]];
 		len--;
 		if (str[0] != '.' && str[1] == '.') {
 			buffer[pos] &= 0x7f;
@@ -77,7 +77,7 @@ void hsk_icm7228_writeDec(ubyte xdata * const buffer, uword value,
 	ubyte point = power ? 0x7f : 0xff;
 
 	while (len > 0) {
-		buffer[pos + --len] = (value || power <= 0) ? hsk_icm7228_codepage[value % 10] : hsk_icm7228_codepage[' '] ;
+		buffer[pos + --len] = (value || power <= 0) ? codepage[value % 10] : codepage[' '] ;
 		if (power++ == 0) {
 			buffer[pos + len] &= point;
 		}
@@ -90,7 +90,7 @@ void hsk_icm7228_writeHex(ubyte xdata * const buffer, uword value,
 	ubyte point = power ? 0x7f : 0xff;
 
 	while (len > 0) {
-		buffer[pos + --len] = (value || power <= 0) ? hsk_icm7228_codepage[value & 0xf] : hsk_icm7228_codepage[' '] ;
+		buffer[pos + --len] = (value || power <= 0) ? codepage[value & 0xf] : codepage[' '] ;
 		if (power++ == 0) {
 			buffer[pos + len] &= point;
 		}
@@ -103,7 +103,7 @@ void hsk_icm7228_illuminate(ubyte xdata * const buffer,
 	ubyte illuminate;
 	while (len--) {
 		illuminate = segments > 8 ? 8 : segments;
-		buffer[pos++] = hsk_icm7228_codepage[ILLUMINATE_OFFSET + illuminate];
+		buffer[pos++] = codepage[ILLUMINATE_OFFSET + illuminate];
 		segments -= illuminate;
 	}
 }

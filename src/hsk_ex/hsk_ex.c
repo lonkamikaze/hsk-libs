@@ -191,10 +191,10 @@ void hsk_ex_channel_disable(const hsk_ex_channel channel) {
 	}
 }
 
-/** \var hsk_ex_ports
+/** \var ports
  * External input configuration structure.
  */
-const struct {
+static const struct {
 	/**
 	 * The MODPISEL[n] bit(s) to select.
 	 */
@@ -214,7 +214,7 @@ const struct {
 	 * The port ALTSEL (alternative select) setting.
 	 */
 	ubyte portAltsel;
-} code hsk_ex_ports[] = {
+} code ports[] = {
 	/* EXINT0_P05 */ {1, 0, 5, 2},
 	/* EXINT3_P11 */ {0, 0, 1, 2},
 	/* EXINT0_P14 */ {1, 1, 4, 2},
@@ -245,8 +245,8 @@ void hsk_ex_port_open(const hsk_ex_port port) {
 	/*
 	 * Select input port.
 	 */
-	#define modpiselBit    hsk_ex_ports[port].modpiselBit
-	#define modpiselSel    hsk_ex_ports[port].modpiselSel
+	#define modpiselBit    ports[port].modpiselBit
+	#define modpiselSel    ports[port].modpiselSel
 	switch (port) {
 	case EX_EXINT0_P05:
 	case EX_EXINT0_P14:
@@ -291,8 +291,8 @@ void hsk_ex_port_open(const hsk_ex_port port) {
 	/*
 	 * Activate input port.
 	 */
-	#define portBit        hsk_ex_ports[port].portBit
-	#define portAltsel     hsk_ex_ports[port].portAltsel
+	#define portBit        ports[port].portBit
+	#define portAltsel     ports[port].portAltsel
 	switch (port) {
 	case EX_EXINT0_P05:
 		P0_DIR &= ~(1 << portBit);
@@ -362,7 +362,7 @@ void hsk_ex_port_close(const hsk_ex_port port) {
 	/*
 	 * Deactivate input port.
 	 */
-	#define portBit        hsk_ex_ports[port].portBit
+	#define portBit        ports[port].portBit
 	switch (port) {
 	case EX_EXINT0_P05:
 		P0_DIR &= ~(1 << portBit);

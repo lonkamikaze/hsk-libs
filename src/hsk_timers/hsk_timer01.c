@@ -57,10 +57,10 @@
  */
 #define CNT_T1M     2
 
-/** \var hsk_timers
+/** \var timers
  * Struct representing runtime information for a timer.
  */
-struct {
+static struct {
 	/**
 	 * The value to load into the timer upon overflow.
 	 */
@@ -70,7 +70,7 @@ struct {
 	 * A callback function pointer used by the ISR.
 	 */
 	void (code *callback)(void) using(1);
-} pdata hsk_timers[2];
+} pdata timers[2];
 
 /**
  * SYSCON0 Special Function Register Map Control bit.
@@ -88,10 +88,10 @@ void ISR_hsk_timer0(void) interrupt 1 using 1 {
 	bool rmap = (SYSCON0 >> BIT_RMAP) & 1;
 	RESET_RMAP();
 
-	TL0 += hsk_timers[0].overflow;
+	TL0 += timers[0].overflow;
 	TH0 += (ubyte)CY;
-	TH0 += hsk_timers[0].overflow >> 8;
-	hsk_timers[0].callback();
+	TH0 += timers[0].overflow >> 8;
+	timers[0].callback();
 
 	rmap ? (SET_RMAP()) : (RESET_RMAP());
 }
@@ -107,10 +107,10 @@ void ISR_hsk_timer1(void) interrupt 3 using 1 {
 	bool rmap = (SYSCON0 >> BIT_RMAP) & 1;
 	RESET_RMAP();
 
-	TL1 += hsk_timers[1].overflow;
+	TL1 += timers[1].overflow;
 	TH1 += (ubyte)CY;
-	TH1 += hsk_timers[1].overflow >> 8;
-	hsk_timers[1].callback();
+	TH1 += timers[1].overflow >> 8;
+	timers[1].callback();
 
 	rmap ? (SET_RMAP()) : (RESET_RMAP());
 }
@@ -151,8 +151,8 @@ void hsk_timer01_setup(const ubyte id, const uword __xdata interval,
 	 */
 
 	/* Set up timer data for the ISRs. */
-	hsk_timers[id].overflow = - (interval * 12);
-	hsk_timers[id].callback = callback;
+	timers[id].overflow = - (interval * 12);
+	timers[id].callback = callback;
 }
 
 void hsk_timer0_setup(const uword interval,

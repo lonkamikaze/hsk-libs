@@ -1185,7 +1185,8 @@ The file should be included in the following manner:
 
 \section conventions_members Member Naming Conventions
 
-All members except defines have the same structure of context prefix.
+All members except defines and statics have the same structure of context
+prefix.
 Contexts can be nested, each level of context is separated by an underscore.
 Member names following the underscore separated context are camel case.
 The root context is always the library, subcontexts need to have a central
@@ -1193,6 +1194,10 @@ concept or data structure that defines them.
 
 Defines are always specified in capitals. Thus all separation in the names of
 defines is done by underscore. Public defines have the library name without
+
+Statics are considered private within the context and thus do not require a
+prefix.
+
 \c HSK as a prefix.
 
 \subsection conventions_members_public Public Example

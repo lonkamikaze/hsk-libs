@@ -34,17 +34,17 @@
 /**
  * The prescaling factor.
  */
-ubyte xdata hsk_pwc_prescaler;
+static ubyte xdata prescaler;
 
 /**
  * A CCT overflow counter.
  */
-volatile ubyte pdata hsk_pwc_overflow;
+static volatile ubyte pdata overflows;
 
-/** \var hsk_pwc_channels
+/** \var channels
  * Processing data for PWC channels.
  */
-volatile struct {
+static volatile struct {
 	/**
 	 * The sum of the values stored in the ring buffer.
 	 */
@@ -94,7 +94,7 @@ volatile struct {
 	 * a low pulse.
 	 */
 	ubyte state;
-} pdata hsk_pwc_channels[PWC_CHANNELS];
+} pdata channels[PWC_CHANNELS];
 
 #pragma save
 #ifdef SDCC
@@ -110,7 +110,7 @@ volatile struct {
  * @private
  */
 void hsk_pwc_isr_ccn(const hsk_pwc_channel channel, uword capture) using 1 {
-	#define channel    hsk_pwc_channels[channel]
+	#define channel    channels[channel]
 	/* Get the new value and store the current capture value for next
 	 * time. */
 	capture -= channel.lastCapture;
@@ -121,7 +121,7 @@ void hsk_pwc_isr_ccn(const hsk_pwc_channel channel, uword capture) using 1 {
 	channel.pos %= channel.averageOver;
 	channel.sum += capture;
 	/* Update the overflow count.. */
-	channel.overflow = hsk_pwc_overflow;
+	channel.overflow = overflows;
 	/* Update the invalidation count. */
 	if (channel.invalid) {
 		channel.invalid--;
@@ -136,7 +136,7 @@ void hsk_pwc_isr_ccn(const hsk_pwc_channel channel, uword capture) using 1 {
  */
 void hsk_pwc_isr_cc0_p30(void) using 1 {
 	SFR_PAGE(_pp0, SST1);
-	hsk_pwc_channels[0].state = (P3_DATA >> 0) & 1;
+	channels[0].state = (P3_DATA >> 0) & 1;
 	SFR_PAGE(_pp0, RST1);
 	SFR_PAGE(_t2_2, SST1);
 	hsk_pwc_isr_ccn(0, T2CCU_CC0LH);
@@ -150,7 +150,7 @@ void hsk_pwc_isr_cc0_p30(void) using 1 {
  */
 void hsk_pwc_isr_cc0_p40(void) using 1 {
 	SFR_PAGE(_pp0, SST1);
-	hsk_pwc_channels[0].state = (P4_DATA >> 0) & 1;
+	channels[0].state = (P4_DATA >> 0) & 1;
 	SFR_PAGE(_pp0, RST1);
 	SFR_PAGE(_t2_2, SST1);
 	hsk_pwc_isr_ccn(0, T2CCU_CC0LH);
@@ -164,7 +164,7 @@ void hsk_pwc_isr_cc0_p40(void) using 1 {
  */
 void hsk_pwc_isr_cc0_p55(void) using 1 {
 	SFR_PAGE(_pp0, SST1);
-	hsk_pwc_channels[0].state = (P5_DATA >> 5) & 1;
+	channels[0].state = (P5_DATA >> 5) & 1;
 	SFR_PAGE(_pp0, RST1);
 	SFR_PAGE(_t2_2, SST1);
 	hsk_pwc_isr_ccn(0, T2CCU_CC0LH);
@@ -178,7 +178,7 @@ void hsk_pwc_isr_cc0_p55(void) using 1 {
  */
 void hsk_pwc_isr_cc1_p32(void) using 1 {
 	SFR_PAGE(_pp0, SST1);
-	hsk_pwc_channels[1].state = (P3_DATA >> 2) & 1;
+	channels[1].state = (P3_DATA >> 2) & 1;
 	SFR_PAGE(_pp0, RST1);
 	SFR_PAGE(_t2_2, SST1);
 	hsk_pwc_isr_ccn(1, T2CCU_CC1LH);
@@ -192,7 +192,7 @@ void hsk_pwc_isr_cc1_p32(void) using 1 {
  */
 void hsk_pwc_isr_cc1_p41(void) using 1 {
 	SFR_PAGE(_pp0, SST1);
-	hsk_pwc_channels[1].state = (P4_DATA >> 1) & 1;
+	channels[1].state = (P4_DATA >> 1) & 1;
 	SFR_PAGE(_pp0, RST1);
 	SFR_PAGE(_t2_2, SST1);
 	hsk_pwc_isr_ccn(1, T2CCU_CC1LH);
@@ -206,7 +206,7 @@ void hsk_pwc_isr_cc1_p41(void) using 1 {
  */
 void hsk_pwc_isr_cc1_p56(void) using 1 {
 	SFR_PAGE(_pp0, SST1);
-	hsk_pwc_channels[1].state = (P5_DATA >> 6) & 1;
+	channels[1].state = (P5_DATA >> 6) & 1;
 	SFR_PAGE(_pp0, RST1);
 	SFR_PAGE(_t2_2, SST1);
 	hsk_pwc_isr_ccn(1, T2CCU_CC1LH);
@@ -220,7 +220,7 @@ void hsk_pwc_isr_cc1_p56(void) using 1 {
  */
 void hsk_pwc_isr_cc2_p33(void) using 1 {
 	SFR_PAGE(_pp0, SST1);
-	hsk_pwc_channels[2].state = (P3_DATA >> 3) & 1;
+	channels[2].state = (P3_DATA >> 3) & 1;
 	SFR_PAGE(_pp0, RST1);
 	SFR_PAGE(_t2_2, SST1);
 	hsk_pwc_isr_ccn(2, T2CCU_CC2LH);
@@ -234,7 +234,7 @@ void hsk_pwc_isr_cc2_p33(void) using 1 {
  */
 void hsk_pwc_isr_cc2_p44(void) using 1 {
 	SFR_PAGE(_pp0, SST1);
-	hsk_pwc_channels[2].state = (P4_DATA >> 4) & 1;
+	channels[2].state = (P4_DATA >> 4) & 1;
 	SFR_PAGE(_pp0, RST1);
 	SFR_PAGE(_t2_2, SST1);
 	hsk_pwc_isr_ccn(2, T2CCU_CC2LH);
@@ -248,7 +248,7 @@ void hsk_pwc_isr_cc2_p44(void) using 1 {
  */
 void hsk_pwc_isr_cc2_p52(void) using 1 {
 	SFR_PAGE(_pp0, SST1);
-	hsk_pwc_channels[2].state = (P5_DATA >> 2) & 1;
+	channels[2].state = (P5_DATA >> 2) & 1;
 	SFR_PAGE(_pp0, RST1);
 	SFR_PAGE(_t2_2, SST1);
 	hsk_pwc_isr_ccn(2, T2CCU_CC2LH);
@@ -263,7 +263,7 @@ void hsk_pwc_isr_cc2_p52(void) using 1 {
  */
 void hsk_pwc_isr_cc3_p34(void) using 1 {
 	SFR_PAGE(_pp0, SST1);
-	hsk_pwc_channels[3].state = (P3_DATA >> 4) & 1;
+	channels[3].state = (P3_DATA >> 4) & 1;
 	SFR_PAGE(_pp0, RST1);
 	SFR_PAGE(_t2_3, SST1);
 	hsk_pwc_isr_ccn(3, T2CCU_CC3LH);
@@ -277,7 +277,7 @@ void hsk_pwc_isr_cc3_p34(void) using 1 {
  */
 void hsk_pwc_isr_cc3_p45(void) using 1 {
 	SFR_PAGE(_pp0, SST1);
-	hsk_pwc_channels[3].state = (P4_DATA >> 5) & 1;
+	channels[3].state = (P4_DATA >> 5) & 1;
 	SFR_PAGE(_pp0, RST1);
 	SFR_PAGE(_t2_3, SST1);
 	hsk_pwc_isr_ccn(3, T2CCU_CC3LH);
@@ -291,7 +291,7 @@ void hsk_pwc_isr_cc3_p45(void) using 1 {
  */
 void hsk_pwc_isr_cc3_p57(void) using 1 {
 	SFR_PAGE(_pp0, SST1);
-	hsk_pwc_channels[3].state = (P5_DATA >> 7) & 1;
+	channels[3].state = (P5_DATA >> 7) & 1;
 	SFR_PAGE(_pp0, RST1);
 	SFR_PAGE(_t2_3, SST1);
 	hsk_pwc_isr_ccn(3, T2CCU_CC3LH);
@@ -302,14 +302,14 @@ void hsk_pwc_isr_cc3_p57(void) using 1 {
 /**
  * The ISR for Capture/Compare overflow events.
  *
- * It simply increases hsk_pwc_overflow, which is used by
+ * It simply increases overflows, which is used by
  * hsk_pwc_channel_getSum() to check whether the capture time window was
  * left.
  *
  * @private
  */
 void hsk_pwc_isr_cctOverflow(void) using 1 {
-	hsk_pwc_overflow++;
+	overflows++;
 }
 #pragma restore
 
@@ -323,7 +323,7 @@ void hsk_pwc_isr_cctOverflow(void) using 1 {
  * @private
  */
 void hsk_pwc_ccn(const hsk_pwc_channel channel, uword capture) {
-	#define channel    hsk_pwc_channels[channel]
+	#define channel    channels[channel]
 	/* Get the new value and store the current capture value for next
 	 * time. */
 	capture -= channel.lastCapture;
@@ -334,7 +334,7 @@ void hsk_pwc_ccn(const hsk_pwc_channel channel, uword capture) {
 	channel.pos %= channel.averageOver;
 	channel.sum += capture;
 	/* Update the overflow count.. */
-	channel.overflow = hsk_pwc_overflow;
+	channel.overflow = overflows;
 	/* Update the invalidation count. */
 	if (channel.invalid) {
 		channel.invalid--;
@@ -385,7 +385,7 @@ void hsk_pwc_ccn(const hsk_pwc_channel channel, uword capture) {
 
 void hsk_pwc_init(ulong window) {
 	/* The prescaler in powers of 2. */
-	hsk_pwc_prescaler = 0;
+	prescaler = 0;
 
 	/*
 	 * Get the lowest prescaler that delivers the desired window time.
@@ -394,15 +394,15 @@ void hsk_pwc_init(ulong window) {
 	 * a new prescaler until it fits into 2^16 - 1 timer cycles.
 	 */
 	window *= 48000;
-	for (; hsk_pwc_prescaler < 12 && window >= (1ul << 16);
-		hsk_pwc_prescaler++, window >>= 1);
+	for (; prescaler < 12 && window >= (1ul << 16);
+		prescaler++, window >>= 1);
 
 	/*
 	 * Set the prescaler.
 	 */
 	SFR_PAGE(_su1, noSST);
 	/* Set T2CCUCLK to FCLK or PCLK. */
-	if (hsk_pwc_prescaler) {
+	if (prescaler) {
 		/* PCLK */
 		CR_MISC &= ~(1 << BIT_T2CCFG);
 	} else {
@@ -413,7 +413,7 @@ void hsk_pwc_init(ulong window) {
 
 	SFR_PAGE(_t2_1, noSST);
 	/* Set the internal prescaler. */
-	T2CCU_CCTCON = (hsk_pwc_prescaler ? hsk_pwc_prescaler - 1 : 0) << BIT_CCTPRE;
+	T2CCU_CCTCON = (prescaler ? prescaler - 1 : 0) << BIT_CCTPRE;
 
 	/*
 	 * Start the Capture/Compare Timer and the overflow interrupt.
@@ -457,9 +457,9 @@ void hsk_pwc_channel_open(const hsk_pwc_channel channel,
 	if (averageOver < 1 || averageOver > CHAN_BUF_SIZE) {
 		averageOver = 1;
 	}
-	memset(&hsk_pwc_channels[channel], 0, sizeof(hsk_pwc_channels[channel]));
-	hsk_pwc_channels[channel].averageOver = averageOver;
-	hsk_pwc_channels[channel].invalid = averageOver + 1;
+	memset(&channels[channel], 0, sizeof(channels[channel]));
+	channels[channel].averageOver = averageOver;
+	channels[channel].invalid = averageOver + 1;
 
 	/**
 	 * Set the PWC capture mode.
@@ -815,7 +815,7 @@ void hsk_pwc_disable(void) {
 
 ulong hsk_pwc_channel_getValue(const hsk_pwc_channel channel,
                                const ubyte unit) {
-	#define channel    hsk_pwc_channels[channel]
+	#define channel    channels[channel]
 	ulong result;
 	bool ea = EA;
 	bool exm = EXM;
@@ -829,7 +829,7 @@ ulong hsk_pwc_channel_getValue(const hsk_pwc_channel channel,
 	ET2 = 0;
 	EA = ea;
 	/* Get the age of the last capture event. */
-	overflow = hsk_pwc_overflow - channel.overflow;
+	overflow = overflows - channel.overflow;
 	/* Captures shortly before and after an overflow may have an off by
 	 * one overflow count. */
 	if (overflow && T2CCU_CCTLH < (channel.lastCapture - 0x100)) {
@@ -854,83 +854,83 @@ ulong hsk_pwc_channel_getValue(const hsk_pwc_channel channel,
 	 */
 	switch(unit) {
 	case PWC_UNIT_SUM_RAW:
-		result = channel.sum << hsk_pwc_prescaler;
+		result = channel.sum << prescaler;
 		break;
 	case PWC_UNIT_WIDTH_RAW:
-		result = (channel.sum << hsk_pwc_prescaler)
+		result = (channel.sum << prescaler)
 			/ channel.averageOver;
 		break;
 	case PWC_UNIT_WIDTH_NS:
-		result = (channel.sum << hsk_pwc_prescaler)
+		result = (channel.sum << prescaler)
 			* 250 / 12 / channel.averageOver;
 		break;
 	case PWC_UNIT_WIDTH_US:
-		result = (channel.sum << hsk_pwc_prescaler)
+		result = (channel.sum << prescaler)
 			/ 48 / channel.averageOver;
 		break;
 	case PWC_UNIT_WIDTH_MS:
-		result = (channel.sum << hsk_pwc_prescaler)
+		result = (channel.sum << prescaler)
 			/ 48000 / channel.averageOver;
 		break;
 	case PWC_UNIT_FREQ_S:
 		result = (48000000ul * channel.averageOver
-			/ channel.sum) >> hsk_pwc_prescaler;
+			/ channel.sum) >> prescaler;
 		break;
 	case PWC_UNIT_FREQ_M:
-		result = ((48000000ul * 60) >> hsk_pwc_prescaler)
+		result = ((48000000ul * 60) >> prescaler)
 			/ channel.sum * channel.averageOver;
 		break;
 	case PWC_UNIT_FREQ_H:
-		result = ((48000000ul * 60) >> hsk_pwc_prescaler)
+		result = ((48000000ul * 60) >> prescaler)
 			/ channel.sum * 60 * channel.averageOver;
 		break;
 	case PWC_UNIT_DUTYH_RAW:
 		result = channel.buffer[(channel.pos + channel.averageOver
 		                         - 1 - channel.state)
 		                        % channel.averageOver]
-		         << hsk_pwc_prescaler;
+		         << prescaler;
 		break;
 	case PWC_UNIT_DUTYH_NS:
 		result = (channel.buffer[(channel.pos + channel.averageOver
 		                         - 1 - channel.state)
 		                        % channel.averageOver]
-		          << hsk_pwc_prescaler) * 250 / 12;
+		          << prescaler) * 250 / 12;
 		break;
 	case PWC_UNIT_DUTYH_US:
 		result = (channel.buffer[(channel.pos + channel.averageOver
 		                         - 1 - channel.state)
 		                        % channel.averageOver]
-		          << hsk_pwc_prescaler) / 48;
+		          << prescaler) / 48;
 		break;
 	case PWC_UNIT_DUTYH_MS:
 		result = (channel.buffer[(channel.pos + channel.averageOver
 		                         - 1 - channel.state)
 		                        % channel.averageOver]
-		          << hsk_pwc_prescaler) / 48000;
+		          << prescaler) / 48000;
 		break;
 	case PWC_UNIT_DUTYL_RAW:
 		result = channel.buffer[(channel.pos + channel.averageOver
 		                         - 1 - (channel.state ^ 1))
 		                        % channel.averageOver]
-		         << hsk_pwc_prescaler;
+		         << prescaler;
 		break;
 	case PWC_UNIT_DUTYL_NS:
 		result = (channel.buffer[(channel.pos + channel.averageOver
 		                         - 1 - (channel.state ^ 1))
 		                        % channel.averageOver]
-		          << hsk_pwc_prescaler) * 250 / 12;
+		          << prescaler) * 250 / 12;
 		break;
 	case PWC_UNIT_DUTYL_US:
 		result = (channel.buffer[(channel.pos + channel.averageOver
 		                         - 1 - (channel.state ^ 1))
 		                        % channel.averageOver]
-		          << hsk_pwc_prescaler) / 48;
+		          << prescaler) / 48;
 		break;
 	case PWC_UNIT_DUTYL_MS:
 		result = (channel.buffer[(channel.pos + channel.averageOver
 		                         - 1 - (channel.state ^ 1))
 		                        % channel.averageOver]
-		          << hsk_pwc_prescaler) / 48000;
+		          << prescaler) / 48000;
 		break;
 	default:
 		result = 0;

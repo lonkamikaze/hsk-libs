@@ -54,12 +54,12 @@
 /**
  * Holds the channel of the next conversion that will be requested.
  */
-hsk_adc_channel pdata hsk_adc_nextChannel = ADC_CHANNELS;
+static hsk_adc_channel pdata nextChannel = ADC_CHANNELS;
 
-/** \var hsk_adc_targets
+/** \var targets
  * An array of target addresses to write conversion results into.
  */
-volatile union {
+static volatile union {
 	/**
 	 * Pointer type used for 10 bit conversions.
 	 */
@@ -69,7 +69,7 @@ volatile union {
 	 * Pointer type used for 8 bit conversions.
 	 */
 	ubyte * ptr8;
-} pdata hsk_adc_targets[ADC_CHANNELS];
+} pdata targets[ADC_CHANNELS];
 
 /**
  * ADC_RESRxL Channel Number bits.
@@ -116,9 +116,9 @@ void hsk_adc_isr10(void) using 1 {
 	SFR_PAGE(_ad2, RST1);
 
 	/* Deliver result to the target address. */
-	if (hsk_adc_targets[channel].ptr10) {
+	if (targets[channel].ptr10) {
 		/* Get the result bits and deliver them. */
-		*hsk_adc_targets[channel].ptr10 = result;
+		*targets[channel].ptr10 = result;
 	}
 }
 
@@ -138,9 +138,9 @@ void hsk_adc_isr8(void) using 1 {
 	SFR_PAGE(_ad2, RST1);
 
 	/* Deliver result to the target address. */
-	if (hsk_adc_targets[channel].ptr8) {
+	if (targets[channel].ptr8) {
 		/* Get the result bits and deliver them. */
-		*hsk_adc_targets[channel].ptr8 = result;
+		*targets[channel].ptr8 = result;
 	}
 }
 #pragma restore
@@ -202,7 +202,7 @@ void hsk_adc_init(ubyte resolution, uword __xdata convTime) {
 	uword stc;
 
 	/* Make sure the conversion target list is clean. */
-	memset(hsk_adc_targets, 0, sizeof(hsk_adc_targets));
+	memset(targets, 0, sizeof(targets));
 
 	/* Set ADC resolution */
 	SFR_PAGE(_ad0, noSST);
@@ -334,13 +334,13 @@ void hsk_adc_open10(const hsk_adc_channel channel,
 
 	EADC = 0;
 	/* Register callback function. */
-	hsk_adc_targets[channel].ptr10 = target;
+	targets[channel].ptr10 = target;
 	EADC = eadc;
 
 	/* Check if there are no open channels. */
-	if (hsk_adc_nextChannel >= ADC_CHANNELS) {
+	if (nextChannel >= ADC_CHANNELS) {
 		/* Claim the spot as the first open channel. */
-		hsk_adc_nextChannel = channel;
+		nextChannel = channel;
 	}
 }
 
@@ -359,13 +359,13 @@ void hsk_adc_open8(const hsk_adc_channel channel,
 
 	EADC = 0;
 	/* Register callback function. */
-	hsk_adc_targets[channel].ptr8 = target;
+	targets[channel].ptr8 = target;
 	EADC = eadc;
 
 	/* Check if there are no open channels. */
-	if (hsk_adc_nextChannel >= ADC_CHANNELS) {
+	if (nextChannel >= ADC_CHANNELS) {
 		/* Claim the spot as the first open channel. */
-		hsk_adc_nextChannel = channel;
+		nextChannel = channel;
 	}
 }
 
@@ -373,17 +373,17 @@ void hsk_adc_close(const hsk_adc_channel channel) {
 	bool eadc = EADC;
 	EADC = 0;
 	/* Unregister conversion target address. */
-	hsk_adc_targets[channel].ptr10 = 0;
+	targets[channel].ptr10 = 0;
 	EADC = eadc;
 	/* If this channel is scheduled for the next conversion, find an
 	 * alternative. */
-	if (hsk_adc_nextChannel == channel) {
+	if (nextChannel == channel) {
 		/* Get next channel. */
-		for (; hsk_adc_nextChannel < channel + ADC_CHANNELS && !hsk_adc_targets[hsk_adc_nextChannel].ptr10; hsk_adc_nextChannel++);
-		hsk_adc_nextChannel %= ADC_CHANNELS;
+		for (; nextChannel < channel + ADC_CHANNELS && !targets[nextChannel].ptr10; nextChannel++);
+		nextChannel %= ADC_CHANNELS;
 		/* Check whether no active channel was found. */
-		if (!hsk_adc_targets[hsk_adc_nextChannel].ptr10) {
-			hsk_adc_nextChannel = ADC_CHANNELS;
+		if (!targets[nextChannel].ptr10) {
+			nextChannel = ADC_CHANNELS;
 		}
 	}
 }
@@ -400,14 +400,14 @@ void hsk_adc_close(const hsk_adc_channel channel) {
 
 bool hsk_adc_service(void) {
 	/* Check for available channels. */
-	if (hsk_adc_nextChannel >= ADC_CHANNELS) {
+	if (nextChannel >= ADC_CHANNELS) {
 		return 0;
 	}
 	/* Check for a full queue. */
-	if (hsk_adc_request(hsk_adc_nextChannel)) {
+	if (hsk_adc_request(nextChannel)) {
 		/* Find next conversion channel. */
-		while (!hsk_adc_targets[++hsk_adc_nextChannel % ADC_CHANNELS].ptr10);
-		hsk_adc_nextChannel %= ADC_CHANNELS;
+		while (!targets[++nextChannel % ADC_CHANNELS].ptr10);
+		nextChannel %= ADC_CHANNELS;
 		return 1;
 	}
 	return 0;
@@ -444,7 +444,7 @@ void hsk_adc_isr_warmup10(void) using 1 {
 
 	/* Check whether all channels have completed warmup. */
 	for (i = 0; i < ADC_CHANNELS; i++) {
-		if (hsk_adc_targets[i].ptr10 && *hsk_adc_targets[i].ptr10 == -1) {
+		if (targets[i].ptr10 && *targets[i].ptr10 == -1) {
 			/* Bail out if a channel is not warmed up. */
 			return;
 		}
@@ -470,8 +470,8 @@ void hsk_adc_warmup10(void) {
 	/* Set all conversion targets to an invalid value so the value that
 	 * was written can be detected. */
 	for (i = 0; i < ADC_CHANNELS; i++) {
-		if (hsk_adc_targets[i].ptr10) {
-			*hsk_adc_targets[i].ptr10 = -1;
+		if (targets[i].ptr10) {
+			*targets[i].ptr10 = -1;
 		}
 	}
 

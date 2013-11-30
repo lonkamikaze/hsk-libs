@@ -12,16 +12,10 @@
 
 #include "hsk_ssc.h"
 
-/**
- * Master mode storage bit, so it does not need to be extracted
- * from SSC_CONH all the time.
- */
-bool hsk_ssc_master = 1;
-
-/** \var hsk_ssc_buffer
+/** \var bufState
  * Keeps the SSC communication state.
  */
-struct {
+static struct {
 	/**
 	 * Pointer used for storing data read from the serial connection.
 	 */
@@ -41,7 +35,7 @@ struct {
 	 * Bytes left to write on the connection.
 	 */
 	ubyte wcount;
-} pdata hsk_ssc_buffer;
+} pdata bufState;
 
 /**
  * SYSCON0 Special Function Register Map Control bit.
@@ -73,19 +67,19 @@ void ISR_hsk_ssc(void) interrupt 7 using 1 {
 
 	if ((IRCON1 >> BIT_RIR) & 1) {
 		IRCON1 &= ~(1 << BIT_RIR);
-		if (hsk_ssc_buffer.rcount) {
-			*(hsk_ssc_buffer.rptr++) = SSC_RBL;
-			hsk_ssc_buffer.rcount--;
+		if (bufState.rcount) {
+			*(bufState.rptr++) = SSC_RBL;
+			bufState.rcount--;
 		}
 	}
 	if ((IRCON1 >> BIT_TIR) & 1) {
 		IRCON1 &= ~(1 << BIT_TIR);
-		if (hsk_ssc_buffer.wcount) {
-			SSC_TBL = *(hsk_ssc_buffer.wptr++);
-			hsk_ssc_buffer.wcount--;
+		if (bufState.wcount) {
+			SSC_TBL = *(bufState.wptr++);
+			bufState.wcount--;
 		}
 	}
-	if (!hsk_ssc_buffer.wcount && !hsk_ssc_buffer.rcount) {
+	if (!bufState.wcount && !bufState.rcount) {
 		ESSC = 0;
 	}
 
@@ -267,10 +261,10 @@ void hsk_ssc_ports(const ubyte ports) {
 
 void hsk_ssc_talk(char xdata * buffer, ubyte len) {
 	IRCON1 &= ~(1 << BIT_TIR) & ~(1 << BIT_RIR);
-	hsk_ssc_buffer.wptr = buffer + 1;
-	hsk_ssc_buffer.rptr = buffer;
-	hsk_ssc_buffer.wcount = len - 1;
-	hsk_ssc_buffer.rcount = len;
+	bufState.wptr = buffer + 1;
+	bufState.rptr = buffer;
+	bufState.wcount = len - 1;
+	bufState.rcount = len;
 	ESSC = 1;
 	SSC_TBL = *buffer;
 }
