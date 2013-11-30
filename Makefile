@@ -14,6 +14,7 @@
 # | clean-doc         | Remove doxygen output for user doc
 # | clean-doc-private | Remove doxygen output for dev doc
 # | clean-doc-dbc     | Remove doxygen output for dbc doc
+# | clean-doc-scripts | Remove doxygen output for script doc
 # | clean-stale       | Clean no longer required files, not managed by HG
 # | clean             | Clean everything
 # | zip               | Create a .zip archive in the parent directory
@@ -195,7 +196,16 @@ doc-dbc: ${DBCDIR} ${CONFDIR}/doxygen.dbc
 	@echo STRIP_FROM_PATH=${GENDIR} >> doc-dbc/.conf
 	@cat ${CONFDIR}/doxygen.dbc doc-dbc/.conf | doxygen -
 
-pdf: pdf/${PROJECT}-user.pdf pdf/${PROJECT}-dev.pdf pdf/${PROJECT}-dbc.pdf
+doc-scripts: scripts ${CONFDIR}/doxygen.public ${CONFDIR}/doxygen.scripts
+	@rm -rf doc-scripts || true
+	@mkdir -p doc-scripts
+	@echo PROJECT_NAME=\"${PROJECT}-scripts\" >> doc-scripts/.conf
+	@echo PROJECT_NUMBER=${VERSION} >> doc-scripts/.conf
+	@cat ${CONFDIR}/doxygen.public ${CONFDIR}/doxygen.scripts \
+	     doc-scripts/.conf | doxygen -
+
+pdf: pdf/${PROJECT}-user.pdf pdf/${PROJECT}-dev.pdf pdf/${PROJECT}-dbc.pdf \
+     pdf/${PROJECT}-scripts.pdf
 
 pdf/${PROJECT}-user.pdf: doc/latex/refman.pdf
 	@mkdir -p pdf
@@ -209,6 +219,10 @@ pdf/${PROJECT}-dbc.pdf: doc-dbc/latex/refman.pdf
 	@mkdir -p pdf
 	@cp doc-dbc/latex/refman.pdf "pdf/${PROJECT}-dbc.pdf"
 
+pdf/${PROJECT}-scripts.pdf: doc-scripts/latex/refman.pdf
+	@mkdir -p pdf
+	@cp doc-scripts/latex/refman.pdf "pdf/${PROJECT}-scripts.pdf"
+
 doc/latex/refman.pdf: doc
 	@cd doc/latex/ && ${MAKE}
 
@@ -218,10 +232,14 @@ doc-private/latex/refman.pdf: doc-private
 doc-dbc/latex/refman.pdf: doc-dbc
 	@cd doc-dbc/latex/ && ${MAKE}
 
-.PHONY: clean clean-doc clean-doc-private clean-doc-dbc \
+doc-scripts/latex/refman.pdf: doc-scripts
+	@cd doc-scripts/latex/ && ${MAKE}
+
+.PHONY: clean clean-doc clean-doc-private clean-doc-dbc clean-doc-scripts \
         clean-build clean-stale
 
-clean: clean-doc clean-doc-private clean-doc-dbc clean-build clean-stale
+clean: clean-doc clean-doc-private clean-doc-dbc clean-doc-scripts \
+       clean-build clean-stale
 
 clean-doc:
 	@rm -rf doc || true
@@ -231,6 +249,9 @@ clean-doc-private:
 
 clean-doc-dbc:
 	@rm -rf doc-dbc || true
+
+clean-doc-scripts:
+	@rm -rf doc-scripts || true
 
 clean-build:
 	@rm -rf ${BUILDDIR} ${GENDIR} || true

@@ -1,0 +1,10 @@
+OUTPUT_DIRECTORY       = doc-scripts/
+WARN_LOGFILE           = doc-scripts/warnings.log
+INPUT                  = scripts
+STRIP_FROM_PATH        = scripts
+FILE_PATTERNS          = *.awk \
+                         *.txt
+EXTENSION_MAPPING      = awk=C
+FILTER_PATTERNS        = *.awk=scripts/awk2doxygen.awk
+CALL_GRAPH             = NO
+SORT_MEMBER_DOCS       = NO

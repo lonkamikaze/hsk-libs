@@ -12,22 +12,20 @@
 # The command syntax is:
 #	"-" command [ ":" argument ]
 #
-# The following command arguments are supported:
-# - select:         Selects a path using a filter argument, see cmdSelect()
-# - search:         Selects all the subtrees matching the given filter
-#                   argument, see cmdSearch()
-# - set:            Sets the data of a node, see cmdSet()
-# - attrib:         Sets a named attribute, see cmdAttrib()
-# - insert:         Inserts a new child node into the selected nodes, see
-#                   cmdInsert()
-# - selectInserted: Select all nodes created during the last insert operation,
-#                   see cmdSelectInserted()
-# - delete:         Removes the selected nodes from the tree, see cmdDelete()
-# - print:          Print the children and data of the selected nodes, see
-#                   cmdPrint()
+# The following command line arguments are supported:
+# | Command         | Function            | Description
+# |-----------------|---------------------|-------------------------------------------------------------
+# | select          | cmdSelect()         | Selects a path using a filter argument
+# | search          | cmdSearch()         | Selects all the subtrees matching the given filter argument
+# | set             | cmdSet()            | Sets the data of a node
+# | attrib          | cmdAttrib()         | Sets a named attribute
+# | insert          | cmdInsert()         | Inserts a new child node into the selected nodes
+# | selectInserted  | cmdSelectInserted() | Select all nodes created during the last insert operation
+# | delete          | cmdDelete()         | Removes the selected nodes from the tree
+# | print           | cmdPrint()          | Print the children and data of the selected nodes
 #
 
-#
+##
 # Parse arguments and initialise globals.
 #
 BEGIN {
@@ -54,7 +52,7 @@ BEGIN {
 	}
 }
 
-#
+##
 # Return whether an array is empty.
 #
 # @param array
@@ -65,14 +63,14 @@ BEGIN {
 #	The array contains at least one element
 #
 function empty(array,
-i) {
+	i) {
 	for (i in array) {
 		return 0
 	}
 	return 1
 }
 
-#
+##
 # Split a string containing attributes into a string array with
 # "attribute=value" entries.
 #
@@ -84,7 +82,7 @@ i) {
 #	The count of attributes
 #
 function explode(str, results,
-i, array, quoted, count, len) {
+	i, array, quoted, count, len) {
 	len = split(str, array)
 	str = ""
 	for (i = 1; i <= len; i++) {
@@ -113,7 +111,7 @@ i, array, quoted, count, len) {
 	return count
 }
 
-#
+##
 # Escapes quotation marks and backslashes with backslashes.
 #
 # @param str
@@ -127,7 +125,7 @@ function escape(str) {
 	return str
 }
 
-#
+##
 # This function lets you define a selection.
 #
 # A selection filter is a series of node defintions divided by /. Identifiers
@@ -153,7 +151,7 @@ function escape(str) {
 #	The selection filter
 #
 function cmdSelect(str,
-ident, node, ns, i, attrib, attribs, value) {
+	ident, node, ns, i, attrib, attribs, value) {
 	gsub(/\/+/, "/", str)
 
 	while (length(str)) {
@@ -252,7 +250,7 @@ ident, node, ns, i, attrib, attribs, value) {
 	
 }
 
-#
+##
 # This function selects any subtree of the current selection that matches
 # the given selection filter.
 #
@@ -262,7 +260,7 @@ ident, node, ns, i, attrib, attribs, value) {
 #	The selection filter
 #
 function cmdSearch(str,
-node, i, lastSelection, matches) {
+	node, i, lastSelection, matches) {
 	while (!empty(selection)) {
 		for (node in selection) {
 			lastSelection[node]
@@ -287,7 +285,7 @@ node, i, lastSelection, matches) {
 	}
 }
 
-#
+##
 # Changes the content of a node.
 #
 # This does not affect subnodes.
@@ -296,13 +294,13 @@ node, i, lastSelection, matches) {
 #	The value to set the node content to
 #
 function cmdSet(value,
-node) {
+	node) {
 	for (node in selection) {
 		contents[node] = value
 	}
 }
 
-#
+##
 # Changes an attribute of a node.
 #
 # It accepts a singe string in the shape:
@@ -312,7 +310,7 @@ node) {
 #	A single attribute definition
 #
 function cmdAttrib(str,
-node, i, name) {
+	node, i, name) {
 	name = str
 	sub(/=.*/, "", name)
 	sub(/[^=]*=/, "", str)
@@ -327,7 +325,7 @@ node, i, name) {
 	}
 }
 
-#
+##
 # Inserts new nodes into all selected nodes, uses the same syntax as
 # cmdSelect() does.
 #
@@ -335,7 +333,7 @@ node, i, name) {
 #	A node definition like the ones used for selection filters
 #
 function cmdInsert(str,
-node, name, attributes, attribStr, value, count, i, insert) {
+	node, name, attributes, attribStr, value, count, i, insert) {
 	name = str
 	sub(/[\[=].*/, "", name)
 	sub(/^[^\[=]*/, "", str)
@@ -381,23 +379,23 @@ node, name, attributes, attribStr, value, count, i, insert) {
 	}
 }
 
-#
+##
 # Select the nodes created during the last insert operation.
 #
 function cmdSelectInserted(dummy,
-node) {
+	node) {
 	delete selection
 	for (node in inserted) {
 		selection[node]
 	}
 }
 
-#
+##
 # Unhooks a selected node from the tree, it's still there and can be navigated
 # out of by selecting "..".
 #
 function cmdDelete(dummy,
-node, i) {
+	node, i) {
 	# Delete the selected nodes
 	for (node in selection) {
 		for (i = 0; children[parent[node], i] != node; i++);
@@ -408,17 +406,17 @@ node, i) {
 	}
 }
 
-#
+##
 # Print the current selection.
 #
 function cmdPrint(dummy,
-node) {
+	node) {
 	for (node in selection) {
 		printNode(0, node)
 	}
 }
 
-#
+##
 # Prints children and contents of the given node
 #
 # @param indent
@@ -427,7 +425,7 @@ node) {
 #	The node to print
 #
 function printNode(indent, node,
-prefix, i, p) {
+	prefix, i, p) {
 	# Create indention string
 	for (i = 0; i < indent; i++) {
 		prefix = INDENT prefix
@@ -485,7 +483,7 @@ prefix, i, p) {
 	}
 }
 
-#
+##
 # Parse the XML tree
 #
 # Abbreviations:
@@ -561,7 +559,7 @@ prefix, i, p) {
 	}
 }
 
-#
+##
 # Execute the specified commands.
 #
 END {

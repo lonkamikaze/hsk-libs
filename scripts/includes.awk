@@ -1,5 +1,17 @@
 #!/usr/bin/awk -f
+#
+# List dependency information for each file.
+#
+# This provides a make style list of direct dependencies.
+#
+# @deprecated
+#	This script is obsoleted by depends.awk and links.awk, which both
+#	are cstrip.awk based.
+#
 
+##
+# Get the includes for the current file.
+#
 function getIncludes() {
 	if ($0 ~ /\/\*.*\*\//) {
 		gsub(/\/\*([^\*]|\*[^\/])*\*\//, "");
@@ -54,6 +66,9 @@ function getIncludes() {
 	}
 }
 
+##
+# Get the includes for each file in the list of arguments.
+#
 BEGIN {
 	for (i = 1; i < ARGC; i++) {
 		if (system("test -d " ARGV[i]) == 0) {

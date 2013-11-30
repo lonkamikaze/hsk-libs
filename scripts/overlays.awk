@@ -1,7 +1,21 @@
 #!/usr/bin/awk -f
-
+#
 # Finds call tree manipulations for µVision from C files.
+#
+# This script directly makes use of the coding conventions of the hsk_libs
+# and uses internal knowledge, which makes it useless for any other
+# purpose.
+#
 
+##
+# Pass all arguments to cstrip.awk and pass the output to TMPFILE.
+#
+# Creates the following globals:
+# - DEBUG: Created from the environment variable with the same name
+# - LIBPROJDIR: Created from the environment variable with the same name
+#   it is used to access cstrip.awk
+# - TMPFILE: The file containing the output of cstrip.awk
+#
 BEGIN {
 	# Get environment settings
 	DEBUG = ENVIRON["DEBUG"]
@@ -20,7 +34,7 @@ BEGIN {
 	# Get cstrip cmd
 	cmd = ARGV[0] " -f " LIBPROJDIR "scripts/cstrip.awk"
 	for (i = 1; i < ARGC; i++) {
-		cmd = cmd " '" ARGV[i] "' "
+		cmd = cmd " '" ARGV[i] "'"
 	}
 	system(cmd ">" TMPFILE)
 	delete ARGV
@@ -29,20 +43,30 @@ BEGIN {
 
 }
 
+##
+# Reduce nesting depth.
+#
 /\}/ {
 	nested--
 }
 
-# Just for debugging
+##
+# Just for debugging level > 1, print the current input line.
+#
 DEBUG > 1 {
 	printf "% " (nested * 8) "s%s\n", "", $0 > "/dev/stderr"
 }
 
+##
+# Increase nesting depth.
+#
 /\{/ {
 	nested++
 }
 
-# Get filename, useful for debugging
+##
+# Get filename, useful for debugging.
+#
 /^#[0-9]+".*"/ {
 	sub(/^#[0-9]+"/, "");
 	sub(/".*/, "");
@@ -50,14 +74,18 @@ DEBUG > 1 {
 	next
 }
 
+##
 # The hsk_isr_rootN() function is present, so an ISR call tree can be built.
+#
 /^void hsk_isr_root[0-9]+\(.*\)(__)?using [0-9]+$/ {
 	sub("^void ", "")
 	sub(/\(.*/, "")
-	roots[$0]
+	roots[++roots_i] = $0
 }
 
-# Gather interrupts
+##
+# Gather interrupts.
+#
 /^void .*\(void\)(__)?interrupt [0-9]+ (__)?using [0-9]+$/ {
 	if (DEBUG) {
 		print "overlays.awk: ISR: " $0 > "/dev/stderr"
@@ -67,10 +95,12 @@ DEBUG > 1 {
 	sub(/\(.*/, "", isr)
 	sub(/.*(__)?using[( ]/, "")
 	sub(/[^0-9].*/, "")
-	using["hsk_isr_root" $0 "!" isr]
+	using[++using_i] = "hsk_isr_root" $0 "!" isr
 }
 
-# Catch shared ISRs
+##
+# Catch shared ISRs.
+#
 /^hsk_isr[0-9]+\.[a-zA-Z0-9_]+=&[a-zA-Z0-9_]+;/ {
 	if (DEBUG) {
 		print "overlays.awk: shared ISR: " $0 > "/dev/stderr"
@@ -78,10 +108,12 @@ DEBUG > 1 {
 	sub(/^/, "ISR_")
 	sub(/\..*=&/, "!")
 	sub(/;/, "")
-	overlays[$0]
+	overlays[++overlays_i] = $0
 }
 
-# Catch timer0/timer1 ISRs
+##
+# Catch timer0/timer1 ISRs.
+#
 /^hsk_timer[0-9]+_setup\(.*,\&[a-zA-Z0-9_]+\);/ {
 	if (DEBUG) {
 		print "overlays.awk: timer01 ISR: " $0 > "/dev/stderr"
@@ -89,10 +121,12 @@ DEBUG > 1 {
 	sub(/^/, "ISR_")
 	sub(/_setup\(.*,&/, "!")
 	sub(/\);/, "")
-	overlays[$0]
+	overlays[++overlays_i] = $0
 }
 
-# Catch external interrupts
+##
+# Catch external interrupts.
+#
 /^hsk_ex_channel_enable\([a-zA-Z0-9]+,.*,&[a-zA-Z0-9_]+\);/ {
 	if (DEBUG) {
 		print "overlays.awk: ext ISR: " $0 > "/dev/stderr"
@@ -108,10 +142,13 @@ DEBUG > 1 {
 	if (chan >= 2) {
 		sub(/.*,&/, "ISR_hsk_isr" chan "!")
 		sub(/\);/, "")
-		overlays[$0]
+		overlays[++overlays_i] = $0
 	}
 }
 
+##
+# Remove TMPFILE and print assembled data.
+#
 END {
 	# Stop writing to TMPFILE
 	close(TMPFILE)
@@ -119,37 +156,49 @@ END {
 	system(cmd)
 
 	# Group overlays
-	for (overlay in overlays) {
-		isr = overlay
-		callback = overlay
+	i = 0
+	while (i++ < overlays_i) {
+		isr = overlays[i]
+		callback = overlays[i]
 		sub(/!.*/, "", isr)
 		sub(/.*!/, "", callback)
-		callbacks[isr] = (callbacks[isr] ? callbacks[isr] ", " : "") callback
+		# Fix order of isr callback groups
+		if (!callbacks[isr]) {
+			groups[++groups_i] = isr
+		}
+		# Avoid duplicates
+		if (!callback_count[callback]++) {
+			callbacks[isr] = (callbacks[isr] ? callbacks[isr] ", " : "") callback
+		}
 	}
 
 	# Group ISRs
-	for (overlay in using) {
-		isr = overlay
-		root = overlay
+	i = 0
+	while (i++ < using_i) {
+		isr = using[i]
+		root = using[i]
 		sub(/.*!/, "", isr)
 		sub(/!.*/, "", root)
 		isrs[root] = (isrs[root] ? isrs[root] ", " : "") isr
 	}
 
 	# Print ISR groups
-	for (root in roots) {
-		printf (sep++ ? ",\r\n" : "") "* ! (%s)", root
-		printf ",\r\n%s ! (%s)", root, isrs[root]
+	i = 0
+	while (i++ < roots_i) {
+		printf (sep++ ? ",\r\n" : "") "* ! (%s)", roots[i]
+		printf ",\r\n%s ! (%s)", roots[i], isrs[roots[i]]
 	}
 
 	# Print groups
-	for (isr in callbacks) {
-		if (!severed[callbacks[isr]]++) {
-			printf (sep++ ? ",\r\n" : "") "* ~ (%s)", callbacks[isr]
+	i = 0
+	while (i++ < groups_i) {
+		if (!severed[callbacks[groups[i]]]++) {
+			printf (sep++ ? ",\r\n" : "") "* ~ (%s)", callbacks[groups[i]]
 		}
 	}
-	for (isr in callbacks) {
-		printf ",\r\n%s ! (%s)", isr, callbacks[isr]
+	i = 0
+	while (i++ < groups_i) {
+		printf ",\r\n%s ! (%s)", groups[i], callbacks[groups[i]]
 	}
 }
 

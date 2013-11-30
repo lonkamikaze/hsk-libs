@@ -1145,6 +1145,8 @@ function fsm_start(dummy,
 #	The seperator to use between concatenated strings
 # @param array
 #	The array to concatenate
+# @return
+#	A string containing all array elements
 #
 function join(sep, array,
 	i, result, a) {
@@ -1162,6 +1164,8 @@ function join(sep, array,
 #	The seperator to use between concatenated strings
 # @param array
 #	The array to concatenate
+# @return
+#	A string contining the indexes of all array elements
 #
 function joinIndex(sep, array,
 	i, result, a) {
@@ -1178,6 +1182,8 @@ function joinIndex(sep, array,
 #	An integer
 # @param b
 #	An integer
+# @return
+#	The greatest common divider of a and b
 #
 function euclid(a, b,
 	tmp) {
@@ -1196,6 +1202,8 @@ function euclid(a, b,
 #	The numerator
 # @param d
 #	The denominator
+# @return
+#	The given rational number as a string
 #
 function rationalFmt(n, d) {
 	# Zero always wins
@@ -1241,6 +1249,8 @@ function rationalFmt(n, d) {
 #	The logical number base to generate the rational from
 # @param precision
 #	The maximum number of bits for either rational component
+# @return
+#	A rational string representation of the given value
 #
 function rationalN(val, base, precision,
 	div, gcd) {
@@ -1270,6 +1280,8 @@ function rationalN(val, base, precision,
 #	The logical number base to generate the rational from
 # @param precision
 #	The maximum number of bits for either rational component
+# @return
+#	A rational string representation of the given value
 #
 function rationalD(val, base, precision,
 	div, gcd) {
@@ -1302,6 +1314,8 @@ function rationalD(val, base, precision,
 #	The real value to return as a rational
 # @param precision
 #	The maximum number of bits for either rational component
+# @return
+#	A rational string representation of the given value
 #
 function rational(val, precision,
 	a, b) {
