@@ -1,7 +1,22 @@
 #!/usr/bin/awk -f
+#
+# Finds all C files whose objects need to be linked to the given C file.
+#
 
-# Finds all C files whose objects need to be linked
-
+##
+# Produce a list of the C files relevant for linking.
+#
+# Find all includes by handing all arguments to cstrip.awk, which in turn
+# calls the CPP.
+#
+# If a file with the same name, but a .c ending exists, the file is printed
+# under the condition that the path file resides in a path relative to one
+# of the directories provided with the -I argument or one of the files passed
+# on to it. This excludes not explicitly stated system directories and
+# builtins.
+#
+# Paths containing ../ references are compacted and duplicates discarded.
+#
 BEGIN {
 	# Get environment settings
 	DEBUG = ENVIRON["DEBUG"]

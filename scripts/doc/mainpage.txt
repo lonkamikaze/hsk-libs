@@ -1,0 +1,34 @@
+/**
+
+\mainpage HSK XC878 µC Library Build Scripts
+
+This document contains the documentation for the \c scripts folder. Scripts
+are written for AWK and Bourne Shell, currently only the AWK scripts are
+documented, there is no Doxygen filter for shell scripts, yet.
+
+\section compatibility Compatibility
+
+The AWK scripts have been tested with the following interpreters:
+- <tt>awk version 20121220 (FreeBSD)</tt>
+  - Default AWK interpreter in BSD systems and OS-X
+  - Also known as New AWK (NAWK)
+  - This is a version of Brian Kernighan's AWK, one of the authors of
+    <i>The AWK Programming Language</i>
+- <tt>mawk 1.3.3</tt>
+  - Default AWK interpreter in Ubuntu GNU/Linux and derivatives
+  - This is Mike's AWK
+- <tt>GNU Awk 4.1.0, API: 1.0</tt>
+  - Default AWK interpreter in many GNU/Linux distributions
+
+\section layout Layout
+
+The \c scripts folder has the following layout:
+- \c scripts/
+	- Contains AWK and SH scripts for automatic build configuration,
+	  code generators and filters
+- \c scripts/doc/
+	- Contains the text for this document
+- \c scripts/templates.dbc2c/
+	- Contains the code templates for the dbc2c.awk script
+
+ */

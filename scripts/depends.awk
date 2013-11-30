@@ -1,7 +1,11 @@
 #!/usr/bin/awk -f
+#
+# Finds all includes of a C file.
+#
 
-# Finds all includes of a C file
-
+##
+# Hand arguments to cstrip.awk and collect includes from the output.
+#
 BEGIN {
 	# Get environment settings
 	DEBUG = ENVIRON["DEBUG"]

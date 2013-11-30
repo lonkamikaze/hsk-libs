@@ -6,6 +6,7 @@
 ^doc/
 ^doc-private/
 ^doc-dbc/
+^doc-scripts/
 ^html/
 ^pdf/
 ^uVision/

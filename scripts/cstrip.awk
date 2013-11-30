@@ -1,7 +1,20 @@
 #!/usr/bin/awk -f
-
+#
 # Seperates C instructions into individual lines, streamlining the formatting
+# for parsing in other scripts.
+#
+# Arguments starting with a dash are passed to each CPP instance, arguments
+# the remaining arguments are treated as file names.
+#
 
+##
+# Initialise globals and process command line arguments.
+#
+# The following globals are created:
+# - CPP: The C preprocessor to use, either from the environment variable
+#   with the same name or the default "cpp"
+# - DEBUG: Defaults to the environment variable with the same name
+#
 BEGIN {
 	# Get environment settings
 	CPP = ENVIRON["CPP"] ? ENVIRON["CPP"] : "cpp"
@@ -25,8 +38,8 @@ BEGIN {
 	}
 }
 
-#
-# Accumulate and preprocess files so they become easier to parse
+##
+# Accumulate and preprocess files so they become easier to parse.
 #
 !visited[FILENAME]++ {
 	if (DEBUG) {

@@ -1,5 +1,4 @@
 #!/usr/bin/awk -f
-
 #
 # Sanity checks for C functions and declarations.
 #
@@ -19,6 +18,14 @@
 #	Function defined multiple times
 #
 
+##
+# Call cstrip.awk with all the provided command line arguments and forward
+# the output into TMPFILE.
+#
+# The environment variable LIBPROJDIR is used to access cstrip.awk.
+#
+# The global TMPFILE is populated holds the input file.
+#
 BEGIN {
 	# Get a unique temporary file
 	cmd = "sh -c 'printf $$'"
@@ -38,6 +45,9 @@ BEGIN {
 	ARGC = 2
 }
 
+##
+# Get the name of the file the following lines were included from.
+#
 /^#[0-9]+".*"/ {
 	sub(/^[^"]*"/, "")
 	sub(/"[^"]*/, "")
@@ -45,7 +55,9 @@ BEGIN {
 	next
 }
 
-# Get prototypes
+##
+# Get function prototypes.
+#
 !/^(return|else|__sfr|__sfr16|__sbit) / && /[a-zA-Z0-9_* ]+ [a-zA-Z0-9_]+\(.*\)[a-zA-Z0-9_* ]*;/ {
 	declare = $0
 	sub(/\(.*/, "", declare)
@@ -78,7 +90,9 @@ BEGIN {
 	next
 }
 
-# Get definitions
+##
+# Get function definitions.
+#
 !/^(else) / && /[a-zA-Z0-9_* ]+ [a-zA-Z0-9_]+\(.*\)[a-zA-Z0-9_* ]*$/ {
 	definition = $0
 	sub(/\(.*/, "", definition)
@@ -108,6 +122,9 @@ BEGIN {
 	next
 }
 
+##
+# Remove the temporary input file.
+#
 END {
 	# Stop writing to TMPFILE
 	close(TMPFILE)
