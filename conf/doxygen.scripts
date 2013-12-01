@@ -7,7 +7,7 @@ FILE_PATTERNS          = *.awk \
                          *.txt
 EXTENSION_MAPPING      = awk=C
 FILTER_PATTERNS        = *.awk=scripts/awk2doxygen.awk \
-                         *.sh=scripts/file2doxygen.awk \
-                         Makefile=scripts/file2doxygen.awk
+                         *.txt= \
+                         *=scripts/file2doxygen.awk
 CALL_GRAPH             = NO
 SORT_MEMBER_DOCS       = NO
