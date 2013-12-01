@@ -1,12 +1,13 @@
 OUTPUT_DIRECTORY       = doc-scripts/
 WARN_LOGFILE           = doc-scripts/warnings.log
-INPUT                  = scripts
-STRIP_FROM_PATH        = scripts
+INPUT                  = Makefile uVisionupdate.sh scripts
+STRIP_FROM_PATH        =
 FILE_PATTERNS          = *.awk \
                        = *.sh \
                          *.txt
 EXTENSION_MAPPING      = awk=C
 FILTER_PATTERNS        = *.awk=scripts/awk2doxygen.awk \
-                         *.sh=scripts/file2doxygen.awk
+                         *.sh=scripts/file2doxygen.awk \
+                         Makefile=scripts/file2doxygen.awk
 CALL_GRAPH             = NO
 SORT_MEMBER_DOCS       = NO

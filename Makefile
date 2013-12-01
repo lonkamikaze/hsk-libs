@@ -1,3 +1,4 @@
+#!/usr/bin/make -f
 #
 # Provides targets to build code with SDCC, generate documentation etc.
 #
@@ -196,7 +197,8 @@ doc-dbc: ${DBCDIR} ${CONFDIR}/doxygen.dbc
 	@echo STRIP_FROM_PATH=${GENDIR} >> doc-dbc/.conf
 	@cat ${CONFDIR}/doxygen.dbc doc-dbc/.conf | doxygen -
 
-doc-scripts: scripts ${CONFDIR}/doxygen.public ${CONFDIR}/doxygen.scripts
+doc-scripts: scripts ${CONFDIR}/doxygen.public ${CONFDIR}/doxygen.scripts \
+             Makefile uVisionupdate.sh
 	@rm -rf doc-scripts || true
 	@mkdir -p doc-scripts
 	@echo PROJECT_NAME=\"${PROJECT}-scripts\" >> doc-scripts/.conf

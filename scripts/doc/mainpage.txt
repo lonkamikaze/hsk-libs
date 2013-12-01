@@ -3,8 +3,7 @@
 \mainpage HSK XC878 µC Library Build Scripts
 
 This document contains the documentation for the \c scripts folder. Scripts
-are written for AWK and Bourne Shell, currently only the AWK scripts are
-documented, there is no Doxygen filter for shell scripts, yet.
+are written for AWK and Bourne Shell.
 
 \section compatibility Compatibility
 
