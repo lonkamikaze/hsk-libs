@@ -54,12 +54,14 @@ and like the applications still subject to a lot of change.
 	- SDCC compiler output (safe to delete)
 - \c conf/
 	- Project configuration files
+- \c conf/doxygen.dbc
+	- Doxygen settings to create documentation from DBC headers
 - \c conf/doxygen.private
 	- Doxygen setting changes to create the developer documentation
 - \c conf/doxygen.public
 	- Basic doxygen settings, generates the user documentation
-- \c conf/doxygen.dbc
-	- Doxygen settings to create documentation from DBC headers
+- \c conf/doxygen.scripts
+	- Doxygen setting changes to create the scripts documentation
 - \c conf/sdcc
 	- SDCC configuration, contains basic \c CFLAGS and invokes version
 	  specific platform hacks

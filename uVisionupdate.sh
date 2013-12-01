@@ -1,4 +1,13 @@
-#!/bin/sh
+#!/bin/sh -f
+#
+# Updates the Keil µVision configuration, with the correct include paths
+# and overlays.
+#
+# The list of overlays is generated using the overlays.awk script and
+# the configuration is updated using the xml.awk script.
+#
+
+# Force noglob mode
 set -f
 
 IFS='
