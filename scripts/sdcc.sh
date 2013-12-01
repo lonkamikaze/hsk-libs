@@ -1,11 +1,28 @@
-#!/bin/sh
-set -f
-
+#!/bin/sh -f
 #
 # Parses an sdcc config file.
 #
-# Expects CC in the environment.
+# @param @
+#	All arguments are treted as config files
 #
+# Expects \c CC in the environment.
+# If \c CC does not refer to a version of SDCC, the script terminates with
+# empty output.
+#
+# Configuration files contain make code and have sections, the first section
+# is unconditional and thus always printed.
+# The following sections are opened with a condition. Conditions stand in a
+# single line using the following syntax:
+# \verbatim
+#	"[" condition "]"
+# \endverbatim
+#
+# The string "SDCC" within the condition is replaced with the version of
+# SDCC. The condition is then passed to the testver.sh script.
+#
+
+# Force noglob mode
+set -f
 
 scriptdir="${0%/*}"
 compiler=$(eval $CC -v 2>/dev/null)
