@@ -4,6 +4,12 @@ inc/Infineon/XC878.h
 This file is provided with Keil µVision and was generated using the Infineon
 DAVE tools.
 
+contrib/
+========
+
+The files provided in this folder are technical documentation acquired from
+third parties. All rights belong to the respective third parties.
+
 Everything Else
 ===============
 
