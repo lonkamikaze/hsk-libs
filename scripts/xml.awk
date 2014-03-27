@@ -18,10 +18,13 @@
 # | select          | cmdSelect()         | Selects a path using a filter argument
 # | search          | cmdSearch()         | Selects all the subtrees matching the given filter argument
 # | set             | cmdSet()            | Sets the data of a node
+# | rename          | cmdRename()         | Changes the tag name of a node
 # | attrib          | cmdAttrib()         | Sets a named attribute
+# | renameAttrib    | cmdRenameAttrib()   | Renames an attribute
 # | insert          | cmdInsert()         | Inserts a new child node into the selected nodes
 # | selectInserted  | cmdSelectInserted() | Select all nodes created during the last insert operation
 # | delete          | cmdDelete()         | Removes the selected nodes from the tree
+# | deleteAttrib    | cmdDeleteAttrib()   | Removes an attribute from the selected nodes
 # | print           | cmdPrint()          | Print the children and data of the selected nodes
 #
 
@@ -301,6 +304,19 @@ function cmdSet(value,
 }
 
 ##
+# Changes the tag name of a node.
+#
+# @param name
+#	The new tag name
+#
+function cmdRename(name,
+	node) {
+	for (node in selection) {
+		tags[node] = name
+	}
+}
+
+##
 # Changes an attribute of a node.
 #
 # It accepts a singe string in the shape:
@@ -322,6 +338,37 @@ function cmdAttrib(str,
 		# way it can just be overwritten.
 		attributeNames[node, i] = name
 		attributeValues[node, i] = str
+	}
+}
+
+##
+# Changes the name of an attribute.
+#
+# If the original attribute does not exist the new one will be added.
+#
+# If an attribute with the new name already exists it will be overwritten.
+#
+# It accepts a singe string in the shape:
+#	oldname "=" newname
+#
+# @param str
+#	A single attribute renaming instruction
+#
+function cmdRenameAttrib(str,
+	node, i, name) {
+	name = str
+	sub(/=.*/, "", name)
+	sub(/[^=]*=/, "", str)
+	# Remove already existing attributes with the new name
+	cmdDeleteAttrib(str)
+	# Rename attriutes
+	for (node in selection) {
+		# Seek the attribute
+		for (i = 0; attributeNames[node, i] && attributeNames[node, i] != name; i++);
+		# The clever part is, that it either points behind the other
+		# attributes or to the attribute that has to be updated, either
+		# way it can just be overwritten.
+		attributeNames[node, i] = str
 	}
 }
 
@@ -403,6 +450,25 @@ function cmdDelete(dummy,
 			children[parent[node], i] = children[parent[node], i + 1]
 		}
 		delete children[parent[node], i]
+	}
+}
+
+##
+# Deletes a named attribute.
+#
+# @param name
+#	The name of the attribute to remove
+#
+function cmdDeleteAttrib(name,
+	node, i) {
+	for (node in selection) {
+		for (i = 0; attributeNames[node, i] && attributeNames[node, i] != name; i++);
+		for (; attributeNames[node, i]; i++) {
+			attributeNames[node, i] = attributeNames[node, i + 1]
+			attributeValues[node, i] = attributeValues[node, i + 1]
+		}
+		delete attributeNames[node, i]
+		delete attributeValues[node, i]
 	}
 }
 
@@ -570,16 +636,25 @@ END {
 			cmdSearch(arguments[i])
 		} else if (commands[i] == "set") {
 			cmdSet(arguments[i])
+		} else if (commands[i] == "rename") {
+			cmdRename(arguments[i])
 		} else if (commands[i] == "attrib") {
 			cmdAttrib(arguments[i])
+		} else if (commands[i] == "renameAttrib") {
+			cmdRenameAttrib(arguments[i])
 		} else if (commands[i] == "insert") {
 			cmdInsert(arguments[i])
 		} else if (commands[i] == "selectInserted") {
 			cmdSelectInserted(arguments[i])
 		} else if (commands[i] == "delete") {
 			cmdDelete(arguments[i])
+		} else if (commands[i] == "deleteAttrib") {
+			cmdDeleteAttrib(arguments[i])
 		} else if (commands[i] == "print") {
 			cmdPrint(arguments[i])
+		} else {
+			print "xml.awk: Command " commands[i] " unknown" > "/dev/stderr"
+			exit 1
 		}
 	}
 }
