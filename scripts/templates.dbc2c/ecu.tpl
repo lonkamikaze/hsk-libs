@@ -6,7 +6,7 @@
  * This ECU was defined in \ref DB_<:db:>.
  *
  * TX messages:
- * - \ref MSG_<:tx:>
+ * - \ref MSG_<:txname:>
  *
  * RX signals:
  * - \ref SIG_<:rx:>

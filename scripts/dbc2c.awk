@@ -1438,9 +1438,12 @@ END {
 		# TX messages
 		p = 0
 		delete tx
+		delete txname
 		while (obj_ecu_tx[ecu, p]) {
+			txname[obj_msg_name[obj_ecu_tx[ecu, p]]]
 			tx[sprintf("%x", obj_ecu_tx[ecu, p++])]
 		}
+		tpl["txname"] = joinIndex(RS, txname)
 		tpl["tx"] = joinIndex(RS, tx)
 		# RX signals
 		p = 0
@@ -1504,6 +1507,7 @@ END {
 		tpl["comment"] = obj_sig_comment[sig]
 		# Reference the message this signal belongs to
 		tpl["msgid"] = sprintf("%x", obj_sig_msgid[sig])
+		tpl["msgname"] = obj_msg_name[obj_sig_msgid[sig]]
 		# Reference the signal groups this message belongs to
 		i = 0
 		delete grps
@@ -1525,7 +1529,7 @@ END {
 		tpl["sbit"] = obj_sig_sbit[sig]
 		tpl["len"] = obj_sig_len[sig]
 		# Setup/Start
-		tpl["start"] = obj_sig_attr[sig, aSTART]
+		tpl["start"] = 0 + obj_sig_attr[sig, aSTART]
 		# Calc
 		fac = rational(obj_sig_fac[sig], 16)
 		off = rational(obj_sig_off[sig], 16)
