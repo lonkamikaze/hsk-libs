@@ -3,7 +3,7 @@
  *
  * <:comment:>
  *
- * Sent in message \ref MSG_<:msgid:>.
+ * Sent in message \ref MSG_<:msgname:>.
  *
  * Member of the following signal groups:
  * - \ref SG_<:sgid:>
@@ -11,18 +11,24 @@
  * Received by the ECUs:
  * - \ref ECU_<:ecu:>
  *
- * @ingroup MSG_<:msgid:>
+ * @ingroup MSG_<:msgname:>
  * @ingroup SG_<:sgid:>
  * @{
  */
 
 /**
  * Signal <:name:> configuration tuple.
+ *
+ * @deprecated
+ *	Use \ref SET_<:name:> and \ref GET_<:name:> instead.
  */
 #define SIG_<:name:>              <:motorola:>, <:signed:>, <:sbit:>, <:len:>
 
 /**
  * Signal <:name:> setup tuple.
+ *
+ * @deprecated
+ *	Use \ref INITSIG_<:name:> or \ref INIT_<:msgname:> instead.
  */
 #define SETUP_<:name:>            <:motorola:>, <:signed:>, <:sbit:>, <:len:>, <:start:>
 
@@ -49,6 +55,14 @@
 #define SET_<:name:>(buf, val) { \
 	<:setbuf:> \
 }
+
+/**
+ * Set signal <:name:> in buffer to its initial value.
+ *
+ * @param buf
+ *	The can message buffer to initialise
+ */
+#define INITSIG_<:name:>(buf)     SET_<:name:>(buf, <:start:>)
 
 /**
  * Signal <:name:> value conversion with 16 bit factor and offset.

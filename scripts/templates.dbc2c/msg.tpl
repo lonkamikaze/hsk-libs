@@ -1,5 +1,5 @@
 /**
- * @defgroup MSG_<:id:> Message <:name:> (0x<:id:>)
+ * @defgroup MSG_<:name:> Message <:name:> (0x<:id:>)
  *
  * <:comment:>
  *
@@ -36,6 +36,16 @@
  * Message <:name:> fast cycle time.
  */
 #define FAST_<:name:>       <:fast:>
+
+/**
+ * Initialise message <:name:> buffer.
+ *
+ * @param buf
+ *	The can message buffer to initialise
+ */
+#define INIT_<:name:>(buf) { \
+	INITSIG_<:sig:>(buf); \
+}
 
 /**
  * @}
