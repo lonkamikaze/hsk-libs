@@ -49,7 +49,7 @@
 # | msg.tpl     | cycle    | GenMsgCycleTime     | Message
 # | msg.tpl     | delay    | GenMsgDelayTime     | Message
 # | msg.tpl     | send     | GenMsgSendType      | Message
-# | timeout.tpl | -        | GenSigTimeoutTime   | Relation (ECU to Signal)
+# | timeout.tpl | timeout  | GenSigTimeoutTime   | Relation (ECU to Signal)
 #
 # These and more attributes are specified by the
 # <b>Vector Interaction Layer</b>.
@@ -75,6 +75,7 @@
 # - \c comment: The comment text for this ECU
 # - \c db: The input file identifier for the file this ECU was parsed from
 # - \c tx: A list of message IDs (hex) belonging to messages sent by this ECU
+# - \c txname: A list of message names sent by this ECU
 # - \c rx: A list of signals received by this ECU
 #
 # \subsection templates_siggrp siggrp.tpl
@@ -123,7 +124,7 @@
 # - \c getbuf: The output of <tt>sig_getbuf.tpl</tt>
 # - \c setbuf: The output of <tt>sig_setbuf.tpl</tt>
 #
-# \subsection templates_sig_buf sig_getbuf.tpl, sig_setbuf.tpl
+# \subsubsection templates_sig_buf sig_getbuf.tpl, sig_setbuf.tpl
 #
 # These templates can be used to construct static byte wise signal getters
 # and setters.
@@ -153,7 +154,23 @@
 # Used for each timeout with the following arguments:
 # - \c ecu: The ECU that times out
 # - \c sig: The signal that is expected by the ECU
-# - \c value: The timeout time
+# - \c timeout: The timeout time
+#
+# \subsection templates_enum enum.tpl
+#
+# Invoked for every value table with the following arguments:
+# - \c enum: The name of the value table
+# - \c sig or \c db, mutually exclusive
+#	- \c sig: The name of the signal this value table belongs to
+#	- \c db: The name of the CAN DB this enum was defined in, in case it
+#	         was not defined as part of a signal
+#
+# \subsubsection templates_enumval enumval.tpl
+#
+# Invoked for every value defined in a value table. All the template arguments
+# for \c enum.tpl are available in addition to the following arguments:
+# - \c val: The value
+# - \c name: The symbolic name for the value
 #
 
 ##
@@ -287,6 +304,16 @@ function error(no, msg) {
 	errno = no
 	print "dbc2c.awk: ERROR: " FILENAME "(" NR "): " msg > "/dev/stderr"
 	exit
+}
+
+##
+# Prints a warning message on stderr.
+#
+# @param msg
+#	The message to print
+#
+function warn(msg) {
+	print "dbc2c.awk: WARNING: " msg > "/dev/stderr"
 }
 
 ##
@@ -479,21 +506,22 @@ function fsm_ecu(dummy,
 #
 # Creates:
 # - 1 obj_enum[enum]
-# - * obj_enum_entry[key] = val
-# - * obj_enum_table[key] = enum
+# - 1 obj_enum_db[enum] = FILENAME
+# - * obj_enum_val[enum, i] = val
+# - * obj_enum_name[enum, i] = name
 #
 function fsm_enum(dummy,
 	enum,
 	val,
-	key) {
+	i) {
 	fetch(rID)
 	enum = fetch(rSYM)
-	obj_enum_[enum]
+	obj_enum[enum]
+	obj_enum_db[enum] = FILENAME
 	val = fetch(rINT "|;")
 	while (val !~ whole(";")) {
-		key = enum "_" fetchStr()
-		obj_enum_table[key] = enum
-		obj_enum_entry[key] = val
+		obj_enum_val[enum, int(i)] = val
+		obj_enum_name[enum, i++] = fetchStr()
 		val = fetch(rINT "|;")
 	}
 	fetch(rLF)
@@ -1346,12 +1374,17 @@ function rational(val, precision,
 # @return
 #	The line(s) with performed substitutions
 #
-function tpl_line(data, line,
+function tpl_line(data, line, template,
 	name, pre, post, count, array, i) {
 	while(match(line, /<:[a-zA-Z0-9]+:>/)) {
 		name = substr(line, RSTART + 2, RLENGTH - 4)
 		pre = substr(line, 1, RSTART - 1)
 		post = substr(line, RSTART + RLENGTH)
+ 		# Warn when using deprecated symbols
+		if (data["#" name] && !DEPRECATED[template, name]++) {
+			warn(template ": <:" name ":> is deprecated in favour of <:" data["#" name] ":>")
+		}
+		# Output the template line once for each data value
 		count = split(data[name], array, RS)
 		if (!count) {
 			line = ""
@@ -1384,7 +1417,7 @@ function template(data, name,
 	name = TEMPLATES name
 	buf = ""
 	while (getline line < name) {
-		buf = buf tpl_line(data, line)
+		buf = buf tpl_line(data, line, name)
 	}
 	close(name)
 	return buf
@@ -1628,9 +1661,39 @@ END {
 		# blindly assumed here, that might be dangerous!
 		tpl["ecu"] = ids[1]
 		tpl["sig"] = ids[2]
-		tpl["value"] = obj_rel_attr[rel]
+		tpl["timeout"] = obj_rel_attr[rel]
+		tpl["value"] = obj_rel_attr[rel]   # For compatibility with
+		tpl["#value"] = "timeout"          # older 3rd party templates
+
 		# Load template
 		printf("%s", template(tpl, "timeout.tpl"))
+	}
+
+	# List enum
+	for (enum in obj_enum) {
+		delete tpl
+		tpl["enum"] = enum
+		# Is this value table part of a signal?
+		if (enum in obj_sig) {
+			tpl["sig"] = enum
+		} else {
+			tpl["db"] = obj_enum_db[enum]
+			sub(/.*\//, "", tpl["db"])
+			sub(/\.[^\.]*$/, "", tpl["db"])
+		}
+
+		# Load template
+		printf("%s", template(tpl, "enum.tpl"))
+
+		# Print values
+		i = 0
+		while ((enum SUBSEP i) in obj_enum_val) {
+			tpl["val"] = obj_enum_val[enum, i]
+			tpl["name"] = obj_enum_name[enum, i++]
+
+			# Load template
+			printf("%s", template(tpl, "enumval.tpl"))
+		}
 	}
 
 }
