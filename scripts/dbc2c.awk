@@ -1371,6 +1371,9 @@ function rational(val, precision,
 #	The array containing field data
 # @param line
 #	The line to perform substitutions in
+# @param template
+#	The name of the template this line comes from, this is used to warn
+#	about deprecated arguments
 # @return
 #	The line(s) with performed substitutions
 #
