@@ -23,9 +23,14 @@
 
 # Force noglob mode
 set -f
+LF='
+'
 
 scriptdir="${0%/*}"
 compiler=$(eval $CC -v 2>/dev/null)
+
+# Only take the first line of the compiler version string
+compiler=${compiler%%$LF*}
 
 # Only configure SDCC
 if ! echo "$compiler" | grep -qiF sdcc; then
