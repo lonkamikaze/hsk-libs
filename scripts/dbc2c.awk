@@ -136,6 +136,12 @@
 # - \c align: The position of the most significant bit in the byte
 # - \c mask: "0x01"
 # - \c pos: The position in front of the entire read signal
+# - \c int8: Boolean indicating whether an 8 bit integer suffices to contain
+#            the signal
+# - \c int16: Boolean indicating whether an 16 bit integer suffices to contain
+#             the signal
+# - \c int32: Boolean indicating whether an 32 bit integer suffices to contain
+#             the signal
 #
 # These arguments can be used to duplicate the signed bit and shift it
 # in front.
@@ -148,6 +154,12 @@
 #             signal
 # - \c mask: A bit mask (hex) to mask the aligned signal bits
 # - \c pos: The position to shift the resulting bits to
+# - \c int8: Boolean indicating whether an 8 bit integer suffices to address
+#            the desired bit
+# - \c int16: Boolean indicating whether an 16 bit integer suffices to address
+#             the desired bit
+# - \c int32: Boolean indicating whether an 32 bit integer suffices to address
+#             the desired bit
 #
 # \subsection templates_timeout timeout.tpl
 #
@@ -1367,6 +1379,12 @@ function rational(val, precision,
 # Identifiers in templates have the following shape:
 #	"<:" name ":>"
 #
+# Additionally boolean filters can be installed:
+#	"<?" name "?>"
+#
+# If the variable addressed in the filter evaluetes to true, the filter
+# is removed, otherwise the entire line is removed.
+#
 # @param data
 #	The array containing field data
 # @param line
@@ -1379,6 +1397,15 @@ function rational(val, precision,
 #
 function tpl_line(data, line, template,
 	name, pre, post, count, array, i) {
+	# Filter lines with boolean checks
+	while(match(line, /<\?[a-zA-Z0-9]+\?>/)) {
+		name = substr(line, RSTART + 2, RLENGTH - 4)
+		if (!data[name]) {
+			return ""
+		}
+		line = substr(line, 1, RSTART - 1) substr(line, RSTART + RLENGTH)
+	}
+	# Insert data
 	while(match(line, /<:[a-zA-Z0-9]+:>/)) {
 		name = substr(line, RSTART + 2, RLENGTH - 4)
 		pre = substr(line, 1, RSTART - 1)
@@ -1424,6 +1451,23 @@ function template(data, name,
 	}
 	close(name)
 	return buf
+}
+
+##
+# Set the necessary type to be able to shift something to the given bit.
+#
+# Creates the entries int8, int16 and int32 in the given arrays, with the
+# fitting type set to the value 1 and the others to 0.
+#
+# @param array
+#	The array put the entries into
+# @param bitpos
+#	The bit that needs to be addressable
+#
+function setTypes(array, bitpos) {
+	array["int32"] = (bitpos >= 16 ? 1 : 0)
+	array["int16"] = (!array["int32"] && bitpos >= 8 ? 1 : 0)
+	array["int8"] = (bitpos < 8 ? 1 : 0)
 }
 
 ##
@@ -1536,6 +1580,11 @@ END {
 		printf("%s", template(tpl, "msg.tpl"))
 	}
 
+	# Types of integer bits
+	delete inttypes
+	inttypes[8]
+	inttypes[16]
+	inttypes[32]
 	# Introduce the Signals
 	for (sig in obj_sig) {
 		delete tpl
@@ -1588,13 +1637,14 @@ END {
 			pos = 0
 			tpl["getbuf"] = ""
 			tpl["setbuf"] = ""
-			if (obj_sig_signed[sig]) {
+			if (obj_sig_signed[sig] && !(bits in inttypes)) {
 				delete sbits
 				sbits["sign"] = "-"
 				sbits["byte"] = int((bpos + bits - 1) / 8)
 				sbits["align"] = (bpos + bits - 1) % 8
 				sbits["mask"] = "0x01"
 				sbits["pos"] = bits
+				setTypes(sbits, sbits["pos"])
 				tpl["getbuf"] = template(sbits, "sig_getbuf.tpl")
 			}
 			while (bits > 0) {
@@ -1608,6 +1658,7 @@ END {
 				}
 				sbits["mask"] = sprintf("%#04x", 2^shift - 1)
 				sbits["pos"] = pos
+				setTypes(sbits, sbits["pos"])
 				tpl["getbuf"] = tpl["getbuf"] \
 				                template(sbits, "sig_getbuf.tpl")
 				tpl["setbuf"] = tpl["setbuf"] \
@@ -1620,13 +1671,14 @@ END {
 			# Motorola signals
 			tpl["getbuf"] = ""
 			tpl["setbuf"] = ""
-			if (obj_sig_signed[sig]) {
+			if (obj_sig_signed[sig] && !(bits in inttypes)) {
 				delete sbits
 				sbits["sign"] = "-"
 				sbits["byte"] = int(bpos / 8)
 				sbits["align"] = bpos % 8
 				sbits["mask"] = "0x01"
 				sbits["pos"] = bits
+				setTypes(sbits, sbits["pos"])
 				tpl["getbuf"] = template(sbits, "sig_getbuf.tpl")
 			}
 			while (bits > 0) {
@@ -1640,6 +1692,7 @@ END {
 				sbits["align"] = bpos % 8 + 1 - slice
 				sbits["mask"] = sprintf("%#04x", 2^slice - 1)
 				sbits["pos"] = bits - slice
+				setTypes(sbits, sbits["pos"])
 				tpl["getbuf"] = tpl["getbuf"] \
 				                template(sbits, "sig_getbuf.tpl")
 				tpl["setbuf"] = tpl["setbuf"] \
