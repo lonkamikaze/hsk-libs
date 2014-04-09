@@ -1658,7 +1658,7 @@ END {
 				}
 				sbits["mask"] = sprintf("%#04x", 2^shift - 1)
 				sbits["pos"] = pos
-				setTypes(sbits, sbits["pos"])
+				setTypes(sbits, sbits["pos"] + shift - 1)
 				tpl["getbuf"] = tpl["getbuf"] \
 				                template(sbits, "sig_getbuf.tpl")
 				tpl["setbuf"] = tpl["setbuf"] \
@@ -1692,7 +1692,7 @@ END {
 				sbits["align"] = bpos % 8 + 1 - slice
 				sbits["mask"] = sprintf("%#04x", 2^slice - 1)
 				sbits["pos"] = bits - slice
-				setTypes(sbits, sbits["pos"])
+				setTypes(sbits, sbits["pos"] + slice - 1)
 				tpl["getbuf"] = tpl["getbuf"] \
 				                template(sbits, "sig_getbuf.tpl")
 				tpl["setbuf"] = tpl["setbuf"] \
