@@ -1445,6 +1445,13 @@ function template(data, name,
 	buf, line) {
 	# Read template
 	name = TEMPLATES name
+	# Warn about missing templates, but do not terminate
+	if (system("test -f '" name "'")) {
+		if (!MISSING[name]++) {
+			warn("Template " name " is missing")
+		}
+		return
+	}
 	buf = ""
 	while (getline line < name) {
 		buf = buf tpl_line(data, line, name)
