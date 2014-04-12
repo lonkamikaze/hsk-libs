@@ -1,3 +1,3 @@
 @echo off
-bash -lc "cd %CD% && bash uVisionupdate.sh"
+bash -lc "cd \"%CD%\" && bash uVisionupdate.sh"
 pause

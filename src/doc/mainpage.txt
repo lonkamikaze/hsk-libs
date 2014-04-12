@@ -722,7 +722,7 @@ Using a combination of native Binaries and Cygwin, the complete set of
 build and generator facilities can be used from Microsoft Windows.
 
 The followin downloads are required:
-- Mercurial: http://mercurial.selenic.com/downloads/
+- Mercurial: http://mercurial.selenic.com/downloads
 - SDCC: https://sourceforge.net/projects/sdcc/files/
 - Cygwin installer: http://cygwin.com/install.html
 
