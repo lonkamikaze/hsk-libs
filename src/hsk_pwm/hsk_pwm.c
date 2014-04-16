@@ -226,7 +226,7 @@ static const struct {
 	/* PWM_OUT_61_P32 */ {2, 1},
 	/* PWM_OUT_61_P33 */ {3, 1},
 	/* PWM_OUT_61_P44 */ {4, 1},
-	/* PWM_OUT_61_P45 */ {5, 2},
+	/* PWM_OUT_61_P45 */ {5, 1},
 	/* PWM_OUT_62_P04 */ {4, 2},
 	/* PWM_OUT_62_P05 */ {5, 2},
 	/* PWM_OUT_62_P34 */ {4, 1},
