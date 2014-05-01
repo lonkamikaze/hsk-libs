@@ -8,6 +8,12 @@
 # @note
 #	Pipe the input through "iconv -f CP1252" so GNU AWK doesn't choke
 #	on non-UTF-8 characters in comments.
+# @warning
+#	Templates are subject to change, which may break the output for
+#	your use case. To prevent this retain your own copy of the
+#	templates directory and set the \ref env_TEMPLTES variable.
+#	Old templates will continue working, though they might cause
+#	deprecation warnings.
 #
 # \section env Environment
 #
@@ -68,6 +74,17 @@
 # - \c comment: The comment text for this CANdb
 # - \c ecu: A list of ECUs provided with this file
 #
+# \subsection templates_sigid sigid.tpl
+#
+# This template should only contain a single line that produces a unique
+# identifier string for a signal, using the following arguments:
+# - \c msgid: The message ID (hex)
+# - \c msgname: The message name
+# - \c sig: The signal name
+#
+# Signal names are not globally unique, thus an identifier must contain
+# a message reference to avoid name collisions.
+#
 # \subsection templates_ecu ecu.tpl
 #
 # Used for each ECU with the following arguments:
@@ -77,14 +94,7 @@
 # - \c tx: A list of message IDs (hex) belonging to messages sent by this ECU
 # - \c txname: A list of message names sent by this ECU
 # - \c rx: A list of signals received by this ECU
-#
-# \subsection templates_siggrp siggrp.tpl
-#
-# Used for each signal group with the following arguments:
-# - \c id: The ID of the signal group
-# - \c name: The name of the signal group
-# - \c db: The ID for the file that contained this signal group
-# - \c sig: A list of signals belonging to this signal group
+# - \c rxid: A list of unique signal identifiers received by this ECU
 #
 # \subsection templates_msg msg.tpl
 #
@@ -92,6 +102,8 @@
 # - \c id: The message ID (hex)
 # - \c name: The message name
 # - \c comment: The comment text for this message
+# - \c sig: A list of signal names contained in this message
+# - \c sigid: A list of signal identifiers contained in this message
 # - \c ecu: The ECU sending this message
 # - \c ext: Message ID is extended (bool)
 # - \c dlc: The data length count
@@ -99,14 +111,29 @@
 # - \c fast: The fast cycle time of this message
 # - \c delay: The minimum delay time between two sendings
 # - \c send: The send type (cyclic, spontaneous etc.)
+# - \c sgid: A list of signal group ids
+# - \c sgname: A list of signal group names
+#
+# \subsection templates_siggrp siggrp.tpl
+#
+# Used for each signal group with the following arguments:
+# - \c id: The ID of the signal group (created using sigid.tpl)
+# - \c name: The name of the signal group
+# - \c msgid: The ID of the message containing this signal group
+# - \c msgname: The name of the message containing this signal group
+# - \c sig: A list of signals belonging to this signal group
+# - \c sigid: A list of signal identifers belonging to this signal group
 #
 # \subsection templates_sig sig.tpl
 #
 # Used for each signal with the following arguments:
 # - \c name: The signal name
+# - \c id: The unique signal identifier created with sigid.tpl
 # - \c comment: The comment text for this signal
+# - \c enum: Indicates whether this signal has a value table (bool)
 # - \c msgid: The ID of the message sending this signal (hex)
-# - \c sgid: The IDs of the signal groups containing this signal
+# - \c sgid: The signal groups containing this signal
+# - \c sgname: The names of the signal groups containing this signal
 # - \c ecu: A list of the ECUs receiving this signal
 # - \c intel: Intel (little endian) style signal (bool)
 # - \c motorola: Motorola (big endian) style signal (bool)
@@ -161,21 +188,31 @@
 # - \c int32: Boolean indicating whether an 32 bit integer suffices to address
 #             the desired bit
 #
+# \subsubsection templates_sig_enum sig_enum.tpl, sig_enumval.tpl
+#
+# In case a value table is assigned to the signal, <tt>sig_enum.tpl</tt> is
+# called with all the arguments provided to <tt>sig.tpl</tt>.
+#
+# For each entry in the value table <tt>sig_enumval.tpl</tt> is called
+# with these additional arguments:
+# - \c enumname: The name of the value
+# - \c enumval: The value (int)
+#
 # \subsection templates_timeout timeout.tpl
 #
 # Used for each timeout with the following arguments:
 # - \c ecu: The ECU that times out
 # - \c sig: The signal that is expected by the ECU
+# - \c sigid: The unique identifier for the expected signal
 # - \c timeout: The timeout time
+# - \c msgid: The ID of the CAN message containing the signal
+# - \c msgname: The name of the CAN message containing the signal
 #
 # \subsection templates_enum enum.tpl
 #
 # Invoked for every value table with the following arguments:
 # - \c enum: The name of the value table
-# - \c sig or \c db, mutually exclusive
-#	- \c sig: The name of the signal this value table belongs to
-#	- \c db: The name of the CAN DB this enum was defined in, in case it
-#	         was not defined as part of a signal
+# - \c db: The name of the CAN DB this enum was defined in
 #
 # \subsubsection templates_enumval enumval.tpl
 #
@@ -228,10 +265,8 @@ BEGIN {
 
 	# Type strings
 	tDISCARD["BS_"]
-	tENUM["VAL_TABLE_"]
-	tENUM["VAL_"]
-	t["ENUM"] = "VAL_"
-	t["ENUM_DEF"] = "VAL_TABLE_"
+	t["SIG_ENUM"] = "VAL_"
+	t["ENUM"] = "VAL_TABLE_"
 	t["SYMBOLS"] = "NS_"
 	t["VER"] = "VERSION"
 	t["ECU"] = "BU_"
@@ -514,7 +549,7 @@ function fsm_ecu(dummy,
 ##
 # Parse a value table.
 #
-# Token: VAL_, VAL_TABLE_
+# Token: VAL_TABLE_
 #
 # Creates:
 # - 1 obj_enum[enum]
@@ -526,7 +561,6 @@ function fsm_enum(dummy,
 	enum,
 	val,
 	i) {
-	fetch(rID)
 	enum = fetch(rSYM)
 	obj_enum[enum]
 	obj_enum_db[enum] = FILENAME
@@ -534,6 +568,32 @@ function fsm_enum(dummy,
 	while (val !~ whole(";")) {
 		obj_enum_val[enum, int(i)] = val
 		obj_enum_name[enum, i++] = fetchStr()
+		val = fetch(rINT "|;")
+	}
+	fetch(rLF)
+}
+
+##
+# Parse a value table bound to a signal.
+#
+# Token: VAL_
+#
+# Creates:
+# - 1 obj_sig_enum[msgid, sig]
+# - * obj_sig_enum_val[msgid, sig, i] = val
+# - * obj_sig_enum_name[msgid, sig, i] = name
+#
+function fsm_sig_enum(dummy,
+	msgid, sig,
+	val,
+	i) {
+	msgid = fetch(rID)
+	sig = fetch(rSYM)
+	obj_sig_enum[msgid, sig]
+	val = fetch(rINT "|;")
+	while (val !~ whole(";")) {
+		obj_sig_enum_val[msgid, sig, int(i)] = val
+		obj_sig_enum_name[msgid, sig, i++] = fetchStr()
 		val = fetch(rINT "|;")
 	}
 	fetch(rLF)
@@ -645,22 +705,23 @@ function fsm_msg(dummy,
 # Token: SG_
 #
 # Creates:
-# - 1 obj_sig[name]
-# - 1 obj_sig_msgid[name] = msgid
-# - 1 obj_sig_multiplexor[name] = (bool)
-# - 1 obj_sig_multiplexed[name] = (int)
-# - 1 obj_sig_sbit[name] = (uint)
-# - 1 obj_sig_len[name] = (uint)
-# - 1 obj_sig_intel[name] = (bool)
-# - 1 obj_sig_signed[name] = (bool)
-# - 1 obj_sig_fac[name] = (float)
-# - 1 obj_sig_off[name] = (float)
-# - 1 obj_sig_min[name] = (float)
-# - 1 obj_sig_max[name] = (float)
-# - 1 obj_sig_unit[name] = (string)
-# - * obj_sig_rx[name, i] = ecu
-# - * obj_ecu_rx[ecu, p] = name
-# - * obj_msg_sig[msgid, p] = name
+# - 1 obj_sig[msgid, name]
+# - 1 obj_sig_name[msgid, name] = name
+# - 1 obj_sig_msgid[msgid, name] = msgid
+# - 1 obj_sig_multiplexor[msgid, name] = (bool)
+# - 1 obj_sig_multiplexed[msgid, name] = (int)
+# - 1 obj_sig_sbit[msgid, name] = (uint)
+# - 1 obj_sig_len[msgid, name] = (uint)
+# - 1 obj_sig_intel[msgid, name] = (bool)
+# - 1 obj_sig_signed[msgid, name] = (bool)
+# - 1 obj_sig_fac[msgid, name] = (float)
+# - 1 obj_sig_off[msgid, name] = (float)
+# - 1 obj_sig_min[msgid, name] = (float)
+# - 1 obj_sig_max[msgid, name] = (float)
+# - 1 obj_sig_unit[msgid, name] = (string)
+# - * obj_sig_rx[msgid, name, i] = ecu
+# - * obj_ecu_rx[ecu, p] = msgid, name
+# - * obj_msg_sig[msgid, p] = msgid, name
 #
 function fsm_sig(msgid,
 	name,
@@ -668,35 +729,36 @@ function fsm_sig(msgid,
 	a,
 	ecu, i, p) {
 	name = fetch(rSYM)
-	debug("obj_sig[" name "]")
-	obj_sig[name]
-	obj_sig_msgid[name] = msgid
+	debug("obj_sig[" msgid ", " name "]")
+	obj_sig[msgid, name]
+	obj_sig_name[msgid, name] = name
+	obj_sig_msgid[msgid, name] = msgid
 	while (obj_msg_sig[msgid, p++]);
-	obj_msg_sig[msgid, --p] = name
+	obj_msg_sig[msgid, --p] = msgid SUBSEP name
 	multiplexing = fetch("m[0-9]+|M")
-	obj_sig_multiplexor[name] = (multiplexing == "M")
+	obj_sig_multiplexor[msgid, name] = (multiplexing == "M")
 	gsub(/[mM]/, "", multiplexing)
-	obj_sig_multiplexed[name] = multiplexing
+	obj_sig_multiplexed[msgid, name] = multiplexing
 	fetch(":")
 	split(fetch(rSIG), a, /[|@]/)
-	obj_sig_sbit[name] = a[1]
-	obj_sig_len[name] = a[2]
-	obj_sig_intel[name] = (a[3] ~ /^1/)
-	obj_sig_signed[name] = (a[3] ~ /-$/)
+	obj_sig_sbit[msgid, name] = a[1]
+	obj_sig_len[msgid, name] = a[2]
+	obj_sig_intel[msgid, name] = (a[3] ~ /^1/)
+	obj_sig_signed[msgid, name] = (a[3] ~ /-$/)
 	split(fetch(rVEC), a, /[(),]/)
-	obj_sig_fac[name] = a[2]
-	obj_sig_off[name] = a[3]
+	obj_sig_fac[msgid, name] = a[2]
+	obj_sig_off[msgid, name] = a[3]
 	split(fetch(rBND), a, /[][|]/)
-	obj_sig_min[name] = a[2]
-	obj_sig_max[name] = a[3]
-	obj_sig_unit[name] = fetchStr()
+	obj_sig_min[msgid, name] = a[2]
+	obj_sig_max[msgid, name] = a[3]
+	obj_sig_unit[msgid, name] = fetchStr()
 	split(fetch(rSYMS), a, /,/)
 	for (ecu in a) {
 		if (a[ecu] in obj_ecu) {
-			obj_sig_rx[name, i++] = a[ecu]
+			obj_sig_rx[msgid, name, i++] = a[ecu]
 			p = 0
 			while (obj_ecu_rx[a[ecu], p++]);
-			obj_ecu_rx[a[ecu], --p] = name
+			obj_ecu_rx[a[ecu], --p] = msgid SUBSEP name
 		}
 	}
 	fetch(rLF)
@@ -712,7 +774,7 @@ function fsm_sig(msgid,
 # - 1 obj_ecu_comment[name]
 # - 1 obj_env_comment[name]
 # - 1 obj_msg_comment[msgid]
-# - 1 obj_sig_comment[name]
+# - 1 obj_sig_comment[msgid, name]
 #
 function fsm_comment(dummy,
 	context, name, msgid, str) {
@@ -731,7 +793,7 @@ function fsm_comment(dummy,
 	} else if (context == "sig") {
 		msgid = fetch(rID)
 		name = fetch(rSYM)
-		obj_sig_comment[name] = fetchStr()
+		obj_sig_comment[msgid, name] = fetchStr()
 	} else {
 		error(10, "comment for '" context "' not implemented!")
 	}
@@ -840,7 +902,7 @@ function fsm_relattrrange(dummy,
 # Creates:
 # - 1 obj_attr_default[name] = value
 # - * obj_msg_attr[msgid, name]
-# - * obj_sig_attr[signame, name]
+# - * obj_sig_attr[msgid, signame, name]
 # - * obj_db_attr[FILENAME, name]
 #
 function fsm_attrdefault(dummy,
@@ -902,21 +964,21 @@ function fetch_attrval(attribute) {
 # Token: BA_
 #
 # Creates one of:
-# - 1 obj_sig_attr[signame, name] = value
+# - 1 obj_sig_attr[msgid, signame, name] = value
 # - 1 obj_msg_attr[msgid, name] = value
 # - 1 obj_ecu_attr[ecu, name] = value
 # - 1 obj_db_attr[FILENAME, name] = value
 #
 function fsm_attr(dummy,
 	name,
-	id) {
+	id, sig) {
 	name = fetchStr()
 	if (obj_attr_context[name] == "sig") {
 		fetch(t["SIG"])
-		fetch(rID) # Fetch message ID
-		id = fetch(rSYM)
-		obj_sig_attr[id, name] = fetch_attrval(name)
-		debug("obj_sig_attr[" id ", " name "] = " obj_sig_attr[id, name])
+		id = fetch(rID) # Fetch message ID
+		sig = fetch(rSYM)
+		obj_sig_attr[id, sig, name] = fetch_attrval(name)
+		debug("obj_sig_attr[" id ", " sig ", " name "] = " obj_sig_attr[id, sig, name])
 	}
 	else if (obj_attr_context[name] == "msg") {
 		fetch(t["MSG"])
@@ -945,7 +1007,10 @@ function fsm_attr(dummy,
 # Token: BA_REL_
 #
 # Creates:
-# - 1 obj_rel_attr[from, to, name] = value
+# - 1 obj_rel_attr[name, from, to] = value
+# - 1 obj_rel_attr_name[name, from, to] = name
+# - 1 obj_rel_attr_from[name, from, to] = from
+# - 1 obj_rel_attr_to[name, from, to] = to
 #
 # The types of to and from are recorded in:
 # - obj_attr_from[name]
@@ -957,8 +1022,8 @@ function fsm_relattr(dummy,
 	name = fetchStr()
 	fetch(rSYM) # Fetch the type of the relation, this is already known
 	if (obj_attr_from[name] == "sig") {
-		fetch(rID) # Fetch message ID
-		from = fetch(rSYM)
+		from = fetch(rID) # Fetch message ID
+		from = from SUBSEP fetch(rSYM)
 	}
 	else if (obj_attr_from[name] == "msg") {
 		from = fetch(rID)
@@ -974,8 +1039,8 @@ function fsm_relattr(dummy,
 	}
 	fetch(rSYM) # Fetch the type of the related object
 	if (obj_attr_to[name] == "sig") {
-		fetch(rID) # Fetch message ID
-		to = fetch(rSYM)
+		to = fetch(rID) # Fetch message ID
+		to = to SUBSEP fetch(rSYM)
 	}
 	else if (obj_attr_to[name] == "msg") {
 		to = fetch(rID)
@@ -989,8 +1054,11 @@ function fsm_relattr(dummy,
 	else {
 		error(8, "relation attributes for " obj_attr_to[name] " not implemented!")
 	}
-	obj_rel_attr[from, to, name] = fetch_attrval(name)
-	debug("obj_rel_attr[" from ", " to ", " name "] = " obj_rel_attr[from, to, name])
+	obj_rel_attr[name, from, to] = fetch_attrval(name)
+	debug("obj_rel_attr[" name ", " from ", " to "] = " obj_rel_attr[name, from, to])
+	obj_rel_attr_name[name, from, to] = name
+	obj_rel_attr_from[name, from, to] = from
+	obj_rel_attr_to[name, from, to] = to
 	fetch(";")
 }
 
@@ -1053,28 +1121,35 @@ function fsm_tx(dummy,
 # Token: SIG_GROUP_
 #
 # Creates:
-# - 1 obj_siggrp[id] = name
-# - 1 obj_siggrp_db[id] = FILENAME
-# - * obj_siggrp_sig[id, i] = sig
-# - * obj_sig_grp[sig, p] = id
+# - 1 obj_siggrp[msgid, name] = name
+# - 1 obj_siggrp_msg[msgid, name] = msgid
+# - * obj_siggrp_sig[msgid, name, i] = sig
+# - * obj_sig_grp[msgid, sig, p] = msgid, name
+# - * obj_msg_grp[msgid, p] = msgid, name
 #
 function fsm_siggrp(dummy,
-	id, i,
-	sig, p) {
-	id = fetch(rID)
-	obj_siggrp[id] = fetch(rSYM)
-	debug("obj_siggrp[" id "] = " obj_siggrp[id])
-	obj_siggrp_db[id] = FILENAME
-	fetch(rID) # Meaning unknown!
+	i, msgid, name, sig, p) {
+	msgid = fetch(rID)
+	name = fetch(rSYM)
+	obj_siggrp[msgid, name] = name
+	debug("obj_siggrp[" msgid ", " name "] = " obj_siggrp[msgid, name])
+	i = fetch(rID) # Seems to always be 1
+	if (i != 1) {
+		warn("Signal group " msgid ", " name " has unknown properties")
+	}
+	obj_siggrp_msg[msgid, name] = msgid
 	fetch(":")
 	i = 0
 	while (!fetch(";")) {
 		sig = fetch(rSYM)
-		obj_siggrp_sig[id, i++] = sig
+		obj_siggrp_sig[msgid, name, i++] = msgid SUBSEP sig
 		p = 0
-		while (obj_sig_grp[sig, p++]);
-		obj_sig_grp[sig, --p] = id
+		while (obj_sig_grp[msgid, sig, p++]);
+		obj_sig_grp[msgid, sig, --p] = msgid SUBSEP name
 	}
+	p = 0
+	while (obj_msg_grp[msgid, p++]);
+	obj_msg_grp[msgid, --p] = msgid SUBSEP name
 }
 
 ##
@@ -1114,8 +1189,12 @@ function fsm_start(dummy,
 	else if (sym == t["ECU"]) {
 		fsm_ecu()
 	}
+	# Get signal enums
+	else if (sym == t["SIG_ENUM"]) {
+		fsm_sig_enum()
+	}
 	# Get enums
-	else if (sym in tENUM) {
+	else if (sym == t["ENUM"]) {
 		fsm_enum()
 	}
 	# Get message objects
@@ -1478,6 +1557,42 @@ function setTypes(array, bitpos) {
 }
 
 ##
+# Returns a unique signal identifier using the sigident.tpl file.
+#
+# Returns an empty string if the template is missing.
+#
+# @param sig
+#	The signal reference consisting of message and signal name
+# @return
+#	A unique signal identifier
+#
+function sigident(sig,
+	tpl) {
+	tpl["sig"] = obj_sig_name[sig]
+	tpl["msgid"] = sprintf("%x", obj_sig_msgid[sig])
+	tpl["msgname"] = obj_msg_name[obj_sig_msgid[sig]]
+	return template(tpl, "sigid.tpl")
+}
+
+##
+# Returns a unique signal group identifier using the sigident.tpl file.
+#
+# Returns an empty string if the template is missing.
+#
+# @param sg
+#	The signal group reference consisting of message and signal name
+# @return
+#	A unique signal identifier
+#
+function siggrpident(sg,
+	tpl) {
+	tpl["sig"] = obj_siggrp[sg]
+	tpl["msgid"] = sprintf("%x", obj_siggrp_msg[sg])
+	tpl["msgname"] = obj_msg_name[obj_siggrp_msg[sg]]
+	return template(tpl, "sigid.tpl")
+}
+
+##
 # Print the DBC files to stdout.
 #
 END {
@@ -1534,33 +1649,16 @@ END {
 		tpl["tx"] = joinIndex(RS, tx)
 		# RX signals
 		p = 0
+		delete rxid
 		delete rx
 		while (obj_ecu_rx[ecu, p]) {
-			rx[obj_ecu_rx[ecu, p++]]
+			rxid[sigident(obj_ecu_rx[ecu, p])]
+			rx[obj_sig_name[obj_ecu_rx[ecu, p++]]]
 		}
+		tpl["rxid"] = joinIndex(RS, rxid)
 		tpl["rx"] = joinIndex(RS, rx)
 		# Load template
 		printf("%s", template(tpl, "ecu.tpl"))
-	}
-
-	# Introduce signal groups
-	for (id in obj_siggrp) {
-		delete tpl
-		tpl["id"] = id
-		tpl["name"] = obj_siggrp[id]
-		# DB
-		tpl["db"] = obj_siggrp_db[id]
-		sub(/.*\//, "", tpl["db"])
-		sub(/\.[^\.]*$/, "", tpl["db"])
-		# Signals
-		delete sigs
-		p = 0
-		while (obj_siggrp_sig[id, p]) {
-			sigs[obj_siggrp_sig[id, p++]]
-		}
-		tpl["sig"] = joinIndex(RS, sigs)
-		# Load template
-		printf("%s", template(tpl, "siggrp.tpl"))
 	}
 
 	# Introduce the Messages
@@ -1572,19 +1670,55 @@ END {
 		tpl["ecu"] = obj_msg_tx[msg]
 		tpl["ext"] = obj_msg_ext[msg]
 		tpl["dlc"] = obj_msg_dlc[msg]
-		tpl["cycle"] = obj_msg_attr[msg, aCYCLE]
-		tpl["fast"] = obj_msg_attr[msg, aFCYCLE]
-		tpl["delay"] = obj_msg_attr[msg, aDELAY]
+		tpl["cycle"] = 0 + obj_msg_attr[msg, aCYCLE]
+		tpl["fast"] = 0 + obj_msg_attr[msg, aFCYCLE]
+		tpl["delay"] = 0 + obj_msg_attr[msg, aDELAY]
 		tpl["send"] = obj_msg_attr[msg, aSEND]
 		# Get signal list
 		i = 0
+		delete sigids
 		delete sigs
 		while (obj_msg_sig[msg, i]) {
-			sigs[obj_msg_sig[msg, i++]]
+			sigids[sigident(obj_msg_sig[msg, i])]
+			sigs[obj_sig_name[obj_msg_sig[msg, i++]]]
 		}
+		tpl["sigid"] = joinIndex(RS, sigids)
 		tpl["sig"] = joinIndex(RS, sigs)
+		# Get signal group list
+		i = 0
+		delete sgids
+		delete sgnames
+		while (obj_msg_grp[msg, i]) {
+			sgids[siggrpident(obj_msg_grp[msg, i])]
+			sgnames[obj_siggrp[obj_msg_grp[msg, i++]]]
+		}
+		tpl["sgid"] = joinIndex(RS, sgids)
+		tpl["sgname"] = joinIndex(RS, sgnames)
 		# Load template
 		printf("%s", template(tpl, "msg.tpl"))
+	}
+
+	# Introduce signal groups
+	for (id in obj_siggrp) {
+		delete tpl
+		tpl["id"] = siggrpident(id)
+		tpl["name"] = obj_siggrp[id]
+		tpl["msgid"] = sprintf("%x", obj_siggrp_msg[id])
+		tpl["msgname"] = obj_msg_name[obj_siggrp_msg[id]]
+		sub(/.*\//, "", tpl["db"])
+		sub(/\.[^\.]*$/, "", tpl["db"])
+		# Signals
+		delete sigids
+		delete sigs
+		p = 0
+		while (obj_siggrp_sig[id, p]) {
+			sigids[sigident(obj_siggrp_sig[id, p])]
+			sigs[obj_sig_name[obj_siggrp_sig[id, p++]]]
+		}
+		tpl["sigid"] = joinIndex(RS, sigids)
+		tpl["sig"] = joinIndex(RS, sigs)
+		# Load template
+		printf("%s", template(tpl, "siggrp.tpl"))
 	}
 
 	# Types of integer bits
@@ -1595,18 +1729,22 @@ END {
 	# Introduce the Signals
 	for (sig in obj_sig) {
 		delete tpl
-		tpl["name"] = sig
+		tpl["name"] = obj_sig_name[sig]
+		tpl["id"] = sigident(sig)
 		tpl["comment"] = obj_sig_comment[sig]
 		# Reference the message this signal belongs to
 		tpl["msgid"] = sprintf("%x", obj_sig_msgid[sig])
 		tpl["msgname"] = obj_msg_name[obj_sig_msgid[sig]]
 		# Reference the signal groups this message belongs to
 		i = 0
+		delete grpids
 		delete grps
 		while (obj_sig_grp[sig, i]) {
-			grps[obj_sig_grp[sig, i++]]
+			grpids[siggrpident(obj_sig_grp[sig, i])]
+			grps[obj_siggrp[obj_sig_grp[sig, i++]]]
 		}
-		tpl["sgid"] = joinIndex(RS, grps)
+		tpl["sgid"] = joinIndex(RS, grpids)
+		tpl["sgname"] = joinIndex(RS, grps)
 		# Reference the RX ECUs
 		i = 0
 		delete ecus
@@ -1614,6 +1752,8 @@ END {
 			ecus[obj_sig_rx[sig, i++]]
 		}
 		tpl["ecu"] = joinIndex(RS, ecus)
+		# Has value table?
+		tpl["enum"] = (sig in obj_sig_enum)
 		# Tuple
 		tpl["intel"] = obj_sig_intel[sig]
 		tpl["motorola"] = !obj_sig_intel[sig]
@@ -1710,23 +1850,49 @@ END {
 		}
 		# Load template
 		printf("%s", template(tpl, "sig.tpl"))
+
+		# Check for value table
+		if (!(sig in obj_sig_enum)) {
+			continue
+		}
+
+		# Load template
+		printf("%s", template(tpl, "sig_enum.tpl"))
+
+		# Print values
+		i = 0
+		while ((sig SUBSEP i) in obj_sig_enum_val) {
+			tpl["enumval"] = obj_sig_enum_val[sig, i]
+			tpl["enumname"] = obj_sig_enum_name[sig, i++]
+
+			# Load template
+			printf("%s", template(tpl, "sig_enumval.tpl"))
+		}
 	}
 
 	# Introduce timeouts
 	for (rel in obj_rel_attr) {
-		delete tpl
-		delete ids
-		split(rel, ids, SUBSEP)
-		if (ids[3] != aTIMEOUT) {
+		if (obj_rel_attr_name[rel] != aTIMEOUT) {
+			# Not a timeout
 			continue
 		}
-		# That GenSigTimeoutTime is an ECU to SIG relation is
-		# blindly assumed here, that might be dangerous!
-		tpl["ecu"] = ids[1]
-		tpl["sig"] = ids[2]
+		if (obj_attr_from[aTIMEOUT] != "ecu") {
+			warn(aTIMEOUT " attribute discarded, because it is not a \"Node - Mapped RX Signal\" (ECU to signal) relation attribute")
+			continue
+		}
+		if (obj_attr_to[aTIMEOUT] != "sig") {
+			warn(aTIMEOUT " attribute discarded, because it is not a \"Node - Mapped RX Signal\" (ECU to signal) relation attribute")
+			continue
+		}
+		delete tpl
+		tpl["ecu"] = obj_rel_attr_from[rel]
+		tpl["sig"] = obj_sig_name[obj_rel_attr_to[rel]]
+		tpl["sigid"] = sigident(obj_rel_attr_to[rel])
 		tpl["timeout"] = obj_rel_attr[rel]
-		tpl["value"] = obj_rel_attr[rel]   # For compatibility with
-		tpl["#value"] = "timeout"          # older 3rd party templates
+		tpl["value"] = tpl["timeout"]   # For compatibility with
+		tpl["#value"] = "timeout"       # older 3rd party templates
+		tpl["msgid"] = sprintf("%x", obj_sig_msgid[obj_rel_attr_to[rel]])
+		tpl["msgname"] = obj_msg_name[obj_sig_msgid[obj_rel_attr_to[rel]]]
 
 		# Load template
 		printf("%s", template(tpl, "timeout.tpl"))
@@ -1736,14 +1902,9 @@ END {
 	for (enum in obj_enum) {
 		delete tpl
 		tpl["enum"] = enum
-		# Is this value table part of a signal?
-		if (enum in obj_sig) {
-			tpl["sig"] = enum
-		} else {
-			tpl["db"] = obj_enum_db[enum]
-			sub(/.*\//, "", tpl["db"])
-			sub(/\.[^\.]*$/, "", tpl["db"])
-		}
+		tpl["db"] = obj_enum_db[enum]
+		sub(/.*\//, "", tpl["db"])
+		sub(/\.[^\.]*$/, "", tpl["db"])
 
 		# Load template
 		printf("%s", template(tpl, "enum.tpl"))

@@ -1,8 +1,8 @@
 /**
- * Signal <:sig:> timeout for ECU <:ecu:>.
+ * Signal timeout by ECU <:ecu:> for signal <:sig:> of message <:msgname:> (0x<:msgid:>).
  *
  * @ingroup ECU_<:ecu:>
- * @ingroup SIG_<:sig:>
+ * @ingroup SIG_<:sigid:>
  */
-#define TO_<:ecu:>_SIG_<:sig:>    <:timeout:>
+#define TO_<:ecu:>_SIG_<:sigid:>    <:timeout:>
 

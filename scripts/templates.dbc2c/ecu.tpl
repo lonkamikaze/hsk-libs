@@ -9,7 +9,7 @@
  * - \ref MSG_<:txname:>
  *
  * RX signals:
- * - \ref SIG_<:rx:>
+ * - \ref SIG_<:rxid:>
  *
  * @ingroup DB_<:db:>
  */

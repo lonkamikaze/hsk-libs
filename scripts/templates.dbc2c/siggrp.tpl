@@ -1,11 +1,9 @@
 /**
- * @defgroup SG_<:id:> Signal Group <:name:>
- *
- * This group was defined in \ref DB_<:db:>.
+ * @defgroup SG_<:id:> Signal Group <:name:> of Message <:msgname:> (0x<:msgid:>)
  *
  * Contains signals:
- * - \ref SIG_<:sig:>
+ * - \ref SIG_<:sigid:>
  *
- * @ingroup DB_<:db:>
+ * @ingroup MSG_<:msgname:>
  */
 
