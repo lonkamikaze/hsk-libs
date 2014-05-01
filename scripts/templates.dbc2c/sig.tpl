@@ -1,16 +1,13 @@
 /**
- * @defgroup SIG_<:name:> Signal <:name:>
+ * @defgroup SIG_<:id:> Signal <:name:> of Message <:msgname:> (0x<:msgid:>)
  *
  * <:comment:>
- *
- * Sent in message \ref MSG_<:msgname:>.
- *
- * Member of the following signal groups:
- * - \ref SG_<:sgid:>
- *
- * Received by the ECUs:
+ * <?comment?>
+ * <?enum?>Contains the value table \ref ENUM_<:id:>.
+ * <?enum?>
+ * <?ecu?>Received by the ECUs:
  * - \ref ECU_<:ecu:>
- *
+ * <?ecu?>
  * @ingroup MSG_<:msgname:>
  * @ingroup SG_<:sgid:>
  * @{
@@ -20,17 +17,17 @@
  * Signal <:name:> configuration tuple.
  *
  * @deprecated
- *	Use \ref SET_<:name:> and \ref GET_<:name:> instead.
+ *	Use \ref SET_<:id:> and \ref GET_<:id:> instead.
  */
-#define SIG_<:name:>              <:motorola:>, <:signed:>, <:sbit:>, <:len:>
+#define SIG_<:id:>              <:motorola:>, <:signed:>, <:sbit:>, <:len:>
 
 /**
  * Signal <:name:> setup tuple.
  *
  * @deprecated
- *	Use \ref INITSIG_<:name:> or \ref INIT_<:msgname:> instead.
+ *	Use \ref INITSIG_<:id:> or \ref INIT_<:msgname:> instead.
  */
-#define SETUP_<:name:>            <:motorola:>, <:signed:>, <:sbit:>, <:len:>, <:start:>
+#define SETUP_<:id:>            <:motorola:>, <:signed:>, <:sbit:>, <:len:>, <:start:>
 
 /**
  * Get signal <:name:> from buffer.
@@ -40,7 +37,7 @@
  * @return
  *	The raw signal
  */
-#define GET_<:name:>(buf) (0 \
+#define GET_<:id:>(buf) (0 \
 	<:getbuf:> \
 )
 
@@ -52,7 +49,7 @@
  * @param val
  *	The raw value to set the signal to
  */
-#define SET_<:name:>(buf, val) { \
+#define SET_<:id:>(buf, val) { \
 	<:setbuf:> \
 }
 
@@ -62,7 +59,7 @@
  * @param buf
  *	The can message buffer to initialise
  */
-#define INITSIG_<:name:>(buf)     SET_<:name:>(buf, <:start:>)
+#define INITSIG_<:id:>(buf)     SET_<:id:>(buf, <:start:>)
 
 /**
  * Signal <:name:> value conversion with 16 bit factor and offset.
@@ -75,27 +72,27 @@
  * @return
  *	The signal value as a human readable number
  */
-#define CALC_<:name:>(x, fmt)     (<:calc16:>)
+#define CALC_<:id:>(x, fmt)     (<:calc16:>)
 
 /**
  * Signal <:name:> raw initial value.
  */
-#define START_<:name:>            <:start:>
+#define START_<:id:>            <:start:>
 
 /**
  * Signal <:name:> raw minimum value.
  */
-#define MIN_<:name:>              <:min:>
+#define MIN_<:id:>              <:min:>
 
 /**
  * Signal <:name:> raw maximum value.
  */
-#define MAX_<:name:>              <:max:>
+#define MAX_<:id:>              <:max:>
 
 /**
  * Signal <:name:> raw offset value.
  */
-#define OFF_<:name:>              <:off:>
+#define OFF_<:id:>              <:off:>
 
 /**
  * @}

@@ -5,8 +5,11 @@
  *
  * Sent by \ref ECU_<:ecu:>.
  *
+ * Contains signal groups:
+ * - \ref SG_<:sgid:>
+ *
  * Contains signals:
- * - \ref SIG_<:sig:>
+ * - \ref SIG_<:sigid:>
  *
  * @ingroup ECU_<:ecu:>
  * @{
@@ -44,7 +47,7 @@
  *	The can message buffer to initialise
  */
 #define INIT_<:name:>(buf) { \
-	INITSIG_<:sig:>(buf); \
+	INITSIG_<:sigid:>(buf); \
 }
 
 /**
