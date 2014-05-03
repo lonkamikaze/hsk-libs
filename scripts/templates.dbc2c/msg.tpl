@@ -2,7 +2,7 @@
  * @defgroup MSG_<:name:> Message <:name:> (0x<:id:>)
  *
  * <:comment:>
- *
+ * <?comment?>
  * Sent by \ref ECU_<:ecu:>.
  *
  * Contains signal groups:
