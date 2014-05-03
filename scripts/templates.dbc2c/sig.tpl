@@ -5,9 +5,9 @@
  * <?comment?>
  * <?enum?>Contains the value table \ref ENUM_<:id:>.
  * <?enum?>
- * <?ecu?>Received by the ECUs:
+ * Received by the ECUs:
  * - \ref ECU_<:ecu:>
- * <?ecu?>
+ *
  * @ingroup MSG_<:msgname:>
  * @ingroup SG_<:sgid:>
  * @{

@@ -700,7 +700,7 @@ function fsm_msg(dummy,
 }
 
 ##
-# Parse a signature definition.
+# Parse a signal definition.
 #
 # Token: SG_
 #
