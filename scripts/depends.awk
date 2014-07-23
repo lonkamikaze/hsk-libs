@@ -252,11 +252,11 @@ BEGIN {
 	#
 	FS = "\""
 	while (file = extract(files)) {
+		runcmd = cmd " " file " 2> /dev/null"
 		if (DEBUG) {
-			print "links.awk: " cmd " " file > "/dev/stderr"
+			print "links.awk: " runcmd > "/dev/stderr"
 		}
 
-		runcmd = cmd " " file " 2> /dev/null"
 		while ((runcmd | getline) > 0) {
 			# Skip lines that are not file references
 			if ($0 !~ /# [0-9]+ "/) {
