@@ -235,14 +235,14 @@ BEGIN {
 	delete paths
 	delete ARGV
 	if (DEBUG) {
-		print "links.awk: pass = " pass > "/dev/stderr"
+		print "depends.awk: pass = " pass > "/dev/stderr"
 	}
 
 	#
 	# Check for mode setting.
 	#
 	if (!(MODE in MODES)) {
-		print "links.awk: error: No valid mode set! Please " \
+		print "depends.awk: error: No valid mode set! Please " \
 		      "provide -compile or -link." > "/dev/stderr"
 		exit 1
 	}
@@ -254,7 +254,7 @@ BEGIN {
 	while (file = extract(files)) {
 		runcmd = cmd " " file " 2> /dev/null"
 		if (DEBUG) {
-			print "links.awk: " runcmd > "/dev/stderr"
+			print "depends.awk: " runcmd > "/dev/stderr"
 		}
 
 		while ((runcmd | getline) > 0) {
