@@ -688,15 +688,16 @@ of \c make the script \c scripts/build.sh is invoked to regenerate the file
 build.mk.
 
 The \c build.sh script searches the source directory for <tt>.c</tt> files and
-runs \c scripts/depends.awk to generate a dependency tree.
+runs \c scripts/depends.awk in \c -compile mode to generate a dependency tree.
 
 In the next stage \c build.sh generates the build instructions for each
 <tt>.c</tt> file.
 
 The last step is to create the linking instructions. For that the script
 searches for <tt>.c</tt> files that appear to contain a main() function. The
-\c scripts/links.awk script is used to determine all the libraries that have
-to be linked with each of the matching <tt>.c</tt> files.
+\c scripts/depends.awk script in \c -link mode is used to determine all the
+libraries that have to be linked with each of the main() containing 
+<tt>.c</tt> files.
 
 \subsection make_details_doxygen Documentation
 
