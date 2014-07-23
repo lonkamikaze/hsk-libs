@@ -151,37 +151,42 @@ printEnv:
 uVision µVision:
 	@sh uVisionupdate.sh
 
-html: html/user html/dev html/dbc html/contrib
+html: html/user html/dev html/dbc html/contrib html/scripts
 
 html/contrib: contrib
-	@rm -rf html/contrib || true
+	@rm -rf html/contrib ||:
 	@mkdir -p html
 	@cp -r contrib html/
 
 html/user: doc
-	@rm -rf html/user || true
+	@rm -rf html/user ||:
 	@mkdir -p html
 	@cp -r doc/html html/user
 
 html/dev: doc-private
-	@rm -rf html/dev || true
+	@rm -rf html/dev ||:
 	@mkdir -p html
 	@cp -r doc-private/html html/dev
 
+html/scripts: doc-scripts
+	@rm -rf html/scripts ||:
+	@mkdir -p html
+	@cp -r doc-scripts/html html/scripts
+
 html/dbc: doc-dbc
-	@rm -rf html/dbc || true
+	@rm -rf html/dbc ||:
 	@mkdir -p html
 	@cp -r doc-dbc/html html/dbc
 
 doc: ${USERSRC} ${CONFDIR}/doxygen.public
-	@rm -rf doc || true
+	@rm -rf doc ||:
 	@mkdir -p doc
 	@echo PROJECT_NAME=\"${PROJECT}-user\" >> doc/.conf
 	@echo PROJECT_NUMBER=${VERSION} >> doc/.conf
 	@cat ${CONFDIR}/doxygen.public doc/.conf | doxygen -
 
 doc-private: ${DEVSRC} ${CONFDIR}/doxygen.public ${CONFDIR}/doxygen.private
-	@rm -rf doc-private || true
+	@rm -rf doc-private ||:
 	@mkdir -p doc-private
 	@echo PROJECT_NAME=\"${PROJECT}-dev\" >> doc-private/.conf
 	@echo PROJECT_NUMBER=${VERSION} >> doc-private/.conf
@@ -189,7 +194,7 @@ doc-private: ${DEVSRC} ${CONFDIR}/doxygen.public ${CONFDIR}/doxygen.private
 	 doc-private/.conf | doxygen -
 
 doc-dbc: ${DBCDIR} ${CONFDIR}/doxygen.dbc
-	@rm -rf doc-dbc || true
+	@rm -rf doc-dbc ||:
 	@mkdir -p doc-dbc
 	@echo PROJECT_NAME=\"${PROJECT}-dbc\" >> doc-dbc/.conf
 	@echo PROJECT_NUMBER=${VERSION} >> doc-dbc/.conf
@@ -199,7 +204,7 @@ doc-dbc: ${DBCDIR} ${CONFDIR}/doxygen.dbc
 
 doc-scripts: scripts ${CONFDIR}/doxygen.public ${CONFDIR}/doxygen.scripts \
              Makefile uVisionupdate.sh
-	@rm -rf doc-scripts || true
+	@rm -rf doc-scripts ||:
 	@mkdir -p doc-scripts
 	@echo PROJECT_NAME=\"${PROJECT}-scripts\" >> doc-scripts/.conf
 	@echo PROJECT_NUMBER=${VERSION} >> doc-scripts/.conf
@@ -244,22 +249,22 @@ clean: clean-doc clean-doc-private clean-doc-dbc clean-doc-scripts \
        clean-build clean-stale
 
 clean-doc:
-	@rm -rf doc || true
+	@rm -rf doc ||:
 
 clean-doc-private:
-	@rm -rf doc-private || true
+	@rm -rf doc-private ||:
 
 clean-doc-dbc:
-	@rm -rf doc-dbc || true
+	@rm -rf doc-dbc ||:
 
 clean-doc-scripts:
-	@rm -rf doc-scripts || true
+	@rm -rf doc-scripts ||:
 
 clean-build:
-	@rm -rf ${BUILDDIR} ${GENDIR} || true
+	@rm -rf ${BUILDDIR} ${GENDIR} ||:
 
 clean-stale:
-	@rm -f build.mk sdcc.mk dbc.mk || true
+	@rm -f build.mk sdcc.mk dbc.mk ||:
 
 .PHONY: zip
 
