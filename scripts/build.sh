@@ -37,7 +37,6 @@
 #
 # This script calls other scripts during operation:
 # - depends.awk
-# - links.awk
 #
 # The following scripts are called from the generated make file
 # - sanity.awk
@@ -66,7 +65,7 @@ LIBPROJDIR="${scriptdir%$LIBPROJDIR}"
 LIBPROJDIR="${LIBPROJDIR%/}"
 
 incdirs=
-for dir in ${*#$1}; do
+for dir in "$@"; do
 	incdirs="$incdirs${incdirs:+ }-I$dir"
 done
 
@@ -86,9 +85,8 @@ for SRC in "$@"; do
 		echo "$target" | grep -qFx "$all" && continue
 		all="${all:+$all$IFS}$target"
 		sources="$(IFS=' '
-		           env LIBPROJDIR="$LIBPROJDIR" \
-		               $AWK -vORS=\  -f $scriptdir/depends.awk \
-		                    $file -DSDCC $incdirs)"
+		           $AWK -vORS=\  -f $scriptdir/depends.awk \
+		                $file -DSDCC $incdirs -compile)"
 		echo "$target: $sources
 	@mkdir -p ${target%/*}
 	@env CPP=\"\${CC} -E\" ${LIBPROJDIR:+LIBPROJDIR=\"$LIBPROJDIR\"} $AWK -f $scriptdir/sanity.awk $file $incdirs
@@ -115,8 +113,8 @@ for file in $files; do
 	all="${all:+$all$IFS}$target"
 	build="$build $target"
 	linklist="$(IFS=' '
-	            env LIBPROJDIR="$LIBPROJDIR" \
-	                $AWK -f $scriptdir/links.awk $file -DSDCC $incdirs \
+	            $AWK -f $scriptdir/depends.awk $file -DSDCC $incdirs \
+	                 -link \
 	            | sed -e "$filter" -e 's:\.c$:${OBJSUFX}:' \
 	            | $AWK -vORS=\  1)"
 
