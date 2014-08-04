@@ -34,6 +34,8 @@
 # Only in that case is the file name printed and also recursively passed
 # to the CPP.
 #
+# Modes can be combined.
+#
 # \section environment Environment
 #
 # If the following arguments are not set using AWK's -v argument, they can
@@ -49,6 +51,12 @@
 #
 # The SUFX variable defaults to the file ending of the first file name
 # given in the arguments.
+#
+# Non-existing files are ignored during list-creation, this can be used
+# to set the file ending by providing the desired file ending as the
+# first argument:
+#
+#	awk -f depends.awk .c -link <file>
 #
 
 ##
@@ -119,6 +127,26 @@ function extract(a,
 }
 
 ##
+# Returns whether any of the entries in a given array evalutate to true.
+#
+# @param a
+#	The array to check for true entries
+# @retval 0
+#	No true entries
+# @retval 1
+#	At least one entry evaluates to true
+#
+function any(a,
+             i) {
+	for (i in a) {
+		if (a[i]) {
+			return 1
+		}
+	}
+	return 0
+}
+
+##
 # Perform recursive include and output C/C++ file names.
 #
 # - Setup environment setable globals
@@ -137,8 +165,8 @@ BEGIN {
 	SUFX = (SUFX ? SUFX : ENVIRON["SUFX"])
 
 	# Running modes
-	MODES["COMPILE"]
-	MODES["LINK"]
+	MODE["COMPILE"] = 0
+	MODE["LINK"] = 0
 
 	# String escapes for regular expressions
 	# RESC[<regex>] = <replace>
@@ -182,11 +210,11 @@ BEGIN {
 	for (i = 1; i < ARGC; i++) {
 		# Set mode
 		if (ARGV[i] == "-compile") {
-			MODE = "COMPILE"
+			MODE["COMPILE"] = 1
 			continue
 		}
 		if (ARGV[i] == "-link") {
-			MODE = "LINK"
+			MODE["LINK"] = 1
 			continue
 		}
 		# Join -I with the path
@@ -210,7 +238,10 @@ BEGIN {
 		if (ARGV[i] !~ /^-/) {
 			path = ARGV[i]
 			sub(/\/[^\/]*$/, "/", path)
-			files[sescape(ARGV[i])]
+			# Remove ..
+			while(sub(/[^\/]+\/\.\.\//, "", $2));
+			# Store file in array
+			files[ARGV[i]]
 			# Fall back to auto-suffix if none is given
 			if (!SUFX) {
 				SUFX = ARGV[i]
@@ -241,7 +272,7 @@ BEGIN {
 	#
 	# Check for mode setting.
 	#
-	if (!(MODE in MODES)) {
+	if (!any(MODE)) {
 		print "depends.awk: error: No valid mode set! Please " \
 		      "provide -compile or -link." > "/dev/stderr"
 		exit 1
@@ -252,7 +283,7 @@ BEGIN {
 	#
 	FS = "\""
 	while (file = extract(files)) {
-		runcmd = cmd " " file " 2> /dev/null"
+		runcmd = cmd " " sescape(file) " 2> /dev/null"
 		if (DEBUG) {
 			print "depends.awk: " runcmd > "/dev/stderr"
 		}
@@ -269,16 +300,20 @@ BEGIN {
 			if ($2 !~ pass) {
 				continue
 			}
+			# Print compile dependency
+			if (MODE["COMPILE"] && !output[$2]++) {
+				print($2)
+			}
 			# Only objects created from C/C++ files need
 			# to be linked
-			if (MODE == "LINK") {
+			if (MODE["LINK"]) {
 				sub(/\.[^.]*$/, SUFX, $2)
-			}
-			if (!output[$2]++ && testf($2)) {
-				if (MODE == "LINK") {
-					files[sescape($2)]
+				if (!output[$2]++ && testf($2)) {
+					if ($2 != file) {
+						files[$2]
+					}
+					print($2)
 				}
-				print($2)
 			}
 		}
 		close(runcmd)
