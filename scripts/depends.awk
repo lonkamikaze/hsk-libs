@@ -147,6 +147,29 @@ function any(a,
 }
 
 ##
+# Returns a compacted version of the path.
+#
+# This gets rid of ../ by removing the previous path.
+#
+# @param path
+#	The path to compact
+# @return
+#	The compacted path
+#
+function compact(path) {
+	# 1st regex: Remove at the beginning of the path
+	# 2nd regex: Remove in the path
+	#
+	#             │ Single char
+	#             │     │ Two chars, no dot at the beginning
+	#             │     │           │ Two chars, no dot 2nd char
+	#             │     │           │           │ Three or more chars
+	while(sub( /^([^\/]|[^\/.][^\/]|[^\/][^\/.]|[^\/][^\/][^\/]+)\/\.\.\//, "", path));
+	while(sub(/\/([^\/]|[^\/.][^\/]|[^\/][^\/.]|[^\/][^\/][^\/]+)\/\.\.\//, "/", path));
+	return path;
+}
+
+##
 # Perform recursive include and output C/C++ file names.
 #
 # - Setup environment setable globals
@@ -239,7 +262,7 @@ BEGIN {
 			path = ARGV[i]
 			sub(/\/[^\/]*$/, "/", path)
 			# Remove ..
-			while(sub(/[^\/]+\/\.\.\//, "", $2));
+			$2 = compact($2)
 			# Store file in array
 			files[ARGV[i]]
 			# Fall back to auto-suffix if none is given
@@ -255,7 +278,7 @@ BEGIN {
 		# Build the file name filter pass
 		if (path) {
 			# Remove ../
-			while(sub(/[^\/]+\/\.\.\//, "", path));
+			path = compact(path)
 			if (!(path in paths)) {
 				paths[path]
 				pass = pass "^" rescape(path) "|"
@@ -295,7 +318,7 @@ BEGIN {
 			}
 
 			# Remove ../
-			while(sub(/[^\/]+\/\.\.\//, "", $2));
+			$2 = compact($2)
 			# Skip files from wrong folders
 			if ($2 !~ pass) {
 				continue
@@ -306,14 +329,12 @@ BEGIN {
 			}
 			# Only objects created from C/C++ files need
 			# to be linked
-			if (MODE["LINK"]) {
-				sub(/\.[^.]*$/, SUFX, $2)
-				if (!output[$2]++ && testf($2)) {
-					if ($2 != file) {
-						files[$2]
-					}
-					print($2)
+			if (MODE["LINK"] && sub(/\.[^.]*$/, SUFX, $2) &&
+			    !output[$2]++ && testf($2)) {
+				if ($2 != file) {
+					files[$2]
 				}
+				print($2)
 			}
 		}
 		close(runcmd)
