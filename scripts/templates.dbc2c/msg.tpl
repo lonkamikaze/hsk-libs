@@ -2,9 +2,9 @@
  * @defgroup MSG_<:name:> Message <:name:> (0x<:id:>)
  *
  * <:comment:>
- * <?comment?>
+ *<?comment?>
  * Sent by \ref ECU_<:ecu:>.
- *
+ *<?ecu?>
  * Contains signal groups:
  * - \ref SG_<:sgid:>
  *

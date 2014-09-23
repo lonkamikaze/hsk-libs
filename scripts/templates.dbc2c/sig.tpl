@@ -2,9 +2,9 @@
  * @defgroup SIG_<:id:> Signal <:name:> of Message <:msgname:> (0x<:msgid:>)
  *
  * <:comment:>
- * <?comment?>
+ *<?comment?>
  * <?enum?>Contains the value table \ref ENUM_<:id:>.
- * <?enum?>
+ *<?enum?>
  * Received by the ECUs:
  * - \ref ECU_<:ecu:>
  *

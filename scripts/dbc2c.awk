@@ -509,6 +509,52 @@ function getContext(str) {
 }
 
 ##
+# Generates a unique name for a value table entry.
+#
+# Updates:
+# - obj_enum_count[enum, name] = (int)
+#
+# Sets the following fields in the given array:
+# - name: A unique identifier
+# - desc: The description
+# - invalid: No valid identifier was in the description (bool)
+# - duplicate: The identifier was already in use (bool)
+#
+# @param ret
+#	An array to return the data set in
+# @param enum
+#	The identifier of the value table
+# @param val
+#	The value
+# @param desc
+#	The description string to fetch a name from
+#
+function getUniqueEnum(ret, enum, val, desc,
+	name) {
+	name = desc
+	ret["invalid"] = 0
+	ret["duplicate"] = 0
+	sub(/[ \t\r\n].*/, "", name)
+	if (name !~ /^[a-zA-Z0-9_]*$/) {
+		warn("Invalid identifier '" name "' for value 0x" sprintf("%X", val) " in table " enum)
+		gsub(/[^a-zA-Z0-9_]/, "_", name)
+		warn("Replaced with '" name "'")
+		ret["invalid"] = 1
+	} else {
+		# Name is valid, remove it from the description
+		sub(/^[^ \t\r\n]+[ \t\r\n]*/, "", desc)
+	}
+	while (obj_enum_count[enum, name]++) {
+		warn("Identifier '" name "' for value 0x" sprintf("%X", val) " in table " enum " already in use")
+		name = name sprintf("%X", val)
+		warn("Replaced with '" name "'")
+		ret["duplicate"] = 1
+	}
+	ret["name"] = name
+	ret["desc"] = desc
+}
+
+##
 # Discards buffered symbols until an empty line is encountered.
 #
 # This is used to skip the list of supported symbols at the beginning of a
@@ -556,18 +602,28 @@ function fsm_ecu(dummy,
 # - 1 obj_enum_db[enum] = FILENAME
 # - * obj_enum_val[enum, i] = val
 # - * obj_enum_name[enum, i] = name
+# - * obj_enum_desc[enum, i] = desc
+# - * obj_enum_invalid[enum, i] = (bool)
+# - * obj_enum_duplicate[enum, i] = (bool)
 #
 function fsm_enum(dummy,
 	enum,
-	val,
+	val, a,
 	i) {
 	enum = fetch(rSYM)
 	obj_enum[enum]
 	obj_enum_db[enum] = FILENAME
 	val = fetch(rINT "|;")
+	i = 0
 	while (val !~ whole(";")) {
-		obj_enum_val[enum, int(i)] = val
-		obj_enum_name[enum, i++] = fetchStr()
+		obj_enum_val[enum, i] = val
+		delete a
+		getUniqueEnum(a, enum, val, fetchStr())
+		obj_enum_name[enum, i] = a["name"]
+		obj_enum_desc[enum, i] = a["desc"]
+		obj_enum_invalid[enum, i] = a["invalid"]
+		obj_enum_duplicate[enum, i] = a["duplicate"]
+		++i
 		val = fetch(rINT "|;")
 	}
 	fetch(rLF)
@@ -582,18 +638,28 @@ function fsm_enum(dummy,
 # - 1 obj_sig_enum[msgid, sig]
 # - * obj_sig_enum_val[msgid, sig, i] = val
 # - * obj_sig_enum_name[msgid, sig, i] = name
+# - * obj_sig_enum_desc[enum, i] = desc
+# - * obj_sig_enum_invalid[enum, i] = (bool)
+# - * obj_sig_enum_duplicate[enum, i] = (bool)
 #
 function fsm_sig_enum(dummy,
 	msgid, sig,
-	val,
+	val, a,
 	i) {
 	msgid = fetch(rID)
 	sig = fetch(rSYM)
 	obj_sig_enum[msgid, sig]
 	val = fetch(rINT "|;")
+	i = 0
 	while (val !~ whole(";")) {
-		obj_sig_enum_val[msgid, sig, int(i)] = val
-		obj_sig_enum_name[msgid, sig, i++] = fetchStr()
+		obj_sig_enum_val[msgid, sig, i] = val
+		delete a
+		getUniqueEnum(a, msgid SUBSEP sig, val, fetchStr())
+		obj_sig_enum_name[msgid, sig, i] = a["name"]
+		obj_sig_enum_desc[msgid, sig, i] = a["desc"]
+		obj_sig_enum_invalid[msgid, sig, i] = a["invalid"]
+		obj_sig_enum_duplicate[msgid, sig, i] = a["duplicate"]
+		++i
 		val = fetch(rINT "|;")
 	}
 	fetch(rLF)
@@ -1495,15 +1561,14 @@ function tpl_line(data, line, template,
 		}
 		# Output the template line once for each data value
 		count = split(data[name], array, RS)
+		while (count && array[count] ~ /^[ \t\r\n]*$/ && --count);
 		if (!count) {
 			line = ""
 			return
 		}
 		line = pre array[1] post
 		for (i = 2; i <= count; i++) {
-			if (array[i]) {
-				line = line ORS pre array[i] post
-			}
+			line = line ORS pre array[i] post
 		}
 	}
 	return line ORS
@@ -1863,7 +1928,8 @@ END {
 		i = 0
 		while ((sig SUBSEP i) in obj_sig_enum_val) {
 			tpl["enumval"] = obj_sig_enum_val[sig, i]
-			tpl["enumname"] = obj_sig_enum_name[sig, i++]
+			tpl["enumname"] = obj_sig_enum_name[sig, i]
+			tpl["comment"] = obj_sig_enum_desc[sig, i++]
 
 			# Load template
 			printf("%s", template(tpl, "sig_enumval.tpl"))
@@ -1913,7 +1979,8 @@ END {
 		i = 0
 		while ((enum SUBSEP i) in obj_enum_val) {
 			tpl["val"] = obj_enum_val[enum, i]
-			tpl["name"] = obj_enum_name[enum, i++]
+			tpl["name"] = obj_enum_name[enum, i]
+			tpl["comment"] = obj_enum_desc[enum, i++]
 
 			# Load template
 			printf("%s", template(tpl, "enumval.tpl"))
