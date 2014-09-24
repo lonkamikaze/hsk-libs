@@ -1,5 +1,5 @@
 /**
- * @defgroup ENUM_<:id:> Value Table for Signal <:name:> in Message <:msgname:> (0x<:msgid:>)
+ * @defgroup ENUM_<:id:> Value Table for Signal <:name:> in Message <:msgname:> (<:msg:%#x:>)
  *
  * Enum values defined for \ref SIG_<:id:>.
  *

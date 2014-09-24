@@ -5,5 +5,5 @@
  *<?comment?>
  * @ingroup ENUM_<:enum:>
  */
-#define <:enum:>_<:name:>    <:val:>
+#define <:enum:>_<:name:%-16s:>    <:val:>
 

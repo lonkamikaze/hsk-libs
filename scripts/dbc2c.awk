@@ -11,15 +11,15 @@
 # @warning
 #	Templates are subject to change, which may break the output for
 #	your use case. To prevent this retain your own copy of the
-#	templates directory and set the \ref env_TEMPLTES variable.
+#	templates directory and set the \ref dbc2c_env_TEMPLTES variable.
 #	Old templates will continue working, though they might cause
 #	deprecation warnings.
 #
-# \section env Environment
+# \section dbc2c_env Environment
 #
 # The script uses certain environment variables.
 #
-# \subsection env_DEBUG DEBUG
+# \subsection dbc2c_env_DEBUG DEBUG
 #
 # | Value               | Effect
 # |---------------------|-----------------------------------------
@@ -27,7 +27,7 @@
 # | 1, any string != "" | Debugging output to stderr is activated
 # | > 1                 | Additionally any string read is output
 #
-# \subsection env_TEMPLTES TEMPLATES
+# \subsection dbc2c_env_TEMPLTES TEMPLATES
 #
 # This variable can be used to pass the template directory to the script.
 #
@@ -35,17 +35,31 @@
 # <tt>${LIBPROJDIR}/scripts/templates.dbc2c</tt>, otherwise it defaults
 # to the relative path <tt>scripts/templates.dbc2c</tt>.
 #
-# \subsection env_DATE DATE
+# \subsection dbc2c_env_DATE DATE
 #
 # This can be used to define the date string provided to <tt>header.tpl</tt>.
 #
 # It defaults to the output of the \c date command.
 #
-# \section templates Templates
+# \section dbc2c_vts Value Tables
+#
+# Since values in value tables only consist of a number and description,
+# the first word of this description is used as a symbolic name for a given
+# value.
+#
+# All non-alhpanumeric characters of this first word will be converted to
+# underscores. Redundancies will be resolved by appending the value to the
+# word that signifies the name.
+#
+# This functionality is implemented in the function getUniqueEnum().
+#
+# \section dbc2c_templates Templates
 #
 # This section describes the templates that are used by the script
 # and the arguments passed to them. Templates are listed in the
 # chronological order of use.
+#
+# \subsection dbc2c_templates_attributes Special Attributes
 #
 # Some of the arguments provided depend on custom attributes:
 # | Template    | Argument | Attribute           | Object
@@ -60,166 +74,253 @@
 # These and more attributes are specified by the
 # <b>Vector Interaction Layer</b>.
 #
-# \subsection templates_header header.tpl
+# \subsection dbc2c_templates_data Inserting Data
+#
+# Templates are arbitrary text files that are provided with a set of
+# arguments. Arguments have a symbolic name through which they can be used.
+# In the following sections they are called fields, because they are provided
+# to the template() function in an associative array.
+#
+# Inserting data into a template is simple:
+#
+#	<:name:>
+#
+# The previous example adds the data in the field \c name into the file.
+# It can be surrounded by additional context:
+#
+#	#define <:name:> <:value:>
+#
+# If \c name is "FOO_BAR" and \c value is 1337, this line would be resolved
+# to:
+#
+#	#define FOO_BAR 1337
+#
+# It may be desired to reformat some of those values. A number of special
+# filters (see filter()) as well es printf(3) style formatting is available.
+# E.g. \c name can be converted to camel case and \c value to hex:
+#
+#	#define <:name:camel:%-16s:> <:value:%#x:>
+#
+# The output would look like this:
+#
+#	#define fooBar           0x539
+#
+# An important property of templates is that arguments may contain multiple
+# lines. In that case the surrounding text is preserved for every line, which
+# is useful to format multiline text or lists. This can be used to create
+# lists or provide visual sugar around text:
+#
+#	+----[ <:title:%-50s:> ]----+
+#	| <:text:%-60s:> |
+#	+--------------------------------------------------------------+
+#
+# Output could look like this:
+#
+#	+----[ Racecar by Matt Brown                              ]----+
+#	| 'Racecar - Searching for the Limit in Formula SAE'           |
+#	| is available for download from:                              |
+#	|     http://www.superfastmatt.com/2011/11/book.html           |
+#	+--------------------------------------------------------------+
+#
+# Multi line data is treated as an array of individual lines. Besides
+# descriptions in DBC files multiline data can also originate from lists
+# provided by this script in order to allow describing the relations
+# between ECUs, messages, signals etc..
+#
+# In some cases it is prudent to print lines conditionally. For that
+# conditionals are provided:
+#
+#	<?name?>
+#
+# If the reverenced field evaluates to \c true, the conditional is removed
+# from the line. If it evaluates to \c false, the entire template line is
+# omitted.
+#
+# \subsection dbc2c_templates_header header.tpl
 #
 # Used once with the following arguments:
-# - \c date: The current date
-# - \c db: A list of identifiers for the parsed DBCs
+# | Field    | Type     | Description
+# |----------|----------|-------------
+# | date     | string   |  The current date
+# | db       | string[] |  A list of identifiers for the parsed DBCs
 #
-# \subsection templates_file file.tpl
+# \subsection dbc2c_templates_file file.tpl
 #
 # Used for each input file with the following arguments:
-# - \c db: An identifier for this input file
-# - \c file: The file name
-# - \c comment: The comment text for this CANdb
-# - \c ecu: A list of ECUs provided with this file
+# | Field    | Type     | Description
+# |----------|----------|-------------
+# | db       | string   | An identifier for this input file
+# | file     | string   | The file name
+# | comment  | string[] | The comment text for this CANdb
+# | ecu      | string[] | A list of ECUs provided with this file
 #
-# \subsection templates_sigid sigid.tpl
+# \subsection dbc2c_templates_sigid sigid.tpl
 #
 # This template should only contain a single line that produces a unique
 # identifier string for a signal, using the following arguments:
-# - \c msgid: The message ID (hex)
-# - \c msgname: The message name
-# - \c sig: The signal name
+# | Field    | Type     | Description
+# |----------|----------|-------------
+# | msg      | int      | The message ID
+# | msgname  | string   | The message name
+# | sig      | string   | The signal name
 #
 # Signal names are not globally unique, thus an identifier must contain
 # a message reference to avoid name collisions.
 #
-# \subsection templates_ecu ecu.tpl
+# \subsection dbc2c_templates_ecu ecu.tpl
 #
 # Used for each ECU with the following arguments:
-# - \c ecu: An identifier for the ECU
-# - \c comment: The comment text for this ECU
-# - \c db: The input file identifier for the file this ECU was parsed from
-# - \c tx: A list of message IDs (hex) belonging to messages sent by this ECU
-# - \c txname: A list of message names sent by this ECU
-# - \c rx: A list of signals received by this ECU
-# - \c rxid: A list of unique signal identifiers received by this ECU
+# | Field    | Type     | Description
+# |----------|----------|-------------
+# | ecu      | string   | An identifier for the ECU
+# | comment  | string[] | The comment text for this ECU
+# | db       | string   | The input file identifier
+# | txid     | int[]    | A list of message IDs belonging to messages sent by this ECU
+# | txname   | string[] | A list of message names sent by this ECU
+# | rx       | string[] | A list of signals received by this ECU
+# | rxid     | string[] | A list of unique signal identifiers received by this ECU
 #
-# \subsection templates_msg msg.tpl
+# \subsection dbc2c_templates_msg msg.tpl
 #
 # Used for each message with the following arguments:
-# - \c id: The message ID (hex)
-# - \c name: The message name
-# - \c comment: The comment text for this message
-# - \c sig: A list of signal names contained in this message
-# - \c sigid: A list of signal identifiers contained in this message
-# - \c ecu: The ECU sending this message
-# - \c ext: Message ID is extended (bool)
-# - \c dlc: The data length count
-# - \c cycle: The cycle time of this message
-# - \c fast: The fast cycle time of this message
-# - \c delay: The minimum delay time between two sendings
-# - \c send: The send type (cyclic, spontaneous etc.)
-# - \c sgid: A list of signal group ids
-# - \c sgname: A list of signal group names
+# | Field    | Type     | Description
+# |----------|----------|-------------
+# | msg      | int      | The message ID
+# | name     | string   | The message name
+# | comment  | string[] | The comment text for this message
+# | sig      | string[] | A list of signal names contained in this message
+# | sigid    | string[] | A list of signal identifiers contained in this message
+# | ecu      | string   | The ECU sending this message
+# | ext      | bool     | Message ID is extended
+# | dlc      | int      | The data length count
+# | cycle    | int      | The cycle time of this message
+# | fast     | int      | The fast cycle time of this message
+# | delay    | int      | The minimum delay time between two transmissions
+# | send     | string   | The send type (cyclic, spontaneous etc.)
+# | sgid     | string[] | A list of signal group ids
+# | sgname   | string[] | A list of signal group names
 #
-# \subsection templates_siggrp siggrp.tpl
+# \subsection dbc2c_templates_siggrp siggrp.tpl
 #
 # Used for each signal group with the following arguments:
-# - \c id: The ID of the signal group (created using sigid.tpl)
-# - \c name: The name of the signal group
-# - \c msgid: The ID of the message containing this signal group
-# - \c msgname: The name of the message containing this signal group
-# - \c sig: A list of signals belonging to this signal group
-# - \c sigid: A list of signal identifers belonging to this signal group
+# | Field    | Type     | Description
+# |----------|----------|-------------
+# | id       | string   | The ID of the signal group (created using sigid.tpl)
+# | name     | string   | The name of the signal group
+# | msg      | int      | The ID of the message containing this signal group
+# | msgname  | string   | The name of the message containing this signal group
+# | sig      | string[] | A list of signals belonging to this signal group
+# | sigid    | string[] | A list of signal identifers belonging to this signal group
 #
-# \subsection templates_sig sig.tpl
+# \subsection dbc2c_templates_sig sig.tpl
 #
 # Used for each signal with the following arguments:
-# - \c name: The signal name
-# - \c id: The unique signal identifier created with sigid.tpl
-# - \c comment: The comment text for this signal
-# - \c enum: Indicates whether this signal has a value table (bool)
-# - \c msgid: The ID of the message sending this signal (hex)
-# - \c sgid: The signal groups containing this signal
-# - \c sgname: The names of the signal groups containing this signal
-# - \c ecu: A list of the ECUs receiving this signal
-# - \c intel: Intel (little endian) style signal (bool)
-# - \c motorola: Motorola (big endian) style signal (bool)
-# - \c signed: The signal is signed (bool)
-# - \c sbit: The start bit (meaning depends on endianess)
-# - \c len: The signal length
-# - \c start: The initial (default) signal value
-# - \c calc16: A rational conversion function for the raw signal value \c x
-#              and formatting factor \c fmt into a real value as defined
-#              by the linear factor and offset in the DBC, this function
-#              uses up to 16bit integers
-# - \c min: The raw minimum value
-# - \c max: The raw maximum value
-# - \c off: The raw offset value
-# - \c getbuf: The output of <tt>sig_getbuf.tpl</tt>
-# - \c setbuf: The output of <tt>sig_setbuf.tpl</tt>
+# | Field    | Type     | Description
+# |----------|----------|-------------
+# | name     | string   | The signal name
+# | id       | string   | The unique signal identifier created with sigid.tpl
+# | comment  | string[] | The comment text for this signal
+# | enum     | bool     | Indicates whether this signal has a value table
+# | msg      | int      | The ID of the message sending this signal
+# | sgid     | string[] | The signal groups containing this signal
+# | sgname   | string[] | The names of the signal groups containing this signal
+# | ecu      | string[] | A list of the ECUs receiving this signal
+# | intel    | bool     | Intel (little endian) style signal
+# | motorola | bool     | Motorola (big endian) style signal
+# | signed   | bool     | The signal is signed
+# | sbit     | int      | The start bit (meaning depends on endianess)
+# | len      | int      | The signal length
+# | start    | int      | The initial (default) signal value (raw)
+# | calc16   | string[] | A rational conversion function (see \ref dbc2c_templates_sig_calc16)
+# | min      | int      | The raw minimum value
+# | max      | int      | The raw maximum value
+# | off      | int      | The raw offset value
+# | getbuf   | string[] | The output of <tt>sig_getbuf.tpl</tt>
+# | setbuf   | string[] | The output of <tt>sig_setbuf.tpl</tt>
 #
-# \subsubsection templates_sig_buf sig_getbuf.tpl, sig_setbuf.tpl
+# \subsubsection dbc2c_templates_sig_calc16 calc16
+#
+# A rational conversion function for the raw signal value \c x
+# and formatting factor \c fmt into a real value as defined
+# by the linear factor and offset in the DBC, this function
+# uses up to 16bit integers.
+#
+# \subsubsection dbc2c_templates_sig_buf sig_getbuf.tpl, sig_setbuf.tpl
 #
 # These templates can be used to construct static byte wise signal getters
 # and setters.
 #
 # For signed signals <tt>sig_getbuf.tpl</tt> is first called with the
 # following arguments:
-# - \c sign: "-"
-# - \c byte: The byte containing the most significant bit
-# - \c align: The position of the most significant bit in the byte
-# - \c mask: "0x01"
-# - \c pos: The position in front of the entire read signal
-# - \c int8: Boolean indicating whether an 8 bit integer suffices to contain
-#            the signal
-# - \c int16: Boolean indicating whether an 16 bit integer suffices to contain
-#             the signal
-# - \c int32: Boolean indicating whether an 32 bit integer suffices to contain
-#             the signal
+# | Field    | Type     | Description
+# |----------|----------|-------------
+# | sign     | string   | "-"
+# | byte     | int      | The byte containing the most significant bit
+# | align    | int      | The position of the most significant bit in the byte
+# | msk      | int      | 1
+# | pos      | int      | The position in front of the entire read signal
+# | int8     | bool     | Indicates whether an 8 bit integer suffices to contain the signal
+# | int16    | bool     | Indicates whether a 16 bit integer suffices to contain the signal
+# | int32    | bool     | Indicates whether a 32 bit integer suffices to contain the signal
 #
 # These arguments can be used to duplicate the signed bit and shift it
 # in front.
 #
 # Both templates are used for each touched signal byte with the following
 # arguments:
-# - \c sign: "+"
-# - \c byte: The signal byte
-# - \c align: The least significant bit within the byte belonging to the
-#             signal
-# - \c mask: A bit mask (hex) to mask the aligned signal bits
-# - \c pos: The position to shift the resulting bits to
-# - \c int8: Boolean indicating whether an 8 bit integer suffices to address
-#            the desired bit
-# - \c int16: Boolean indicating whether an 16 bit integer suffices to address
-#             the desired bit
-# - \c int32: Boolean indicating whether an 32 bit integer suffices to address
-#             the desired bit
+# | Field    | Type     | Description
+# |----------|----------|-------------
+# | sign     | string   | "+"
+# | byte     | int      | The signal byte
+# | align    | int      | The least significant bit within the byte belonging to the signal
+# | msk      | int      | A bit mask to mask the aligned signal bits
+# | pos      | int      | The position to shift the resulting bits to
+# | int8     | bool     | Indicates whether an 8 bit integer suffices to address the desired bit
+# | int16    | bool     | Indicates whether a 16 bit integer suffices to address the desired bit
+# | int32    | bool     | Indicates whether a 32 bit integer suffices to address the desired bit
 #
-# \subsubsection templates_sig_enum sig_enum.tpl, sig_enumval.tpl
+# \subsubsection dbc2c_templates_sig_enum sig_enum.tpl, sig_enumval.tpl
 #
 # In case a value table is assigned to the signal, <tt>sig_enum.tpl</tt> is
 # called with all the arguments provided to <tt>sig.tpl</tt>.
 #
 # For each entry in the value table <tt>sig_enumval.tpl</tt> is called
 # with these additional arguments:
-# - \c enumname: The name of the value
-# - \c enumval: The value (int)
+# | Field    | Type     | Description
+# |----------|----------|-------------
+# | enumval  | int      | The value
+# | enumname | string   | The name of the value
+# | comment  | string[] | The comment part of the value description
 #
-# \subsection templates_timeout timeout.tpl
+# \subsection dbc2c_templates_timeout timeout.tpl
 #
 # Used for each timeout with the following arguments:
-# - \c ecu: The ECU that times out
-# - \c sig: The signal that is expected by the ECU
-# - \c sigid: The unique identifier for the expected signal
-# - \c timeout: The timeout time
-# - \c msgid: The ID of the CAN message containing the signal
-# - \c msgname: The name of the CAN message containing the signal
+# | Field    | Type     | Description
+# |----------|----------|-------------
+# | ecu      | string   | The ECU that times out
+# | sig      | string   | The signal that is expected by the ECU
+# | sigid    | string   | The unique identifier for the expected signal
+# | timeout  | int      | The timeout time
+# | msg      | int      | The ID of the CAN message containing the signal
+# | msgname  | string   | The name of the CAN message containing the signal
 #
-# \subsection templates_enum enum.tpl
+# \subsection dbc2c_templates_enum enum.tpl
 #
 # Invoked for every value table with the following arguments:
-# - \c enum: The name of the value table
-# - \c db: The name of the CAN DB this enum was defined in
+# | Field    | Type     | Description
+# |----------|----------|-------------
+# | enum     | string   | The name of the value table
+# | db       | string   | The name of the CAN DB this enum was defined in
 #
-# \subsubsection templates_enumval enumval.tpl
+# \subsubsection dbc2c_templates_enumval enumval.tpl
 #
 # Invoked for every value defined in a value table. All the template arguments
 # for \c enum.tpl are available in addition to the following arguments:
-# - \c val: The value
-# - \c name: The symbolic name for the value
+# | Field    | Type     | Description
+# |----------|----------|-------------
+# | val      | int      | The value
+# | name     | string   | The symbolic name for the value
+# | comment  | string[] | The comment part of the value description
 #
 
 ##
@@ -536,7 +637,7 @@ function getUniqueEnum(ret, enum, val, desc,
 	ret["duplicate"] = 0
 	sub(/[ \t\r\n].*/, "", name)
 	if (name !~ /^[a-zA-Z0-9_]*$/) {
-		warn("Invalid identifier '" name "' for value 0x" sprintf("%X", val) " in table " enum)
+		warn("Invalid identifier '" name "' for value " sprintf("%#x", val) " in table " enum)
 		gsub(/[^a-zA-Z0-9_]/, "_", name)
 		warn("Replaced with '" name "'")
 		ret["invalid"] = 1
@@ -545,8 +646,8 @@ function getUniqueEnum(ret, enum, val, desc,
 		sub(/^[^ \t\r\n]+[ \t\r\n]*/, "", desc)
 	}
 	while (obj_enum_count[enum, name]++) {
-		warn("Identifier '" name "' for value 0x" sprintf("%X", val) " in table " enum " already in use")
-		name = name sprintf("%X", val)
+		warn("Identifier '" name "' for value " sprintf("%#x", val) " in table " enum " already in use")
+		name = name "_" sprintf("%X", val)
 		warn("Replaced with '" name "'")
 		ret["duplicate"] = 1
 	}
@@ -1515,6 +1616,68 @@ function rational(val, precision,
 }
 
 ##
+# Applies filter chains to a given string.
+#
+# Filters are a colon separated lists of the following filter commands:
+# | Command | Effect
+# |---------|----------------------------------------
+# | low     | Convert to lower case
+# | up      | Convert to upper case
+# | camel   | Convert to camel case
+# | uncamel | Convert camel case to _ separated
+# | %...    | A printf(3) style format specification
+#
+# @param str
+#	The string to apply the filters to
+# @param filters
+#	The list of filters
+# @param template
+#	The name of the current template
+# @return
+#	The converted string
+#
+function filter(str, filters, template,
+	cmds, count, i) {
+	count = split(filters, cmds, ":")
+	for (i = 1; i <= count; ++i) {
+		if (cmds[i] == "low") {
+			str = tolower(str)
+			continue
+		}
+		if (cmds[i] == "up") {
+			str = toupper(str)
+			continue
+		}
+		if (cmds[i] == "camel") {
+			str = tolower(str)
+			while (match(str, /_./)) {
+				str = substr(str, 1, RSTART - 1) \
+				      toupper(substr(str, RSTART + 1, 1)) \
+				      substr(str, RSTART + 2)
+			}
+			continue
+		}
+		if (cmds[i] == "uncamel") {
+			while (match(str, /[A-Z]+/)) {
+				str = substr(str, 1, RSTART - 1) "_" \
+				      tolower(substr(str, RSTART, RLENGTH)) \
+				      substr(str, RSTART + RLENGTH)
+			}
+			continue
+		}
+		if (cmds[i] ~ /^%[-#+ 0]*[0-9]*\.?[0-9]*[diouxXfFeEgGaAcsb]$/) {
+			str = sprintf(cmds[i], str)
+			continue
+		}
+
+		if (!UNKNOWN[template, cmds[i]]++) {
+			warn(template ": Unknown filter '" cmds[i] "' ignored")
+		}
+	}
+	return str
+}
+
+##
 # Populates a template line with data.
 #
 # Multiline data in a template needs to be in its own line.
@@ -1541,7 +1704,7 @@ function rational(val, precision,
 #	The line(s) with performed substitutions
 #
 function tpl_line(data, line, template,
-	name, pre, post, count, array, i) {
+	name, filters, pre, post, count, array, i) {
 	# Filter lines with boolean checks
 	while(match(line, /<\?[a-zA-Z0-9]+\?>/)) {
 		name = substr(line, RSTART + 2, RLENGTH - 4)
@@ -1551,8 +1714,10 @@ function tpl_line(data, line, template,
 		line = substr(line, 1, RSTART - 1) substr(line, RSTART + RLENGTH)
 	}
 	# Insert data
-	while(match(line, /<:[a-zA-Z0-9]+:>/)) {
-		name = substr(line, RSTART + 2, RLENGTH - 4)
+	while(match(line, /<:[a-zA-Z0-9]+(:[^>:][^:]*)*:>/)) {
+		filters = name = substr(line, RSTART + 2, RLENGTH - 4)
+		sub(/:.*/, "", name)
+		sub(/^[^:]*:?/, "", filters)
 		pre = substr(line, 1, RSTART - 1)
 		post = substr(line, RSTART + RLENGTH)
  		# Warn when using deprecated symbols
@@ -1566,9 +1731,9 @@ function tpl_line(data, line, template,
 			line = ""
 			return
 		}
-		line = pre array[1] post
+		line = pre filter(array[1], filters, template) post
 		for (i = 2; i <= count; i++) {
-			line = line ORS pre array[i] post
+			line = line ORS pre filter(array[i], filters, template) post
 		}
 	}
 	return line ORS
@@ -1635,8 +1800,12 @@ function sigident(sig,
 	tpl) {
 	tpl["sig"] = obj_sig_name[sig]
 	tpl["msgid"] = sprintf("%x", obj_sig_msgid[sig])
+	tpl["#msgid"] = "msg"
+	tpl["msg"] = obj_sig_msgid[sig]
 	tpl["msgname"] = obj_msg_name[obj_sig_msgid[sig]]
-	return template(tpl, "sigid.tpl")
+	sig = template(tpl, "sigid.tpl")
+	sub(ORS "$", "", sig)
+	return sig
 }
 
 ##
@@ -1653,8 +1822,12 @@ function siggrpident(sg,
 	tpl) {
 	tpl["sig"] = obj_siggrp[sg]
 	tpl["msgid"] = sprintf("%x", obj_siggrp_msg[sg])
+	tpl["#msgid"] = "msg"
+	tpl["msg"] = obj_siggrp_msg[sg]
 	tpl["msgname"] = obj_msg_name[obj_siggrp_msg[sg]]
-	return template(tpl, "sigid.tpl")
+	sg = template(tpl, "sigid.tpl")
+	sub(ORS "$", "", sg)
+	return sg
 }
 
 ##
@@ -1705,13 +1878,17 @@ END {
 		# TX messages
 		p = 0
 		delete tx
+		delete txid
 		delete txname
 		while (obj_ecu_tx[ecu, p]) {
 			txname[obj_msg_name[obj_ecu_tx[ecu, p]]]
+			txid[obj_ecu_tx[ecu, p]]
 			tx[sprintf("%x", obj_ecu_tx[ecu, p++])]
 		}
 		tpl["txname"] = joinIndex(RS, txname)
+		tpl["txid"] = joinIndex(RS, txid)
 		tpl["tx"] = joinIndex(RS, tx)
+		tpl["#tx"] = "txid"
 		# RX signals
 		p = 0
 		delete rxid
@@ -1730,6 +1907,8 @@ END {
 	for (msg in obj_msg) {
 		delete tpl
 		tpl["id"] = sprintf("%x", msg)
+		tpl["msg"] = msg
+		tpl["#id"] = "msg"
 		tpl["name"] = obj_msg_name[msg]
 		tpl["comment"] = obj_msg_comment[msg]
 		tpl["ecu"] = obj_msg_tx[msg]
@@ -1769,6 +1948,8 @@ END {
 		tpl["id"] = siggrpident(id)
 		tpl["name"] = obj_siggrp[id]
 		tpl["msgid"] = sprintf("%x", obj_siggrp_msg[id])
+		tpl["msg"] = obj_siggrp_msg[id]
+		tpl["#msgid"] = "msg"
 		tpl["msgname"] = obj_msg_name[obj_siggrp_msg[id]]
 		sub(/.*\//, "", tpl["db"])
 		sub(/\.[^\.]*$/, "", tpl["db"])
@@ -1799,6 +1980,8 @@ END {
 		tpl["comment"] = obj_sig_comment[sig]
 		# Reference the message this signal belongs to
 		tpl["msgid"] = sprintf("%x", obj_sig_msgid[sig])
+		tpl["msg"] = obj_sig_msgid[sig]
+		tpl["#msgid"] = "msg"
 		tpl["msgname"] = obj_msg_name[obj_sig_msgid[sig]]
 		# Reference the signal groups this message belongs to
 		i = 0
@@ -1855,6 +2038,8 @@ END {
 				sbits["byte"] = int((bpos + bits - 1) / 8)
 				sbits["align"] = (bpos + bits - 1) % 8
 				sbits["mask"] = "0x01"
+				sbits["msk"] = 1
+				sbits["#mask"] = "msk"
 				sbits["pos"] = bits
 				setTypes(sbits, sbits["pos"])
 				tpl["getbuf"] = template(sbits, "sig_getbuf.tpl")
@@ -1869,6 +2054,8 @@ END {
 					shift = bits
 				}
 				sbits["mask"] = sprintf("%#04x", 2^shift - 1)
+				sbits["msk"] = 2^shift - 1
+				sbits["#mask"] = "msk"
 				sbits["pos"] = pos
 				setTypes(sbits, sbits["pos"] + shift - 1)
 				tpl["getbuf"] = tpl["getbuf"] \
@@ -1889,6 +2076,8 @@ END {
 				sbits["byte"] = int(bpos / 8)
 				sbits["align"] = bpos % 8
 				sbits["mask"] = "0x01"
+				sbits["msk"] = 1
+				sbits["#mask"] = "msk"
 				sbits["pos"] = bits
 				setTypes(sbits, sbits["pos"])
 				tpl["getbuf"] = template(sbits, "sig_getbuf.tpl")
@@ -1903,6 +2092,8 @@ END {
 				}
 				sbits["align"] = bpos % 8 + 1 - slice
 				sbits["mask"] = sprintf("%#04x", 2^slice - 1)
+				sbits["msk"] = 2^slice - 1
+				sbits["#mask"] = "msk"
 				sbits["pos"] = bits - slice
 				setTypes(sbits, sbits["pos"] + slice - 1)
 				tpl["getbuf"] = tpl["getbuf"] \
@@ -1958,6 +2149,8 @@ END {
 		tpl["value"] = tpl["timeout"]   # For compatibility with
 		tpl["#value"] = "timeout"       # older 3rd party templates
 		tpl["msgid"] = sprintf("%x", obj_sig_msgid[obj_rel_attr_to[rel]])
+		tpl["msg"] = obj_sig_msgid[obj_rel_attr_to[rel]]
+		tpl["#msgid"] = "msg"
 		tpl["msgname"] = obj_msg_name[obj_sig_msgid[obj_rel_attr_to[rel]]]
 
 		# Load template

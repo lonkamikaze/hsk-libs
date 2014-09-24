@@ -1,5 +1,5 @@
 /**
- * @defgroup SG_<:id:> Signal Group <:name:> of Message <:msgname:> (0x<:msgid:>)
+ * @defgroup SG_<:id:> Signal Group <:name:> of Message <:msgname:> (<:msg:%#x:>)
  *
  * Contains signals:
  * - \ref SIG_<:sigid:>
