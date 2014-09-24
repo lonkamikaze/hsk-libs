@@ -1,5 +1,5 @@
 /**
- * @defgroup SIG_<:id:> Signal <:name:> of Message <:msgname:> (0x<:msgid:>)
+ * @defgroup SIG_<:id:> Signal <:name:> of Message <:msgname:> (<:msg:%#x:>)
  *
  * <:comment:>
  *<?comment?>
@@ -19,7 +19,7 @@
  * @deprecated
  *	Use \ref SET_<:id:> and \ref GET_<:id:> instead.
  */
-#define SIG_<:id:>              <:motorola:>, <:signed:>, <:sbit:>, <:len:>
+#define SIG_<:id:%-32s:>        <:motorola:>, <:signed:>, <:sbit:>, <:len:>
 
 /**
  * Signal <:name:> setup tuple.
@@ -27,7 +27,7 @@
  * @deprecated
  *	Use \ref INITSIG_<:id:> or \ref INIT_<:msgname:> instead.
  */
-#define SETUP_<:id:>            <:motorola:>, <:signed:>, <:sbit:>, <:len:>, <:start:>
+#define SETUP_<:id:%-32s:>      <:motorola:>, <:signed:>, <:sbit:>, <:len:>, <:start:>
 
 /**
  * Get signal <:name:> from buffer.
@@ -59,7 +59,8 @@
  * @param buf
  *	The can message buffer to initialise
  */
-#define INITSIG_<:id:>(buf)     SET_<:id:>(buf, <:start:>)
+#define INITSIG_<:id:>(buf) \
+	SET_<:id:>(buf, <:start:>)
 
 /**
  * Signal <:name:> value conversion with 16 bit factor and offset.
@@ -72,27 +73,28 @@
  * @return
  *	The signal value as a human readable number
  */
-#define CALC_<:id:>(x, fmt)     (<:calc16:>)
+#define CALC_<:id:>(x, fmt) \
+	(<:calc16:>)
 
 /**
  * Signal <:name:> raw initial value.
  */
-#define START_<:id:>            <:start:>
+#define START_<:id:%-32s:>      <:start:>
 
 /**
  * Signal <:name:> raw minimum value.
  */
-#define MIN_<:id:>              <:min:>
+#define MIN_<:id:%-32s:>        <:min:>
 
 /**
  * Signal <:name:> raw maximum value.
  */
-#define MAX_<:id:>              <:max:>
+#define MAX_<:id:%-32s:>        <:max:>
 
 /**
  * Signal <:name:> raw offset value.
  */
-#define OFF_<:id:>              <:off:>
+#define OFF_<:id:%-32s:>        <:off:>
 
 /**
  * @}

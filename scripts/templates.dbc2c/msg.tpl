@@ -1,5 +1,5 @@
 /**
- * @defgroup MSG_<:name:> Message <:name:> (0x<:id:>)
+ * @defgroup MSG_<:name:> Message <:name:> (<:msg:%#x:>)
  *
  * <:comment:>
  *<?comment?>
@@ -18,27 +18,27 @@
 /**
  * Message <:name:> configuration tuple.
  */
-#define MSG_<:name:>        0x<:id:>, <:ext:>, <:dlc:>
+#define MSG_<:name:%-32s:>        <:msg:%#x:>, <:ext:>, <:dlc:>
 
 /**
  * Message <:name:> id.
  */
-#define ID_<:name:>         0x<:id:>
+#define ID_<:name:%-32s:>         <:msg:%#x:>
 
 /**
  * Message <:name:> Data Length Count.
  */
-#define DLC_<:name:>        <:dlc:>
+#define DLC_<:name:%-32s:>        <:dlc:>
 
 /**
  * Message <:name:> cycle time.
  */
-#define CYCLE_<:name:>      <:cycle:>
+#define CYCLE_<:name:%-32s:>      <:cycle:>
 
 /**
  * Message <:name:> fast cycle time.
  */
-#define FAST_<:name:>       <:fast:>
+#define FAST_<:name:%-32s:>       <:fast:>
 
 /**
  * Initialise message <:name:> buffer.
