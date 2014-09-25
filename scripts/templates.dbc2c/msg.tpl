@@ -26,6 +26,11 @@
 #define ID_<:name:%-32s:>         <:msg:%#x:>
 
 /**
+ * Message <:name:> extended id bit.
+ */
+#define EXT_<:name:%-32s:>        <:ext:>
+
+/**
  * Message <:name:> Data Length Count.
  */
 #define DLC_<:name:%-32s:>        <:dlc:>
