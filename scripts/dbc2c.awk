@@ -328,9 +328,9 @@
 #
 BEGIN {
 	# Environment variables
-	DEBUG = ENVIRON["DEBUG"]
-	TEMPLATES = ENVIRON["TEMPLATES"]
-	DATE = ENVIRON["DATE"]
+	DEBUG = (DEBUG ? DEBUG : ENVIRON["DEBUG"])
+	TEMPLATES = (TEMPLATES ? TEMPLATES : ENVIRON["TEMPLATES"])
+	DATE = (DATE ? DATE : ENVIRON["DATE"])
 
 	# Template directory
 	if (!TEMPLATES) {
@@ -353,16 +353,16 @@ BEGIN {
 	rFLOAT = "-?[0-9]+(\\.[0-9]+)?([eE][-+][0-9]+)?"
 	rINT = "-?[0-9]+"
 	rID = "[0-9]+"
-	rDLC = "[0-8]"
+	rDLC = "[0-9]+"
 	rSEP = "[:;,]"
 	rSYM = "[a-zA-Z0-9_]+"
 	rSYMS = "(" rSYM ",)*" rSYM
 	rSIG = "[0-9]+\\|[0-9]+@[0-9]+[-+]"
 	rVEC = "\\(" rFLOAT "," rFLOAT "\\)"
 	rBND = "\\[" rFLOAT "\\|" rFLOAT "\\]"
-	#rSTR = "\"([^\"]|\\.)*\"" # That would be right if CANdb++ supported
-	                           # escaping characters
-	rSTR = "\"[^\"]*\""
+	rSTR = "\"([^\"]|\\\\.)*\"" # CANdb++ does not support escaping
+	                            # characters like ", however it parses
+	                            # them just fine.
 
 	# Type strings
 	tDISCARD["BS_"]
@@ -528,9 +528,7 @@ function fetch(types,
 	if (match($0, "^(" types ")")) {
 		str = substr($0, RSTART, RLENGTH)
 		# Cut str from the beginning of $0
-		re = str
-		gsub(/./, ".", re)
-		sub(re, "")
+		$0 = substr($0, RSTART + RLENGTH)
 	}
 	if (DEBUG > 1 && str !~ /^[ \t\n]*$/) {
 		debug("fetch: " str)
@@ -569,8 +567,8 @@ function whole(re) {
 function strip(str) {
 	sub(/^"/, "", str)
 	sub(/"$/, "", str)
-	# CANdb++ does not allow " in strings, so there is no need for
-	# handling escapes
+	# Unescape "
+	gsub(/\\"/, "\"", str)
 	return str
 }
 
@@ -716,7 +714,7 @@ function fsm_enum(dummy,
 	obj_enum_db[enum] = FILENAME
 	val = fetch(rINT "|;")
 	i = 0
-	while (val !~ whole(";")) {
+	while (val != ";") {
 		obj_enum_val[enum, i] = val
 		delete a
 		getUniqueEnum(a, enum, val, fetchStr())
@@ -752,7 +750,7 @@ function fsm_sig_enum(dummy,
 	obj_sig_enum[msgid, sig]
 	val = fetch(rINT "|;")
 	i = 0
-	while (val !~ whole(";")) {
+	while (val != ";") {
 		obj_sig_enum_val[msgid, sig, i] = val
 		delete a
 		getUniqueEnum(a, msgid SUBSEP sig, val, fetchStr())
@@ -815,7 +813,7 @@ name) {
 	name = fetch(rSYM)
 	debug("obj_env_dlc[" name "]")
 	fetch(":")
-	obj_env_dlc[name] = fetch(rID)
+	obj_env_dlc[name] = int(fetch(rDLC))
 	fetch(";")
 }
 
@@ -826,7 +824,6 @@ name) {
 #
 # Creates:
 # - 1 obj_msg[id]
-# - 1 obj_msg_ext[id] = extended
 # - 1 obj_msg_name[id] = name
 # - 1 obj_msg_dlc[id] = dlc
 # - 1 obj_msg_tx[id] = ecu
@@ -837,17 +834,12 @@ function fsm_msg(dummy,
 	name,
 	dlc,
 	ecu,
-	ext, i) {
-	id = fetch(rID)
-	ext = (int(id / 2^31) == 1)
-	if (ext) {
-		id -= (2^31)
-	}
-	debug("obj_msg[" (ext ? "X." : "") id "(" sprintf("%#x", id) ")]")
-	obj_msg_ext[id] = ext
+	i) {
+	id = int(fetch(rID))
+	debug("obj_msg[" id "]")
 	name = fetch(rSYM)
 	fetch(":")
-	dlc = fetch(rDLC)
+	dlc = int(fetch(rDLC))
 	ecu = fetch(rSYM)
 	fetch(rLF)
 
@@ -1118,7 +1110,7 @@ function fetch_attrval(attribute) {
 	if (obj_attr_type[attribute] == atSTR) {
 		return fetchStr()
 	} else if (obj_attr_type[attribute] == atENUM) {
-		return fetch(rINT)
+		return int(fetch(rINT))
 	} else if (obj_attr_type[attribute] == atINT) {
 		return int(fetch(rFLOAT))
 	}
@@ -1728,8 +1720,7 @@ function tpl_line(data, line, template,
 		count = split(data[name], array, RS)
 		while (count && array[count] ~ /^[ \t\r\n]*$/ && --count);
 		if (!count) {
-			line = ""
-			return
+			return ""
 		}
 		line = pre filter(array[1], filters, template) post
 		for (i = 2; i <= count; i++) {
@@ -1831,6 +1822,32 @@ function siggrpident(sg,
 }
 
 ##
+# Generates a printable message id be removing the extended bit.
+#
+# @param id
+#	The message id to return
+# @return
+#	The message id without the extended bit
+#
+function msgid(id) {
+	return int(msgidext(id) ? id - 2^31 : id)
+}
+
+##
+# Tests a message id for the extended bit.
+#
+# @param id
+#	The message id to check
+# @retval 1
+#	The message is extended
+# @retval 0
+#	The message is not extended
+#
+function msgidext(id) {
+	return int(id) >= 2^31
+}
+
+##
 # Print the DBC files to stdout.
 #
 END {
@@ -1882,8 +1899,8 @@ END {
 		delete txname
 		while (obj_ecu_tx[ecu, p]) {
 			txname[obj_msg_name[obj_ecu_tx[ecu, p]]]
-			txid[obj_ecu_tx[ecu, p]]
-			tx[sprintf("%x", obj_ecu_tx[ecu, p++])]
+			txid[msgid(obj_ecu_tx[ecu, p])]
+			tx[sprintf("%x", msgid(obj_ecu_tx[ecu, p++]))]
 		}
 		tpl["txname"] = joinIndex(RS, txname)
 		tpl["txid"] = joinIndex(RS, txid)
@@ -1906,13 +1923,13 @@ END {
 	# Introduce the Messages
 	for (msg in obj_msg) {
 		delete tpl
-		tpl["id"] = sprintf("%x", msg)
-		tpl["msg"] = msg
+		tpl["id"] = sprintf("%x", msgid(msg))
+		tpl["msg"] = msgid(msg)
 		tpl["#id"] = "msg"
 		tpl["name"] = obj_msg_name[msg]
 		tpl["comment"] = obj_msg_comment[msg]
 		tpl["ecu"] = obj_msg_tx[msg]
-		tpl["ext"] = obj_msg_ext[msg]
+		tpl["ext"] = msgidext(msg)
 		tpl["dlc"] = obj_msg_dlc[msg]
 		tpl["cycle"] = 0 + obj_msg_attr[msg, aCYCLE]
 		tpl["fast"] = 0 + obj_msg_attr[msg, aFCYCLE]
@@ -1947,8 +1964,8 @@ END {
 		delete tpl
 		tpl["id"] = siggrpident(id)
 		tpl["name"] = obj_siggrp[id]
-		tpl["msgid"] = sprintf("%x", obj_siggrp_msg[id])
-		tpl["msg"] = obj_siggrp_msg[id]
+		tpl["msgid"] = sprintf("%x", msgid(obj_siggrp_msg[id]))
+		tpl["msg"] = msgid(obj_siggrp_msg[id])
 		tpl["#msgid"] = "msg"
 		tpl["msgname"] = obj_msg_name[obj_siggrp_msg[id]]
 		sub(/.*\//, "", tpl["db"])
@@ -1979,8 +1996,8 @@ END {
 		tpl["id"] = sigident(sig)
 		tpl["comment"] = obj_sig_comment[sig]
 		# Reference the message this signal belongs to
-		tpl["msgid"] = sprintf("%x", obj_sig_msgid[sig])
-		tpl["msg"] = obj_sig_msgid[sig]
+		tpl["msgid"] = sprintf("%x", msgid(obj_sig_msgid[sig]))
+		tpl["msg"] = msgid(obj_sig_msgid[sig])
 		tpl["#msgid"] = "msg"
 		tpl["msgname"] = obj_msg_name[obj_sig_msgid[sig]]
 		# Reference the signal groups this message belongs to
@@ -2148,8 +2165,8 @@ END {
 		tpl["timeout"] = obj_rel_attr[rel]
 		tpl["value"] = tpl["timeout"]   # For compatibility with
 		tpl["#value"] = "timeout"       # older 3rd party templates
-		tpl["msgid"] = sprintf("%x", obj_sig_msgid[obj_rel_attr_to[rel]])
-		tpl["msg"] = obj_sig_msgid[obj_rel_attr_to[rel]]
+		tpl["msgid"] = sprintf("%x", msgid(obj_sig_msgid[obj_rel_attr_to[rel]]))
+		tpl["msg"] = msgid(obj_sig_msgid[obj_rel_attr_to[rel]])
 		tpl["#msgid"] = "msg"
 		tpl["msgname"] = obj_msg_name[obj_sig_msgid[obj_rel_attr_to[rel]]]
 
