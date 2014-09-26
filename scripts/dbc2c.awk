@@ -835,7 +835,7 @@ function fsm_msg(dummy,
 	dlc,
 	ecu,
 	i) {
-	id = int(fetch(rID))
+	id = fetch(rID) # Do not cast to int to preserve full value
 	debug("obj_msg[" id "]")
 	name = fetch(rSYM)
 	fetch(":")
@@ -1416,44 +1416,6 @@ function fsm_start(dummy,
 #
 
 ##
-# Returns a string contining all elements of an array connected by a
-# seperator.
-#
-# @param sep
-#	The seperator to use between concatenated strings
-# @param array
-#	The array to concatenate
-# @return
-#	A string containing all array elements
-#
-function join(sep, array,
-	i, result, a) {
-	for (i in array) {
-		result = result (a++ ? sep : "") array[i]
-	}
-	return result
-}
-
-##
-# Returns a string contining all indexes of an array connected by a
-# seperator.
-#
-# @param sep
-#	The seperator to use between concatenated strings
-# @param array
-#	The array to concatenate
-# @return
-#	A string contining the indexes of all array elements
-#
-function joinIndex(sep, array,
-	i, result, a) {
-	for (i in array) {
-		result = result (a++ ? sep : "") i
-	}
-	return result
-}
-
-##
 # Returns the greatest common divider (GCD).
 #
 # @param a
@@ -1830,7 +1792,7 @@ function siggrpident(sg,
 #	The message id without the extended bit
 #
 function msgid(id) {
-	return int(msgidext(id) ? id - 2^31 : id)
+	return sprintf("%d", (msgidext(id) ? id - 2^31 : id))
 }
 
 ##
@@ -1858,12 +1820,13 @@ END {
 
 	# Headers
 	tpl["date"] = DATE
+	dbs =""
 	for (db in obj_db) {
 		sub(/.*\//, "", db)
 		sub(/\.[^\.]*$/, "", db)
-		dbs[db]
+		dbs = dbs db RS
 	}
-	tpl["db"] = joinIndex(RS, dbs)
+	tpl["db"] = dbs
 	printf("%s", template(tpl, "header.tpl"))
 
 	# Introduce the DB files
@@ -1874,12 +1837,12 @@ END {
 		sub(/\.[^\.]*$/, "", tpl["db"])
 		tpl["file"] = file
 		tpl["comment"] = obj_db_comment[file]
-		delete ecus
+		ecus = ""
 		p = 0
 		while (obj_db_ecu[file, p]) {
-			ecus[obj_db_ecu[file, p++]]
+			ecus = ecus obj_db_ecu[file, p++] RS
 		}
-		tpl["ecu"] = joinIndex(RS, ecus)
+		tpl["ecu"] = ecus
 		printf("%s", template(tpl, "file.tpl"))
 	}
 
@@ -1894,28 +1857,25 @@ END {
 		sub(/\.[^\.]*$/, "", tpl["db"])
 		# TX messages
 		p = 0
-		delete tx
-		delete txid
-		delete txname
+		tx = txid = txname = ""
 		while (obj_ecu_tx[ecu, p]) {
-			txname[obj_msg_name[obj_ecu_tx[ecu, p]]]
-			txid[msgid(obj_ecu_tx[ecu, p])]
-			tx[sprintf("%x", msgid(obj_ecu_tx[ecu, p++]))]
+			txname = txname obj_msg_name[obj_ecu_tx[ecu, p]] RS
+			txid = txid msgid(obj_ecu_tx[ecu, p]) RS
+			tx = tx sprintf("%x", msgid(obj_ecu_tx[ecu, p++])) RS
 		}
-		tpl["txname"] = joinIndex(RS, txname)
-		tpl["txid"] = joinIndex(RS, txid)
-		tpl["tx"] = joinIndex(RS, tx)
+		tpl["txname"] = txname
+		tpl["txid"] = txid
+		tpl["tx"] = tx
 		tpl["#tx"] = "txid"
 		# RX signals
 		p = 0
-		delete rxid
-		delete rx
+		rxid = rx = ""
 		while (obj_ecu_rx[ecu, p]) {
-			rxid[sigident(obj_ecu_rx[ecu, p])]
-			rx[obj_sig_name[obj_ecu_rx[ecu, p++]]]
+			rxid = rxid sigident(obj_ecu_rx[ecu, p]) RS
+			rx = rx obj_sig_name[obj_ecu_rx[ecu, p++]] RS
 		}
-		tpl["rxid"] = joinIndex(RS, rxid)
-		tpl["rx"] = joinIndex(RS, rx)
+		tpl["rxid"] = rxid
+		tpl["rx"] = rx
 		# Load template
 		printf("%s", template(tpl, "ecu.tpl"))
 	}
@@ -1937,24 +1897,22 @@ END {
 		tpl["send"] = obj_msg_attr[msg, aSEND]
 		# Get signal list
 		i = 0
-		delete sigids
-		delete sigs
+		sigids = sigs = ""
 		while (obj_msg_sig[msg, i]) {
-			sigids[sigident(obj_msg_sig[msg, i])]
-			sigs[obj_sig_name[obj_msg_sig[msg, i++]]]
+			sigids = sigids sigident(obj_msg_sig[msg, i]) RS
+			sigs = sigs obj_sig_name[obj_msg_sig[msg, i++]] RS
 		}
-		tpl["sigid"] = joinIndex(RS, sigids)
-		tpl["sig"] = joinIndex(RS, sigs)
+		tpl["sigid"] = sigids
+		tpl["sig"] = sigs
 		# Get signal group list
 		i = 0
-		delete sgids
-		delete sgnames
+		sgids = sgnames = ""
 		while (obj_msg_grp[msg, i]) {
-			sgids[siggrpident(obj_msg_grp[msg, i])]
-			sgnames[obj_siggrp[obj_msg_grp[msg, i++]]]
+			sgids = sgids siggrpident(obj_msg_grp[msg, i]) RS
+			sgnames = sgnames obj_siggrp[obj_msg_grp[msg, i++]] RS
 		}
-		tpl["sgid"] = joinIndex(RS, sgids)
-		tpl["sgname"] = joinIndex(RS, sgnames)
+		tpl["sgid"] = sgids
+		tpl["sgname"] = sgnames
 		# Load template
 		printf("%s", template(tpl, "msg.tpl"))
 	}
@@ -1971,15 +1929,14 @@ END {
 		sub(/.*\//, "", tpl["db"])
 		sub(/\.[^\.]*$/, "", tpl["db"])
 		# Signals
-		delete sigids
-		delete sigs
+		sigids = sigs = ""
 		p = 0
 		while (obj_siggrp_sig[id, p]) {
-			sigids[sigident(obj_siggrp_sig[id, p])]
-			sigs[obj_sig_name[obj_siggrp_sig[id, p++]]]
+			sigids = sigids sigident(obj_siggrp_sig[id, p]) RS
+			sigs = sigs obj_sig_name[obj_siggrp_sig[id, p++]] RS
 		}
-		tpl["sigid"] = joinIndex(RS, sigids)
-		tpl["sig"] = joinIndex(RS, sigs)
+		tpl["sigid"] = sigids
+		tpl["sig"] = sigs
 		# Load template
 		printf("%s", template(tpl, "siggrp.tpl"))
 	}
@@ -2002,21 +1959,20 @@ END {
 		tpl["msgname"] = obj_msg_name[obj_sig_msgid[sig]]
 		# Reference the signal groups this message belongs to
 		i = 0
-		delete grpids
-		delete grps
+		grpids = grps = ""
 		while (obj_sig_grp[sig, i]) {
-			grpids[siggrpident(obj_sig_grp[sig, i])]
-			grps[obj_siggrp[obj_sig_grp[sig, i++]]]
+			grpids = grpids siggrpident(obj_sig_grp[sig, i]) RS
+			grps = grps obj_siggrp[obj_sig_grp[sig, i++]] RS
 		}
-		tpl["sgid"] = joinIndex(RS, grpids)
-		tpl["sgname"] = joinIndex(RS, grps)
+		tpl["sgid"] = grpids
+		tpl["sgname"] = grps
 		# Reference the RX ECUs
 		i = 0
-		delete ecus
+		ecus = ""
 		while (obj_sig_rx[sig, i]) {
-			ecus[obj_sig_rx[sig, i++]]
+			ecus = ecus obj_sig_rx[sig, i++] RS
 		}
-		tpl["ecu"] = joinIndex(RS, ecus)
+		tpl["ecu"] = ecus
 		# Has value table?
 		tpl["enum"] = (sig in obj_sig_enum)
 		# Tuple
