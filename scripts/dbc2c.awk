@@ -673,15 +673,17 @@ function fsm_discard() {
 # Token: BU_
 #
 # Creates:
-# - 1 obj_ecu[ecu]
-# - 1 obj_ecu_db[ecu] = FILENAME
-# - 1 obj_db_ecu[FILENAME, p] = ecu
+# - * ind_ecu[cnt_ecu++] = ecu
+# - * obj_ecu[ecu]
+# - * obj_ecu_db[ecu] = FILENAME
+# - * obj_db_ecu[FILENAME, p] = ecu
 #
 function fsm_ecu(dummy,
 	ecu, p) {
 	fetch(":")
 	ecu = fetch(rSYM "|" rLF)
 	while (ecu !~ whole(rLF)) {
+		ind_ecu[cnt_ecu++] = ecu
 		obj_ecu[ecu]
 		obj_ecu_db[ecu] = FILENAME
 		p = 0
@@ -697,7 +699,7 @@ function fsm_ecu(dummy,
 # Token: VAL_TABLE_
 #
 # Creates:
-# - 1 obj_enum[enum]
+# - 1 ind_enum[cnt_enum++] = enum
 # - 1 obj_enum_db[enum] = FILENAME
 # - * obj_enum_val[enum, i] = val
 # - * obj_enum_name[enum, i] = name
@@ -710,7 +712,7 @@ function fsm_enum(dummy,
 	val, a,
 	i) {
 	enum = fetch(rSYM)
-	obj_enum[enum]
+	ind_enum[cnt_enum++] = enum
 	obj_enum_db[enum] = FILENAME
 	val = fetch(rINT "|;")
 	i = 0
@@ -770,6 +772,7 @@ function fsm_sig_enum(dummy,
 # Token: EV_
 #
 # Creates:
+# - 1 ind_env[cnt_env++] = name
 # - 1 obj_env[name] = val
 # - 1 obj_env_type[name] = ("INT"|"FLOAT"|"DATA")
 # - 1 obj_env_min[name] = (float)
@@ -780,6 +783,7 @@ function fsm_env(dummy,
 	name, a) {
 	name = fetch(rSYM)
 	debug("obj_env[" name "]")
+	ind_env[cnt_env++] = name
 	fetch(":")
 	obj_env_type[name] = eTYPE[fetch(rID)]
 	split(fetch(rBND), a, /[][|]/)
@@ -796,7 +800,7 @@ function fsm_env(dummy,
 
 	fetch(rID)  # Just a counter of environment variables
 	fetch(rSYM) # DUMMY_NODE_VECTOR0
-	fetch(rSYM) # Vector__XXX
+	fetch(rSYM) # Vector__XXX TODO add support for ECUs
 	fetch(";")
 }
 
@@ -823,7 +827,7 @@ name) {
 # Token: BO_
 #
 # Creates:
-# - 1 obj_msg[id]
+# - 1 ind_msg[cnt_msg++] = id
 # - 1 obj_msg_name[id] = name
 # - 1 obj_msg_dlc[id] = dlc
 # - 1 obj_msg_tx[id] = ecu
@@ -843,7 +847,7 @@ function fsm_msg(dummy,
 	ecu = fetch(rSYM)
 	fetch(rLF)
 
-	obj_msg[id]
+	ind_msg[cnt_msg++] = id
 	obj_msg_name[id] = name
 	obj_msg_dlc[id] = dlc
 
@@ -864,7 +868,7 @@ function fsm_msg(dummy,
 # Token: SG_
 #
 # Creates:
-# - 1 obj_sig[msgid, name]
+# - 1 ind_sig[cnt_sig++] = msgid, name
 # - 1 obj_sig_name[msgid, name] = name
 # - 1 obj_sig_msgid[msgid, name] = msgid
 # - 1 obj_sig_multiplexor[msgid, name] = (bool)
@@ -886,10 +890,10 @@ function fsm_sig(msgid,
 	name,
 	multiplexing,
 	a,
-	ecu, i, p) {
+	ecu, count, i, p) {
 	name = fetch(rSYM)
 	debug("obj_sig[" msgid ", " name "]")
-	obj_sig[msgid, name]
+	ind_sig[cnt_sig++] = msgid SUBSEP name
 	obj_sig_name[msgid, name] = name
 	obj_sig_msgid[msgid, name] = msgid
 	while (obj_msg_sig[msgid, p++]);
@@ -911,8 +915,8 @@ function fsm_sig(msgid,
 	obj_sig_min[msgid, name] = a[2]
 	obj_sig_max[msgid, name] = a[3]
 	obj_sig_unit[msgid, name] = fetchStr()
-	split(fetch(rSYMS), a, /,/)
-	for (ecu in a) {
+	count = split(fetch(rSYMS), a, /,/)
+	for (ecu = 1; ecu <= count; ++ecu) {
 		if (a[ecu] in obj_ecu) {
 			obj_sig_rx[msgid, name, i++] = a[ecu]
 			p = 0
@@ -966,7 +970,7 @@ function fsm_comment(dummy,
 # Token: BA_DEF_
 #
 # Creates:
-# - 1 obj_attr[name]
+# - 1 ind_attr[cnt_attr++] = name
 # - 1 obj_attr_context[name] = ("sig"|"msg"|"ecu"|"env"|"db")
 # - 1 obj_attr_type[name] = ("INT"|"ENUM"|"STRING")
 # - ? obj_attr_min[name] = (float)
@@ -983,7 +987,7 @@ function fsm_attrrange(dummy,
 	context = getContext(fetch(rSYM))
 	name = fetchStr()
 	obj_attr_context[name] = context
-	obj_attr[name]
+	ind_attr[cnt_attr++] = name
 	type = fetch(rSYM)
 	obj_attr_type[name] = type
 	if (type in atNUM) {
@@ -1008,7 +1012,7 @@ function fsm_attrrange(dummy,
 # Token: BA_DEF_REL_
 #
 # Creates:
-# - 1 obj_attr[name]
+# - 1 ind_attr[cnt_attr++] = name
 # - 1 obj_attr_context[name] = "rel"
 # - 1 obj_attr_from[name] = ("sig"|"msg"|"ecu"|"env"|"db")
 # - 1 obj_attr_to[name] = ("sig"|"msg"|"ecu"|"env"|"db")
@@ -1027,7 +1031,7 @@ function fsm_relattrrange(dummy,
 	relation = fetch(rSYM)
 	name = fetchStr()
 	obj_attr_context[name] = "rel"
-	obj_attr[name]
+	ind_attr[cnt_attr++] = name
 	sub(/REL_$/, "", relation)
 	context = relation
 	sub(/[A-Z]+_$/, "", context)
@@ -1067,7 +1071,7 @@ function fsm_relattrrange(dummy,
 function fsm_attrdefault(dummy,
 	name,
 	value,
-	i) {
+	i, ix) {
 	name = fetchStr()
 	if (obj_attr_type[name] == atSTR) {
 		obj_attr_default[name] = fetchStr()
@@ -1084,15 +1088,15 @@ function fsm_attrdefault(dummy,
 	fetch(";")
 	# Poplulate objects with defaults
 	if (obj_attr_context[name] == "msg") {
-		for (i in obj_msg) {
+		for (i = ind_msg[ix = 0]; ix < cnt_msg; i = ind_msg[++ix]) {
 			obj_msg_attr[i, name] = obj_attr_default[name]
 		}
 	} else if (obj_attr_context[name] == "sig") {
-		for (i in obj_sig) {
+		for (i = ind_sig[ix = 0]; ix < cnt_sig; i = ind_sig[++ix]) {
 			obj_sig_attr[i, name] = obj_attr_default[name]
 		}
 	} else if (obj_attr_context[name] == "db") {
-		for (i in obj_db) {
+		for (i = ind_db[ix = 0]; ix < cnt_db; i = ind_db[++ix]) {
 			obj_db_attr[i, name] = obj_attr_default[name]
 		}
 	}
@@ -1166,6 +1170,7 @@ function fsm_attr(dummy,
 # Token: BA_REL_
 #
 # Creates:
+# - 1 ind_rel_attr[cnt_rel_attr++] = name, from, to
 # - 1 obj_rel_attr[name, from, to] = value
 # - 1 obj_rel_attr_name[name, from, to] = name
 # - 1 obj_rel_attr_from[name, from, to] = from
@@ -1213,6 +1218,7 @@ function fsm_relattr(dummy,
 	else {
 		error(8, "relation attributes for " obj_attr_to[name] " not implemented!")
 	}
+	ind_rel_attr[cnt_rel_attr++] = name SUBSEP from SUBSEP to
 	obj_rel_attr[name, from, to] = fetch_attrval(name)
 	debug("obj_rel_attr[" name ", " from ", " to "] = " obj_rel_attr[name, from, to])
 	obj_rel_attr_name[name, from, to] = name
@@ -1258,13 +1264,14 @@ function fsm_tx(dummy,
 	msgid, ecus, i, p, present) {
 	msgid = fetch(rID)
 	fetch(":")
-	split(",", names, fetch(rSYMS))
+	split(fetch(rSYMS), ecus, /,/)
 	for (i in ecus) {
 		p = 0
 		present = 0
 		while (obj_ecu_tx[ecus[i], p]) {
 			if (obj_ecu_tx[ecus[i], p++] == msgid) {
 				present = 1
+				break
 			}
 		}
 		if (!present) {
@@ -1280,6 +1287,7 @@ function fsm_tx(dummy,
 # Token: SIG_GROUP_
 #
 # Creates:
+# - 1 ind_siggrp[cnt_siggrp++] = msgid, name
 # - 1 obj_siggrp[msgid, name] = name
 # - 1 obj_siggrp_msg[msgid, name] = msgid
 # - * obj_siggrp_sig[msgid, name, i] = sig
@@ -1290,6 +1298,7 @@ function fsm_siggrp(dummy,
 	i, msgid, name, sig, p) {
 	msgid = fetch(rID)
 	name = fetch(rSYM)
+	ind_siggrp[cnt_siggrp++] = msgid SUBSEP name
 	obj_siggrp[msgid, name] = name
 	debug("obj_siggrp[" msgid ", " name "] = " obj_siggrp[msgid, name])
 	i = fetch(rID) # Seems to always be 1
@@ -1316,13 +1325,17 @@ function fsm_siggrp(dummy,
 # functions.
 #
 # Creates:
+# - 1 ind_db[cnt_db++] = FILENAME
 # - 1 obj_db[FILENAME]
 #
 function fsm_start(dummy,
 	sym) {
 	sym = fetch(rSYM "|" rLF)
 
-	obj_db[FILENAME]
+	if (!(FILENAME in obj_db)) {
+		ind_db[cnt_db++] = FILENAME
+		obj_db[FILENAME]
+	}
 
 	# Check whether symbol is known but not supported
 	if (t[sym]) {
@@ -1592,7 +1605,7 @@ function rational(val, precision,
 #
 function filter(str, filters, template,
 	cmds, count, i) {
-	count = split(filters, cmds, ":")
+	count = split(filters, cmds, /:/)
 	for (i = 1; i <= count; ++i) {
 		if (cmds[i] == "low") {
 			str = tolower(str)
@@ -1821,7 +1834,7 @@ END {
 	# Headers
 	tpl["date"] = DATE
 	dbs =""
-	for (db in obj_db) {
+	for (db = ind_db[ix = 0]; ix < cnt_db; db = ind_db[++ix]) {
 		sub(/.*\//, "", db)
 		sub(/\.[^\.]*$/, "", db)
 		dbs = dbs db RS
@@ -1830,7 +1843,7 @@ END {
 	printf("%s", template(tpl, "header.tpl"))
 
 	# Introduce the DB files
-	for (file in obj_db) {
+	for (file = ind_db[ix = 0]; ix < cnt_db; file = ind_db[++ix]) {
 		delete tpl
 		tpl["db"] = file
 		sub(/.*\//, "", tpl["db"])
@@ -1847,7 +1860,7 @@ END {
 	}
 
 	# Introduce the ECUs
-	for (ecu in obj_ecu) {
+	for (ecu = ind_ecu[ix = 0]; ix < cnt_ecu; ecu = ind_ecu[++ix]) {
 		delete tpl
 		tpl["ecu"] = ecu
 		tpl["comment"] = obj_ecu_comment[ecu]
@@ -1881,7 +1894,7 @@ END {
 	}
 
 	# Introduce the Messages
-	for (msg in obj_msg) {
+	for (msg = ind_msg[ix = 0]; ix < cnt_msg; msg = ind_msg[++ix]) {
 		delete tpl
 		tpl["id"] = sprintf("%x", msgid(msg))
 		tpl["msg"] = msgid(msg)
@@ -1918,7 +1931,7 @@ END {
 	}
 
 	# Introduce signal groups
-	for (id in obj_siggrp) {
+	for (id = ind_siggrp[ix = 0]; ix < cnt_siggrp; id = ind_siggrp[++ix]) {
 		delete tpl
 		tpl["id"] = siggrpident(id)
 		tpl["name"] = obj_siggrp[id]
@@ -1947,7 +1960,7 @@ END {
 	inttypes[16]
 	inttypes[32]
 	# Introduce the Signals
-	for (sig in obj_sig) {
+	for (sig = ind_sig[ix = 0]; ix < cnt_sig; sig = ind_sig[++ix]) {
 		delete tpl
 		tpl["name"] = obj_sig_name[sig]
 		tpl["id"] = sigident(sig)
@@ -2101,7 +2114,7 @@ END {
 	}
 
 	# Introduce timeouts
-	for (rel in obj_rel_attr) {
+	for (rel = ind_rel_attr[ix = 0]; ix < cnt_rel_attr; rel = ind_rel_attr[++ix]) {
 		if (obj_rel_attr_name[rel] != aTIMEOUT) {
 			# Not a timeout
 			continue
@@ -2131,7 +2144,7 @@ END {
 	}
 
 	# List enum
-	for (enum in obj_enum) {
+	for (enum = ind_enum[ix = 0]; ix < cnt_enum; enum = ind_enum[++ix]) {
 		delete tpl
 		tpl["enum"] = enum
 		tpl["db"] = obj_enum_db[enum]
