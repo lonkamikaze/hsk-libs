@@ -1112,7 +1112,6 @@ function fsm_attrdefault(dummy,
 #
 function fetch_attrval(attribute,
 	val) {
-	debug(obj_attr_type[attribute])
 	if (obj_attr_type[attribute] == atSTR) {
 		return fetchStr()
 	} else if (obj_attr_type[attribute] == atENUM) {
