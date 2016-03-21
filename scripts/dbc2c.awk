@@ -461,7 +461,7 @@ function error(no, msg) {
 #	The message to print
 #
 function warn(msg) {
-	print "dbc2c.awk: WARNING: " msg > "/dev/stderr"
+	print "dbc2c.awk: WARNING: " FILENAME "(" NR "): " msg > "/dev/stderr"
 }
 
 ##
@@ -1110,13 +1110,25 @@ function fsm_attrdefault(dummy,
 # @return
 #	The value of the chosen type
 #
-function fetch_attrval(attribute) {
+function fetch_attrval(attribute,
+	val) {
+	debug(obj_attr_type[attribute])
 	if (obj_attr_type[attribute] == atSTR) {
 		return fetchStr()
 	} else if (obj_attr_type[attribute] == atENUM) {
-		return int(fetch(rINT))
+		val = fetch(rFLOAT)
+		if (val != int(val)) {
+			warn("An enum value is expected but the floating point value " \
+			     val " was provided, converting to " int(val))
+		}
+		return int(val)
 	} else if (obj_attr_type[attribute] == atINT) {
-		return int(fetch(rFLOAT))
+		val = fetch(rFLOAT)
+		if (val != int(val)) {
+			warn("An integer value is expected but the floating point value " \
+			     val " was provided, converting to " int(val))
+		}
+		return int(val)
 	}
 	return fetch(rFLOAT)
 }
