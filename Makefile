@@ -7,6 +7,7 @@
 # | build (default)   | Builds a .hex file and dependencies
 # | all               | Builds a .hex file and every .c library
 # | dbc               | Builds C headers from Vector dbc files
+# | debug             | Builds for debugging with sdcdb
 # | printEnv          | Used by scripts to determine project settings
 # | uVision           | Run uVisionupdate.sh
 # | html              | Build html documentation
@@ -123,7 +124,7 @@ ${GENDIR}/build.mk: dbc ${GENDIR}
 	@env CPP="${CPP}" AWK="${AWK}" \
 	     sh scripts/build.sh src/ ${INCDIR}/ ${GENDIR}/ > $@
 
-.PHONY: build all dbc
+.PHONY: build all debug dbc
 
 # Generate headers from CANdbs
 dbc: ${GENDIR}/dbc.mk
@@ -137,6 +138,12 @@ build all: ${GENDIR}/sdcc.mk ${GENDIR}/build.mk dbc
 	     OBJSUFX="${OBJSUFX}" HEXSUFX="${HEXSUFX}" \
 	     CC="${CC}" CFLAGS="${CFLAGS}" \
 	     ${MAKE} -r -f ${GENDIR}/sdcc.mk -f ${GENDIR}/build.mk $@
+
+debug: ${GENDIR}/sdcc.mk ${GENDIR}/build.mk dbc
+	@env BUILDDIR="${BUILDDIR}" \
+	     OBJSUFX="${OBJSUFX}" HEXSUFX="${HEXSUFX}" \
+	     CC="${CC}" CFLAGS="${CFLAGS} --debug" \
+	     ${MAKE} -r -f ${GENDIR}/sdcc.mk -f ${GENDIR}/build.mk build
 
 .PHONY: printEnv uVision µVision
 
