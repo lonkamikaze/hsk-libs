@@ -1,0 +1,5 @@
+*.c   text eol=crlf
+*.h   text eol=crlf
+*.txt text eol=crlf
+*.a51 text eol=crlf
+*.bat text eol=crlf
