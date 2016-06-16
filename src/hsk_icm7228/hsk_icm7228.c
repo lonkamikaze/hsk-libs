@@ -33,7 +33,7 @@
  * The first 16 characters from index 0 return the characters
  * "0123456789ABCDEF" as well.
  */
-static const char code codepage[] = {
+static const ubyte code codepage[] = {
 	0xFB, 0xB0, 0xED, 0xF5, 0xB6, 0xD7, 0xDF, 0xF0,
 	0xFF, 0xF7, 0xFE, 0x9F, 0xCB, 0xBD, 0xCF, 0xCE,
 	0x80, 0xC0, 0xE0, 0xF0, 0xF1, 0xF9, 0xFB, 0xFF,
@@ -58,8 +58,7 @@ static const char code codepage[] = {
 #define ILLUMINATE_OFFSET	16
 
 void hsk_icm7228_writeString(ubyte xdata * const buffer,
-		const char * str, ubyte pos,
-		ubyte len) {
+		char const * str, ubyte pos, ubyte len) {
 	while (len > 0 && str[0]) {
 		buffer[pos] = codepage[str[0]];
 		len--;
@@ -73,7 +72,7 @@ void hsk_icm7228_writeString(ubyte xdata * const buffer,
 }
 
 void hsk_icm7228_writeDec(ubyte xdata * const buffer, uword value,
-                          char power, const ubyte pos, ubyte len) {
+                          char power, ubyte const pos, ubyte len) {
 	ubyte point = power ? 0x7f : 0xff;
 
 	while (len > 0) {
@@ -86,7 +85,7 @@ void hsk_icm7228_writeDec(ubyte xdata * const buffer, uword value,
 }
 
 void hsk_icm7228_writeHex(ubyte xdata * const buffer, uword value,
-                          char power, const ubyte pos, ubyte len) {
+                          char power, ubyte const pos, ubyte len) {
 	ubyte point = power ? 0x7f : 0xff;
 
 	while (len > 0) {

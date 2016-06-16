@@ -6,7 +6,7 @@
  *
  * All the macros take a port and a mask to select the affected pins. All
  * operations are masked with the selected pins so it is safe to define
- * -1 (every bit 1) to activate a certain property.
+ * 0xff (every bit 1) to activate a certain property.
  *
  * Set and get macros take a bit field to define the value that represents
  * the \c on or \c true state, so the logic code can always use a \c 1 for
@@ -74,7 +74,7 @@
  * @note
  *	Can also be used for \ref IO_PORT_OUT
  */
-#define IO_PORT_ON_HIGH            -1
+#define IO_PORT_ON_HIGH            0xff
 
 
 /**
@@ -116,7 +116,7 @@
 /**
  * Bit mask to set strong drive strength for all selected pins.
  */
-#define IO_PORT_STRENGTH_STRONG    -1
+#define IO_PORT_STRENGTH_STRONG    0xff
 
 /**
  * Bit mask to disable drain mode for all selected pins.
@@ -126,7 +126,7 @@
 /**
  * Bit mask to enable drain mode for all selected pins.
  */
-#define IO_PORT_DRAIN_ENABLE       -1
+#define IO_PORT_DRAIN_ENABLE       0xff
 
 /**
  * Initializes a set of port pins as outputs.
@@ -202,7 +202,7 @@
 /**
  * Bit mask to enable pull up/down for all selected pins.
  */
-#define IO_PORT_PULL_ENABLE        -1
+#define IO_PORT_PULL_ENABLE        0xff
 
 /**
  * Bit mask to select pull down for all selected pins.
@@ -212,7 +212,7 @@
 /**
  * Bit mask to select pull up for all selected pins.
  */
-#define IO_PORT_PULL_UP            -1
+#define IO_PORT_PULL_UP            0xff
 
 /**
  * Sets the pull-up/-down properties of port pins.

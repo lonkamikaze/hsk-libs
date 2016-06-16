@@ -591,7 +591,7 @@ void hsk_can_disable(const hsk_can_node node) {
 }
 
 ubyte hsk_can_status(const hsk_can_node node, const ubyte field) {
-	ubyte status = -1;
+	ubyte status = 0xff;
 
 	/* Get the Node x Status Register. */
 	CAN_ADLH = NSRx + (node << OFF_NODEx);
@@ -910,7 +910,7 @@ hsk_can_msg hsk_can_msg_create(const ulong id, const bool extended,
 
 	/* Adjust filtering mask to only accept complete ID matches. */
 	CAN_ADLH = MOAMRn + (msg << OFF_MOn);
-	CAN_DATA01 = -1;
+	CAN_DATA01 = 0xffff;
 	CAN_DATA23 = (1 << (BIT_MIDE - 16)) | ((1 << (CNT_AM - (16 - BIT_AM))) - 1);
 	CAN_AD_WRITE(0xF);
 
@@ -1247,7 +1247,7 @@ void hsk_can_fifo_setupRx(hsk_can_fifo fifo, const ulong id,
 
 	/* Adjust filtering mask to only accept complete ID matches. */
 	CAN_ADLH = MOAMRn + (fifo << OFF_MOn);
-	CAN_DATA01 = -1 << BIT_AM;
+	CAN_DATA01 = 0xffff << BIT_AM;
 	CAN_DATA23 = (1 << (BIT_MIDE - 16)) | ((1 << (CNT_AM - (16 - BIT_AM))) - 1);
 	CAN_AD_WRITE(0xF);
 
@@ -1582,7 +1582,7 @@ ulong hsk_can_data_getIntelSignal(const ubyte * const msg,
 	}
 
 	if (sign && (value >> (shift + bitCount - 1))) {
-		return ((-1ul) << (shift + bitCount)) | value;
+		return ((~0ul) << (shift + bitCount)) | value;
 	}
 	return value;
 }
@@ -1622,7 +1622,7 @@ ulong hsk_can_data_getMotorolaSignal(const ubyte * const msg,
 	}
 
 	if (sign && (value >> (shift - 1))) {
-		return ((-1ul) << shift) | value;
+		return ((~0ul) << shift) | value;
 	}
 	return value;
 }

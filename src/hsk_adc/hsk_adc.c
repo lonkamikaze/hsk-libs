@@ -471,7 +471,7 @@ void hsk_adc_warmup10(void) {
 	 * was written can be detected. */
 	for (i = 0; i < ADC_CHANNELS; i++) {
 		if (targets[i].ptr10) {
-			*targets[i].ptr10 = -1;
+			*targets[i].ptr10 = 0xffff;
 		}
 	}
 
