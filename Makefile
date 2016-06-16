@@ -77,8 +77,8 @@ DATE:=		$(shell date +%Y-%m-%d)
 DATE!=		date +%Y-%m-%d
 
 # Use hg version with date fallback.
-VERSION:=	$(shell hg tip 2> /dev/null | ${AWK} '/^changeset/ {print $$2}' || echo ${DATE})
-VERSION!=	hg tip 2> /dev/null | ${AWK} '/^changeset/ {print $$2}' || echo ${DATE}
+VERSION:=	$(shell git rev-list HEAD --count || echo ${DATE})
+VERSION!=	git rev-list HEAD --count || echo ${DATE}
 
 # List of public source files, for generating the user documentation.
 USERSRC:=	$(shell find src/ -name \*.h -o -name main.c -o -name \*.txt -o -name examples)
