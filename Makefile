@@ -107,10 +107,6 @@ build:
 
 .PHONY: ${GENDIR}/sdcc.mk ${GENDIR}/dbc.mk ${GENDIR}/build.mk
 
-# Create the generated content directory
-${GENDIR}:
-	@mkdir -p ${GENDIR}
-
 # Configure SDCC
 ${GENDIR}/sdcc.mk: ${GENDIR}
 	@env CC="${CC}" sh scripts/sdcc.sh ${CONFDIR}/sdcc > $@
@@ -253,7 +249,7 @@ doc-scripts/latex/refman.pdf: doc-scripts
         clean-build clean-stale
 
 clean: clean-doc clean-doc-private clean-doc-dbc clean-doc-scripts \
-       clean-build clean-stale
+       clean-build
 
 clean-doc:
 	@rm -rf doc ||:
@@ -268,10 +264,7 @@ clean-doc-scripts:
 	@rm -rf doc-scripts ||:
 
 clean-build:
-	@rm -rf ${BUILDDIR} ${GENDIR} ||:
-
-clean-stale:
-	@rm -f build.mk sdcc.mk dbc.mk ||:
+	@rm -rf ${BUILDDIR}/* ${GENDIR}/*
 
 .PHONY: zip
 
