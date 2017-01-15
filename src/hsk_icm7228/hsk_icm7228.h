@@ -7,7 +7,7 @@
  * Generating code in this fashion avoids the hard coding of I/O registers
  * and bits and even allows the use of multiple ICM7228 ICs.
  *
- * @see Intersil ICM7228 Data Sheet: <a href="contrib/ICM7228.pdf">ICM7228.pdf</a>
+ * @see Intersil ICM7228 Data Sheet: <a href="../contrib/ICM7228.pdf">ICM7228.pdf</a>
  * @author kami
  */
 

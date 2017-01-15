@@ -4,7 +4,7 @@
  * This file implements the static functions of the ICM7228 display decoder
  * driver.
  *
- * @see Intersil ICM7228 Data Sheet: <a href="contrib/ICM7228.pdf">ICM7228.pdf</a>
+ * @see Intersil ICM7228 Data Sheet: <a href="../contrib/ICM7228.pdf">ICM7228.pdf</a>
  * @author kami
  */
 
