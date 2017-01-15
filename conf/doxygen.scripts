@@ -1,10 +1,7 @@
-OUTPUT_DIRECTORY       = doc-scripts/
-WARN_LOGFILE           = doc-scripts/warnings.log
-INPUT                  = Makefile uVisionupdate.sh scripts
+PROJECT_BRIEF          = "High Speed Karlsruhe XC878 build scripts"
+INPUT                  = Makefile uVisionupdate.sh scripts/
 STRIP_FROM_PATH        =
-FILE_PATTERNS          = *.awk \
-                       = *.sh \
-                         *.txt
+FILE_PATTERNS          += *.awk *.sh
 EXTENSION_MAPPING      = awk=C
 FILTER_PATTERNS        = *.awk=scripts/awk2doxygen.awk \
                          *.txt= \

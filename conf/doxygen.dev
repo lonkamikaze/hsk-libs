@@ -1,11 +1,9 @@
-OUTPUT_DIRECTORY       = doc-private/
-WARN_LOGFILE           = doc-private/warnings.log
 EXTRACT_PRIVATE        = YES
 EXTRACT_STATIC         = YES
 EXTRACT_LOCAL_CLASSES  = YES
 EXTRACT_LOCAL_METHODS  = YES
 INTERNAL_DOCS          = YES
-FILE_PATTERNS          += *.c
+FILE_PATTERNS          += *.c *.h
 #SOURCE_BROWSER         = YES
 #STRIP_CODE_COMMENTS    = NO
 ENABLED_SECTIONS       = DEV
