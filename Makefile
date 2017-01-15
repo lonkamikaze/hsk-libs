@@ -10,16 +10,11 @@
 # | debug             | Builds for debugging with sdcdb
 # | printEnv          | Used by scripts to determine project settings
 # | uVision           | Run uVisionupdate.sh
-# | html              | Build html documentation
-# | pdf               | Build pdf documentation
+# | html              | Build all html documentation under doc/
+# | pdf               | Build all pdf documentation under doc/
 # | clean-build       | Remove build output
 # | clean-doc         | Remove doxygen output for user doc
-# | clean-doc-private | Remove doxygen output for dev doc
-# | clean-doc-dbc     | Remove doxygen output for dbc doc
-# | clean-doc-scripts | Remove doxygen output for script doc
-# | clean-stale       | Clean no longer required files, not managed by HG
 # | clean             | Clean everything
-# | zip               | Create a .zip archive in the parent directory
 #
 # Override the following settings in Makefile.local if needed.
 #
@@ -33,14 +28,14 @@
 # | CONFDIR           | Location for configuration files
 # | CANPROJDIR        | Path to the CAN project
 # | DBCDIR            | Location for generated DBC headers
+# | DOC_ALL_TARGETS   | All doc/ subtargets (user, dev, dbc, scripts)
+# | DOC_PUB_TARGETS   | All gh-pages/ subtargets (user, dev, scripts)
 # | GENDIR            | Location for generated code
 # | INCDIR            | Include directory for contributed headers
 # | OBJSUFX           | The file name suffix for object files
 # | HEXSUFX           | The file name suffix for intel hex files
-# | DATE              | System date, for use when hg is not available
-# | VERSION           | Version of the project
-# | USERSRC           | The list of source files to generate the user doc
-# | DEVSRC            | The list of source files from this project
+# | DATE              | System date, used if `git` cannot be found
+# | VERSION           | The `git` version of the project or the date
 # | PROJECT           | The name of this project
 #
 
@@ -67,6 +62,12 @@ CANPROJDIR=	../CAN
 
 # Include directories from the related projects.
 INCDIR=		inc
+
+# Documentation subtargets
+DOC_ALL_TARGETS=user dev dbc scripts
+
+# Documenation to publish on GitHub Pages
+DOC_PUB_TARGETS=user dev scripts
 
 # File name suffixes for sdcc/XC800_Fload.
 OBJSUFX=	.rel
@@ -154,120 +155,44 @@ printEnv:
 uVision µVision:
 	@sh uVisionupdate.sh
 
-html: html/user html/dev html/dbc html/contrib html/scripts
+# Documentation sources
+doc/user:    ${USERSRC}
+doc/dev:     ${DEVSRC}
+doc/dbc:     ${DBCDIR}
+doc/scripts: Makefile scripts/* scripts/doc/*
 
-html/contrib: contrib
-	@rm -rf html/contrib ||:
-	@mkdir -p html
-	@cp -r contrib html/
+# Doxygen targets
+${DOC_ALL_TARGETS:C,^,doc/,}: ${CONFDIR}/doxygen.common ${CONFDIR}/doxygen.${.TARGET:T}
+	@rm -rf "${.TARGET}"
+	@mkdir -p "${.TARGET}"
+	@echo 'PROJECT_NAME="${PROJECT}-${.TARGET:T}"'  >> "${.TARGET}"/.conf
+	@echo 'PROJECT_NUMBER=${VERSION}'               >> "${.TARGET}"/.conf
+	@echo 'OUTPUT_DIRECTORY="${.TARGET}/"'          >> "${.TARGET}"/.conf
+	@echo 'WARN_LOGFILE="${.TARGET}/warnings.log"'  >> "${.TARGET}"/.conf
+	@cat ${CONFDIR}/doxygen.common ${CONFDIR}/doxygen.${.TARGET:T} \
+	     ${.TARGET}/.conf | doxygen -
 
-html/user: doc
-	@rm -rf html/user ||:
-	@mkdir -p html
-	@cp -r doc/html html/user
+# PDF targets
+${DOC_ALL_TARGETS:C,^,doc/,:C,$$,/latex/refman.pdf,}: ${.TARGET:H:H}
+	@cd "${.TARGET:H}" && ${MAKE}
 
-html/dev: doc-private
-	@rm -rf html/dev ||:
-	@mkdir -p html
-	@cp -r doc-private/html html/dev
+# GitHub Pages targets
+${DOC_PUB_TARGETS:C,^,gh-pages/,}: doc/${.TARGET:T} doc/${.TARGET:T}/latex/refman.pdf
+	@rm -rf "${.TARGET}"
+	@cp -r "doc/${.TARGET:T}/html" "${.TARGET}"
+	@cp "${.ALLSRC:[-1]}" "${.TARGET}/${PROJECT}-${.TARGET:T}.pdf"
 
-html/scripts: doc-scripts
-	@rm -rf html/scripts ||:
-	@mkdir -p html
-	@cp -r doc-scripts/html html/scripts
+# Documentation meta targets
+html: ${DOC_ALL_TARGETS:C,^,doc/,}
+pdf: ${DOC_ALL_TARGETS:C,^,doc/,:C,$$,/latex/refman.pdf,}
+gh-pages: ${DOC_PUB_TARGETS:C,^,gh-pages/,}
 
-html/dbc: doc-dbc
-	@rm -rf html/dbc ||:
-	@mkdir -p html
-	@cp -r doc-dbc/html html/dbc
+.PHONY: clean clean-doc clean-build
 
-doc: ${USERSRC} ${CONFDIR}/doxygen.public
-	@rm -rf doc ||:
-	@mkdir -p doc
-	@echo PROJECT_NAME=\"${PROJECT}-user\" >> doc/.conf
-	@echo PROJECT_NUMBER=${VERSION} >> doc/.conf
-	@cat ${CONFDIR}/doxygen.public doc/.conf | doxygen -
-
-doc-private: ${DEVSRC} ${CONFDIR}/doxygen.public ${CONFDIR}/doxygen.private
-	@rm -rf doc-private ||:
-	@mkdir -p doc-private
-	@echo PROJECT_NAME=\"${PROJECT}-dev\" >> doc-private/.conf
-	@echo PROJECT_NUMBER=${VERSION} >> doc-private/.conf
-	@cat ${CONFDIR}/doxygen.public ${CONFDIR}/doxygen.private \
-	 doc-private/.conf | doxygen -
-
-doc-dbc: ${DBCDIR} ${CONFDIR}/doxygen.dbc
-	@rm -rf doc-dbc ||:
-	@mkdir -p doc-dbc
-	@echo PROJECT_NAME=\"${PROJECT}-dbc\" >> doc-dbc/.conf
-	@echo PROJECT_NUMBER=${VERSION} >> doc-dbc/.conf
-	@echo INPUT=${DBCDIR} >> doc-dbc/.conf
-	@echo STRIP_FROM_PATH=${GENDIR} >> doc-dbc/.conf
-	@cat ${CONFDIR}/doxygen.dbc doc-dbc/.conf | doxygen -
-
-doc-scripts: scripts ${CONFDIR}/doxygen.public ${CONFDIR}/doxygen.scripts \
-             Makefile uVisionupdate.sh
-	@rm -rf doc-scripts ||:
-	@mkdir -p doc-scripts
-	@echo PROJECT_NAME=\"${PROJECT}-scripts\" >> doc-scripts/.conf
-	@echo PROJECT_NUMBER=${VERSION} >> doc-scripts/.conf
-	@cat ${CONFDIR}/doxygen.public ${CONFDIR}/doxygen.scripts \
-	     doc-scripts/.conf | doxygen -
-
-pdf: pdf/${PROJECT}-user.pdf pdf/${PROJECT}-dev.pdf pdf/${PROJECT}-dbc.pdf \
-     pdf/${PROJECT}-scripts.pdf
-
-pdf/${PROJECT}-user.pdf: doc/latex/refman.pdf
-	@mkdir -p pdf
-	@cp doc/latex/refman.pdf "pdf/${PROJECT}-user.pdf"
-
-pdf/${PROJECT}-dev.pdf: doc-private/latex/refman.pdf
-	@mkdir -p pdf
-	@cp doc-private/latex/refman.pdf "pdf/${PROJECT}-dev.pdf"
-
-pdf/${PROJECT}-dbc.pdf: doc-dbc/latex/refman.pdf
-	@mkdir -p pdf
-	@cp doc-dbc/latex/refman.pdf "pdf/${PROJECT}-dbc.pdf"
-
-pdf/${PROJECT}-scripts.pdf: doc-scripts/latex/refman.pdf
-	@mkdir -p pdf
-	@cp doc-scripts/latex/refman.pdf "pdf/${PROJECT}-scripts.pdf"
-
-doc/latex/refman.pdf: doc
-	@cd doc/latex/ && ${MAKE}
-
-doc-private/latex/refman.pdf: doc-private
-	@cd doc-private/latex/ && ${MAKE}
-
-doc-dbc/latex/refman.pdf: doc-dbc
-	@cd doc-dbc/latex/ && ${MAKE}
-
-doc-scripts/latex/refman.pdf: doc-scripts
-	@cd doc-scripts/latex/ && ${MAKE}
-
-.PHONY: clean clean-doc clean-doc-private clean-doc-dbc clean-doc-scripts \
-        clean-build clean-stale
-
-clean: clean-doc clean-doc-private clean-doc-dbc clean-doc-scripts \
-       clean-build
+clean: clean-doc clean-build
 
 clean-doc:
-	@rm -rf doc ||:
-
-clean-doc-private:
-	@rm -rf doc-private ||:
-
-clean-doc-dbc:
-	@rm -rf doc-dbc ||:
-
-clean-doc-scripts:
-	@rm -rf doc-scripts ||:
+	@rm -rf doc/*
 
 clean-build:
 	@rm -rf ${BUILDDIR}/* ${GENDIR}/*
-
-.PHONY: zip
-
-zip: pdf
-	@hg status -A | ${AWK} '$$1 != "I" {sub(/. /, "${PROJECT}/"); print}' | (cd .. && zip ${PROJECT}-${VERSION}.zip -\@ -r ${PROJECT}/pdf)
-
