@@ -38,72 +38,72 @@ and like the applications still subject to a lot of change.
 
 \subsection documentation_layout Project Layout
 
-- \c LICENSE.md
-	- ISCL and 3rd party licensing
-- \c Makefile
-	- Makefile to invoke the SDCC and doxygen toolchain
-- \c Makefile.local
-	- Local non-revisioned Makefile for overriding default parameters
-- \c README.md
-	- Repository README
-- \c uVisionupdate.sh
-	- Updates the µVision project's overlaying instructions
-- \c bin.c51/
-	- C51 toolchain output produced by Keil µVision (safe to delete)
-- \c bin.sdcc/
-	- SDCC compiler output (safe to delete)
-- \c conf/
-	- Project configuration files
-- \c conf/doxygen.common
-	- Basic doxygen settings
-- \c conf/doxygen.dbc
-	- Doxygen setting changes to create documentation from DBC headers
-- \c conf/doxygen.dev
-	- Doxygen setting changes to create the developer documentation
-- \c conf/doxygen.scripts
-	- Doxygen setting changes to create the scripts documentation
-- \c conf/doxygen.user
-	- Doxygen setting changes to create the user documentation
-- \c conf/sdcc
-	- SDCC configuration, contains basic \c CFLAGS and invokes version
-	  specific platform hacks
-- \c doc/
-	- Documentation build directory
-- \c gen/
-	- Generated code e.g. the <tt>.mk</tt> files with build instructions
-- \c gen/dbc/
-	- C headers generated from Vector DBCs (via \c scripts/dbc2c.awk)
-- \c gh-pages/
-	- Project documentation, published at
-	  https://lonkamikaze.github.io/hsk-libs
-- \c gh-pages/contrib/
-       - This directory contains 3rd party documentation
-- \c gh-pages/contrib/ICM7228.pdf
-       - Intersil ICM7228 8-Digit, LED Display Decoder Driver data sheet
-- \c gh-pages/contrib/Microcontroller-XC87x-Data-Sheet-V15-infineon.pdf
-       - Data sheet for the Infineon XC87x series
-- \c gh-pages/contrib/XC878_um_v1_1.pdf
-       - Infineon XC878 User Manual Version 1.1
-- \c hacks/
-	- Storage directory for hacks that are pulled in depending on
-	  platform parameters like the SDCC version
-- \c img/
-	- Pictures included in this documentation
-- \c inc/
-	- 3rd party headers
-- \c scripts/
-	- Contains build scripts used by the \c Makefile, this folder is
-	  documented in the a dedicated document
-- \c src/
-	- The project source code
-- \c src/doc/
-	- This directory contains general documentation that is not specific
-	  to a library, application or a file, i.e. this chapter of the
-	  documentation
-- \c src/hsk_.../
-	- Directories with this prefix contain library code
-- \c uVision/
-	- ARM Keil µVision project files
+- `LICENSE.md`
+  - ISCL and 3rd party licensing
+- `Makefile`
+  - Makefile to invoke the SDCC and doxygen toolchain
+- `Makefile.local`
+  - Local non-revisioned Makefile for overriding default parameters
+- `README.md`
+  - Repository README
+- `uVisionupdate.sh`
+  - Updates the µVision project's overlaying instructions
+- `bin.c51/`
+  - C51 toolchain output produced by Keil µVision (safe to delete)
+- `bin.sdcc/`
+  - SDCC compiler output (safe to delete)
+- `conf/`
+  - Project configuration files
+- `conf/doxygen.common`
+  - Basic doxygen settings
+- `conf/doxygen.dbc`
+  - Doxygen setting changes to create documentation from DBC headers
+- `conf/doxygen.dev`
+  - Doxygen setting changes to create the developer documentation
+- `conf/doxygen.scripts`
+  - Doxygen setting changes to create the scripts documentation
+- `conf/doxygen.user`
+  - Doxygen setting changes to create the user documentation
+- `conf/sdcc`
+  - SDCC configuration, contains basic `CFLAGS` and invokes version
+    specific platform hacks
+- `doc/`
+  - Documentation build directory
+- `gen/`
+  - Generated code e.g. the <tt>.mk</tt> files with build instructions
+- `gen/dbc/`
+  - C headers generated from Vector DBCs (via `scripts/dbc2c.awk)`
+- `gh-pages/`
+  - Project documentation, published at
+    https://lonkamikaze.github.io/hsk-libs
+- `gh-pages/contrib/`
+  - This directory contains 3rd party documentation
+- `gh-pages/contrib/ICM7228.pdf`
+  - Intersil ICM7228 8-Digit, LED Display Decoder Driver data sheet
+- `gh-pages/contrib/Microcontroller-XC87x-Data-Sheet-V15-infineon.pdf`
+  - Data sheet for the Infineon XC87x series
+- `gh-pages/contrib/XC878_um_v1_1.pdf`
+  - Infineon XC878 User Manual Version 1.1
+- `hacks/`
+  - Storage directory for hacks that are pulled in depending on
+    platform parameters like the SDCC version
+- `img/`
+  - Pictures included in this documentation
+- `inc/`
+  - 3rd party headers
+- `scripts/`
+  - Contains build scripts used by the `Makefile,` this folder is
+    documented in the a dedicated document
+- `src/`
+  - The project source code
+- `src/doc/`
+  - This directory contains general documentation that is not specific
+    to a library, application or a file, i.e. this chapter of the
+    documentation
+- `src/hsk_.../`
+  - Directories with this prefix contain library code
+- `uVision/`
+  - ARM Keil µVision project files
 
 \page platform The XC878 8-Bit Microcontroller Platform
 
