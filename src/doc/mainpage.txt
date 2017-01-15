@@ -797,16 +797,17 @@ an interrupt occurs. In technical terms, each ISR is the root node of its
 own call graph.
 
 The following table lists recommended memory types:
-| Context	|  Size		| Critical	| Memory
-|---------------|---------------|---------------|--------------
-| *		| bool		| *		| bit
-| parameter	| *		| *		| data
-| const		| *		| *		| code
-| local		| byte, word	| *		| data, idata
-|		| >= long	| no		| xdata
-|		|		| ISR/blocking	| pdata, xdata
-| static/global	| *		| no		| xdata
-|		|		| ISR/blocking	| pdata, xdata
+
+| Context       | Size          | Critical      | Memory       |
+|---------------|---------------|---------------|--------------|
+| *             | bool          | *             | bit          |
+| parameter     | *             | *             | data         |
+| const         | *             | *             | code         |
+| local         | byte, word    | *             | data, idata  |
+|               | >= long       | no            | xdata        |
+|               |               | ISR/blocking  | pdata, xdata |
+| static/global | *             | no            | xdata        |
+|               |               | ISR/blocking  | pdata, xdata |
 
 \c ISR/blocking refers to memory accessed by ISRs, functions called back by
 ISRs and sections of code that block an interrupt.
@@ -990,29 +991,30 @@ letter. List entries do not end with a full stop.
 
 The syntax for tables is:
 \verbatim
-| Heading 0    | Heading 1
-|--------------|--------------
-| Row 0, col 0 | Row 0, col 1
-| Row 1, col 0 | Row 1, col 1
+| Heading 0    | Heading 1    |
+|--------------|--------------|
+| Row 0, col 0 | Row 0, col 1 |
+| Row 1, col 0 | Row 1, col 1 |
 \endverbatim
 
 The resulting table looks like this:
-| Heading 0    | Heading 1
-|--------------|--------------
-| Row 0, col 0 | Row 0, col 1
-| Row 1, col 0 | Row 1, col 1
+
+| Heading 0    | Heading 1    |
+|--------------|--------------|
+| Row 0, col 0 | Row 0, col 1 |
+| Row 1, col 0 | Row 1, col 1 |
 
 
 Use a colons in the seperator row to align columns:
 \verbatim
-| Heading Left | Heading Centre | Heading Right
-|:-------------|:--------------:|--------------:
-| Left         | Centre         | Right
+| Heading Left | Heading Centre | Heading Right |
+|:-------------|:--------------:|--------------:|
+| Left         | Centre         | Right         |
 \endverbatim
 
-| Heading Left | Heading Centre | Heading Right
-|:-------------|:--------------:|--------------:
-| Left         | Centre         | Right
+| Heading Left | Heading Centre | Heading Right |
+|:-------------|:--------------:|--------------:|
+| Left         | Centre         | Right         |
 
 \note
 Take care to obey the \ref conventions_indent guidelines, using the wrong
