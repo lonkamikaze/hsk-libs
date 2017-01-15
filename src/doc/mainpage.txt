@@ -436,7 +436,7 @@ This section is about using the compiler and maintaining \ref toolchain "C51"
 compatibility. Refer to \ref make to build this project using SDCC.
 
 \see SDCC project: http://sdcc.sf.net
-\see Small Device C Compiler Manual: <a href="../contrib/sdccman.pdf">sdccman.pdf</a>
+\see Small Device C Compiler Manual: <a href="http://sdcc.sourceforge.net/doc/sdccman.pdf">sdccman.pdf</a>
 
 \section sdcc_arch Processor Architecture
 
