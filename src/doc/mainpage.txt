@@ -38,10 +38,6 @@ and like the applications still subject to a lot of change.
 
 \subsection documentation_layout Project Layout
 
-- <tt>.hgeol</tt>
-	- Line ending rules for version control
-- <tt>.hgignore</tt>
-	- Regular expressions excepting files from version control
 - \c LICENSE.md
 	- ISCL and 3rd party licensing
 - \c Makefile
@@ -714,7 +710,7 @@ Using a combination of native Binaries and Cygwin, the complete set of
 build and generator facilities can be used from Microsoft Windows.
 
 The followin downloads are required:
-- Mercurial: http://mercurial.selenic.com/downloads
+- GIT: https://git-scm.com/downloads
 - SDCC: https://sourceforge.net/projects/sdcc/files/
 - Cygwin installer: http://cygwin.com/install.html
 
