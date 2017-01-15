@@ -10,9 +10,9 @@ manual. This document is intended for those who want to use the libraries
 for their own µC applications.
 
 This document contains all the availabe library header documentation.
+
+@see [PDF Version](hsk-libs-user.pdf)
 \endcond
-
-
 
 \cond DEV
 \mainpage HSK XC878 µC Library Developers' Manual
@@ -24,6 +24,8 @@ developers' manual. This document is intended for those who want to perform
 library development.
 
 This document contains all the library header and code documentation.
+
+@see [PDF Version](hsk-libs-dev.pdf)
 \endcond
 
 

@@ -5,6 +5,8 @@
 This document contains the documentation for the \c scripts folder. Scripts
 are written for AWK and Bourne Shell.
 
+@see [PDF Version](hsk-libs-scripts.pdf)
+
 \section compatibility Compatibility
 
 The AWK scripts have been tested with the following interpreters:
