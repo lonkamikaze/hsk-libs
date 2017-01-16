@@ -1,10 +1,10 @@
 PROJECT_BRIEF          = "High Speed Karlsruhe XC878 build scripts"
-INPUT                  = Makefile uVisionupdate.sh scripts/
+INPUT                  = Makefile uVisionupdate.sh scripts
 STRIP_FROM_PATH        =
-FILE_PATTERNS          += *.awk *.sh
-EXTENSION_MAPPING      = awk=C
+FILE_PATTERNS          += Makefile *.awk *.sh
+EXTENSION_MAPPING      = awk=C sh=C no_extension=C
+INPUT_FILTER           = scripts/file2doxygen.awk
 FILTER_PATTERNS        = *.awk=scripts/awk2doxygen.awk \
-                         *.txt= \
-                         *=scripts/file2doxygen.awk
+                         *.md=
 CALL_GRAPH             = NO
 SORT_MEMBER_DOCS       = NO
