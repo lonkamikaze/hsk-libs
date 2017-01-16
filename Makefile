@@ -82,12 +82,12 @@ VERSION:=	$(shell git rev-list HEAD --count || echo ${DATE})
 VERSION!=	git rev-list HEAD --count || echo ${DATE}
 
 # List of public source files, for generating the user documentation.
-USERSRC:=	$(shell find src/ -name \*.h -o -name main.c -o -name \*.txt -o -name examples)
-USERSRC!=	find src/ -name \*.h -o -name main.c -o -name \*.txt -o -name examples
+USERSRC:=	$(shell find src/ -name \*.h -o -name main.c -o -name \*.md -o -name examples)
+USERSRC!=	find src/ -name \*.h -o -name main.c -o -name \*.md -o -name examples
 
-# List of all source files for generating dependencies and documentation.
-DEVSRC:=	$(shell find src/ -name \*.\[hc] -o -name \*.txt -o -name examples)
-DEVSRC!=	find src/ -name \*.\[hc] -o -name \*.txt -o -name examples
+# List of all source files for generating the developer documentation.
+DEVSRC:=	$(shell find src/ -name \*.\[hc] -o -name \*.md -o -name examples)
+DEVSRC!=	find src/ -name \*.\[hc] -o -name \*.md -o -name examples
 
 # Name of this project.
 PROJECT:=	$(shell pwd | xargs basename)
