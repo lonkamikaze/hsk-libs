@@ -2,41 +2,41 @@
 #
 # Provides targets to build code with SDCC, generate documentation etc.
 #
-# | Target            | Function
-# |-------------------|---------------------------------------------------
-# | build (default)   | Builds a .hex file and dependencies
-# | all               | Builds a .hex file and every .c library
-# | dbc               | Builds C headers from Vector dbc files
-# | debug             | Builds for debugging with sdcdb
-# | printEnv          | Used by scripts to determine project settings
-# | uVision           | Run uVisionupdate.sh
-# | html              | Build all html documentation under doc/
-# | pdf               | Build all pdf documentation under doc/
-# | clean-build       | Remove build output
-# | clean-doc         | Remove doxygen output for user doc
-# | clean             | Clean everything
+# | Target            | Function                                          |
+# |-------------------|---------------------------------------------------|
+# | build (default)   | Builds a .hex file and dependencies               |
+# | all               | Builds a .hex file and every .c library           |
+# | dbc               | Builds C headers from Vector dbc files            |
+# | debug             | Builds for debugging with sdcdb                   |
+# | printEnv          | Used by scripts to determine project settings     |
+# | uVision           | Run uVisionupdate.sh                              |
+# | html              | Build all html documentation under doc/           |
+# | pdf               | Build all pdf documentation under doc/            |
+# | clean-build       | Remove build output                               |
+# | clean-doc         | Remove doxygen output for user doc                |
+# | clean             | Clean everything                                  |
 #
 # Override the following settings in Makefile.local if needed.
 #
-# | Assignment        | Function
-# |-------------------|---------------------------------------------------
-# | AWK               | The awk interpreter
-# | BUILDDIR          | SDCC output directory
-# | CC                | Compiler
-# | CFLAGS            | Compiler flags
-# | CPP               | C preprocesser used by several scripts
-# | CONFDIR           | Location for configuration files
-# | CANPROJDIR        | Path to the CAN project
-# | DBCDIR            | Location for generated DBC headers
-# | DOC_ALL_TARGETS   | All doc/ subtargets (user, dev, dbc, scripts)
-# | DOC_PUB_TARGETS   | All gh-pages/ subtargets (user, dev, scripts)
-# | GENDIR            | Location for generated code
-# | INCDIR            | Include directory for contributed headers
-# | OBJSUFX           | The file name suffix for object files
-# | HEXSUFX           | The file name suffix for intel hex files
-# | DATE              | System date, used if `git` cannot be found
-# | VERSION           | The `git` version of the project or the date
-# | PROJECT           | The name of this project
+# | Assignment        | Function                                          |
+# |-------------------|---------------------------------------------------|
+# | AWK               | The awk interpreter                               |
+# | BUILDDIR          | SDCC output directory                             |
+# | CC                | Compiler                                          |
+# | CFLAGS            | Compiler flags                                    |
+# | CPP               | C preprocesser used by several scripts            |
+# | CONFDIR           | Location for configuration files                  |
+# | CANPROJDIR        | Path to the CAN project                           |
+# | DBCDIR            | Location for generated DBC headers                |
+# | DOC_ALL_TARGETS   | All doc/ subtargets (user, dev, dbc, scripts)     |
+# | DOC_PUB_TARGETS   | All gh-pages/ subtargets (user, dev, scripts)     |
+# | GENDIR            | Location for generated code                       |
+# | INCDIR            | Include directory for contributed headers         |
+# | OBJSUFX           | The file name suffix for object files             |
+# | HEXSUFX           | The file name suffix for intel hex files          |
+# | DATE              | System date, used if `git` cannot be found        |
+# | VERSION           | The `git` version of the project or the date      |
+# | PROJECT           | The name of this project                          |
 #
 
 # Build with SDCC.
