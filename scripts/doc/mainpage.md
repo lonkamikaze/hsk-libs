@@ -1,5 +1,3 @@
-/**
-
 \mainpage HSK XC878 µC Library Build Scripts
 
 This document contains the documentation for the `scripts` folder. Scripts
@@ -31,5 +29,3 @@ The `scripts` folder has the following layout:
   - Contains the text for this document
 - `scripts/templates.dbc2c/`
   - Contains the code templates for the dbc2c.awk script
-
- */
