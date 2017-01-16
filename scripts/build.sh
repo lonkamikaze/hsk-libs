@@ -4,8 +4,8 @@
 # C source directory.
 #
 # @param 1
-#	The source direcotry to generate build instrucitons for
-# @param @
+#	The source directory to generate build instrucitons for
+# @param *
 #	The remaining command line arguments are treated as include
 #	directories
 #

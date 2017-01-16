@@ -2,7 +2,7 @@
 #
 # Parses an sdcc config file.
 #
-# @param @
+# @param *
 #	All arguments are treted as config files
 #
 # Expects \c CC in the environment.

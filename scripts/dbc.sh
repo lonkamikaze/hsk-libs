@@ -3,7 +3,7 @@
 # This script produces a make file with instructions to generate C headers
 # from Vector DBC files.
 #
-# @param @
+# @param *
 #	The directories containing <tt>.dbc</tt> files
 #
 # The script uses the \c LIBPROJDIR and \c AWK environment variables similar
