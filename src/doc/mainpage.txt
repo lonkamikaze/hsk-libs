@@ -70,7 +70,7 @@ and like the applications still subject to a lot of change.
 - `doc/`
   - Documentation build directory
 - `gen/`
-  - Generated code e.g. the <tt>.mk</tt> files with build instructions
+  - Generated code e.g. the `.mk` files with build instructions
 - `gen/dbc/`
   - C headers generated from Vector DBCs (via `scripts/dbc2c.awk)`
 - `gh-pages/`
@@ -131,8 +131,8 @@ Function Registers (SFRs).
 
 Due to the number of modules and functions of the controller a lot more
 registers are present than the 128 that can be addressed. These 128 register
-addressed in the upper dirctly addressable address range from \c 0x80 to
-\c 0xFF.
+addressed in the upper dirctly addressable address range from `0x80` to
+`0xFF.`
 
 To circumvent the 128 register limit each functional block of registers has
 a paging register that can be used to access different Pages of registers.
@@ -142,7 +142,7 @@ for this project or the headers can directly be
 <a href="http://www.keil.com/dd/docs/c51/infineon/xc878.h">downloaded from ARM</a>.
 
 Paging only affects code that directly interacts with the hardware. One of
-the benefits of \e using these libraries is that paging is not an issue in the
+the benefits of *using* these libraries is that paging is not an issue in the
 logical code.
 
 Each section of the <a href="../contrib/XC878_um_v1_1.pdf">XC878 Reference Manual</a>
@@ -150,55 +150,55 @@ has a Register Overview that contains a table of pages and registers.
 
 \section platform_memory Memory Limitations
 
-The 8051 platform offers 128 bytes of \c data memory in the address range
+The 8051 platform offers 128 bytes of `data` memory in the address range
 0x00-0x7F in front of the SFR address range.
 Because 128 bytes are insufficient, the 8051 architecture knows several kinds
 of memory that are accessed in different manners and thus quicker or slower to
 access.
 
 The 8052 has an additional 128 bytes of indirectly addressable memory. This
-memory is accessed through the key word \c idata. Access to \c idata is slower
-than to \c data. The syntax for declaring a variable in \c idtata memory is:
+memory is accessed through the key word `idata`. Access to `idata` is slower
+than to `data`. The syntax for declaring a variable in `idtata` memory is:
 \code
 <type> idata <identifier> [= <value>];
 \endcode
 
-The additional \c idata memory is located in the upper half of the address
-range. The lower half accesses \c data memory. Any \c data access to a
-pointer actually is \c idata access. This is why SFRs cannot be accessed
-with pointers. They are masked by \c idata memory.
+The additional `idata` memory is located in the upper half of the address
+range. The lower half accesses `data` memory. Any `data` access to a
+pointer actually is `idata` access. This is why SFRs cannot be accessed
+with pointers. They are masked by `idata` memory.
 
-The slowest kind of memory used by this library is the \c xdata
-memory. The \c xdata memory makes 3kb of additional memory available and
+The slowest kind of memory used by this library is the `xdata`
+memory. The `xdata` memory makes 3kb of additional memory available and
 the libraries place all large data structures in them.
 
-Variables are declared in \c xdata with the following syntax:
+Variables are declared in `xdata` with the following syntax:
 \code
 <type> xdata <identifier> [= <value>];
 \endcode
 
-The first 256 bytes of \c xdata memory are also accessible as 8 bit addressed
-\c pdata. Using \c pdata is faster than \c xdata. The \c p in \c pdata
-stands for paged. Historically the 8052 family of µCs used register \c P2
+The first 256 bytes of `xdata` memory are also accessible as 8 bit addressed
+`pdata`. Using `pdata` is faster than `xdata`. The `p` in `pdata`
+stands for paged. Historically the 8052 family of µCs used register `P2`
 for paging. The XC878 instead provides an SFR named XADDRH.
 
 However current 8051 C compilers don't support paging. I.e. one would have to
-ensure that structs and buffers do not cross page borders and update \c XADDRH
+ensure that structs and buffers do not cross page borders and update `XADDRH`
 manually. So instead of making the code more complicated and messing with the
-linkers \c XADDRH is fixed to the first \c xdata page and \c pdata is simply
+linkers `XADDRH` is fixed to the first `xdata` page and `pdata` is simply
 used as an additional 256 bytes of relatively fast memory.
 
-There also is a 128 bits wide memory range of \c bit variables, which is used
-by single bit variables of the type \c bool.
+There also is a 128 bits wide memory range of `bit` variables, which is used
+by single bit variables of the type `bool`.
 
 In contrast to the small amount of available RAM, 64k of ROM are available
 to hold executable code. Thus a program well designed to the XC878 is one
 that produces a lot of static code to reduce the required amount of runtime
 memory use.
 
-Code resides in its own address range, the \c code block. The µC can be run
-from code residing in \c xdata as well, to bootstrap the µC. Constants can
-also be placed in the \c code block.
+Code resides in its own address range, the `code` block. The µC can be run
+from code residing in `xdata` as well, to bootstrap the µC. Constants can
+also be placed in the `code` block.
 
 \subsection platform_memory_overlaying Overlaying
 
@@ -220,7 +220,7 @@ of µCs).
 
 Functions may not be called more than once at a time. I.e. they may not
 be recursive or called from regular code and interrupts both. Both compilers
-provide a \c reentrant keyword to make functions operate on the stack. Its
+provide a `reentrant` keyword to make functions operate on the stack. Its
 use should be avoided if possible.
 
 Both C51 and SDCC do not track function pointers. Thus creating a function
@@ -238,10 +238,10 @@ optimize code for overlaying.
 Due to the existence of different kinds of memory, pointers come in two
 variations, generic pointers and memory-specific pointers. Generic pointers
 take 3 bytes of memory and are by far the slowest to process.
-Memory-specific pointers take 1 byte for \c data, \c idata or \c pdata and
-2 bytes for \c xdata or \c code. They are also faster to process.
+Memory-specific pointers take 1 byte for `data`, `idata` or `pdata` and
+2 bytes for `xdata` or `code`. They are also faster to process.
 
-Note that the \c data keyword needs to be explicitely specified for \c data
+Note that the `data` keyword needs to be explicitely specified for `data`
 pointers. Pointers declared without explicit mention of the memory type always
 result in generic pointers.
 
@@ -251,7 +251,7 @@ point to:
 <type> <ptr_target_mem> * <ptr_mem> <identifier>;
 \endcode
 
-The following example creates an \c idata pointer to a struct in \c xdata
+The following example creates an `idata` pointer to a struct in `xdata`
 memory:
 \code
 struct foo xdata * idata p_foo;
@@ -280,26 +280,26 @@ settings.
 
 The following options need to be set:
 - Xtal (MHz):
-	- This needs to be set to your external oscillator frequency,
-	  otherwise flashing and debugging might be unreliable
+  - This needs to be set to your external oscillator frequency,
+    otherwise flashing and debugging might be unreliable
 - Memory Model: Small
-	- This setting means that variables are by default assigned
-	  to the first 128 bytes of directly addressable RAM, variables
-	  can still be mapped to different memory sections manaully as
-	  described in \ref platform_memory
+  - This setting means that variables are by default assigned
+    to the first 128 bytes of directly addressable RAM, variables
+    can still be mapped to different memory sections manaully as
+    described in \ref platform_memory
 - Code ROM Size: Large: 64K program
-	- This setting allows up to 64k of program data to be written to
-	  the device
+  - This setting allows up to 64k of program data to be written to
+    the device
 - Use On-chip ROM
 - Use On-chip XRAM
 - Use multiple DPTR registers
-	- This allows the compiler to reduce address writes of reoccuring
-	  pointer targets by using multiple pointer registers
+  - This allows the compiler to reduce address writes of reoccuring
+    pointer targets by using multiple pointer registers
 - Safe address extension SFR in interrupts
-	- XRAM/xdata access is not atomic. Thus interrupts using XRAM
-	  can interrupt and corrupt XRAM access of functions. This setting
-	  preserves the XRAM address registers and thus protects them from
-	  corruption
+  - XRAM/xdata access is not atomic. Thus interrupts using XRAM
+    can interrupt and corrupt XRAM access of functions. This setting
+    preserves the XRAM address registers and thus protects them from
+    corruption
 
 \image html img/keil_options_Target.png "Keil µVision Target options dialogue"
 \image latex img/keil_options_Target.png "Keil µVision Target options dialogue" width=10cm
@@ -310,32 +310,32 @@ The C51 is the C compiler configuration dialogue. The following settings
 are not obligatory for use of the HSK libraries, but recommended.
 
 - Preprocessor Symbols
-	- Define: \c __xdata, \c __pdata, \c __idata
-		- This input field allows passing on preprocessor definitions
-		  to the preprocessor
-		- The empty \c __xdata, \c __pdata, \c __idata defines allow
-		  C51 to ignore SDCC style memory assignments, this is
-		  useful to make such assignments where C51 does not
-		  support them
+  - Define: `__xdata`, `__pdata`, `__idata`
+    - This input field allows passing on preprocessor definitions
+      to the preprocessor
+    - The empty `__xdata`, `__pdata`, `__idata` defines allow
+      C51 to ignore SDCC style memory assignments, this is
+      useful to make such assignments where C51 does not
+      support them
 - Code Optimization
-	- Level: 11: Reuse Common Exit Code
-		- The highest level of optimisation, allowing the compiler the
-		  largest reduction of memory use
-		- Select \c 4 or lower for debugging, all the common code
-		  eliminations prevent the debugger from mapping large chunks
-		  of C code to assembler code, making the program flow
-		  difficult to follow
-	- Emphasis: Favor speed
-		- Surprisingly this often produces smaller code than the
-		  <tt>favor size</tt> setting
-	- Global Register Coloring
-		- This setting allows the compiler to optimise register use
-		  throughout the entire application, reducing memory use and
-		  improving performance
-	- Linker Code Packing
-		- Activates a link time optimisation, after linking the
-		  application, the linker will replace long distance jumps
-		  with short jumps where applicable
+  - Level: 11: Reuse Common Exit Code
+    - The highest level of optimisation, allowing the compiler the
+      largest reduction of memory use
+    - Select `4` or lower for debugging, all the common code
+      eliminations prevent the debugger from mapping large chunks
+      of C code to assembler code, making the program flow
+      difficult to follow
+  - Emphasis: Favor speed
+    - Surprisingly this often produces smaller code than the
+      `favor size` setting
+  - Global Register Coloring
+    - This setting allows the compiler to optimise register use
+      throughout the entire application, reducing memory use and
+      improving performance
+  - Linker Code Packing
+    - Activates a link time optimisation, after linking the
+      application, the linker will replace long distance jumps
+      with short jumps where applicable
 - Warnings: Warninglevel 2
 - Enable ANSI integer promotion rules
 
@@ -349,11 +349,11 @@ dialogue is used to map memory ranges. The form can also be used to assign
 portions of code to fixed addresses.
 
 - User Memory Layout from Target Dialog
-	- This option assigns the XC878 memory types to the appropriate
-	  address ranges
+  - This option assigns the XC878 memory types to the appropriate
+    address ranges
 - User Classes: PDATA (X:0xF000-X:0xF0FF)
-	- This option maps the \c pdata memory into the first 256 bytes of
-	  \c xdata
+  - This option maps the `pdata` memory into the first 256 bytes of
+    `xdata`
 
 \image html img/keil_options_LX51_Locate.png "Keil µVision LX51 Locate options dialogue"
 \image latex img/keil_options_LX51_Locate.png "Keil µVision LX51 Locate options dialogue" width=10cm
@@ -363,13 +363,13 @@ portions of code to fixed addresses.
 The Misc dialogue holds the remaining linker settings.
 
 - Overlay
-	- This field can be used to add calls through function pointers to the
-	  call tree as is necessary for callback functions, the syntax is
-	  described in the µVision Help section OVERLAY Linker Directive
-	- Manually filling this field can be avoided by running the
-	  \c uVisionupdate.sh script
+  - This field can be used to add calls through function pointers to the
+    call tree as is necessary for callback functions, the syntax is
+    described in the µVision Help section OVERLAY Linker Directive
+  - Manually filling this field can be avoided by running the
+    `uVisionupdate`.sh script
 - Misc controls: REMOVEUNUSED
-	- This linker flag saves memory by discarding unused functions
+  - This linker flag saves memory by discarding unused functions
 
 \image html img/keil_options_LX51_Misc.png "Keil µVision LX51 Misc options dialogue"
 \image latex img/keil_options_LX51_Misc.png "Keil µVision LX51 Misc options dialogue" width=10cm
@@ -382,11 +382,11 @@ The Group Options can be found in the context menu of a Group.
 To activate an option in this menu it needs to be unchecked and checked again.
 
 - Generate Assembler SRC File
-	- This option causes the compiler to generate assembler code instead
-	  of an object file
+  - This option causes the compiler to generate assembler code instead
+    of an object file
 - Assemble SRC File
-	- This option causes the compiler to assemble the generated assembler
-	  code
+  - This option causes the compiler to assemble the generated assembler
+    code
 
 \image html img/keil_options_Group.png "Keil µVision Group options dialogue"
 \image latex img/keil_options_Group.png "Keil µVision Group options dialogue" width=10cm
@@ -400,22 +400,22 @@ The programming and debugging options can also be selected from the target
 options. Use the following settings in the Utilities tab:
 
 - Use Target Driver for Flash Programming
-	- Infineon DAS Client for XC800
+  - Infineon DAS Client for XC800
 
 \image html img/keil_options_Utilities.png "Keil µVision LX51 Utilities options dialogue"
 \image latex img/keil_options_Utilities.png "Keil µVision LX51 Utilities options dialogue" width=10cm
 
 \see Infineon DAS Tool Interface website: <a href="http://www.infineon.com/das/">http://www.infineon.com/das/</a>
 
-Select \c Settings to enter the "Infineon XC800 DAS Driver Setup". The default
+Select `Settings` to enter the "Infineon XC800 DAS Driver Setup". The default
 options are mostly fine. Make sure of the following options:
 
 - DAS Server: UDAS
 - Target Debug Options
-	- Miscellaneous Options
-		- Disable Interrupts during Steps
-			- Frequently occuring interrupts like timer interrupts
-			  make step by step debugging completely useless
+  - Miscellaneous Options
+    - Disable Interrupts during Steps
+      - Frequently occuring interrupts like timer interrupts
+        make step by step debugging completely useless
 
 \image html img/DAS_Driver_Setup.png "Keil µVision Infineon XC800 DAS Driver Setup"
 \image latex img/DAS_Driver_Setup.png "Keil µVision Infineon XC800 DAS Driver Setup" width=10cm
@@ -438,10 +438,10 @@ compatibility. Refer to \ref make to build this project using SDCC.
 
 \section sdcc_arch Processor Architecture
 
-The 8051 architecture is selected with the parameter \c -mmcs51. Additionally
+The 8051 architecture is selected with the parameter `-mmcs51`. Additionally
 the compiler needs to be invoked with the correct memory architecture,
 XRAM starts at addres 0xF000 and is 3kb wide. For this the parameters
-\c --xram-loc and \c --xram-size are provided:
+`--xram-loc` and `--xram-size` are provided:
 \verbatim
 -mmcs51 --xram-loc 0xF000 --xram-size 3072
 \endverbatim
@@ -453,26 +453,26 @@ which contains the SFR definitions for the XC878.
 It is a modified version of the XC878.h file proivided by Keil µVision,
 which in turn is a Dave generated file.
 
-The modification is an \c \#ifdef \c SDCC block, with some compatibility
+The modification is an `\#ifdef SDCC` block, with some compatibility
 glue to allow using the C51 code mostly unmodified.
 
-To make the header available to \c sdcc the inc/ should be added to the
-include search path with the \c -I parameter:
+To make the header available to `sdcc` the inc/ should be added to the
+include search path with the `-I` parameter:
 \verbatim
 -mmcs51 --xram-loc 0xF000 --xram-size 3072 -I inc/
 \endverbatim
 
 \section sdcc_compiling Compiling Code
 
-Code is compiled using the \c -c parameter:
+Code is compiled using the `-c` parameter:
 \verbatim
 sdcc -mmcs51 --xram-loc 0xF000 --xram-size 3072 -I inc/ -o builddir/ -c example.c
 \endverbatim
 
 The compiler will generate a number of files in builddir, among them
-\c example.asm and \c example.rel, the object file.
+`example.asm` and `example.rel,` the object file.
 
-Instead of the build dir the output parameter \c -o can also take the name of
+Instead of the build dir the output parameter `-o` can also take the name of
 the object file as a parameter.
 
 SDCC can only compile one .c file at a time, thus every .c file must
@@ -488,9 +488,9 @@ explicitely be stated:
 sdcc -mmcs51 --xram-loc 0xF000 --xram-size 3072 -I inc/ -o builddir/ -c example.rel lib1.rel lib2.rel
 \endverbatim
 
-The output file would be \c builddir/example.ihx (Intel HEX).
-\c -o \c builddir/example.hex can be used to change the filename suffix to
-\c .hex, which is more convenient when using XC800_FLOAD to flash the µC.
+The output file would be `builddir/example.ihx` (Intel HEX).
+`-o` `builddir/example.hex` can be used to change the filename suffix to
+`.hex`, which is more convenient when using XC800_FLOAD to flash the µC.
 
 \section sdcc_programming Programming
 
@@ -516,14 +516,14 @@ The important functions of FLOAD are:
 \section sdcc_memory Memory Usage Compatibility
 
 In order to write compatible code, the compatiblity glue in the
-Infineon/XC878.h header maps keywords like \c data, \c idata, \c xdata etc.
-to their SDCC equivalents \c __data, \c __idata and \c  __xdata.
+Infineon/XC878.h header maps keywords like `data`, `idata`, `xdata` etc.
+to their SDCC equivalents `__data`, `__idata` and `__xdata`.
 
-Starting with SDCC 3.x C51 \c code and SDCC \c __code are largely
+Starting with SDCC 3.x C51 `code` and SDCC `__code` are largely
 interchangeable. This wasn't always the case, which results in two different
-styles for using \c code.
+styles for using `code`.
 
-E.g. putting a variable into \c code space, C51 style:
+E.g. putting a variable into `code` space, C51 style:
 \code
 ubyte code foo = 0x2A;
 \endcode
@@ -543,9 +543,9 @@ const ubyte code foo = 0x2A;
 \endcode
 
 <b>Function pointers</b> are a special case. To SDCC all function pointers
-refer to \c code, C51 uses (slower, larger) generic pointers if the \c code
+refer to `code`, C51 uses (slower, larger) generic pointers if the `code`
 keyword is missing. Unfortunately there is no compatible syntax to place
-\c code in a function pointer declaration. This can be circumvented with
+`code` in a function pointer declaration. This can be circumvented with
 preprocessor instructions:
 \snippet examples sdcc funcptr workaround open
 
@@ -554,7 +554,7 @@ A function pointer declaration may look like this:
 void (code *foo)(void);
 \endcode
 
-Take care to restore \c code before the end of a <tt>.h</tt> file:
+Take care to restore `code` before the end of a `.h` file:
 \snippet examples sdcc funcptr workaround close
 
 \section sdcc_interrupts Interrupts
@@ -563,7 +563,7 @@ The most significant difference between interrupt handling in SDCC and C51
 is that prototypes for the interrupts must be visible in the context of the
 main() function.
 
-These prototypes can be enclosed in an \c \#ifdef:
+These prototypes can be enclosed in an `\#ifdef:`
 \include hsk_isr.isr
 
 \cond DEV
@@ -606,7 +606,7 @@ the Makefile GNU Make compatible.
 
 \section make_doxygen Generating the Documentation
 
-The Makefile can invoke Doxygen with the \c make targets \c html and \c pdf:
+The Makefile can invoke Doxygen with the `make` targets `html` and `pdf:`
 \verbatim
 # make html pdf
 Searching for include files...
@@ -615,10 +615,10 @@ Searching for images...
 [...]
 \endverbatim
 
-The \c html target creates the directories html/user/ and html/dev/, which
+The `html` target creates the directories html/user/ and html/dev/, which
 contain the HTML version of this documentation.
 
-The \c pdf target creates the directory pdf/ with the PDF versions of this
+The `pdf` target creates the directory pdf/ with the PDF versions of this
 documentation.
 
 The targets create a Users' and a Developers' Manual. The first only includes
@@ -638,7 +638,7 @@ on the system:
 \section make_build Building
 
 The Makefile uses SDCC to build. This can be changed in the first lines of
-the Makefile. The default target \c build builds all the .c files. Each .c file
+the Makefile. The default target `build` builds all the .c files. Each .c file
 containing a main() function will also be linked, resulting in a .hex file:
 \verbatim
 # make
@@ -669,39 +669,39 @@ The Makefile consits of three parts:
 
 \subsection make_details_building Building
 
-The Makefile declares the target \c build first to make it the default target.
+The Makefile declares the target `build` first to make it the default target.
 None of the build targets are manually defined. Instead with every invocation
-of \c make the script \c scripts/build.sh is invoked to regenerate the file
+of `make` the script `scripts/build.sh` is invoked to regenerate the file
 build.mk.
 
-The \c build.sh script searches the source directory for <tt>.c</tt> files and
-runs \c scripts/depends.awk in \c -compile mode to generate a dependency tree.
+The `build.sh` script searches the source directory for `.c` files and
+runs `scripts/depends.awk` in `-compile` mode to generate a dependency tree.
 
-In the next stage \c build.sh generates the build instructions for each
-<tt>.c</tt> file.
+In the next stage `build.sh` generates the build instructions for each
+`.c` file.
 
 The last step is to create the linking instructions. For that the script
-searches for <tt>.c</tt> files that appear to contain a main() function. The
-\c scripts/depends.awk script in \c -link mode is used to determine all the
+searches for `.c` files that appear to contain a main() function. The
+`scripts/depends.awk` script in `-link` mode is used to determine all the
 libraries that have to be linked with each of the main() containing 
-<tt>.c</tt> files.
+`.c` files.
 
 \subsection make_details_doxygen Documentation
 
-The targets \c doc and \c doc-private build the user and the developer
-documentation. The \c html target simply copies them to the html/ directory.
+The targets `doc` and `doc-private` build the user and the developer
+documentation. The `html` target simply copies them to the html/ directory.
 
-The \c pdf target copies the PDF versions of the manuals to pdf/, but first
-a PDF needs to be generated by running \c make in the doc/latex/ and
+The `pdf` target copies the PDF versions of the manuals to pdf/, but first
+a PDF needs to be generated by running `make` in the doc/latex/ and
 doc-private/latex/ directories, which is done by the respective targets.
 
 \subsection make_details_clean Clean
 
-The \c clean-doc target removes the directory doc/, the \c clean-doc-private
-target removes the directory doc-private/ and the target \c clean-build removes
-the directory \c BUILDDIR, which defaults to bin.sdcc/.
+The `clean-doc` target removes the directory doc/, the `clean-doc-private`
+target removes the directory doc-private/ and the target `clean-build` removes
+the directory `BUILDDIR`, which defaults to bin.sdcc/.
 
-The meta-target \c clean invokes all these targets.
+The meta-target `clean` invokes all these targets.
 \endcond
 
 \section make_cygwin Cygwin
@@ -724,8 +724,8 @@ After the installation the PATH variable should reference SDCC and Cygwin:
 \image html img/cygwin_PATH.png "Cygwin and SDCC PATH environment"
 \image latex img/cygwin_PATH.png "Cygwin and SDCC PATH environment" height=10cm
 
-The libraries provide simple batch files to execute \c uVisionupdate.sh
-and call \c make. For ease of use the table of \c make targets is
+The libraries provide simple batch files to execute `uVisionupdate.sh`
+and call `make`. For ease of use the table of `make` targets is
 displayed:
 \image html img/cygwin_cygwin-make.png "Make and available targets in Cygwin"
 \image latex img/cygwin_cygwin-make.png "Make and available targets in Cygwin" height=10cm
@@ -751,7 +751,7 @@ implementing ISRs and callback functions:
 
 \section requirements_mem Memory
 
-In order to access \c pdata and \c xdata the \c hsk_boot library must be
+In order to access `pdata` and `xdata` the `hsk_boot` library must be
 linked.
 
 
@@ -775,12 +775,12 @@ The correct place to store a variable depends on four factors:
 Size, and frequency are the most obvious, considering \ref platform_memory.
 It is desireable to use fast memory for frequently accessed variables.
 Large data structures like buffers, arrays and structs simply use too much
-of the precious memory space to put them anywhere but \c xdata.
+of the precious memory space to put them anywhere but `xdata`.
 
 Both the C51 and SDCC compilers use a technique called overlay to fit all
 variables into memory. A stack is only used in reentrant functions. Only
-\c data/idata variables can be stacked with \c push/pop instructions. Stacking
-\c xdata is emulated in software and thus very slow.
+`data/idata` variables can be stacked with `push/pop` instructions. Stacking
+`xdata` is emulated in software and thus very slow.
 
 The overlay approach is to build a call graph and thus decide which variables
 are never used at the same time. These variables are mapped to the same
@@ -809,26 +809,26 @@ The following table lists recommended memory types:
 | static/global | *             | no            | xdata        |
 |               |               | ISR/blocking  | pdata, xdata |
 
-\c ISR/blocking refers to memory accessed by ISRs, functions called back by
+`ISR/blocking` refers to memory accessed by ISRs, functions called back by
 ISRs and sections of code that block an interrupt.
 
 \section memory_overlay Implications of Overlaying
 
 First and foremost, \ref platform_memory_overlaying is only performed for
 the default memory. This project is built around the small memory model,
-i.e. only \c data memory is overlaid by SDCC and C51.
+i.e. only `data` memory is overlaid by SDCC and C51.
 
-The \c data memory is only 128 bytes minus the used register banks large.
-With three register banks that means only 104 bytes of \c data memory are
-available. Thus non-overlayable variables should be placed in \c idata in
-order to use \c data memory for well overlayable variables.
+The `data` memory is only 128 bytes minus the used register banks large.
+With three register banks that means only 104 bytes of `data` memory are
+available. Thus non-overlayable variables should be placed in `idata` in
+order to use `data` memory for well overlayable variables.
 
 Furthermore SDCC does not build a complete call tree, so it cannot eliminate
 unused functions like C51/LX51 and only overlays leaf functions.
 I.e. only functions that call no other functions are overlaid.
 
 For SDCC overlaying ISRs is not possible, that is why locals of ISRs should
-in most cases be placed in \c idata, despite the performance impact.
+in most cases be placed in `idata`, despite the performance impact.
 
 A limitation of C51/LX51 is that it ignores explicit memory assignments
 in function parameters and always places them in the default memory, if they
@@ -839,21 +839,21 @@ SDCC does not share this limitation, it can place function parameters in
 all kinds of memory. Because such assignments are ignored by C51/LX51,
 parameter memory type should be optimised for SDCC.
 Explicit memory assignments prevent parameters from being passed in
-registers. SDCC only passes the first non-<tt>bool</tt> parameter in registers,
+registers. SDCC only passes the first non-`bool` parameter in registers,
 so optimizations should be performed on the non-overlayable arguments
 following it.
 
-For single use functions like \c init and \c enable functions, it might make
-sense to pass parameters in \c xdata. In such cases the SDCC memory assignment
+For single use functions like `init` and `enable` functions, it might make
+sense to pass parameters in `xdata`. In such cases the SDCC memory assignment
 style should be used, to give the C51 preprocessor the chance to remove the
 assignments.
 \code
 void hsk_can_init(const ubyte pins, const ulong __xdata baud);
 \endcode
 
-If an application runs out of \c data space locals should be put into
-\c idata memory. Variables accessed by ISRs/ISR callbacks should be
-placed in \c pdata or \c idata. If that suffices the code should be checked
+If an application runs out of `data` space locals should be put into
+`idata` memory. Variables accessed by ISRs/ISR callbacks should be
+placed in `pdata` or `idata`. If that suffices the code should be checked
 for frequently accessed variables. The most frequent ones should be assigned
 to the default memory type if possible.
 
@@ -863,8 +863,8 @@ with several compiler and linker optimizations. This it is necessary to
 make use of this information in order to make sure that changes have the
 desired effect.
 
-For SDCC check the assembler output for the \c DSEG area
-(search regex <tt>/\\\.area DSEG/</tt>):
+For SDCC check the assembler output for the `DSEG` area
+(search regex `/\\\.area DSEG/`):
 \code
 ;--------------------------------------------------------
 ; internal ram data
@@ -880,8 +880,8 @@ _hsk_adc_init_sloc1_1_0:
 	.ds 2
 \endcode
 
-The <tt>.map</tt> file lists the complete memory layout produced by the
-linker (search regex <tt>/^DSEG/</tt>):
+The `.map` file lists the complete memory layout produced by the
+linker (search regex `/^DSEG/`):
 \code
 Area                     Addr        Size        Decimal Bytes (Attributes)
 -----------------        ----        ----        ------- ----- ------------
@@ -898,8 +898,8 @@ DSEG                 00000000    00000080 =         128. bytes (REL,CON)
 ...
 \endcode
 
-In µVision the <tt>.map</tt> file can be accessed by double clicking the
-project in the project tree view (search string <tt>"D A T A"</tt>):
+In µVision the `.map` file can be accessed by double clicking the
+project in the project tree view (search string `"D A T A"`):
 \code
 START     STOP      LENGTH    ALIGN  RELOC    MEMORY CLASS   SEGMENT NAME
 =========================================================================
@@ -935,7 +935,7 @@ Use 8 spaces wide real tabs for indention. Don't put spaces before a
 tab, even in comments, unless it is in a code or verbatim section.
 
 In the following example tabs are symbolised by <tt>\<tab\></tt> and the
-beginning of a line by <tt>^</tt>:
+beginning of a line by `^`:
 \snippet examples conventions spaces
 
 Formatting on the other hand should be done using spaces. This way, no
@@ -946,7 +946,7 @@ The values assigned to preprocessor defines should be aligned. The
 recommended indention is 4 spaces behind the longest identifier in the
 file. All other defines should be aligned to the same column.
 
-In the next example \c FOOBAR is the longest identifier and thus
+In the next example `FOOBAR` is the longest identifier and thus
 dictates the formatting of all values:
 \code
 #define FOO       1
@@ -964,10 +964,10 @@ Every member is to be documented in one of the following manners:
 \snippet examples member doc brief
 \snippet examples member doc long
 
-- \c \<brief>
-	- A short, single sentence description of the member
-- \c \<description>
-	- A detailed description of the member
+- `\<brief>`
+  - A short, single sentence description of the member
+- `\<description>`
+  - A detailed description of the member
 
 \subsection conventions_comments_lists List Formatting
 Descriptions may contain syntactical sugar such as lists:
@@ -976,7 +976,7 @@ This is a list:
 - List entry 0
 - List entry 1 is a little wider than 80 characters and thus needs to cover
   multiple lines
-	- List entry 1.0
+  - List entry 1.0
 - List entry 2
 \endverbatim
 
@@ -1036,40 +1036,40 @@ Significant:
 \section conventions_functions Function Documentation
 
 Every parameter of a member function and the return value if present need
-JavaDoc style \c \@param and \c \@return documentations in their descriptions:
+JavaDoc style `\@param` and `\@return` documentations in their descriptions:
 \snippet examples function doc
 
 \subsection conventions_functions_return Return Values
 
-Use \c \@retval to document return values with logical instead of numerical
+Use `\@retval` to document return values with logical instead of numerical
 meanings:
 \verbatim
 @retval 0
-	The operation failed
+  The operation failed
 @retval 1
-	The operation succeeded
+  The operation succeeded
 \endverbatim
 
 The resulting documentation takes the following appearance:
 @retval 0
-	The operation failed
+  The operation failed
 @retval 1
-	The operation succeeded
+  The operation succeeded
 
 \subsection conventions_functions_scope Public and Private Functions
 
-The documentation to public functions belongs into the <tt>.h</tt> file.
+The documentation to public functions belongs into the `.h` file.
 All functions that have a prototype in the header file are considered public,
-private functions are those, which are only used internally in the <tt>.c</tt>
+private functions are those, which are only used internally in the `.c`
 file.
 
 If a function is public additional documentation may be placed in the
-<tt>.c</tt> file, it will only show up in the developers' manual.
+`.c` file, it will only show up in the developers' manual.
 
 Inline comments within functions may appear in JavaDoc style, in that case they
 are also appended to the function documentation of the developers' manual.
 
-Private functions should be marked with \c \@private at the end of their
+Private functions should be marked with `\@private` at the end of their
 documentation block.
 
 \section conventions_groups Grouping Documentation
@@ -1084,20 +1084,20 @@ Groups are listed in the Modules chapter.
 \section conventions_files File Naming and Documentation
 
 Three different file type suffixes are used in the construction of these
-libraries, <tt>.c</tt> for C files, <tt>.h</tt> for header files and
-<tt>.isr</tt> for headers that only contain ISR prototypes.
+libraries, `.c` for C files, `.h` for header files and
+`.isr` for headers that only contain ISR prototypes.
 
 The following naming conventions exist for each file:
 \verbatim
 hsk_<category>/hsk_<name>.<suffix>
 \endverbatim
 
-- \c \<category>
-	- The library category, often identical to name, but not necessarily so
-- \c \<name>
-	- The name of the library
-- \c \<suffix>
-	- The file type suffix
+- `\<category>`
+  - The library category, often identical to name, but not necessarily so
+- `\<name>`
+  - The name of the library
+- `\<suffix>`
+  - The file type suffix
 
 \subsection conventions_files_headers Headers
 
@@ -1112,26 +1112,26 @@ The second exception are \ref conventions_files_isr.
 Every header file begins with a JavaDoc style comment:
 \snippet examples header doc
 
-- \c \<brief>
-	- A descriptive title such as "Analog Digital Conversion"
-	  this description appears in the file list, nouns, verbs and
-	   adjectives in the brief should start with capital letters
-- \c \<description>
-	- A text containing all the necessary information to
-	  use the provided functions
+- `\<brief>`
+  - A descriptive title such as "Analog Digital Conversion"
+    this description appears in the file list, nouns, verbs and
+     adjectives in the brief should start with capital letters
+- `\<description>`
+  - A text containing all the necessary information to
+    use the provided functions
 - <tt>\<author tag></tt>
-	- A short author tag from \ref authors
+  - A short author tag from \ref authors
 - <tt>\<iso date></tt>
-	- The ISO 8601 date (YYYY-MM-DD) of the last edit
+  - The ISO 8601 date (YYYY-MM-DD) of the last edit
 
 The next block contains the traditional header opening:
 \snippet examples header open
 
-- \c \<FILE>
-	- The file name with the following translation '[:lower:].'
-	  '[:upper:]_', e.g. hsk_isr.h becomes HSK_ISR_H
+- `\<FILE>`
+  - The file name with the following translation '[:lower:].'
+    '[:upper:]_', e.g. hsk_isr.h becomes HSK_ISR_H
 
-The \c \#ifndef block is closed at the end of the header file with:
+The `\#ifndef` block is closed at the end of the header file with:
 \snippet examples header close
 
 Prototypes etc. belong within the block.
@@ -1141,13 +1141,13 @@ Prototypes etc. belong within the block.
 Like header files every C file starts with a JavaDoc style comment:
 \snippet examples code doc
 
-- \c \<brief>
-	- Should be the same title as in the header file
-- \c \<description>
-	- Instead of how to use the library this should make mention
-	  of all things of interest, when working on the implementation
+- `\<brief>`
+  - Should be the same title as in the header file
+- `\<description>`
+  - Instead of how to use the library this should make mention
+    of all things of interest, when working on the implementation
 - <tt>\<author tag></tt>
-	- A short author tag from \ref authors
+  - A short author tag from \ref authors
 
 The first include in a C file is the Infineon/XC878.h header, followed
 by the own header file. The next (optional) include block contains all the
@@ -1168,7 +1168,7 @@ The file should just contain a very plain list of prototypes, the following
 examples is from hsk_timer01.isr:
 \include hsk_timer01.isr
 
-The <tt>.isr</tt> file should be included from the header file of the library
+The `.isr` file should be included from the header file of the library
 providing it as well as from the header files of all libraries using that
 library.
 
@@ -1190,7 +1190,7 @@ defines is done by underscore. Public defines have the library name without
 Statics are considered private within the context and thus do not require a
 prefix.
 
-\c HSK as a prefix.
+`HSK` as a prefix.
 
 \subsection conventions_members_public Public Example
 
@@ -1211,7 +1211,7 @@ that work on message objects:
 \skipline typedef ubyte hsk_can_msg
 
 The CAN nodes are the central structure of the library. Functions in the
-\c hsk_can context always take a node as the first parameter:
+`hsk_can` context always take a node as the first parameter:
 \skip void hsk_can_init
 \until ;
 \skip void hsk_can_enable
@@ -1235,7 +1235,7 @@ letters:
 \skipline NBTRx
 
 Apart from that special naming conventions for defines only apply to register
-bits. Every register bit definition is prefixed by \c BIT. Bit fields also
+bits. Every register bit definition is prefixed by `BIT`. Bit fields also
 specify a count:
 \skipline BIT_RXSEL
 \skipline CNT_RXSEL
@@ -1248,9 +1248,9 @@ specify a count:
 Authors use short tags in the code, this is the complete list of authors
 and the aliases they use.
 
-\author	kami\n
-	Dominic Fandrey <dominic.fandrey@highspeed-karlsruhe.de>\n
-	kamikaze <kamikaze@bsdforen.de>\n
-	Head of Electronics Development season 2010/2011, 2011/2012
+\author kami\n
+        Dominic Fandrey <dominic.fandrey@highspeed-karlsruhe.de>\n
+        kamikaze <kamikaze@bsdforen.de>\n
+        Head of Electronics Development season 2010/2011, 2011/2012
 
  */
