@@ -451,7 +451,7 @@ which contains the SFR definitions for the XC878.
 It is a modified version of the XC878.h file proivided by Keil µVision,
 which in turn is a Dave generated file.
 
-The modification is an `\#ifdef SDCC` block, with some compatibility
+The modification is an <tt>\#ifdef SDCC</tt> block, with some compatibility
 glue to allow using the C51 code mostly unmodified.
 
 To make the header available to `sdcc` the inc/ should be added to the
@@ -540,7 +540,7 @@ redundant style, which also worked with SDCC 2.x with some C macro magic:
 const ubyte code foo = 0x2A;
 \endcode
 
-<b>Function pointers</b> are a special case. To SDCC all function pointers
+**Function pointers** are a special case. To SDCC all function pointers
 refer to `code`, C51 uses (slower, larger) generic pointers if the `code`
 keyword is missing. Unfortunately there is no compatible syntax to place
 `code` in a function pointer declaration. This can be circumvented with
@@ -561,7 +561,7 @@ The most significant difference between interrupt handling in SDCC and C51
 is that prototypes for the interrupts must be visible in the context of the
 main() function.
 
-These prototypes can be enclosed in an `\#ifdef:`
+These prototypes can be enclosed in an <tt>\#ifdef</tt>:
 \include hsk_isr.isr
 
 \cond DEV
@@ -932,7 +932,7 @@ unions, typedefs and defines of the current library.
 Use 8 spaces wide real tabs for indention. Don't put spaces before a
 tab, even in comments, unless it is in a code or verbatim section.
 
-In the following example tabs are symbolised by <tt>\<tab\></tt> and the
+In the following example tabs are symbolised by `<tab>` and the
 beginning of a line by `^`:
 \snippet examples conventions spaces
 
@@ -962,9 +962,9 @@ Every member is to be documented in one of the following manners:
 \snippet examples member doc brief
 \snippet examples member doc long
 
-- `\<brief>`
+- `<brief>`
   - A short, single sentence description of the member
-- `\<description>`
+- `<description>`
   - A detailed description of the member
 
 \subsection conventions_comments_lists List Formatting
@@ -1034,12 +1034,12 @@ Significant:
 \section conventions_functions Function Documentation
 
 Every parameter of a member function and the return value if present need
-JavaDoc style `\@param` and `\@return` documentations in their descriptions:
+JavaDoc style `@param` and `@return` documentations in their descriptions:
 \snippet examples function doc
 
 \subsection conventions_functions_return Return Values
 
-Use `\@retval` to document return values with logical instead of numerical
+Use `@retval` to document return values with logical instead of numerical
 meanings:
 \verbatim
 @retval 0
@@ -1067,7 +1067,7 @@ If a function is public additional documentation may be placed in the
 Inline comments within functions may appear in JavaDoc style, in that case they
 are also appended to the function documentation of the developers' manual.
 
-Private functions should be marked with `\@private` at the end of their
+Private functions should be marked with `@private` at the end of their
 documentation block.
 
 \section conventions_groups Grouping Documentation
@@ -1090,11 +1090,11 @@ The following naming conventions exist for each file:
 hsk_<category>/hsk_<name>.<suffix>
 \endverbatim
 
-- `\<category>`
+- `<category>`
   - The library category, often identical to name, but not necessarily so
-- `\<name>`
+- `<name>`
   - The name of the library
-- `\<suffix>`
+- `<suffix>`
   - The file type suffix
 
 \subsection conventions_files_headers Headers
@@ -1110,26 +1110,26 @@ The second exception are \ref conventions_files_isr.
 Every header file begins with a JavaDoc style comment:
 \snippet examples header doc
 
-- `\<brief>`
+- `<brief>`
   - A descriptive title such as "Analog Digital Conversion"
     this description appears in the file list, nouns, verbs and
      adjectives in the brief should start with capital letters
-- `\<description>`
+- `<description>`
   - A text containing all the necessary information to
     use the provided functions
-- <tt>\<author tag></tt>
+- `<author tag>`
   - A short author tag from \ref authors
-- <tt>\<iso date></tt>
+- `<iso date>`
   - The ISO 8601 date (YYYY-MM-DD) of the last edit
 
 The next block contains the traditional header opening:
 \snippet examples header open
 
-- `\<FILE>`
+- `<FILE>`
   - The file name with the following translation '[:lower:].'
     '[:upper:]_', e.g. hsk_isr.h becomes HSK_ISR_H
 
-The `\#ifndef` block is closed at the end of the header file with:
+The <tt>\#ifndef</tt> block is closed at the end of the header file with:
 \snippet examples header close
 
 Prototypes etc. belong within the block.
@@ -1139,12 +1139,12 @@ Prototypes etc. belong within the block.
 Like header files every C file starts with a JavaDoc style comment:
 \snippet examples code doc
 
-- `\<brief>`
+- `<brief>`
   - Should be the same title as in the header file
-- `\<description>`
+- `<description>`
   - Instead of how to use the library this should make mention
     of all things of interest, when working on the implementation
-- <tt>\<author tag></tt>
+- `<author tag>`
   - A short author tag from \ref authors
 
 The first include in a C file is the Infineon/XC878.h header, followed
