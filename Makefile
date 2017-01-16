@@ -89,6 +89,11 @@ USERSRC!=	find src/ -name \*.h -o -name main.c -o -name \*.md -o -name examples
 DEVSRC:=	$(shell find src/ -name \*.\[hc] -o -name \*.md -o -name examples)
 DEVSRC!=	find src/ -name \*.\[hc] -o -name \*.md -o -name examples
 
+# List of script files for generating documentation
+SCRIPTSRC:=	$(shell find scripts/ -name \*.awk -o -name \*.sh -o -name \*.md)
+SCRIPTSRC!=	find scripts/ -name \*.awk -o -name \*.sh -o -name \*.md
+SCRIPTSRC+=	Makefile uVisionupdate.sh
+
 # Name of this project.
 PROJECT:=	$(shell pwd | xargs basename)
 PROJECT!=	pwd | xargs basename
@@ -159,7 +164,7 @@ uVision µVision:
 doc/user:    ${USERSRC}
 doc/dev:     ${DEVSRC}
 doc/dbc:     ${DBCDIR}
-doc/scripts: Makefile scripts/* scripts/doc/*
+doc/scripts: ${SCRIPTSRC}
 
 # Doxygen targets
 ${DOC_ALL_TARGETS:C,^,doc/,}: ${CONFDIR}/doxygen.common ${CONFDIR}/doxygen.${.TARGET:T}
