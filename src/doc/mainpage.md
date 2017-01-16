@@ -1,5 +1,3 @@
-/**
-
 \cond USER
 \mainpage HSK XC878 µC Library Users' Manual
 
@@ -1252,5 +1250,3 @@ and the aliases they use.
         Dominic Fandrey <dominic.fandrey@highspeed-karlsruhe.de>\n
         kamikaze <kamikaze@bsdforen.de>\n
         Head of Electronics Development season 2010/2011, 2011/2012
-
- */
