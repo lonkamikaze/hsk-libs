@@ -1,0 +1,4 @@
+<map id="_sdcc_external_startup" name="_sdcc_external_startup">
+<area shape="rect" id="node2" href="$hsk__boot_8c.html#a2c5689fb3c5f21606fe4c7bb3e874a7b" title="Initialises all IO ports as input ports without pull. " alt="" coords="220,5,312,32"/>
+<area shape="rect" id="node3" href="$hsk__boot_8c.html#a3301481dc6812be7ab757eb8aba98207" title="Sets up xdata and pdata memory access. " alt="" coords="211,56,321,83"/>
+</map>

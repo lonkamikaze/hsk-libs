@@ -1,0 +1,29 @@
+<map id="run" name="run">
+<area shape="rect" id="node2" href="$hsk__can_8c.html#adf8bd1f3146a1dee87f7ba9164047f48" title="Sets a signal value in a data field. " alt="" coords="103,71,267,98"/>
+<area shape="rect" id="node5" href="$hsk__can_8c.html#a7ada35c7635c86614d5852553bdcaf88" title="Get a signal value from a data field. " alt="" coords="103,130,267,157"/>
+<area shape="rect" id="node8" href="$hsk__icm7228_8c.html#af2d529b4b49b83318893ea24d9e13d12" title="Write a 7 segment encoded, right aligned hexadecimal number into an xdata buffer. ..." alt="" coords="106,181,265,207"/>
+<area shape="rect" id="node9" href="$hsk__can_8c.html#a48d89d605eb1f79774d1a5a86bf387bc" title="Creates a new CAN message. " alt="" coords="112,231,259,258"/>
+<area shape="rect" id="node10" href="$hsk__can_8c.html#afbae0ee5ea7ee60cbeb705d5d940f2b4" title="Connect a message object to a CAN node. " alt="" coords="107,282,263,309"/>
+<area shape="rect" id="node12" href="$hsk__can_8c.html#ac4b1764cd14aa56ff998d8971950095c" title="Creates a message FIFO. " alt="" coords="116,333,255,359"/>
+<area shape="rect" id="node13" href="$hsk__can_8c.html#a643a555f878aafe55bbb2e308e358734" title="Connect a FIFO to a CAN node. " alt="" coords="111,383,260,410"/>
+<area shape="rect" id="node15" href="$hsk__can_8c.html#abaa7f6ad68978c93fe3969b13360ee7a" title="Set the FIFO up for receiving messages. " alt="" coords="109,434,261,461"/>
+<area shape="rect" id="node16" href="$hsk__can_8c.html#ac6877a5c7fe96e1e3a8eaccaf54a013c" title="Changes the ID matching mask of an RX FIFO. " alt="" coords="100,485,271,511"/>
+<area shape="rect" id="node17" href="$hsk__pwm_8c.html#adb1789fc98257f9c48a9e44dbaf5f307" title="Set the duty cycle for the given channel. " alt="" coords="108,535,263,562"/>
+<area shape="rect" id="node18" href="$hsk__adc_8c.html#a447e7bd775962054ffa80262bb676076" title="Requests an ADC for a specific channel. " alt="" coords="125,586,246,613"/>
+<area shape="rect" id="node19" href="$hsk__wdt_8c.html#a647944508e2a8f6ed9a3aee9e350b32d" title="Resets the watchdog timer. " alt="" coords="125,637,245,663"/>
+<area shape="rect" id="node20" href="$hsk__pwc_8c.html#a43921507c6e1ab277bf62fd952dc909e" title="Returns a measure of the values in a channel buffer. " alt="" coords="93,687,277,714"/>
+<area shape="rect" id="node21" href="$hsk__can_8c.html#a65593388f5d52493130ef62966b11c11" title="Sets the current data in the CAN message. " alt="" coords="107,738,263,765"/>
+<area shape="rect" id="node22" href="$hsk__can_8c.html#ae4bc047461eb48f3c81edbd728cc57d2" title="Request transmission of a message. " alt="" coords="116,789,255,815"/>
+<area shape="rect" id="node23" href="$hsk__can_8c.html#ae827521a839dae2fb903a58da4027008" title="Return whether the currently selected FIFO entry was updated via CAN bus between this call and the pr..." alt="" coords="111,839,260,866"/>
+<area shape="rect" id="node25" href="$hsk__can_8c.html#a38bc6dfad832efea395a55f3c810e157" title="Returns the CAN ID of the selected FIFO entry. " alt="" coords="119,890,251,917"/>
+<area shape="rect" id="node26" href="$hsk__can_8c.html#ae45df92cb26b61109a137690d15ca10f" title="Gets the data from the currently selected FIFO entry. " alt="" coords="111,941,260,967"/>
+<area shape="rect" id="node28" href="$hsk__can_8c.html#aab78f3398ef8049c8ba186785b4886d6" title="Select the next FIFO entry. " alt="" coords="121,991,249,1018"/>
+<area shape="rect" id="node3" href="$hsk__can_8c.html#ac2c3bdd8bbc80a70e4f75f0c4c354b92" title="Sets a big endian signal value in a data field. " alt="" coords="331,5,509,47"/>
+<area shape="rect" id="node4" href="$hsk__can_8c.html#a7e968f3bc1e427f003b7d1d60652fd25" title="Sets a signal value in a data field. " alt="" coords="325,71,515,98"/>
+<area shape="rect" id="node6" href="$hsk__can_8c.html#abdca4d3e82eb8c93ece1ecfcf7bd6689" title="Get a big endian signal value from a data field. " alt="" coords="331,123,509,164"/>
+<area shape="rect" id="node7" href="$hsk__can_8c.html#a7ee82405611df2c9f21258dd342b00aa" title="Get a little endian signal value from a data field. " alt="" coords="325,189,515,215"/>
+<area shape="rect" id="node11" href="$hsk__can_8c.html#a2bce22db06128f8ef510eec6d94b0f55" title="Move the selected message and its slaves to a different list. " alt="" coords="349,282,491,309"/>
+<area shape="rect" id="node14" href="$hsk__can_8c.html#a8c1b05e29d014baab64f38fb1df1fce2" title="Move the selected FIFO to a different list. " alt="" coords="353,383,487,410"/>
+<area shape="rect" id="node24" href="$hsk__can_8c.html#a423c00c3c032ec378bd5c5a5b7e2fe6a" title="Return whether the message was updated via CAN bus between this call and the previous call of this me..." alt="" coords="342,839,498,866"/>
+<area shape="rect" id="node27" href="$hsk__can_8c.html#a34c8d8a6dda4e246437a721a56156f45" title="Gets the current data in the CAN message. " alt="" coords="342,941,498,967"/>
+</map>

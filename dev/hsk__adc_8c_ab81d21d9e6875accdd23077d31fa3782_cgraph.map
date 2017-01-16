@@ -1,0 +1,4 @@
+<map id="hsk_adc_init" name="hsk_adc_init">
+<area shape="rect" id="node2" href="$hsk__adc_8c.html#a9f007ea38b6b510f9cb92b6c8e1e267e" title="Write the 10bit conversion result to the targeted memory address. " alt="" coords="148,5,255,32"/>
+<area shape="rect" id="node3" href="$hsk__adc_8c.html#a60a32594a6f043cd52f2a5e0a9a99e1b" title="Write the 8bit conversion result to the targeted memory address. " alt="" coords="152,56,251,83"/>
+</map>

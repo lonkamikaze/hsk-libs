@@ -1,0 +1,4 @@
+<map id="hsk_pwc_channel_open" name="hsk_pwc_channel_open">
+<area shape="rect" id="node2" href="$hsk__pwc_8c.html#a9499d39281831b8917d7a315f6cb1b30" title="Allows switching between external and soft trigger. " alt="" coords="215,5,423,32"/>
+<area shape="rect" id="node3" href="$hsk__pwc_8c.html#a5f439afc50db173f63ce03b4889a03f5" title="Select the edge that is used to detect a pulse. " alt="" coords="222,56,415,83"/>
+</map>

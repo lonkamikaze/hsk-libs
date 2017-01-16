@@ -1,0 +1,18 @@
+<map id="hsk_pwc_port_open" name="hsk_pwc_port_open">
+<area shape="rect" id="node2" href="$hsk__pwc_8c.html#a3f008802d3b8f8929da0851759b1393c" title="The ISR for Capture events on channel PWC_CC0_P30. " alt="" coords="197,5,348,32"/>
+<area shape="rect" id="node4" href="$hsk__pwc_8c.html#a10e18f682f70be80a1f3f6112caeeae2" title="The ISR for Capture events on channel PWC_CC0_P40. " alt="" coords="197,56,348,83"/>
+<area shape="rect" id="node5" href="$hsk__pwc_8c.html#a74205206a334e41c264ce1184a47e32e" title="The ISR for Capture events on channel PWC_CC0_P55. " alt="" coords="197,107,348,133"/>
+<area shape="rect" id="node6" href="$hsk__pwc_8c.html#a047402165b7a4569238695514c2bacb9" title="The ISR for Capture events on channel PWC_CC1_P32. " alt="" coords="197,157,348,184"/>
+<area shape="rect" id="node7" href="$hsk__pwc_8c.html#a51339737e073bb3737edf532cdf02a7d" title="The ISR for Capture events on channel PWC_CC1_P41. " alt="" coords="197,208,348,235"/>
+<area shape="rect" id="node8" href="$hsk__pwc_8c.html#aae3bcf801267d308977307e0e204fc9e" title="The ISR for Capture events on channel PWC_CC1_P56. " alt="" coords="197,259,348,285"/>
+<area shape="rect" id="node9" href="$hsk__pwc_8c.html#adb0f40dd68f3079b97620eabb2602d1d" title="The ISR for Capture events on channel PWC_CC2_P33. " alt="" coords="197,309,348,336"/>
+<area shape="rect" id="node10" href="$hsk__pwc_8c.html#a6b47001283d564392330d9ea98101010" title="The ISR for Capture events on channel PWC_CC2_P44. " alt="" coords="197,360,348,387"/>
+<area shape="rect" id="node11" href="$hsk__pwc_8c.html#a7b4abded16b04eeac92a0e429d2c3d6d" title="The ISR for Capture events on channel PWC_CC2_P52. " alt="" coords="197,411,348,437"/>
+<area shape="rect" id="node12" href="$hsk__pwc_8c.html#a655d84d59713234184a82484e4bcb35e" title="The ISR for Capture events on channel PWC_CC3_P34. " alt="" coords="197,461,348,488"/>
+<area shape="rect" id="node13" href="$hsk__pwc_8c.html#a616648585a75ebfdd5dc675b9d652bcf" title="The ISR for Capture events on channel PWC_CC3_P45. " alt="" coords="197,512,348,539"/>
+<area shape="rect" id="node14" href="$hsk__pwc_8c.html#adcb82798289c9b700099050959df8b06" title="The ISR for Capture events on channel PWC_CC3_P57. " alt="" coords="197,563,348,589"/>
+<area shape="rect" id="node15" href="$hsk__pwc_8c.html#a3ea53ac0c1d5659e6b2220dc3204d851" title="Configures a PWC channel without an input port. " alt="" coords="192,664,353,691"/>
+<area shape="rect" id="node16" href="$hsk__pwc_8c.html#a9499d39281831b8917d7a315f6cb1b30" title="Allows switching between external and soft trigger. " alt="" coords="401,613,609,640"/>
+<area shape="rect" id="node3" href="$hsk__pwc_8c.html#ac8771197eafcca0c149bbfd871a996fa" title="This is the common implementation of the Capture ISRs. " alt="" coords="444,284,567,311"/>
+<area shape="rect" id="node17" href="$hsk__pwc_8c.html#a5f439afc50db173f63ce03b4889a03f5" title="Select the edge that is used to detect a pulse. " alt="" coords="409,664,602,691"/>
+</map>

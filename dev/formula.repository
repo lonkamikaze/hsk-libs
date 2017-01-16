@@ -1,0 +1,28 @@
+\form#0:\[ baud = 48000000 / 12 / BRP \]
+\form#1:\[ BRP = 48000000 / 12 / baud \]
+\form#2:\[ msk = \sim(id_0 | id_1 | ... | id_n) | (id_0 \& id_1 \& ... \& id_n) \]
+\form#3:$ CCLK $
+\form#4:$ CCLK/2^{12} $
+\form#5:\[ writes = \lfloor 4096 / sizeof(struct) \rfloor * expectedcycles \]
+\form#6:$ sizeof(struct) = 22 $
+\form#7:$ expectedcycles = 100000 $
+\form#8:$(2^{16} - 1) / (48 * 10^6)$
+\form#9:$(2^{16} - 1) * 2^{12} / (48 * 10^6)$
+\form#10:$2^{15}$
+\form#11:$ 1/48 * 10^{-6} s $
+\form#12:$ 10^{-9} s $
+\form#13:$ 10^{-6} s $
+\form#14:$ 10^{-3} s $
+\form#15:$ 1/s $
+\form#16:$ 1/m $
+\form#17:$ 1/h $
+\form#18:$ 1 * 10^{-9} s $
+\form#19:$ 1 * 10^{-6} s $
+\form#20:$ 1 * 10^{-3} s $
+\form#21:$48000000 / 2^{31}$
+\form#22:\[freq(precision) = 480000000 * precision\]
+\form#23:$freq(1/2^{10}) = 468750$
+\form#24:\[\{12000, 6000, 4000, 3000, 2400, 2000, ...\}\]
+\form#25:\[{realBps}(bps) = \frac{12000000}{\lfloor\frac{12000000}{bps}\rfloor}\]
+\form#26:$[2;8]$
+\form#27:$sizeof(buffer) - 1$

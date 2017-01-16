@@ -1,0 +1,4 @@
+<map id="hsk_can_data_getSignal" name="hsk_can_data_getSignal">
+<area shape="rect" id="node2" href="$hsk__can_8c.html#abdca4d3e82eb8c93ece1ecfcf7bd6689" title="Get a big endian signal value from a data field. " alt="" coords="223,5,401,47"/>
+<area shape="rect" id="node3" href="$hsk__can_8c.html#a7ee82405611df2c9f21258dd342b00aa" title="Get a little endian signal value from a data field. " alt="" coords="217,71,407,98"/>
+</map>

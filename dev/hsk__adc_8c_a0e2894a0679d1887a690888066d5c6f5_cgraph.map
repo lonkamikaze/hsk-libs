@@ -1,0 +1,6 @@
+<map id="hsk_adc_warmup10" name="hsk_adc_warmup10">
+<area shape="rect" id="node2" href="$hsk__adc_8c.html#adef493271331183aa958328c56eadca5" title="Special ISR for warming up 10 bit conversions. " alt="" coords="192,5,351,32"/>
+<area shape="rect" id="node4" href="$hsk__adc_8c.html#af49ad6d90583dae0d182d5044e81b906" title="A maintenance function that takes care of keeping AD conversions going. " alt="" coords="211,56,331,83"/>
+<area shape="rect" id="node3" href="$hsk__adc_8c.html#a9f007ea38b6b510f9cb92b6c8e1e267e" title="Write the 10bit conversion result to the targeted memory address. " alt="" coords="406,5,513,32"/>
+<area shape="rect" id="node5" href="$hsk__adc_8c.html#a447e7bd775962054ffa80262bb676076" title="Requests an ADC for a specific channel. " alt="" coords="399,56,520,83"/>
+</map>

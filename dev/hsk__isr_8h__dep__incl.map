@@ -1,0 +1,9 @@
+<map id="hsk_isr/hsk_isr.h" name="hsk_isr/hsk_isr.h">
+<area shape="rect" id="node2" href="$hsk__adc_8c.html" title="HSK Analog Digital Conversion implementation. " alt="" coords="5,80,140,107"/>
+<area shape="rect" id="node3" href="$hsk__boot_8c.html" title="HSK Boot implementation. " alt="" coords="164,80,307,107"/>
+<area shape="rect" id="node4" href="$hsk__ex_8c.html" title="HSK External Interrupt Routing implementation. " alt="" coords="331,80,452,107"/>
+<area shape="rect" id="node5" href="$hsk__flash_8c.html" title="HSK Flash Facility implementation. " alt="" coords="477,80,626,107"/>
+<area shape="rect" id="node6" href="$hsk__isr_8c.html" title="HSK Shared Interrupt Service Routine implementation. " alt="" coords="651,80,772,107"/>
+<area shape="rect" id="node7" href="$hsk__pwc_8c.html" title="HSK Pulse Width Counter implementation. " alt="" coords="797,80,938,107"/>
+<area shape="rect" id="node8" href="$hsk__wdt_8c.html" title="HSK Watchdog Timer implementation. " alt="" coords="963,80,1097,107"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="main.c" name="main.c">
+<area shape="rect" id="node3" href="$config_8h.html" title="Configuration for the Infineon XC800 Starter Kit. " alt="" coords="153,80,221,107"/>
+<area shape="rect" id="node4" href="$hsk__boot_8h.html" title="HSK Boot headers. " alt="" coords="814,80,957,107"/>
+<area shape="rect" id="node6" href="$hsk__timer01_8h.html" title="HSK Timer 0/1 headers. " alt="" coords="245,80,417,107"/>
+<area shape="rect" id="node8" href="$hsk__can_8h.html" title="HSK Controller Area Network headers. " alt="" coords="655,80,790,107"/>
+<area shape="rect" id="node9" href="$hsk__icm7228_8h.html" title="HSK ICM7228 8&#45;Digit LED Display Decoder Driver generator. " alt="" coords="441,80,631,107"/>
+<area shape="rect" id="node11" href="$hsk__adc_8h.html" title="HSK Analog Digital Conversion headers. " alt="" coords="981,80,1115,107"/>
+<area shape="rect" id="node12" href="$hsk__pwm_8h.html" title="HSK Pulse Width Modulation headers. " alt="" coords="1140,80,1289,107"/>
+<area shape="rect" id="node13" href="$hsk__pwc_8h.html" title="HSK Pulse Width Counter headers. " alt="" coords="1313,80,1455,107"/>
+<area shape="rect" id="node14" href="$hsk__flash_8h.html" title="HSK Flash Facility headers. " alt="" coords="1479,80,1628,107"/>
+<area shape="rect" id="node15" href="$hsk__wdt_8h.html" title="HSK Watchdog Timer headers. " alt="" coords="1653,80,1787,107"/>
+<area shape="rect" id="node16" href="$hsk__io_8h.html" title="HSK I/O headers. " alt="" coords="1811,80,1925,107"/>
+</map>

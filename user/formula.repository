@@ -1,0 +1,24 @@
+\form#0:\[ msk = \sim(id_0 | id_1 | ... | id_n) | (id_0 \& id_1 \& ... \& id_n) \]
+\form#1:\[ writes = \lfloor 4096 / sizeof(struct) \rfloor * expectedcycles \]
+\form#2:$ sizeof(struct) = 22 $
+\form#3:$ expectedcycles = 100000 $
+\form#4:$(2^{16} - 1) / (48 * 10^6)$
+\form#5:$(2^{16} - 1) * 2^{12} / (48 * 10^6)$
+\form#6:$2^{15}$
+\form#7:$ 1/48 * 10^{-6} s $
+\form#8:$ 10^{-9} s $
+\form#9:$ 10^{-6} s $
+\form#10:$ 10^{-3} s $
+\form#11:$ 1/s $
+\form#12:$ 1/m $
+\form#13:$ 1/h $
+\form#14:$ 1 * 10^{-9} s $
+\form#15:$ 1 * 10^{-6} s $
+\form#16:$ 1 * 10^{-3} s $
+\form#17:$48000000 / 2^{31}$
+\form#18:\[freq(precision) = 480000000 * precision\]
+\form#19:$freq(1/2^{10}) = 468750$
+\form#20:\[\{12000, 6000, 4000, 3000, 2400, 2000, ...\}\]
+\form#21:\[{realBps}(bps) = \frac{12000000}{\lfloor\frac{12000000}{bps}\rfloor}\]
+\form#22:$[2;8]$
+\form#23:$sizeof(buffer) - 1$

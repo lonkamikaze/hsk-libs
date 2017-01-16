@@ -1,0 +1,4 @@
+<map id="hsk_can_data_setSignal" name="hsk_can_data_setSignal">
+<area shape="rect" id="node2" href="$hsk__can_8c.html#ac2c3bdd8bbc80a70e4f75f0c4c354b92" title="Sets a big endian signal value in a data field. " alt="" coords="223,5,401,47"/>
+<area shape="rect" id="node3" href="$hsk__can_8c.html#a7e968f3bc1e427f003b7d1d60652fd25" title="Sets a signal value in a data field. " alt="" coords="217,71,407,98"/>
+</map>
