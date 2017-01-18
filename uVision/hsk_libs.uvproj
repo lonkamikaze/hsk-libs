@@ -321,7 +321,7 @@
             <WarningLevel>2</WarningLevel>
             <DataOverlaying>1</DataOverlaying>
             <OverlayString>* ! (hsk_isr_root1),
-hsk_isr_root1 ! (ISR_hsk_isr5, ISR_hsk_isr6, ISR_hsk_isr8, ISR_hsk_isr9, ISR_hsk_ssc, ISR_hsk_smbus, ISR_hsk_timer0, ISR_hsk_timer1),
+hsk_isr_root1 ! (ISR_hsk_isr5, ISR_hsk_isr6, ISR_hsk_isr8, ISR_hsk_isr9, ISR_hsk_ssc, ISR_hsk_timer0, ISR_hsk_timer1),
 * ~ (hsk_adc_isr10, hsk_adc_isr8, hsk_adc_isr_warmup10),
 * ~ (hsk_boot_isr_nmipll, hsk_flash_isr_nmiflash),
 * ~ (hsk_pwc_isr_cctOverflow),
