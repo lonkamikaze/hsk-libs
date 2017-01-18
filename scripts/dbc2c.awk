@@ -1123,7 +1123,9 @@ function fetch_attrval(attribute,
 		return int(val)
 	} else if (obj_attr_type[attribute] == atINT) {
 		val = fetch(rFLOAT)
-		if (val != int(val)) {
+		if (val != int(val) && DEBUG) {
+			# This warning is so frequent, that it should
+			# not be printed unless in DEBUG mode.
 			warn("An integer value is expected but the floating point value " \
 			     val " was provided, converting to " int(val))
 		}
