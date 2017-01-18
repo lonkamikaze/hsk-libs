@@ -123,8 +123,10 @@ ${GENDIR}/dbc.mk: ${GENDIR}
 
 # Generate build
 ${GENDIR}/build.mk: dbc ${GENDIR}
-	@env CPP="${CPP}" AWK="${AWK}" \
-	     sh scripts/build.sh src/ ${INCDIR}/ ${GENDIR}/ > $@
+	@env CPP="${CPP}" \
+	     ${AWK} -f scripts/build.awk \
+	            -vOBJSUFX="${OBJSUFX}" -vBINSUFX="${HEXSUFX}" \
+	            src/ -I${INCDIR}/ -I${GENDIR}/ -DSDCC > $@
 
 .PHONY: build all debug dbc
 
@@ -136,16 +138,12 @@ ${DBCDIR}: dbc
 
 # Perform build stage
 build all: ${GENDIR}/sdcc.mk ${GENDIR}/build.mk dbc
-	@env BUILDDIR="${BUILDDIR}" \
-	     OBJSUFX="${OBJSUFX}" HEXSUFX="${HEXSUFX}" \
-	     CC="${CC}" CFLAGS="${CFLAGS}" \
-	     ${MAKE} -r -f ${GENDIR}/sdcc.mk -f ${GENDIR}/build.mk $@
+	@env CC="${CC}" CFLAGS="${CFLAGS}" OBJDIR="${BUILDDIR}/" \
+	     ${MAKE} -rf ${GENDIR}/sdcc.mk -f ${GENDIR}/build.mk $@
 
 debug: ${GENDIR}/sdcc.mk ${GENDIR}/build.mk dbc
-	@env BUILDDIR="${BUILDDIR}" \
-	     OBJSUFX="${OBJSUFX}" HEXSUFX="${HEXSUFX}" \
-	     CC="${CC}" CFLAGS="${CFLAGS} --debug" \
-	     ${MAKE} -r -f ${GENDIR}/sdcc.mk -f ${GENDIR}/build.mk build
+	@env CC="${CC}" CFLAGS="${CFLAGS} --debug" OBJDIR="${BUILDDIR}/" \
+	     ${MAKE} -rf ${GENDIR}/sdcc.mk -f ${GENDIR}/build.mk build
 
 .PHONY: printEnv uVision µVision
 
