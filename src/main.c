@@ -193,7 +193,7 @@ void run(void) {
 	hsk_can_data_setSignal(buffer, CAN_ENDIAN_MOTOROLA, 0, 3, 16, 0x1234);
 	adc7_copy = hsk_can_data_getSignal(buffer, CAN_ENDIAN_MOTOROLA, 0, 3, 16);
 
-	hsk_icm7228_writeHex(buffer, 123, -1, 0, 5);
+	hsk_icm7228_writeHex(buffer, 123, ~0U, 0, 5);
 
 	msg0 = hsk_can_msg_create(0x7ff, 0, 2);
 	hsk_can_msg_connect(msg0, CAN1);
