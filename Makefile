@@ -12,6 +12,7 @@
 # | uVision           | Run uVisionupdate.sh                              |
 # | html              | Build all html documentation under doc/           |
 # | pdf               | Build all pdf documentation under doc/            |
+# | gh-pages          | Assemble all docs for GitHub Pages publishing     |
 # | clean-build       | Remove build output                               |
 # | clean-doc         | Remove doxygen output for user doc                |
 # | clean             | Clean everything                                  |
