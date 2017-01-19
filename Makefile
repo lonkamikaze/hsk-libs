@@ -39,47 +39,14 @@
 # | PROJECT           | The name of this project                          |
 #
 
-# Build with SDCC.
-BUILDDIR=	bin.sdcc
-CC=		sdcc
-CFLAGS=		-I${INCDIR} -I${GENDIR}
-
-# Sane default for uVisionupdate.sh.
-CPP=		cpp
-
-# AWK interpreter.
-AWK?=		awk
-
-# Configuration files.
-CONFDIR=	conf
-
-# Generateded headers.
-GENDIR=		gen
-DBCDIR=		${GENDIR}/dbc
-
-# Locate related projects.
-CANPROJDIR=	../CAN
-
-# Include directories from the related projects.
-INCDIR=		inc
+# Include shared defaults
+include Makefile.include
 
 # Documentation subtargets
 DOC_ALL_TARGETS=user dev dbc scripts
 
 # Documenation to publish on GitHub Pages
 DOC_PUB_TARGETS=user dev scripts
-
-# File name suffixes for sdcc/XC800_Fload.
-OBJSUFX=	.rel
-HEXSUFX=	.hex
-
-# The system date format.
-DATE:=		$(shell date +%Y-%m-%d)
-DATE!=		date +%Y-%m-%d
-
-# Use hg version with date fallback.
-VERSION:=	$(shell git rev-list HEAD --count || echo ${DATE})
-VERSION!=	git rev-list HEAD --count || echo ${DATE}
 
 # List of public source files, for generating the user documentation.
 USERSRC:=	$(shell find src/ -name \*.h -o -name main.c -o -name \*.md -o -name examples)
@@ -92,11 +59,7 @@ DEVSRC!=	find src/ -name \*.\[hc] -o -name \*.md -o -name examples
 # List of script files for generating documentation
 SCRIPTSRC:=	$(shell find scripts/ -name \*.awk -o -name \*.sh -o -name \*.md)
 SCRIPTSRC!=	find scripts/ -name \*.awk -o -name \*.sh -o -name \*.md
-SCRIPTSRC+=	Makefile uVisionupdate.sh
-
-# Name of this project.
-PROJECT:=	$(shell pwd | xargs basename)
-PROJECT!=	pwd | xargs basename
+SCRIPTSRC+=	Makefile* uVisionupdate.sh
 
 #
 # No more overrides.

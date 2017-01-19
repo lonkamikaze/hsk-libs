@@ -1,0 +1,46 @@
+#!/usr/bin/make -f
+#
+# Sets some default variables that are also usable in depending projects.
+#
+# The variables are document in \ref Makefile.
+#
+
+# Build with SDCC.
+BUILDDIR=	bin.sdcc
+CC=		sdcc
+CFLAGS=		-I${INCDIR} -I${GENDIR}
+
+# Sane default for uVisionupdate.sh.
+CPP=		cpp
+
+# AWK interpreter.
+AWK?=		awk
+
+# Configuration files.
+CONFDIR=	conf
+
+# Generateded headers.
+GENDIR=		gen
+DBCDIR=		${GENDIR}/dbc
+
+# Locate related projects.
+CANPROJDIR=	../CAN
+
+# Include directories from the related projects.
+INCDIR=		inc
+
+# File name suffixes for sdcc/XC800_Fload.
+OBJSUFX=	.rel
+HEXSUFX=	.hex
+
+# The system date format.
+DATE:=		$(shell date +%Y-%m-%d)
+DATE!=		date +%Y-%m-%d
+
+# Use hg version with date fallback.
+VERSION:=	$(shell git rev-list HEAD --count || echo ${DATE})
+VERSION!=	git rev-list HEAD --count || echo ${DATE}
+
+# Name of this project.
+PROJECT:=	$(shell pwd | xargs basename)
+PROJECT!=	pwd | xargs basename
