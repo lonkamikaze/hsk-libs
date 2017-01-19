@@ -1,6 +1,8 @@
 var searchData=
 [
-  ['template',['template',['../dbc2c_8awk.html#a618054b9c190b5f1a4f09c0796bb27a9',1,'dbc2c.awk']]],
-  ['testf',['testf',['../depends_8awk.html#a1d1eb53715b75ec39663b737b4cbc08c',1,'depends.awk']]],
-  ['tpl_5fline',['tpl_line',['../dbc2c_8awk.html#a8346bcb6e9d38112576484d3dc79bbdf',1,'dbc2c.awk']]]
+  ['rational',['rational',['../dbc2c_8awk.html#a75723dec261e84ce15f5f8449c9b1125',1,'dbc2c.awk']]],
+  ['rationald',['rationalD',['../dbc2c_8awk.html#a689f774de5034b5581f27ead125eb3a6',1,'dbc2c.awk']]],
+  ['rationalfmt',['rationalFmt',['../dbc2c_8awk.html#ac4f4077dd0d4e7e0743a3e5f4581e423',1,'dbc2c.awk']]],
+  ['rationaln',['rationalN',['../dbc2c_8awk.html#a59304405460279223ac856d3bbe82492',1,'dbc2c.awk']]],
+  ['rescape',['rescape',['../depends_8awk.html#a6ed912b3ff3d9958bbca11a3cc5a8c5c',1,'depends.awk']]]
 ];

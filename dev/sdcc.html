@@ -9,13 +9,6 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
-<link href="navtree.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="resize.js"></script>
-<script type="text/javascript" src="navtreedata.js"></script>
-<script type="text/javascript" src="navtree.js"></script>
-<script type="text/javascript">
-  $(document).ready(initResizable);
-</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
@@ -29,7 +22,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">hsk-libs-dev
-   &#160;<span id="projectnumber">257</span>
+   &#160;<span id="projectnumber">270</span>
    </div>
    <div id="projectbrief">High Speed Karlsruhe XC878 library collection</div>
   </td>
@@ -51,21 +44,6 @@ $(function() {
 });
 </script>
 <div id="main-nav"></div>
-</div><!-- top -->
-<div id="side-nav" class="ui-resizable side-nav-resizable">
-  <div id="nav-tree">
-    <div id="nav-tree-contents">
-      <div id="nav-sync" class="sync"></div>
-    </div>
-  </div>
-  <div id="splitbar" style="-moz-user-select:none;" 
-       class="ui-resizable-handle">
-  </div>
-</div>
-<script type="text/javascript">
-$(document).ready(function(){initNavTree('sdcc.html','');});
-</script>
-<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -80,6 +58,7 @@ $(document).ready(function(){initNavTree('sdcc.html','');});
 </iframe>
 </div>
 
+</div><!-- top -->
 <div class="header">
   <div class="headertitle">
 <div class="title">Using the Small Device C Compiler (SDCC) </div>  </div>
@@ -139,14 +118,11 @@ Interrupts</h1>
 <p>These prototypes can be enclosed in an <code>#ifdef</code>: </p><div class="fragment"><div class="line">#ifndef _HSK_ISR_ISR_</div><div class="line">#define _HSK_ISR_ISR_</div><div class="line">void ISR_hsk_isr5(void) interrupt 5 using 1;</div><div class="line">void ISR_hsk_isr6(void) interrupt 6 using 1;</div><div class="line">void ISR_hsk_isr8(void) interrupt 8 using 1;</div><div class="line">void ISR_hsk_isr9(void) interrupt 9 using 1;</div><div class="line">void ISR_hsk_isr14(void) interrupt 14 using 2;</div><div class="line">#endif /* _HSK_ISR_ISR_ */</div><div class="line"></div></div><!-- fragment --><p>In this project the issue is solved by placing the prototypes in a dedicated file with the file name suffix .isr. It is then included in the relevant headers in the following fashion: </p><div class="fragment"><div class="line">/*</div><div class="line"> * Required for SDCC to propagate ISR prototypes.</div><div class="line"> */</div><div class="line">#ifdef SDCC</div><div class="line">#include &quot;../hsk_isr/hsk_isr.isr&quot;</div><div class="line">#endif /* SDCC */</div></div><!-- fragment --><p> By not placing the ISR prototypes directly in the header file, unwanted and otherwise unnecessary inclusion of headers can be avoided. Only the small file with the ISR prototypes needs to be included in header files of ISR using code.</p>
 <p>According to the SDCC manual functions called by ISRs must be reentrant or protected from memory overlay. This is done with a compiler instruction: </p><div class="fragment"><div class="line">#pragma save</div><div class="line">#pragma nooverlay</div><div class="line">void isr_callback(void) using 1 {</div><div class="line">        [...]</div><div class="line">}</div><div class="line">#pragma restore</div></div><!-- fragment --><p>Unfortunately this causes a compiler warning when using C51: </p><pre class="fragment">..\src\main.c(49): warning C245: unknown #pragma, line ignored
 </pre><p>This can be avoided by making nooverlay conditional: </p><div class="fragment"><div class="line">#pragma save</div><div class="line">#ifdef SDCC</div><div class="line">#pragma nooverlay</div><div class="line">#endif</div><div class="line">void isr_callback(void) using 1 {</div><div class="line">        [...]</div><div class="line">}</div><div class="line">#pragma restore</div></div><!-- fragment --></div></div><!-- contents -->
-</div><!-- doc-content -->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="footer">Generated on Tue Jan 17 2017 00:45:19 for hsk-libs-dev by
-    <a href="http://www.doxygen.org/index.html">
-    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.12 </li>
-  </ul>
-</div>
+<hr class="footer"/><address class="footer"><small>
+Generated on Fri Jan 20 2017 00:01:51 for hsk-libs-dev by &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.8.12
+</small></address>
 </body>
 </html>

@@ -1,10 +1,8 @@
 var searchData=
 [
-  ['sanity_2eawk',['sanity.awk',['../sanity_8awk.html',1,'']]],
-  ['sdcc_2esh',['sdcc.sh',['../sdcc_8sh.html',1,'']]],
-  ['sescape',['sescape',['../depends_8awk.html#a3d4c88c984bb2666cbb4bcadde011d3f',1,'depends.awk']]],
-  ['settypes',['setTypes',['../dbc2c_8awk.html#a7b6aee8c53b1dc588aef8a6d6c1d707c',1,'dbc2c.awk']]],
-  ['siggrpident',['siggrpident',['../dbc2c_8awk.html#ab0e8cdb7aedb0a54cdb3e13b0a553e4b',1,'dbc2c.awk']]],
-  ['sigident',['sigident',['../dbc2c_8awk.html#ad97584a4b5ceb267179dcf024668c2d4',1,'dbc2c.awk']]],
-  ['strip',['strip',['../dbc2c_8awk.html#adbee7444575395a5883052a6b927dd30',1,'dbc2c.awk']]]
+  ['rational',['rational',['../dbc2c_8awk.html#a75723dec261e84ce15f5f8449c9b1125',1,'dbc2c.awk']]],
+  ['rationald',['rationalD',['../dbc2c_8awk.html#a689f774de5034b5581f27ead125eb3a6',1,'dbc2c.awk']]],
+  ['rationalfmt',['rationalFmt',['../dbc2c_8awk.html#ac4f4077dd0d4e7e0743a3e5f4581e423',1,'dbc2c.awk']]],
+  ['rationaln',['rationalN',['../dbc2c_8awk.html#a59304405460279223ac856d3bbe82492',1,'dbc2c.awk']]],
+  ['rescape',['rescape',['../depends_8awk.html#a6ed912b3ff3d9958bbca11a3cc5a8c5c',1,'depends.awk']]]
 ];

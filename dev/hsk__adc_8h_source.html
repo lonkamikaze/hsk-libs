@@ -9,13 +9,6 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
-<link href="navtree.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="resize.js"></script>
-<script type="text/javascript" src="navtreedata.js"></script>
-<script type="text/javascript" src="navtree.js"></script>
-<script type="text/javascript">
-  $(document).ready(initResizable);
-</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
@@ -29,7 +22,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">hsk-libs-dev
-   &#160;<span id="projectnumber">257</span>
+   &#160;<span id="projectnumber">270</span>
    </div>
    <div id="projectbrief">High Speed Karlsruhe XC878 library collection</div>
   </td>
@@ -51,21 +44,6 @@ $(function() {
 });
 </script>
 <div id="main-nav"></div>
-</div><!-- top -->
-<div id="side-nav" class="ui-resizable side-nav-resizable">
-  <div id="nav-tree">
-    <div id="nav-tree-contents">
-      <div id="nav-sync" class="sync"></div>
-    </div>
-  </div>
-  <div id="splitbar" style="-moz-user-select:none;" 
-       class="ui-resizable-handle">
-  </div>
-</div>
-<script type="text/javascript">
-$(document).ready(function(){initNavTree('hsk__adc_8h_source.html','');});
-</script>
-<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -80,6 +58,11 @@ $(document).ready(function(){initNavTree('hsk__adc_8h_source.html','');});
 </iframe>
 </div>
 
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_d7242c9134439c45045cdd23054789e2.html">hsk_adc</a></li>  </ul>
+</div>
+</div><!-- top -->
 <div class="header">
   <div class="headertitle">
 <div class="title">hsk_adc.h</div>  </div>
@@ -96,15 +79,11 @@ $(document).ready(function(){initNavTree('hsk__adc_8h_source.html','');});
 <div class="ttc" id="hsk__adc_8h_html_a447e7bd775962054ffa80262bb676076"><div class="ttname"><a href="hsk__adc_8h.html#a447e7bd775962054ffa80262bb676076">hsk_adc_request</a></div><div class="ttdeci">bool hsk_adc_request(const hsk_adc_channel channel)</div><div class="ttdoc">Requests an ADC for a specific channel. </div><div class="ttdef"><b>Definition:</b> hsk_adc.c:416</div></div>
 <div class="ttc" id="hsk__adc_8h_html_a62aad3808ec2e79431025dd691fb0635"><div class="ttname"><a href="hsk__adc_8h.html#a62aad3808ec2e79431025dd691fb0635">hsk_adc_disable</a></div><div class="ttdeci">void hsk_adc_disable(void)</div><div class="ttdoc">Turns off ADC conversion unit to converse power. </div><div class="ttdef"><b>Definition:</b> hsk_adc.c:300</div></div>
 </div><!-- fragment --></div><!-- contents -->
-</div><!-- doc-content -->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a class="el" href="dir_d7242c9134439c45045cdd23054789e2.html">hsk_adc</a></li><li class="navelem"><a class="el" href="hsk__adc_8h.html">hsk_adc.h</a></li>
-    <li class="footer">Generated on Tue Jan 17 2017 00:45:18 for hsk-libs-dev by
-    <a href="http://www.doxygen.org/index.html">
-    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.12 </li>
-  </ul>
-</div>
+<hr class="footer"/><address class="footer"><small>
+Generated on Fri Jan 20 2017 00:01:51 for hsk-libs-dev by &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.8.12
+</small></address>
 </body>
 </html>

@@ -9,13 +9,6 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
-<link href="navtree.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="resize.js"></script>
-<script type="text/javascript" src="navtreedata.js"></script>
-<script type="text/javascript" src="navtree.js"></script>
-<script type="text/javascript">
-  $(document).ready(initResizable);
-</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
@@ -29,7 +22,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">hsk-libs-scripts
-   &#160;<span id="projectnumber">257</span>
+   &#160;<span id="projectnumber">270</span>
    </div>
    <div id="projectbrief">High Speed Karlsruhe XC878 build scripts</div>
   </td>
@@ -52,20 +45,6 @@ $(function() {
 </script>
 <div id="main-nav"></div>
 </div><!-- top -->
-<div id="side-nav" class="ui-resizable side-nav-resizable">
-  <div id="nav-tree">
-    <div id="nav-tree-contents">
-      <div id="nav-sync" class="sync"></div>
-    </div>
-  </div>
-  <div id="splitbar" style="-moz-user-select:none;" 
-       class="ui-resizable-handle">
-  </div>
-</div>
-<script type="text/javascript">
-$(document).ready(function(){initNavTree('globals.html','');});
-</script>
-<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -133,6 +112,7 @@ $(document).ready(function(){initNavTree('globals.html','');});
 </li>
 <li>compact()
 : <a class="el" href="depends_8awk.html#a5f8049443cf9865088f7ebe2bdd785b4">depends.awk</a>
+, <a class="el" href="build_8awk.html#a5f8049443cf9865088f7ebe2bdd785b4">build.awk</a>
 </li>
 </ul>
 
@@ -151,6 +131,9 @@ $(document).ready(function(){initNavTree('globals.html','');});
 </li>
 <li>error()
 : <a class="el" href="dbc2c_8awk.html#ad9691a441f31bf330e3f4c5636c6c674">dbc2c.awk</a>
+</li>
+<li>esc()
+: <a class="el" href="build_8awk.html#ac5962262e0ebe0d3ba24f83641c8dc44">build.awk</a>
 </li>
 <li>escape()
 : <a class="el" href="xml_8awk.html#ab4e92b523e305189f961e621083f8fa5">xml.awk</a>
@@ -195,8 +178,8 @@ $(document).ready(function(){initNavTree('globals.html','');});
 <li>filter117()
 : <a class="el" href="overlays_8awk.html#a1769f0d20d3cf8f8911c0d9a838bfe97">overlays.awk</a>
 </li>
-<li>filter128()
-: <a class="el" href="sanity_8awk.html#ae19c6037c05e2ebc8f2e6f690bee23df">sanity.awk</a>
+<li>filter118()
+: <a class="el" href="build_8awk.html#a67449f73d0a7f2c5636fc7e061a2dcc4">build.awk</a>
 </li>
 <li>filter13()
 : <a class="el" href="file2doxygen_8awk.html#a228a84b7773bc2541ca442050713e503">file2doxygen.awk</a>
@@ -207,8 +190,8 @@ $(document).ready(function(){initNavTree('globals.html','');});
 <li>filter14()
 : <a class="el" href="awk2doxygen_8awk.html#a8f6a3e62d121e26b850ff406d6dce412">awk2doxygen.awk</a>
 </li>
-<li>filter1432()
-: <a class="el" href="dbc2c_8awk.html#a8ee06b4b3de3eaa56268b8ea92f81a16">dbc2c.awk</a>
+<li>filter1434()
+: <a class="el" href="dbc2c_8awk.html#ab8b2e39c723ad0d8df7e94f4672b7544">dbc2c.awk</a>
 </li>
 <li>filter15()
 : <a class="el" href="filter_8sugar_8awk.html#ac309a0586b1231d087133b9e27c9ace8">filter.sugar.awk</a>
@@ -222,11 +205,11 @@ $(document).ready(function(){initNavTree('globals.html','');});
 <li>filter18()
 : <a class="el" href="cstrip_8awk.html#a3bf5f74959777b5f6eca9812dc6c6111">cstrip.awk</a>
 </li>
-<li>filter1839()
-: <a class="el" href="dbc2c_8awk.html#a3999c8849b82e64cc8584b24a8179e14">dbc2c.awk</a>
-</li>
 <li>filter184()
 : <a class="el" href="depends_8awk.html#a360a705b6fb08a8899e5803babc61145">depends.awk</a>
+</li>
+<li>filter1841()
+: <a class="el" href="dbc2c_8awk.html#adf80518aa431344b40a063a065c21a55">dbc2c.awk</a>
 </li>
 <li>filter185()
 : <a class="el" href="awk2doxygen_8awk.html#abf4906b829c4b58c7992126da6ed38c6">awk2doxygen.awk</a>
@@ -261,9 +244,6 @@ $(document).ready(function(){initNavTree('globals.html','');});
 <li>filter26()
 : <a class="el" href="filter_8sugar_8awk.html#ad135ad4f7d71ec9bfb1131b5d186421b">filter.sugar.awk</a>
 </li>
-<li>filter29()
-: <a class="el" href="sanity_8awk.html#aa8458df8f83ae0fdd044622cf55cc7ac">sanity.awk</a>
-</li>
 <li>filter31()
 : <a class="el" href="file2doxygen_8awk.html#a9ddffb9e785ad0f52726ee65d8b37519">file2doxygen.awk</a>
 , <a class="el" href="filter_8sugar_8awk.html#a9ddffb9e785ad0f52726ee65d8b37519">filter.sugar.awk</a>
@@ -286,17 +266,11 @@ $(document).ready(function(){initNavTree('globals.html','');});
 <li>filter49()
 : <a class="el" href="overlays_8awk.html#ad3e48cdbb24d289f93fbfbd9b1e84ebb">overlays.awk</a>
 </li>
-<li>filter51()
-: <a class="el" href="sanity_8awk.html#a472bab9c8d54a6b61560aa23aed2036b">sanity.awk</a>
-</li>
 <li>filter56()
 : <a class="el" href="overlays_8awk.html#aecbdf4a66d29aafd33a69c29eac9c98a">overlays.awk</a>
 </li>
 <li>filter567()
 : <a class="el" href="xml_8awk.html#a99b5282023e5d15ddad9876f339ef6f7">xml.awk</a>
-</li>
-<li>filter61()
-: <a class="el" href="sanity_8awk.html#a920bb4b42b7815a228fc4b6b98db32cb">sanity.awk</a>
 </li>
 <li>filter63()
 : <a class="el" href="overlays_8awk.html#a8b333f0331cf0faa1dd6cdb96b1686d1">overlays.awk</a>
@@ -319,8 +293,8 @@ $(document).ready(function(){initNavTree('globals.html','');});
 <li>filter94()
 : <a class="el" href="awk2doxygen_8awk.html#a6d4644adf8878389bd624f07eb6ba7f2">awk2doxygen.awk</a>
 </li>
-<li>filter96()
-: <a class="el" href="sanity_8awk.html#a25839f521b9080faf784df3ac488030f">sanity.awk</a>
+<li>flags()
+: <a class="el" href="build_8awk.html#a9888692e35737f88cc9be3cdc1a0c80a">build.awk</a>
 </li>
 <li>fsm_attr()
 : <a class="el" href="dbc2c_8awk.html#af39be9dfcdfee2ace92f0983b7729d6d">dbc2c.awk</a>
@@ -399,12 +373,26 @@ $(document).ready(function(){initNavTree('globals.html','');});
 </ul>
 
 
+<h3><a id="index_l"></a>- l -</h3><ul>
+<li>linklist()
+: <a class="el" href="build_8awk.html#a34d1ec86c43ce88c82b031f8702d47c0">build.awk</a>
+</li>
+</ul>
+
+
 <h3><a id="index_m"></a>- m -</h3><ul>
 <li>msgid()
 : <a class="el" href="dbc2c_8awk.html#aa7b9130813aa08c3fab84436fb4d5d44">dbc2c.awk</a>
 </li>
 <li>msgidext()
 : <a class="el" href="dbc2c_8awk.html#a4641ea5282b8eb31fe45d9605f0979e9">dbc2c.awk</a>
+</li>
+</ul>
+
+
+<h3><a id="index_o"></a>- o -</h3><ul>
+<li>obj_to_bin()
+: <a class="el" href="build_8awk.html#ab895425c5de0ebff48f0f6ad9fd2d606">build.awk</a>
 </li>
 </ul>
 
@@ -448,6 +436,12 @@ $(document).ready(function(){initNavTree('globals.html','');});
 <li>sigident()
 : <a class="el" href="dbc2c_8awk.html#ad97584a4b5ceb267179dcf024668c2d4">dbc2c.awk</a>
 </li>
+<li>src_to_obj()
+: <a class="el" href="build_8awk.html#aba6db30c8084abe742dd7b172c4a98ea">build.awk</a>
+</li>
+<li>src_to_origin()
+: <a class="el" href="build_8awk.html#acedc5501173ee2c939cc033d87cd8978">build.awk</a>
+</li>
 <li>strip()
 : <a class="el" href="dbc2c_8awk.html#adbee7444575395a5883052a6b927dd30">dbc2c.awk</a>
 </li>
@@ -467,6 +461,19 @@ $(document).ready(function(){initNavTree('globals.html','');});
 </ul>
 
 
+<h3><a id="index_v"></a>- v -</h3><ul>
+<li>verbose()
+: <a class="el" href="build_8awk.html#a0d5d827aacaaadc7b1e1ca703ffa6114">build.awk</a>
+</li>
+<li>verbose_keys()
+: <a class="el" href="build_8awk.html#a4ed48b10b4352786debfb34bc3620e2f">build.awk</a>
+</li>
+<li>verbose_values()
+: <a class="el" href="build_8awk.html#a5f39948f7826d81179d561a1d69bb85b">build.awk</a>
+</li>
+</ul>
+
+
 <h3><a id="index_w"></a>- w -</h3><ul>
 <li>warn()
 : <a class="el" href="dbc2c_8awk.html#a107d7325b7d38c94665513d5ceb901a4">dbc2c.awk</a>
@@ -476,14 +483,11 @@ $(document).ready(function(){initNavTree('globals.html','');});
 </li>
 </ul>
 </div><!-- contents -->
-</div><!-- doc-content -->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="footer">Generated on Tue Jan 17 2017 00:45:18 for hsk-libs-scripts by
-    <a href="http://www.doxygen.org/index.html">
-    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.12 </li>
-  </ul>
-</div>
+<hr class="footer"/><address class="footer"><small>
+Generated on Fri Jan 20 2017 00:02:15 for hsk-libs-scripts by &#160;<a href="http://www.doxygen.org/index.html">
+<img class="footer" src="doxygen.png" alt="doxygen"/>
+</a> 1.8.12
+</small></address>
 </body>
 </html>
