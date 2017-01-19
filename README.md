@@ -14,7 +14,7 @@ XC878 µC Project
 ----------------
 
 * [Repository](https://github.com/lonkamikaze/hsk-libs)
-* [Repository for a project stub](https://github.com/lonkamikaze/hsk-dev-stub)
+* [Repository for an ECU project stub](https://github.com/lonkamikaze/hsk-ecu-stub)
 
 XC878 µC Project Docs
 ---------------------
