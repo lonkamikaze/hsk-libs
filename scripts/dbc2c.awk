@@ -232,6 +232,7 @@
 # | len      | int      | The signal length
 # | start    | int      | The initial (default) signal value (raw)
 # | calc16   | string[] | A rational conversion function (see \ref dbc2c_templates_sig_calc16)
+# | calcdyn  | string[] | A rational conversion function (see \ref dbc2c_templates_sig_calcdyn)
 # | min      | int      | The raw minimum value
 # | max      | int      | The raw maximum value
 # | off      | int      | The raw offset value
@@ -244,6 +245,16 @@
 # and formatting factor \c fmt into a real value as defined
 # by the linear factor and offset in the DBC, this function
 # uses up to 16bit integers.
+#
+# \subsubsection dbc2c_templates_sig_calcdyn calcdyn
+#
+# A rational conversion function for the raw signal value \c x
+# and formatting factor \c fmt into a real value as defined
+# by the linear factor and offset in the DBC.  This function
+# uses up to to an integer length as is defined in the dbc file.
+# (e.g. 16bit integers, 32bit integer, etc.).  This result of
+# placing a bit length that is not a power of 2 has not been
+# analyzed.
 #
 # \subsubsection dbc2c_templates_sig_buf sig_getbuf.tpl, sig_setbuf.tpl
 #
@@ -909,8 +920,10 @@ function fsm_sig(msgid,
 	obj_sig_intel[msgid, name] = (a[3] ~ /^1/)
 	obj_sig_signed[msgid, name] = (a[3] ~ /-$/)
 	split(fetch(rVEC), a, /[(),]/)
-	obj_sig_fac[msgid, name] = a[2]
-	obj_sig_off[msgid, name] = a[3]
+	# factor and offset multiplied by 1 to convert scientific notation
+	# if it is encountered to a decimal
+	obj_sig_fac[msgid, name] = a[2] * 1
+	obj_sig_off[msgid, name] = a[3] * 1
 	split(fetch(rBND), a, /[][|]/)
 	obj_sig_min[msgid, name] = a[2]
 	obj_sig_max[msgid, name] = a[3]
@@ -2009,7 +2022,19 @@ END {
 		tpl["len"] = obj_sig_len[sig]
 		# Setup/Start
 		tpl["start"] = 0 + obj_sig_attr[sig, aSTART]
-		# Calc
+
+		# Bit dynamic calc
+		fac = rational(obj_sig_fac[sig], obj_sig_len[sig])
+		off = rational(obj_sig_off[sig], obj_sig_len[sig])
+		tpl["calcdyn"] = "(x) * fmt"
+		if (fac != "* 1") {
+			tpl["calcdyn"] = tpl["calcdyn"] " " fac
+		}
+		if (off != "* 0") {
+			tpl["calcdyn"] = tpl["calcdyn"] " + fmt " off
+		}
+
+		# 16-bit Calc
 		fac = rational(obj_sig_fac[sig], 16)
 		off = rational(obj_sig_off[sig], 16)
 		tpl["calc16"] = "(x) * fmt"
@@ -2019,6 +2044,7 @@ END {
 		if (off != "* 0") {
 			tpl["calc16"] = tpl["calc16"] " + fmt " off
 		}
+
 		# Min, max, offset
 		tpl["min"] = sprintf("%.0f", (obj_sig_min[sig] - obj_sig_off[sig]) / obj_sig_fac[sig])
 		tpl["max"] = sprintf("%.0f", (obj_sig_max[sig] - obj_sig_off[sig]) / obj_sig_fac[sig])
