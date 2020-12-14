@@ -350,7 +350,7 @@ BEGIN {
 
 	# Regexes for different types of data
 	rLF = "\n"
-	rFLOAT = "-?[0-9]+(\\.[0-9]+)?([eE][-+][0-9]+)?"
+	rFLOAT = "-?[0-9]+(\\.[0-9]+)?([eE][-+]?[0-9]+)?"
 	rINT = "-?[0-9]+"
 	rID = "[0-9]+"
 	rDLC = "[0-9]+"
